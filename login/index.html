@@ -278,6 +278,7 @@ function doRegister() {
 
   hashPass(pass).then(function(hash) {
     users.push({ username: user, name: name, password: hash, isAdmin: false });
+    localStorage.setItem('users', JSON.stringify(users));
     localStorage.setItem('session', JSON.stringify({ username: user, name: name, isAdmin: false, loggedIn: true, timestamp: Date.now() }));
     window.location.href = '/';
   });
