@@ -168,51 +168,7 @@ tailwind.config = {
   </div>
 </div>
 
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-sm">
-    <div class="flex mb-6 bg-surface-container rounded-lg p-1">
-      <button id="tabLogin" class="flex-1 py-2 text-center font-label-md rounded-md bg-primary text-on-primary transition-all" onclick="switchTab('login')">Login</button>
-      <button id="tabRegister" class="flex-1 py-2 text-center font-label-md rounded-md text-on-surface-variant hover:text-primary transition-all" onclick="switchTab('register')">Register</button>
-    </div>
 
-    <div id="loginForm">
-      <div class="space-y-4">
-        <div>
-          <label class="font-label-md text-on-surface-variant block mb-1">Username</label>
-          <input id="loginUser" class="w-full bg-surface-container border border-outline-variant rounded-lg py-2.5 px-4 text-body-md focus:outline-none focus:border-[#0D9488] transition-colors" placeholder="Enter username" type="text" autocomplete="username"/>
-        </div>
-        <div>
-          <label class="font-label-md text-on-surface-variant block mb-1">Password</label>
-          <input id="loginPass" class="w-full bg-surface-container border border-outline-variant rounded-lg py-2.5 px-4 text-body-md focus:outline-none focus:border-[#0D9488] transition-colors" placeholder="Enter password" type="password" autocomplete="current-password"/>
-        </div>
-        <div id="loginError" class="font-label-md text-error hidden"></div>
-        <button class="w-full bg-[#0D9488] text-white py-3 rounded-lg font-title-lg hover:opacity-90 transition-opacity" onclick="doLogin()">Sign In</button>
-      </div>
-    </div>
-
-    <div id="registerForm" class="hidden">
-      <div class="space-y-4">
-        <div>
-          <label class="font-label-md text-on-surface-variant block mb-1">Full Name</label>
-          <input id="regName" class="w-full bg-surface-container border border-outline-variant rounded-lg py-2.5 px-4 text-body-md focus:outline-none focus:border-[#0D9488] transition-colors" placeholder="Enter your name" type="text"/>
-        </div>
-        <div>
-          <label class="font-label-md text-on-surface-variant block mb-1">Username</label>
-          <input id="regUser" class="w-full bg-surface-container border border-outline-variant rounded-lg py-2.5 px-4 text-body-md focus:outline-none focus:border-[#0D9488] transition-colors" placeholder="Choose a username" type="text" autocomplete="username"/>
-        </div>
-        <div>
-          <label class="font-label-md text-on-surface-variant block mb-1">Password</label>
-          <input id="regPass" class="w-full bg-surface-container border border-outline-variant rounded-lg py-2.5 px-4 text-body-md focus:outline-none focus:border-[#0D9488] transition-colors" placeholder="Choose a password" type="password" autocomplete="new-password"/>
-        </div>
-        <div>
-          <label class="font-label-md text-on-surface-variant block mb-1">Confirm Password</label>
-          <input id="regPass2" class="w-full bg-surface-container border border-outline-variant rounded-lg py-2.5 px-4 text-body-md focus:outline-none focus:border-[#0D9488] transition-colors" placeholder="Repeat password" type="password" autocomplete="new-password"/>
-        </div>
-        <div id="regError" class="font-label-md text-error hidden"></div>
-        <button class="w-full bg-[#0D9488] text-white py-3 rounded-lg font-title-lg hover:opacity-90 transition-opacity" onclick="doRegister()">Create Account</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script>
 function initTheme() {
