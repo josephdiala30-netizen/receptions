@@ -112,6 +112,25 @@ tailwind.config = {
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
  * { -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+body { overflow-x: hidden; }
+button, input, select, textarea { min-width: 0; }
+
+@media (max-width: 767px) {
+  .sidebar-glass { width: min(100%, 20rem); }
+  .sidebar-glass .w-72 { width: 100%; }
+  .max-w-screen-2xl, .max-w-md { padding-left: 1rem; padding-right: 1rem; }
+  .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+  table { min-width: 100%; }
+  th, td { word-break: break-word; }
+  .text-headline-lg { font-size: 1.35rem; line-height: 1.75rem; }
+  .text-title-lg { font-size: 1.125rem; line-height: 1.75rem; }
+}
+
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
@@ -177,7 +196,7 @@ tailwind.config = {
   </button>
 </aside>
 
-<main class="md:ml-64 min-h-screen">
+<main class="md:ml-72 min-h-screen">
 
 <header class="bg-surface/80 backdrop-blur-xl sticky top-0 z-40 border-b border-outline-variant flex justify-between items-center w-full px-6 md:px-10 h-16">
   <div class="flex items-center gap-4 flex-1">

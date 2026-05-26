@@ -108,6 +108,20 @@ tailwind.config = {
   vertical-align: middle;
 }
 * { -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+body { overflow-x: hidden; }
+button, input, select, textarea { min-width: 0; }
+
+@media (max-width: 767px) {
+  .max-w-md { padding-left: 1rem; padding-right: 1rem; }
+  table { min-width: 100%; }
+  th, td { word-break: break-word; }
+  .text-headline-md { font-size: 1.75rem; line-height: 2.25rem; }
+}
 </style>
 </head>
 <body class="bg-background text-on-background font-body-md min-h-screen flex items-center justify-center p-4 relative">
