@@ -164,6 +164,10 @@ tailwind.config = {
       <span class="material-symbols-outlined">flight_takeoff</span>
       <span class="font-label-md">Trips</span>
     </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/reports/">
+      <span class="material-symbols-outlined">bar_chart</span>
+      <span class="font-label-md">Reports</span>
+    </a>
     <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/settings/">
       <span class="material-symbols-outlined">settings</span>
       <span class="font-label-md">Settings</span>
@@ -261,6 +265,10 @@ tailwind.config = {
     <span class="font-label-md">Trips</span>
   </a>
 
+  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="/reports/">
+    <span class="material-symbols-outlined">bar_chart</span>
+    <span class="font-label-md">Reports</span>
+  </a>
   <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="/settings/">
     <span class="material-symbols-outlined">settings</span>
     <span class="font-label-md">Settings</span>
@@ -284,6 +292,10 @@ tailwind.config = {
       <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="/">
         <span class="material-symbols-outlined">flight_takeoff</span>
         <span class="font-label-md">Trips</span>
+      </a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/reports/">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span class="font-label-md">Reports</span>
       </a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/settings/">
         <span class="material-symbols-outlined">settings</span>
@@ -391,18 +403,17 @@ function loadTrips() {
   count.textContent = trips.length + ' trip' + (trips.length > 1 ? 's' : '') + ' planned';
 
   list.innerHTML = '<div class="space-y-4">' + trips.map(function(t) {
-    var statusColor = t.status === 'draft' ? 'bg-gray-100 text-gray-700'
-      : t.status === 'completed' ? 'bg-blue-100 text-blue-700'
+    var showBadge = t.status === 'completed' || t.status === 'cancelled';
+    var statusColor = t.status === 'completed' ? 'bg-blue-100 text-blue-700'
       : t.status === 'cancelled' ? 'bg-red-100 text-red-700'
-      : 'bg-green-100 text-green-700';
-    var statusLabel = t.status === 'draft' ? 'Draft'
-      : t.status === 'completed' ? 'Completed'
+      : '';
+    var statusLabel = t.status === 'completed' ? 'Completed'
       : t.status === 'cancelled' ? 'Cancelled'
-      : 'Approved';
+      : '';
     return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant trip-card" data-id="' + t.id + '">' +
       '<div class="p-3 rounded-xl bg-amber-100 text-amber-600" onclick="selectTrip(' + t.id + ')"><span class="material-symbols-outlined">flight_takeoff</span></div>' +
       '<div class="flex-1 cursor-pointer" onclick="selectTrip(' + t.id + ')"><div class="flex items-center gap-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.name) + '</h4>' +
-      '<span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full">' + statusLabel + '</span></div>' +
+      (showBadge ? '<span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full">' + statusLabel + '</span>' : '') + '</div>' +
       '<div class="flex items-center gap-4 mt-1 text-on-surface-variant">' +
       (isAdmin ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">account_circle</span> ' + escapeHtml(t._user || '?') + '</span>' : '') +
       '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(t.requestor) + '</span>' +
@@ -429,8 +440,8 @@ function selectTrip(id) {
   if (!t) return;
 
   var overview = document.getElementById('overviewContent');
-  var ovStatusColor = t.status === 'draft' ? 'bg-gray-100 text-gray-800' : t.status === 'completed' ? 'bg-blue-100 text-blue-800' : t.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800';
-  var ovStatusLabel = t.status === 'draft' ? 'Draft' : t.status === 'completed' ? 'Completed' : t.status === 'cancelled' ? 'Cancelled' : 'Approved';
+  var ovStatusColor = t.status === 'completed' ? 'bg-blue-100 text-blue-800' : t.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-surface-container-highest text-on-surface-variant';
+  var ovStatusLabel = t.status === 'completed' ? 'Completed' : t.status === 'cancelled' ? 'Cancelled' : 'Active';
   overview.innerHTML =
     '<div><span class="font-label-md opacity-70">Trip</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.name) + '</p></div>' +
     '<div><span class="font-label-md opacity-70">Requestor</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.requestor) + '</p></div>' +

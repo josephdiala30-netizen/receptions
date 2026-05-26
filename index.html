@@ -175,6 +175,10 @@ tailwind.config = {
       <span class="material-symbols-outlined">flight_takeoff</span>
       <span class="font-label-md">Trips</span>
     </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/reports/">
+      <span class="material-symbols-outlined">bar_chart</span>
+      <span class="font-label-md">Reports</span>
+    </a>
     <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/settings/">
       <span class="material-symbols-outlined">settings</span>
       <span class="font-label-md">Settings</span>
@@ -265,21 +269,16 @@ tailwind.config = {
     </div>
     <div class="grid grid-cols-2 gap-3">
       <div class="stat-gradient-1 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.1s both;">
-        <span class="material-symbols-outlined text-white/80 text-sm">check_circle</span>
-        <p class="font-headline-md font-bold mt-1" id="statApproved">0</p>
-        <p class="font-label-md text-white/70">Approved</p>
+        <span class="material-symbols-outlined text-white/80 text-sm">flight_takeoff</span>
+        <p class="font-headline-md font-bold mt-1" id="statActive">0</p>
+        <p class="font-label-md text-white/70">Active</p>
       </div>
       <div class="stat-gradient-2 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.15s both;">
         <span class="material-symbols-outlined text-white/80 text-sm">task_alt</span>
         <p class="font-headline-md font-bold mt-1" id="statCompleted">0</p>
         <p class="font-label-md text-white/70">Completed</p>
       </div>
-      <div class="stat-gradient-3 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.2s both;">
-        <span class="material-symbols-outlined text-white/80 text-sm">edit_note</span>
-        <p class="font-headline-md font-bold mt-1" id="statDraft">0</p>
-        <p class="font-label-md text-white/70">Draft</p>
-      </div>
-      <div class="stat-gradient-4 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.25s both;">
+      <div class="stat-gradient-4 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.2s both;">
         <span class="material-symbols-outlined text-white/80 text-sm">cancel</span>
         <p class="font-headline-md font-bold mt-1" id="statCancelled">0</p>
         <p class="font-label-md text-white/70">Cancelled</p>
@@ -333,6 +332,10 @@ tailwind.config = {
     <span class="material-symbols-outlined text-xl">flight_takeoff</span>
     <span class="font-label-md text-[10px]">Trips</span>
   </a>
+  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="/reports/">
+    <span class="material-symbols-outlined text-xl">bar_chart</span>
+    <span class="font-label-md text-[10px]">Reports</span>
+  </a>
   <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="/settings/">
     <span class="material-symbols-outlined text-xl">settings</span>
     <span class="font-label-md text-[10px]">Settings</span>
@@ -351,6 +354,7 @@ tailwind.config = {
     <nav class="flex-1 space-y-1.5">
       <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="/"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/plan_new_trip/"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md">Trips</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/reports/"><span class="material-symbols-outlined">bar_chart</span> <span class="font-label-md">Reports</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/settings/"><span class="material-symbols-outlined">settings</span> <span class="font-label-md">Settings</span></a>
     </nav>
     <button class="mt-auto w-full bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="window.location.href='/plan_new_trip/'">
@@ -453,9 +457,8 @@ function loadDashboard() {
   const upcoming = document.getElementById('upcomingTrips');
   const totalEl = document.getElementById('totalTrips');
   const totalSub = document.getElementById('totalTripsSub');
-  const statApproved = document.getElementById('statApproved');
+  const statActive = document.getElementById('statActive');
   const statCompleted = document.getElementById('statCompleted');
-  const statDraft = document.getElementById('statDraft');
   const statCancelled = document.getElementById('statCancelled');
   const statTotal = document.getElementById('statTotal');
   const recent = document.getElementById('recentActivity');
@@ -465,9 +468,8 @@ function loadDashboard() {
   if (trips.length === 0) {
     totalSub.innerHTML = '<span class="material-symbols-outlined">remove_red_eye</span><span class="font-label-md">No trips this quarter</span>';
     upcoming.innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-center"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">calendar_month</span><p class="font-body-md text-on-surface-variant mt-4">No upcoming trips</p><p class="font-label-md text-on-surface-variant">Create a new trip to get started</p></div>';
-    statApproved.textContent = '0';
+    statActive.textContent = '0';
     statCompleted.textContent = '0';
-    statDraft.textContent = '0';
     statCancelled.textContent = '0';
     statTotal.textContent = '0 total';
     recent.innerHTML = '<span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span><p class="font-body-md text-on-surface-variant mt-3">No recent activity</p>';
@@ -475,27 +477,25 @@ function loadDashboard() {
     return;
   }
 
-  var approved = trips.filter(function(t) { return t.status === 'approved'; });
+  var active = trips.filter(function(t) { return t.status !== 'completed' && t.status !== 'cancelled'; });
   var completed = trips.filter(function(t) { return t.status === 'completed'; });
-  var draft = trips.filter(function(t) { return t.status === 'draft'; });
   var cancelled = trips.filter(function(t) { return t.status === 'cancelled'; });
   var activeTrips = trips.filter(function(t) { return t.status !== 'cancelled'; });
 
   totalSub.innerHTML = '<span class="material-symbols-outlined">flight_takeoff</span><span class="font-label-md">' + trips.length + ' trip' + (trips.length > 1 ? 's' : '') + ' total</span>';
-  statApproved.textContent = approved.length;
+  statActive.textContent = active.length;
   statCompleted.textContent = completed.length;
-  statDraft.textContent = draft.length;
   statCancelled.textContent = cancelled.length;
   statTotal.textContent = trips.length + ' total';
 
   var session = getSession();
   var isAdmin = session && session.isAdmin;
   upcoming.innerHTML = activeTrips.map(function(t) {
-    var statusBadge = t.status === 'draft'
-      ? '<span class="font-label-md bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">Draft</span>'
-      : t.status === 'completed'
+    var statusBadge = t.status === 'completed'
       ? '<span class="font-label-md bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Completed</span>'
-      : '<span class="font-label-md bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Approved</span>';
+      : t.status === 'cancelled'
+      ? '<span class="font-label-md bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Cancelled</span>'
+      : '';
     return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant card-lift">' +
       '<div class="p-3 rounded-xl bg-amber-100 text-amber-600"><span class="material-symbols-outlined">flight_takeoff</span></div>' +
       '<div class="flex-1" onclick="window.location.href=\'/trip_itinerary/\'"><div class="flex items-center gap-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.name) + '</h4>' + statusBadge + '</div>' +
@@ -516,7 +516,7 @@ function loadDashboard() {
   }).join('');
 
   var recentItems = trips.slice(0, 5).map(function(t) {
-    var action = t.status === 'draft' ? 'saved as draft' : t.status === 'completed' ? 'marked completed' : t.status === 'cancelled' ? 'cancelled' : 'submitted';
+    var action = t.status === 'completed' ? 'marked completed' : t.status === 'cancelled' ? 'cancelled' : 'submitted';
     return '<div class="flex items-center gap-4 px-6 py-4 border-b border-outline-variant last:border-b-0 hover:bg-surface-container-low transition-colors">' +
       '<div class="p-2 rounded-full bg-surface-container-high text-amber-600"><span class="material-symbols-outlined text-sm">flight_takeoff</span></div>' +
       '<div class="flex-1"><p class="font-body-md font-medium">' + escapeHtml(t.name) + ' <span class="text-on-surface-variant font-normal">' + action + '</span></p>' +
@@ -558,7 +558,7 @@ function renderCalendar(trips) {
     html += '<div class="font-body-md font-medium ' + (isToday ? 'text-primary' : 'text-on-surface') + '">' + d + '</div>';
 
     dayTrips.forEach(function(t) {
-      var color = t.status === 'completed' ? 'bg-blue-100 text-blue-700' : t.status === 'draft' ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-700';
+      var color = t.status === 'completed' ? 'bg-blue-100 text-blue-700' : t.status === 'cancelled' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-700';
       var timeStr = t.time ? ' ' + t.time : '';
       html += '<div class="' + color + ' text-[10px] leading-tight px-1 rounded mt-0.5 truncate font-medium" title="' + escapeHtml(t.name) + timeStr + '">' + escapeHtml(t.name) + '</div>';
     });
@@ -572,9 +572,9 @@ function renderCalendar(trips) {
   document.getElementById('calendarGrid').innerHTML = html;
 
   if (trips && trips.length) {
-    var legend = '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-100 border border-amber-300"></span><span class="font-label-md text-on-surface-variant">Approved</span></div>' +
+    var legend = '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-100 border border-amber-300"></span><span class="font-label-md text-on-surface-variant">Active</span></div>' +
       '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-100 border border-blue-300"></span><span class="font-label-md text-on-surface-variant">Completed</span></div>' +
-      '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-gray-100 border border-gray-300"></span><span class="font-label-md text-on-surface-variant">Draft</span></div>' +
+      '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-100 border border-red-300"></span><span class="font-label-md text-on-surface-variant">Cancelled</span></div>' +
       '<div class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center font-bold">!</span><span class="font-label-md text-on-surface-variant">Schedule conflict</span></div>';
     document.getElementById('calendarLegend').innerHTML = legend;
   } else {
