@@ -116,6 +116,37 @@ tailwind.config = {
 
 * { -webkit-tap-highlight-color: transparent; }
 
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.15); } 50% { box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); } }
+
+.card-enter { animation: fadeInUp 0.5s ease both; }
+.card-enter:nth-child(1) { animation-delay: 0.05s; }
+.card-enter:nth-child(2) { animation-delay: 0.1s; }
+.card-enter:nth-child(3) { animation-delay: 0.15s; }
+.card-enter:nth-child(4) { animation-delay: 0.2s; }
+.card-enter:nth-child(5) { animation-delay: 0.25s; }
+.card-enter:nth-child(6) { animation-delay: 0.3s; }
+
+.card-lift { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.card-lift:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+.dark .card-lift:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+.glow-green { box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.15); }
+.glow-blue { box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15); }
+.glow-amber { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15); }
+.glow-purple { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.15); }
+
+.stat-gradient-1 { background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%); }
+.stat-gradient-2 { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
+.stat-gradient-3 { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+.stat-gradient-4 { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
+.dark .stat-gradient-1 { background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); }
+.dark .stat-gradient-2 { background: linear-gradient(135deg, #818CF8 0%, #6366F1 100%); }
+.dark .stat-gradient-3 { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
+.dark .stat-gradient-4 { background: linear-gradient(135deg, #F87171 0%, #EF4444 100%); }
+
 .sidebar-glass {
   background: rgba(248, 249, 255, 0.85);
   backdrop-filter: blur(20px);
@@ -203,78 +234,85 @@ tailwind.config = {
 
 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
 
-<div class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+<div class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
   <div class="flex justify-between items-center mb-6">
-    <h3 class="font-title-lg text-title-lg text-primary">Upcoming Trips</h3>
-    <div class="flex gap-2">
-      <button class="px-3 py-1 rounded-lg bg-secondary-container text-primary font-label-md">Month</button>
-      <button class="px-3 py-1 rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container transition-colors">Week</button>
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-primary inline-block"></span> Upcoming Trips</h3>
+    <div class="flex items-center gap-1 bg-surface-container rounded-lg p-0.5">
+      <button class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-xs">Month</button>
+      <button class="px-3 py-1.5 rounded-lg text-on-surface-variant font-label-md text-xs hover:text-primary transition-colors">Week</button>
     </div>
   </div>
   <div id="upcomingTrips" class="space-y-4"></div>
 </div>
 
 <div class="md:col-span-4 grid grid-rows-2 gap-6">
-  <div class="bg-[#091426] text-white rounded-xl p-6 relative overflow-hidden">
+  <div class="bg-gradient-to-br from-[#0D9488] to-[#0F766E] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg" style="animation: fadeInUp 0.5s ease both;">
     <div class="relative z-10">
-      <span class="font-label-md uppercase tracking-wider opacity-70">Total Trips This Quarter</span>
-      <p class="font-display-lg text-[32px] font-bold mt-2" id="totalTrips">0</p>
-      <div class="mt-4 flex items-center gap-2 text-tertiary-fixed" id="totalTripsSub">
-        <span class="material-symbols-outlined">remove_red_eye</span>
-        <span class="font-label-md">No trips this quarter</span>
+      <span class="font-label-md uppercase tracking-wider text-white/70">Total Trips</span>
+      <p class="font-display-lg text-[36px] font-bold mt-2" id="totalTrips">0</p>
+      <div class="mt-3 flex items-center gap-2 text-emerald-200" id="totalTripsSub">
+        <span class="material-symbols-outlined text-emerald-200">flight_takeoff</span>
+        <span class="font-label-md">No trips yet</span>
       </div>
     </div>
-    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
+    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+    <div class="absolute -left-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
   </div>
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm flex flex-col justify-between">
-    <div>
-      <div class="flex items-center justify-between mb-4">
-        <span class="font-title-lg text-title-lg text-primary">Quick Stats</span>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <div class="flex items-center justify-between mb-5">
+      <span class="font-title-lg text-title-lg text-primary">Quick Stats</span>
+      <span class="font-label-md text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-lg font-semibold" id="statTotal">0 total</span>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="stat-gradient-1 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.1s both;">
+        <span class="material-symbols-outlined text-white/80 text-sm">check_circle</span>
+        <p class="font-headline-md font-bold mt-1" id="statApproved">0</p>
+        <p class="font-label-md text-white/70">Approved</p>
       </div>
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="font-body-md text-on-surface-variant">Upcoming</span>
-          <span class="font-body-md font-bold text-primary" id="statUpcoming">0</span>
-        </div>
-        <div class="flex items-center justify-between">
-          <span class="font-body-md text-on-surface-variant">Completed</span>
-          <span class="font-body-md font-bold text-green-600" id="statCompleted">0</span>
-        </div>
-        <div class="h-px bg-outline-variant my-2"></div>
-        <div class="flex items-center justify-between">
-          <span class="font-body-md text-on-surface-variant">Total Spent</span>
-          <span class="font-body-md font-bold text-primary">$0</span>
-        </div>
+      <div class="stat-gradient-2 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.15s both;">
+        <span class="material-symbols-outlined text-white/80 text-sm">task_alt</span>
+        <p class="font-headline-md font-bold mt-1" id="statCompleted">0</p>
+        <p class="font-label-md text-white/70">Completed</p>
+      </div>
+      <div class="stat-gradient-3 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.2s both;">
+        <span class="material-symbols-outlined text-white/80 text-sm">edit_note</span>
+        <p class="font-headline-md font-bold mt-1" id="statDraft">0</p>
+        <p class="font-label-md text-white/70">Draft</p>
+      </div>
+      <div class="stat-gradient-4 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.25s both;">
+        <span class="material-symbols-outlined text-white/80 text-sm">cancel</span>
+        <p class="font-headline-md font-bold mt-1" id="statCancelled">0</p>
+        <p class="font-label-md text-white/70">Cancelled</p>
       </div>
     </div>
   </div>
 </div>
 
-<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
   <div class="flex justify-between items-center mb-4">
-    <h3 class="font-title-lg text-title-lg text-primary">Travel Calendar</h3>
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-amber-500 inline-block"></span> Travel Calendar</h3>
     <div class="flex items-center gap-3">
-      <button id="prevMonth" class="material-symbols-outlined text-on-surface-variant p-1 hover:bg-surface-container-high rounded-full transition-colors">chevron_left</button>
-      <span id="calendarMonth" class="font-body-md font-semibold text-primary"></span>
-      <button id="nextMonth" class="material-symbols-outlined text-on-surface-variant p-1 hover:bg-surface-container-high rounded-full transition-colors">chevron_right</button>
+      <button id="prevMonth" class="material-symbols-outlined text-on-surface-variant p-1.5 hover:bg-surface-container-high rounded-xl transition-all active:scale-90">chevron_left</button>
+      <span id="calendarMonth" class="font-body-md font-semibold text-primary min-w-[140px] text-center"></span>
+      <button id="nextMonth" class="material-symbols-outlined text-on-surface-variant p-1.5 hover:bg-surface-container-high rounded-xl transition-all active:scale-90">chevron_right</button>
     </div>
   </div>
   <div class="grid grid-cols-7 gap-1 text-center mb-2">
-    <div class="font-label-md text-on-surface-variant py-1">Sun</div>
-    <div class="font-label-md text-on-surface-variant py-1">Mon</div>
-    <div class="font-label-md text-on-surface-variant py-1">Tue</div>
-    <div class="font-label-md text-on-surface-variant py-1">Wed</div>
-    <div class="font-label-md text-on-surface-variant py-1">Thu</div>
-    <div class="font-label-md text-on-surface-variant py-1">Fri</div>
-    <div class="font-label-md text-on-surface-variant py-1">Sat</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Sun</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Mon</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Tue</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Wed</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Thu</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Fri</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Sat</div>
   </div>
-  <div id="calendarGrid" class="grid grid-cols-7 gap-1 text-center"></div>
-  <div id="calendarLegend" class="mt-4 flex flex-wrap gap-4 text-sm"></div>
+  <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 text-center"></div>
+  <div id="calendarLegend" class="mt-5 flex flex-wrap gap-4 text-sm"></div>
 </div>
 
-<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex flex-col">
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm card-enter card-lift flex flex-col">
   <div class="p-6 border-b border-outline-variant flex justify-between items-center">
-    <h3 class="font-title-lg text-title-lg text-primary">Recent Activity</h3>
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-purple-500 inline-block"></span> Recent Activity</h3>
   </div>
   <div id="recentActivity" class="flex flex-col items-center justify-center py-10 text-center">
     <span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span>
@@ -286,19 +324,18 @@ tailwind.config = {
 </section>
 </main>
 
-<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant h-16 flex items-center justify-around z-50">
-  <a class="flex flex-col items-center gap-1 text-primary font-bold" href="/">
-    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
-    <span class="font-label-md">Dashboard</span>
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg border-t border-outline-variant h-16 flex items-center justify-around z-50">
+  <a class="flex flex-col items-center gap-0.5 text-primary font-bold active:scale-90 transition-all" href="/">
+    <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+    <span class="font-label-md text-[10px]">Dashboard</span>
   </a>
-  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="/plan_new_trip/">
-    <span class="material-symbols-outlined">flight_takeoff</span>
-    <span class="font-label-md">Trips</span>
+  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="/plan_new_trip/">
+    <span class="material-symbols-outlined text-xl">flight_takeoff</span>
+    <span class="font-label-md text-[10px]">Trips</span>
   </a>
-
-  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="/settings/">
-    <span class="material-symbols-outlined">settings</span>
-    <span class="font-label-md">Settings</span>
+  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="/settings/">
+    <span class="material-symbols-outlined text-xl">settings</span>
+    <span class="font-label-md text-[10px]">Settings</span>
   </a>
 </nav>
 
@@ -416,8 +453,11 @@ function loadDashboard() {
   const upcoming = document.getElementById('upcomingTrips');
   const totalEl = document.getElementById('totalTrips');
   const totalSub = document.getElementById('totalTripsSub');
-  const statUpcoming = document.getElementById('statUpcoming');
+  const statApproved = document.getElementById('statApproved');
   const statCompleted = document.getElementById('statCompleted');
+  const statDraft = document.getElementById('statDraft');
+  const statCancelled = document.getElementById('statCancelled');
+  const statTotal = document.getElementById('statTotal');
   const recent = document.getElementById('recentActivity');
 
   totalEl.textContent = trips.length;
@@ -425,8 +465,11 @@ function loadDashboard() {
   if (trips.length === 0) {
     totalSub.innerHTML = '<span class="material-symbols-outlined">remove_red_eye</span><span class="font-label-md">No trips this quarter</span>';
     upcoming.innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-center"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">calendar_month</span><p class="font-body-md text-on-surface-variant mt-4">No upcoming trips</p><p class="font-label-md text-on-surface-variant">Create a new trip to get started</p></div>';
-    statUpcoming.textContent = '0';
+    statApproved.textContent = '0';
     statCompleted.textContent = '0';
+    statDraft.textContent = '0';
+    statCancelled.textContent = '0';
+    statTotal.textContent = '0 total';
     recent.innerHTML = '<span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span><p class="font-body-md text-on-surface-variant mt-3">No recent activity</p>';
     renderCalendar([]);
     return;
@@ -434,11 +477,16 @@ function loadDashboard() {
 
   var approved = trips.filter(function(t) { return t.status === 'approved'; });
   var completed = trips.filter(function(t) { return t.status === 'completed'; });
+  var draft = trips.filter(function(t) { return t.status === 'draft'; });
+  var cancelled = trips.filter(function(t) { return t.status === 'cancelled'; });
   var activeTrips = trips.filter(function(t) { return t.status !== 'cancelled'; });
 
   totalSub.innerHTML = '<span class="material-symbols-outlined">flight_takeoff</span><span class="font-label-md">' + trips.length + ' trip' + (trips.length > 1 ? 's' : '') + ' total</span>';
-  statUpcoming.textContent = approved.length;
+  statApproved.textContent = approved.length;
   statCompleted.textContent = completed.length;
+  statDraft.textContent = draft.length;
+  statCancelled.textContent = cancelled.length;
+  statTotal.textContent = trips.length + ' total';
 
   var session = getSession();
   var isAdmin = session && session.isAdmin;
@@ -448,7 +496,7 @@ function loadDashboard() {
       : t.status === 'completed'
       ? '<span class="font-label-md bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Completed</span>'
       : '<span class="font-label-md bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Approved</span>';
-    return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant">' +
+    return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant card-lift">' +
       '<div class="p-3 rounded-xl bg-amber-100 text-amber-600"><span class="material-symbols-outlined">flight_takeoff</span></div>' +
       '<div class="flex-1" onclick="window.location.href=\'/trip_itinerary/\'"><div class="flex items-center gap-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.name) + '</h4>' + statusBadge + '</div>' +
       '<div class="flex items-center gap-4 mt-1 text-on-surface-variant flex-wrap">' +
@@ -469,7 +517,7 @@ function loadDashboard() {
 
   var recentItems = trips.slice(0, 5).map(function(t) {
     var action = t.status === 'draft' ? 'saved as draft' : t.status === 'completed' ? 'marked completed' : t.status === 'cancelled' ? 'cancelled' : 'submitted';
-    return '<div class="flex items-center gap-4 px-6 py-4 border-b border-outline-variant last:border-b-0">' +
+    return '<div class="flex items-center gap-4 px-6 py-4 border-b border-outline-variant last:border-b-0 hover:bg-surface-container-low transition-colors">' +
       '<div class="p-2 rounded-full bg-surface-container-high text-amber-600"><span class="material-symbols-outlined text-sm">flight_takeoff</span></div>' +
       '<div class="flex-1"><p class="font-body-md font-medium">' + escapeHtml(t.name) + ' <span class="text-on-surface-variant font-normal">' + action + '</span></p>' +
       '<p class="font-label-md text-on-surface-variant">' + t.date + ' &middot; ' + escapeHtml(t.destination) + '</p></div></div>';

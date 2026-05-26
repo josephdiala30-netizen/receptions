@@ -112,7 +112,30 @@ tailwind.config = {
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
-* { -webkit-tap-highlight-color: transparent; }
+ * { -webkit-tap-highlight-color: transparent; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+
+.card-enter { animation: fadeInUp 0.5s ease both; }
+.card-enter:nth-child(1) { animation-delay: 0.05s; }
+.card-enter:nth-child(2) { animation-delay: 0.1s; }
+.card-enter:nth-child(3) { animation-delay: 0.15s; }
+.card-enter:nth-child(4) { animation-delay: 0.2s; }
+.card-enter:nth-child(5) { animation-delay: 0.25s; }
+.card-enter:nth-child(6) { animation-delay: 0.3s; }
+
+.card-lift { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.card-lift:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+.dark .card-lift:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+.highlight-border { position: relative; overflow: hidden; }
+.highlight-border::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 0 4px 4px 0; }
+.highlight-green::before { background: #22c55e; }
+.highlight-blue::before { background: #3b82f6; }
+.highlight-amber::before { background: #f59e0b; }
+.highlight-purple::before { background: #a855f7; }
+
 .sidebar-glass {
   background: rgba(248, 249, 255, 0.85);
   backdrop-filter: blur(20px);
@@ -199,7 +222,7 @@ tailwind.config = {
 
 <div class="lg:col-span-2 space-y-6">
 
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
   <h3 class="font-title-lg text-title-lg text-primary mb-6">Trip Timeline</h3>
   <div class="relative">
     <div class="absolute left-[5px] top-3 bottom-3 w-0.5 bg-surface-container-highest"></div>
@@ -211,7 +234,7 @@ tailwind.config = {
 
 <div class="lg:col-span-1 space-y-6">
 
-<div class="bg-[#091426] text-white rounded-xl p-6">
+<div class="bg-gradient-to-br from-[#0D9488] to-[#0F766E] text-white rounded-xl p-6 card-enter card-lift shadow-lg">
   <h4 class="font-title-lg text-title-lg mb-4">Trip Overview</h4>
   <div class="space-y-4">
     <div id="overviewContent">
