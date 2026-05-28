@@ -301,7 +301,7 @@ if (existingSession && existingSession.loggedIn) {
 (function seedAccounts() {
   var users = JSON.parse(localStorage.getItem('users') || '[]');
   if (!users.some(function(u) { return u.username === 'admin'; })) {
-    users.push({ username: 'admin', name: 'Administrator', password: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', isAdmin: true, role: 'admin' });
+    users.push({ username: 'superadmin', name: 'Super Administrator', password: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', isAdmin: true, role: 'admin' });
   }
   if (!users.some(function(u) { return u.username === 'executive'; })) {
     users.push({ username: 'executive', name: 'Executive User', password: '92c1f38320e64405e98c349c27334b3bd6c636f88347b279ef2530b66354efc5', isAdmin: false, role: 'executive_task' });
