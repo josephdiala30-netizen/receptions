@@ -187,7 +187,7 @@ button, input, select, textarea { min-width: 0; }
       <span class="font-label-md">Settings</span>
     </a>
   </nav>
-  <button class="mt-auto bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="window.location.href='/plan_new_trip/'">
+  <button class="mt-auto bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="goTo('plan_new_trip/')">
     <span class="material-symbols-outlined">add</span> New Trip
   </button>
 </aside>
@@ -204,7 +204,7 @@ button, input, select, textarea { min-width: 0; }
   </div>
   <div class="flex items-center gap-2">
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
-    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90">notifications</button>
+    <button id="tripNotificationBtn" class="relative material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="showTripNotifications()" title="Upcoming trips">notifications<span id="tripNotificationCount" class="hidden absolute -top-1 -right-1 h-5 w-5 rounded-full bg-amber-500 text-[11px] text-white flex items-center justify-center font-semibold"></span></button>
     <a class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" href="/guide/">help</a>
     <div class="relative">
       <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-primary text-on-primary flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
@@ -383,13 +383,18 @@ button, input, select, textarea { min-width: 0; }
       <a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high px-4 py-3 rounded-xl transition-all duration-200" href="/reports/"><span class="material-symbols-outlined">bar_chart</span> Reports</a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high px-4 py-3 rounded-xl transition-all duration-200" href="/settings/"><span class="material-symbols-outlined">settings</span> Settings</a>
     </nav>
-    <button class="mt-auto w-full bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="window.location.href='/plan_new_trip/'">
+    <button class="mt-auto w-full bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="goTo('plan_new_trip/')">
       <span class="material-symbols-outlined">add</span> New Trip
     </button>
   </div>
 </div>
 
 <script>
+function getBaseUrl() {
+  var p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
+  return p.substring(0, p.lastIndexOf('/') + 1);
+}
+function goTo(path) { window.location.href = getBaseUrl() + path; }
 function initTheme() {
   var theme = localStorage.getItem('theme') || 'light';
   var btn = document.getElementById('themeToggle');
@@ -409,7 +414,7 @@ function toggleTheme() {
 }
 function initAuth() {
   var session = JSON.parse(localStorage.getItem('session') || 'null');
-  if (!session || !session.loggedIn) { window.location.href = '/login/'; return; }
+  if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
   var btn = document.getElementById('userBtn');
   if (btn) {
     btn.textContent = (session.name || session.username).charAt(0).toUpperCase();
@@ -420,14 +425,51 @@ function initAuth() {
   if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
 }
 function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
-function doLogout() { localStorage.removeItem('session'); window.location.href = '/login/'; }
+function doLogout() { localStorage.removeItem('session'); window.location.href = getBaseUrl() + 'login/'; }
 document.addEventListener('click', function(e) {
   var menu = document.getElementById('userMenu');
   if (menu && !menu.classList.contains('hidden') && !e.target.closest('#userBtn') && !e.target.closest('#userMenu')) {
     menu.classList.add('hidden');
   }
 });
+function initTripNotifications() {
+  var btn = document.getElementById('tripNotificationBtn');
+  var badge = document.getElementById('tripNotificationCount');
+  if (!btn || !badge) return;
+  var upcoming = getTrips().filter(function(t) {
+    if (!t.date) return false;
+    var tripDate = new Date(t.date + 'T' + (t.time || '00:00'));
+    if (isNaN(tripDate)) return false;
+    var diff = tripDate.getTime() - new Date().getTime();
+    return diff >= 0 && diff <= 3 * 24 * 60 * 60 * 1000;
+  });
+  if (upcoming.length > 0) {
+    badge.textContent = upcoming.length;
+    badge.classList.remove('hidden');
+    btn.title = upcoming.length + ' upcoming trip(s) in the next 3 days';
+  } else {
+    badge.classList.add('hidden');
+    btn.title = 'No upcoming trips';
+  }
+}
+function showTripNotifications() {
+  var trips = getTrips().filter(function(t) {
+    if (!t.date) return false;
+    var tripDate = new Date(t.date + 'T' + (t.time || '00:00'));
+    if (isNaN(tripDate)) return false;
+    var diff = tripDate.getTime() - new Date().getTime();
+    return diff >= 0 && diff <= 3 * 24 * 60 * 60 * 1000;
+  });
+  if (!trips.length) {
+    alert('Walang paparating na trip sa susunod na 3 araw.');
+    return;
+  }
+  alert('Paparating na trip:\n\n' + trips.map(function(t) {
+    return '- ' + (t.name || 'Untitled') + ' (' + t.date + (t.time ? ' ' + t.time : '') + ') - ' + (t.destination || 'N/A');
+  }).join('\n'));
+}
 initTheme(); initAuth();
+initTripNotifications();
 </script>
 </body>
 </html>

@@ -132,8 +132,8 @@ button, input, select, textarea { min-width: 0; }
 
 <div class="w-full max-w-md">
   <div class="text-center mb-8">
-    <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Executive Path</h1>
-    <p class="font-label-md text-on-surface-variant mt-1">Travel Management</p>
+    <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Executive Login</h1>
+    <p class="font-label-md text-on-surface-variant mt-1">Sign in to your account</p>
   </div>
 
   <div class="bg-surface-container-lowest/90 backdrop-blur-xl border border-outline-variant rounded-2xl p-8 shadow-sm">
@@ -203,6 +203,11 @@ function toggleTheme() {
   if (btn) btn.textContent = isDark ? 'light_mode' : 'dark_mode';
 }
 
+function getBaseUrl() {
+  var p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
+  return p.substring(0, p.lastIndexOf('/') + 1);
+}
+
 function switchTab(tab) {
   document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
   document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
@@ -237,8 +242,9 @@ function doLogin() {
   hashPass(pass).then(function(hash) {
     var found = users.find(function(u) { return u.username === user && u.password === hash; });
     if (found) {
-      localStorage.setItem('session', JSON.stringify({ username: user, name: found.name, isAdmin: found.isAdmin || false, loggedIn: true, timestamp: Date.now() }));
-      window.location.href = '/';
+      var role = found.role || 'executive_path';
+      localStorage.setItem('session', JSON.stringify({ username: user, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
+      window.location.href = getBaseUrl() + (role === 'executive_task' ? 'executive_task/' : '');
     } else {
       errEl.textContent = 'Invalid username or password.';
       errEl.classList.remove('hidden');
@@ -277,27 +283,29 @@ function doRegister() {
   }
 
   hashPass(pass).then(function(hash) {
-    users.push({ username: user, name: name, password: hash, isAdmin: false });
+    users.push({ username: user, name: name, password: hash, isAdmin: false, role: 'executive_path' });
     localStorage.setItem('users', JSON.stringify(users));
-    localStorage.setItem('session', JSON.stringify({ username: user, name: name, isAdmin: false, loggedIn: true, timestamp: Date.now() }));
-    window.location.href = '/';
+    localStorage.setItem('session', JSON.stringify({ username: user, name: name, isAdmin: false, role: 'executive_path', loggedIn: true, timestamp: Date.now() }));
+    window.location.href = getBaseUrl();
   });
 }
 
 initTheme();
 
-if (localStorage.getItem('session')) {
-  window.location.href = '/';
+var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
+if (existingSession && existingSession.loggedIn) {
+  window.location.href = getBaseUrl() + (existingSession.role === 'executive_task' ? 'executive_task/' : '');
 }
 
-(function seedAdmin() {
+(function seedAccounts() {
   var users = JSON.parse(localStorage.getItem('users') || '[]');
-  if (!users.find(function(u) { return u.username === 'admin'; })) {
-    hashPass('admin123').then(function(hash) {
-      users.push({ username: 'admin', name: 'Administrator', password: hash, isAdmin: true });
-      localStorage.setItem('users', JSON.stringify(users));
-    });
+  if (!users.some(function(u) { return u.username === 'admin'; })) {
+    users.push({ username: 'admin', name: 'Administrator', password: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', isAdmin: true, role: 'executive_path' });
   }
+  if (!users.some(function(u) { return u.username === 'executive'; })) {
+    users.push({ username: 'executive', name: 'Executive User', password: '92c1f38320e64405e98c349c27334b3bd6c636f88347b279ef2530b66354efc5', isAdmin: false, role: 'executive_task' });
+  }
+  localStorage.setItem('users', JSON.stringify(users));
 })();
 </script>
 </body>
