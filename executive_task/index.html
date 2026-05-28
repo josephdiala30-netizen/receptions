@@ -260,6 +260,33 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-amber-500 inline-block"></span> Task Calendar</h3>
+    <div class="flex items-center gap-2">
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors text-lg" onclick="changeMonth(-1)">chevron_left</button>
+      <span id="calendarMonthYear" class="font-label-md font-semibold text-on-surface min-w-[140px] text-center"></span>
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors text-lg" onclick="changeMonth(1)">chevron_right</button>
+      <button class="font-label-md text-indigo-600 hover:underline text-sm ml-2" onclick="goToToday()">Today</button>
+    </div>
+  </div>
+  <table class="w-full border-collapse">
+    <thead>
+      <tr>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sun</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Mon</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Tue</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Wed</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Thu</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Fri</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sat</th>
+      </tr>
+    </thead>
+    <tbody id="calendarBody"></tbody>
+  </table>
+  <div id="calendarTaskList" class="mt-4 pt-4 border-t border-outline-variant hidden"></div>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
 
 <div class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
@@ -308,33 +335,6 @@ button, input, select, textarea { min-width: 0; }
       </div>
     </div>
   </div>
-</div>
-
-<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-  <div class="flex items-center justify-between mb-4">
-    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-amber-500 inline-block"></span> Task Calendar</h3>
-    <div class="flex items-center gap-2">
-      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors text-lg" onclick="changeMonth(-1)">chevron_left</button>
-      <span id="calendarMonthYear" class="font-label-md font-semibold text-on-surface min-w-[140px] text-center"></span>
-      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors text-lg" onclick="changeMonth(1)">chevron_right</button>
-      <button class="font-label-md text-indigo-600 hover:underline text-sm ml-2" onclick="goToToday()">Today</button>
-    </div>
-  </div>
-  <table class="w-full border-collapse">
-    <thead>
-      <tr>
-        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sun</th>
-        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Mon</th>
-        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Tue</th>
-        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Wed</th>
-        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Thu</th>
-        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Fri</th>
-        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sat</th>
-      </tr>
-    </thead>
-    <tbody id="calendarBody"></tbody>
-  </table>
-  <div id="calendarTaskList" class="mt-4 pt-4 border-t border-outline-variant hidden"></div>
 </div>
 
 <div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
