@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Executive Path | Trip Itinerary</title>
+<title>Executive Path | Dashboard</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -83,6 +83,7 @@ tailwind.config = {
   --tertiary-fixed: #89f5e7; --primary: #091426; --surface-dim: #cbdbf5;
   --surface-bright: #f8f9ff; --secondary-fixed: #dae2fd;
 }
+
 .dark {
   --on-primary-container: #b0b8cc; --on-surface: #e4e8ee; --outline: #90949c;
   --on-background: #e4e8ee; --on-secondary-fixed: #c4cce0; --surface-container-highest: #2c3848;
@@ -102,17 +103,18 @@ tailwind.config = {
   --tertiary-fixed: #00201d; --primary: #b0c8e8; --surface-dim: #141c2a;
   --surface-bright: #2a3448; --secondary-fixed: #131b2e;
 }
+
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   display: inline-flex; align-items: center; justify-content: center;
   vertical-align: middle;
 }
-.timeline-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
- * { -webkit-tap-highlight-color: transparent; }
+
+* { -webkit-tap-highlight-color: transparent; }
 
 html, body {
   min-height: 100%;
@@ -124,7 +126,8 @@ button, input, select, textarea { min-width: 0; }
 @media (max-width: 767px) {
   .sidebar-glass { width: min(100%, 20rem); }
   .sidebar-glass .w-72 { width: 100%; }
-  .max-w-screen-2xl, .max-w-md { padding-left: 1rem; padding-right: 1rem; }
+  .max-w-screen-2xl, .max-w-4xl, .max-w-md { padding-left: 1rem; padding-right: 1rem; }
+  .grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
   .overflow-x-auto { -webkit-overflow-scrolling: touch; }
   table { min-width: 100%; }
   th, td { word-break: break-word; }
@@ -135,6 +138,7 @@ button, input, select, textarea { min-width: 0; }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.15); } 50% { box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); } }
 
 .card-enter { animation: fadeInUp 0.5s ease both; }
 .card-enter:nth-child(1) { animation-delay: 0.05s; }
@@ -148,12 +152,19 @@ button, input, select, textarea { min-width: 0; }
 .card-lift:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
 .dark .card-lift:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
 
-.highlight-border { position: relative; overflow: hidden; }
-.highlight-border::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 0 4px 4px 0; }
-.highlight-green::before { background: #22c55e; }
-.highlight-blue::before { background: #3b82f6; }
-.highlight-amber::before { background: #f59e0b; }
-.highlight-purple::before { background: #a855f7; }
+.glow-green { box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.15); }
+.glow-blue { box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15); }
+.glow-amber { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15); }
+.glow-purple { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.15); }
+
+.stat-gradient-1 { background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%); }
+.stat-gradient-2 { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
+.stat-gradient-3 { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+.stat-gradient-4 { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
+.dark .stat-gradient-1 { background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); }
+.dark .stat-gradient-2 { background: linear-gradient(135deg, #818CF8 0%, #6366F1 100%); }
+.dark .stat-gradient-3 { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
+.dark .stat-gradient-4 { background: linear-gradient(135deg, #F87171 0%, #EF4444 100%); }
 
 .sidebar-glass {
   background: rgba(248, 249, 255, 0.85);
@@ -175,11 +186,11 @@ button, input, select, textarea { min-width: 0; }
     <p class="font-label-md text-label-md text-on-surface-variant mt-1">Travel Management</p>
   </div>
   <nav class="flex-1 space-y-1.5">
-    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('executive_path/')">
+    <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="goTo('executive_path/')">
       <span class="material-symbols-outlined">dashboard</span>
       <span class="font-label-md">Dashboard</span>
     </a>
-    <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="goTo('plan_new_trip/')">
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('plan_new_trip/')">
       <span class="material-symbols-outlined">flight_takeoff</span>
       <span class="font-label-md">Trips</span>
     </a>
@@ -231,66 +242,122 @@ button, input, select, textarea { min-width: 0; }
 
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
   <div>
-    <h2 class="font-headline-lg text-headline-lg text-primary">Trip Itinerary</h2>
-    <p class="font-body-lg text-on-surface-variant" id="tripCount">No trip selected</p>
+    <h2 class="font-headline-lg text-headline-lg text-primary">Dashboard</h2>
+    <p class="font-body-lg text-on-surface-variant">Overview of your upcoming trips and travel activity</p>
   </div>
   <div class="flex gap-3">
+    <button class="flex items-center gap-2 border border-outline-variant px-4 py-2 rounded-lg font-label-md text-on-surface-variant hover:bg-surface-container transition-colors" onclick="goTo('trip_itinerary/')">
+      <span class="material-symbols-outlined">calendar_month</span> View Itinerary
+    </button>
     <button class="flex items-center gap-2 bg-[#0D9488] text-white px-6 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="goTo('plan_new_trip/')">
-      <span class="material-symbols-outlined">add</span> Plan a Trip
+      <span class="material-symbols-outlined">add</span> New Trip
     </button>
   </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
 
-<div class="lg:col-span-2 space-y-6">
-
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-  <h3 class="font-title-lg text-title-lg text-primary mb-6">Trip Timeline</h3>
-  <div class="relative">
-    <div class="absolute left-[5px] top-3 bottom-3 w-0.5 bg-surface-container-highest"></div>
-    <div id="tripsList"></div>
+<div class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-primary inline-block"></span> Upcoming Trips</h3>
+    <div class="flex items-center gap-1 bg-surface-container rounded-lg p-0.5">
+      <button class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-xs">Month</button>
+      <button class="px-3 py-1.5 rounded-lg text-on-surface-variant font-label-md text-xs hover:text-primary transition-colors">Week</button>
+    </div>
   </div>
+  <div id="upcomingTrips" class="space-y-4"></div>
 </div>
 
-</div>
-
-<div class="lg:col-span-1 space-y-6">
-
-<div class="bg-gradient-to-br from-[#0D9488] to-[#0F766E] text-white rounded-xl p-6 card-enter card-lift shadow-lg">
-  <h4 class="font-title-lg text-title-lg mb-4">Trip Overview</h4>
-  <div class="space-y-4">
-    <div id="overviewContent">
-      <span class="font-label-md opacity-70">No trip selected</span>
-      <p class="font-body-md font-semibold mt-1">—</p>
+<div class="md:col-span-4 grid grid-rows-2 gap-6">
+  <div class="bg-gradient-to-br from-[#0D9488] to-[#0F766E] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg" style="animation: fadeInUp 0.5s ease both;">
+    <div class="relative z-10">
+      <span class="font-label-md uppercase tracking-wider text-white/70">Total Trips</span>
+      <p class="font-display-lg text-[36px] font-bold mt-2" id="totalTrips">0</p>
+      <div class="mt-3 flex items-center gap-2 text-emerald-200" id="totalTripsSub">
+        <span class="material-symbols-outlined text-emerald-200">flight_takeoff</span>
+        <span class="font-label-md">No trips yet</span>
+      </div>
+    </div>
+    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+    <div class="absolute -left-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <div class="flex items-center justify-between mb-5">
+      <span class="font-title-lg text-title-lg text-primary">Quick Stats</span>
+      <span class="font-label-md text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-lg font-semibold" id="statTotal">0 total</span>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="stat-gradient-1 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.1s both;">
+        <span class="material-symbols-outlined text-white/80 text-sm">flight_takeoff</span>
+        <p class="font-headline-md font-bold mt-1" id="statActive">0</p>
+        <p class="font-label-md text-white/70">Active</p>
+      </div>
+      <div class="stat-gradient-2 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.15s both;">
+        <span class="material-symbols-outlined text-white/80 text-sm">task_alt</span>
+        <p class="font-headline-md font-bold mt-1" id="statCompleted">0</p>
+        <p class="font-label-md text-white/70">Completed</p>
+      </div>
+      <div class="stat-gradient-4 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.2s both;">
+        <span class="material-symbols-outlined text-white/80 text-sm">cancel</span>
+        <p class="font-headline-md font-bold mt-1" id="statCancelled">0</p>
+        <p class="font-label-md text-white/70">Cancelled</p>
+      </div>
     </div>
   </div>
 </div>
 
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-amber-500 inline-block"></span> Travel Calendar</h3>
+    <div class="flex items-center gap-3">
+      <button id="prevMonth" class="material-symbols-outlined text-on-surface-variant p-1.5 hover:bg-surface-container-high rounded-xl transition-all active:scale-90">chevron_left</button>
+      <span id="calendarMonth" class="font-body-md font-semibold text-primary min-w-[140px] text-center"></span>
+      <button id="nextMonth" class="material-symbols-outlined text-on-surface-variant p-1.5 hover:bg-surface-container-high rounded-xl transition-all active:scale-90">chevron_right</button>
+    </div>
+  </div>
+  <div class="grid grid-cols-7 gap-1 text-center mb-2">
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Sun</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Mon</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Tue</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Wed</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Thu</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Fri</div>
+    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Sat</div>
+  </div>
+  <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 text-center"></div>
+  <div id="calendarLegend" class="mt-5 flex flex-wrap gap-4 text-sm"></div>
+</div>
+
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm card-enter card-lift flex flex-col">
+  <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-purple-500 inline-block"></span> Recent Activity</h3>
+  </div>
+  <div id="recentActivity" class="flex flex-col items-center justify-center py-10 text-center">
+    <span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span>
+    <p class="font-body-md text-on-surface-variant mt-3">No recent activity</p>
+  </div>
 </div>
 
 </div>
-
 </section>
 </main>
 
-<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant h-16 flex items-center justify-around z-50">
-  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#" onclick="goTo('executive_path/')">
-    <span class="material-symbols-outlined">dashboard</span>
-    <span class="font-label-md">Dashboard</span>
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg border-t border-outline-variant h-16 flex items-center justify-around z-50">
+  <a class="flex flex-col items-center gap-0.5 text-primary font-bold active:scale-90 transition-all" href="#" onclick="goTo('executive_path/')">
+    <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+    <span class="font-label-md text-[10px]">Dashboard</span>
   </a>
-  <a class="flex flex-col items-center gap-1 text-primary font-bold" href="#" onclick="goTo('plan_new_trip/')">
-    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">flight_takeoff</span>
-    <span class="font-label-md">Trips</span>
+  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('plan_new_trip/')">
+    <span class="material-symbols-outlined text-xl">flight_takeoff</span>
+    <span class="font-label-md text-[10px]">Trips</span>
   </a>
-
-  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#" onclick="goTo('reports/')">
-    <span class="material-symbols-outlined">bar_chart</span>
-    <span class="font-label-md">Reports</span>
+  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('reports/')">
+    <span class="material-symbols-outlined text-xl">bar_chart</span>
+    <span class="font-label-md text-[10px]">Reports</span>
   </a>
-  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#" onclick="goTo('settings/')">
-    <span class="material-symbols-outlined">settings</span>
-    <span class="font-label-md">Settings</span>
+  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('settings/')">
+    <span class="material-symbols-outlined text-xl">settings</span>
+    <span class="font-label-md text-[10px]">Settings</span>
   </a>
 </nav>
 
@@ -303,9 +370,9 @@ button, input, select, textarea { min-width: 0; }
       </div>
       <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors" onclick="document.getElementById('mobile-menu').classList.add('hidden')">close</button>
     </div>
-    <nav class="flex flex-col gap-1.5">
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('executive_path/')"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
-      <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="goTo('plan_new_trip/')"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md">Trips</span></a>
+    <nav class="flex-1 space-y-1.5">
+      <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="goTo('executive_path/')"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('plan_new_trip/')"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md">Trips</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('reports/')"><span class="material-symbols-outlined">bar_chart</span> <span class="font-label-md">Reports</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('settings/')"><span class="material-symbols-outlined">settings</span> <span class="font-label-md">Settings</span></a>
     </nav>
@@ -316,57 +383,37 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 <script>
-function initAuth() {
-  var session = JSON.parse(localStorage.getItem('session') || 'null');
-  if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
-  if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
-  if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
-  var btn = document.getElementById('userBtn');
-  if (btn) {
-    btn.textContent = (session.name || session.username).charAt(0).toUpperCase();
-    document.getElementById('userNameDisplay').textContent = session.name || session.username;
-    document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
-  }
-  var badge = document.getElementById('adminBadge');
-  if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
+function getSession() {
+  return JSON.parse(localStorage.getItem('session') || 'null');
 }
 
-function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
-
-function doLogout() { localStorage.removeItem('session'); window.location.href = getBaseUrl() + 'login/'; }
-
-document.addEventListener('click', function(e) {
-  var menu = document.getElementById('userMenu');
-  if (menu && !menu.classList.contains('hidden') && !e.target.closest('#userBtn') && !e.target.closest('#userMenu')) {
-    menu.classList.add('hidden');
-  }
-});
-
-function initTheme() {
-  var theme = localStorage.getItem('theme') || 'light';
-  var btn = document.getElementById('themeToggle');
-  if (!btn) return;
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-    btn.textContent = 'light_mode';
-  } else {
-    btn.textContent = 'dark_mode';
-  }
-}
-function toggleTheme() {
-  var isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  var btn = document.getElementById('themeToggle');
-  if (btn) btn.textContent = isDark ? 'light_mode' : 'dark_mode';
-}
-
-function getSession() { return JSON.parse(localStorage.getItem('session') || 'null'); }
 function getBaseUrl() {
   var p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
   return p.substring(0, p.lastIndexOf('/') + 1);
 }
 function goTo(path) { window.location.href = getBaseUrl() + path; }
-function tripsKey() { var s = getSession(); return s ? 'trips_' + s.username : 'trips'; }
+
+function initTheme() {
+  var theme = localStorage.getItem('theme') || 'light';
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.getElementById('themeToggle').textContent = 'light_mode';
+  } else {
+    document.getElementById('themeToggle').textContent = 'dark_mode';
+  }
+}
+
+function toggleTheme() {
+  var isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeToggle').textContent = isDark ? 'light_mode' : 'dark_mode';
+}
+
+function tripsKey() {
+  var s = getSession();
+  return s ? 'trips_' + s.username : 'trips';
+}
+
 function getTrips() {
   var session = getSession();
   if (session && session.isAdmin) {
@@ -385,6 +432,7 @@ function getTrips() {
   }
   return JSON.parse(localStorage.getItem(tripsKey()) || '[]');
 }
+
 function saveTrips(t) {
   var session = getSession();
   if (session && session.isAdmin) {
@@ -400,83 +448,177 @@ function saveTrips(t) {
   localStorage.setItem(tripsKey(), JSON.stringify(t));
 }
 
-function loadTrips() {
+function initAuth() {
+  var session = getSession();
+  if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
+  if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
+  if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
+  var initial = (session.name || session.username).charAt(0).toUpperCase();
+  document.getElementById('userBtn').textContent = initial;
+  document.getElementById('userNameDisplay').textContent = session.name || session.username;
+  document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
+  var badge = document.getElementById('adminBadge');
+  if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
+}
+
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('hidden');
+}
+
+function doLogout() {
+  localStorage.removeItem('session');
+  window.location.href = getBaseUrl() + 'login/';
+}
+
+document.addEventListener('click', function(e) {
+  var menu = document.getElementById('userMenu');
+  if (menu && !menu.classList.contains('hidden') && !e.target.closest('#userBtn') && !e.target.closest('#userMenu')) {
+    menu.classList.add('hidden');
+  }
+});
+
+var calendarDate = new Date();
+
+function loadDashboard() {
   const trips = getTrips();
-  const list = document.getElementById('tripsList');
-  const count = document.getElementById('tripCount');
-  const overview = document.getElementById('overviewContent');
+  const upcoming = document.getElementById('upcomingTrips');
+  const totalEl = document.getElementById('totalTrips');
+  const totalSub = document.getElementById('totalTripsSub');
+  const statActive = document.getElementById('statActive');
+  const statCompleted = document.getElementById('statCompleted');
+  const statCancelled = document.getElementById('statCancelled');
+  const statTotal = document.getElementById('statTotal');
+  const recent = document.getElementById('recentActivity');
+
+  totalEl.textContent = trips.length;
 
   if (trips.length === 0) {
-    count.textContent = 'No trip selected';
-    list.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">map</span><p class="font-body-md text-on-surface-variant mt-4">No itinerary available</p><p class="font-label-md text-on-surface-variant">Plan a trip to see your itinerary here</p></div>';
+    totalSub.innerHTML = '<span class="material-symbols-outlined">remove_red_eye</span><span class="font-label-md">No trips this quarter</span>';
+    upcoming.innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-center"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">calendar_month</span><p class="font-body-md text-on-surface-variant mt-4">No upcoming trips</p><p class="font-label-md text-on-surface-variant">Create a new trip to get started</p></div>';
+    statActive.textContent = '0';
+    statCompleted.textContent = '0';
+    statCancelled.textContent = '0';
+    statTotal.textContent = '0 total';
+    recent.innerHTML = '<span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span><p class="font-body-md text-on-surface-variant mt-3">No recent activity</p>';
+    renderCalendar([]);
     return;
   }
 
+  var active = trips.filter(function(t) { return t.status !== 'completed' && t.status !== 'cancelled'; });
+  var completed = trips.filter(function(t) { return t.status === 'completed'; });
+  var cancelled = trips.filter(function(t) { return t.status === 'cancelled'; });
+  var activeTrips = trips.filter(function(t) { return t.status !== 'cancelled'; });
+
+  totalSub.innerHTML = '<span class="material-symbols-outlined">flight_takeoff</span><span class="font-label-md">' + trips.length + ' trip' + (trips.length > 1 ? 's' : '') + ' total</span>';
+  statActive.textContent = active.length;
+  statCompleted.textContent = completed.length;
+  statCancelled.textContent = cancelled.length;
+  statTotal.textContent = trips.length + ' total';
+
   var session = getSession();
   var isAdmin = session && session.isAdmin;
-  count.textContent = trips.length + ' trip' + (trips.length > 1 ? 's' : '') + ' planned';
-
-  list.innerHTML = '<div class="space-y-4">' + trips.map(function(t) {
-    var showBadge = t.status === 'completed' || t.status === 'cancelled';
-    var statusColor = t.status === 'completed' ? 'bg-blue-100 text-blue-700'
-      : t.status === 'cancelled' ? 'bg-red-100 text-red-700'
+  upcoming.innerHTML = activeTrips.map(function(t) {
+    var statusBadge = t.status === 'completed'
+      ? '<span class="font-label-md bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Completed</span>'
+      : t.status === 'cancelled'
+      ? '<span class="font-label-md bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Cancelled</span>'
       : '';
-    var statusLabel = t.status === 'completed' ? 'Completed'
-      : t.status === 'cancelled' ? 'Cancelled'
-      : '';
-    return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant trip-card" data-id="' + t.id + '">' +
-      '<div class="p-3 rounded-xl bg-amber-100 text-amber-600" onclick="selectTrip(' + t.id + ')"><span class="material-symbols-outlined">flight_takeoff</span></div>' +
-      '<div class="flex-1 cursor-pointer" onclick="selectTrip(' + t.id + ')"><div class="flex items-center gap-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.name) + '</h4>' +
-      (showBadge ? '<span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full">' + statusLabel + '</span>' : '') + '</div>' +
-      '<div class="flex items-center gap-4 mt-1 text-on-surface-variant">' +
+    return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant card-lift">' +
+      '<div class="p-3 rounded-xl bg-amber-100 text-amber-600"><span class="material-symbols-outlined">flight_takeoff</span></div>' +
+      '<div class="flex-1" onclick="window.location.href=\'/trip_itinerary/\'"><div class="flex items-center gap-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.name) + '</h4>' + statusBadge + '</div>' +
+      '<div class="flex items-center gap-4 mt-1 text-on-surface-variant flex-wrap">' +
       (isAdmin ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">account_circle</span> ' + escapeHtml(t._user || '?') + '</span>' : '') +
       '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(t.requestor) + '</span>' +
       '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> ' + escapeHtml(t.destination) + '</span>' +
       '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + t.date + '</span>' +
       (t.time ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> ' + escapeHtml(t.time) + '</span>' : '') +
+      (t.van ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">directions_car</span> ' + escapeHtml(t.van) + '</span>' : '') +
+      (t.driver ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">badge</span> ' + escapeHtml(t.driver) + '</span>' : '') +
       '</div></div>' +
       '<div class="flex items-start gap-1 ml-2">' +
-      (t.status !== 'completed' && t.status !== 'cancelled' ? '<button class="p-1.5 rounded-lg hover:bg-green-100 text-green-600 transition-colors" title="Mark Completed" onclick="event.stopPropagation(); completeTrip(' + t.id + ')"><span class="material-symbols-outlined text-sm">check</span></button>' : '') +
+      (t.status !== 'completed' ? '<button class="p-1.5 rounded-lg hover:bg-green-100 text-green-600 transition-colors" title="Mark Completed" onclick="event.stopPropagation(); completeTrip(' + t.id + ')"><span class="material-symbols-outlined text-sm">check</span></button>' : '') +
       (t.status !== 'cancelled' && t.status !== 'completed' ? '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Cancel" onclick="event.stopPropagation(); cancelTrip(' + t.id + ')"><span class="material-symbols-outlined text-sm">close</span></button>' : '') +
       (t.status !== 'completed' ? '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="event.stopPropagation(); editTrip(' + t.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' : '') +
       '</div></div>';
-  }).join('') + '</div>';
+  }).join('');
 
-  selectTrip(trips[0].id);
+  var recentItems = trips.slice(0, 5).map(function(t) {
+    var action = t.status === 'completed' ? 'marked completed' : t.status === 'cancelled' ? 'cancelled' : 'submitted';
+    return '<div class="flex items-center gap-4 px-6 py-4 border-b border-outline-variant last:border-b-0 hover:bg-surface-container-low transition-colors">' +
+      '<div class="p-2 rounded-full bg-surface-container-high text-amber-600"><span class="material-symbols-outlined text-sm">flight_takeoff</span></div>' +
+      '<div class="flex-1"><p class="font-body-md font-medium">' + escapeHtml(t.name) + ' <span class="text-on-surface-variant font-normal">' + action + '</span></p>' +
+      '<p class="font-label-md text-on-surface-variant">' + t.date + ' &middot; ' + escapeHtml(t.destination) + '</p></div></div>';
+  }).join('');
+  recent.innerHTML = recentItems || '<span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span><p class="font-body-md text-on-surface-variant mt-3">No recent activity</p>';
+
+  renderCalendar(trips);
 }
 
-var selectedTripId = null;
+function renderCalendar(trips) {
+  var year = calendarDate.getFullYear();
+  var month = calendarDate.getMonth();
+  document.getElementById('calendarMonth').textContent = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
 
-function selectTrip(id) {
-  selectedTripId = id;
-  const trips = getTrips();
-  var t = trips.find(function(x) { return x.id === id; });
-  if (!t) return;
+  var firstDay = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+  var today = new Date();
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
 
-  var overview = document.getElementById('overviewContent');
-  var ovStatusColor = t.status === 'completed' ? 'bg-blue-100 text-blue-800' : t.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-surface-container-highest text-on-surface-variant';
-  var ovStatusLabel = t.status === 'completed' ? 'Completed' : t.status === 'cancelled' ? 'Cancelled' : 'Active';
-  overview.innerHTML =
-    '<div><span class="font-label-md opacity-70">Trip</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.name) + '</p></div>' +
-    '<div><span class="font-label-md opacity-70">Requestor</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.requestor) + '</p></div>' +
-    '<div><span class="font-label-md opacity-70">Destination</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.destination) + '</p></div>' +
-    '<div><span class="font-label-md opacity-70">Vehicle</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.van || '—') + '</p></div>' +
-    '<div><span class="font-label-md opacity-70">Driver</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.driver || '—') + '</p></div>' +
-    '<div><span class="font-label-md opacity-70">Date</span><p class="font-body-md font-semibold mt-1">' + t.date + (t.time ? ' at ' + escapeHtml(t.time) : '') + '</p></div>' +
-    '<div><span class="font-label-md opacity-70">Purpose</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.purpose) + '</p></div>' +
-    '<div class="h-px bg-white/20"></div>' +
-    '<div><span class="font-label-md opacity-70">Status</span><p class="font-label-md ' + ovStatusColor + ' px-3 py-1 rounded-full inline-block mt-1">' + ovStatusLabel + '</p></div>';
-
-  document.querySelectorAll('#tripsList .trip-card').forEach(function(el) {
-    el.classList.remove('border-primary', 'bg-surface-container-low');
-    el.classList.add('border-outline-variant');
+  var tripsByDate = {};
+  (trips || []).forEach(function(t) {
+    if (!t.date || t.status === 'cancelled') return;
+    if (!tripsByDate[t.date]) tripsByDate[t.date] = [];
+    tripsByDate[t.date].push(t);
   });
-  var card = document.querySelector('#tripsList .trip-card[data-id="' + id + '"]');
-  if (card) {
-    card.classList.remove('border-outline-variant');
-    card.classList.add('border-primary', 'bg-surface-container-low');
+
+  var html = '';
+  for (var i = 0; i < firstDay; i++) {
+    html += '<div class="min-h-[60px]"></div>';
+  }
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    var isToday = dateStr === todayStr;
+    var dayTrips = tripsByDate[dateStr] || [];
+    var hasConflict = dayTrips.length > 1;
+
+    html += '<div class="min-h-[60px] p-1 rounded-lg border ' + (isToday ? 'border-primary bg-primary-container/20' : 'border-transparent hover:bg-surface-container-high') + ' transition-colors relative group">';
+    html += '<div class="font-body-md font-medium ' + (isToday ? 'text-primary' : 'text-on-surface') + '">' + d + '</div>';
+
+    dayTrips.forEach(function(t) {
+      var color = t.status === 'completed' ? 'bg-blue-100 text-blue-700' : t.status === 'cancelled' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-700';
+      var timeStr = t.time ? ' ' + t.time : '';
+      html += '<div class="' + color + ' text-[10px] leading-tight px-1 rounded mt-0.5 truncate font-medium" title="' + escapeHtml(t.name) + timeStr + '">' + escapeHtml(t.name) + '</div>';
+    });
+
+    if (hasConflict) {
+      html += '<div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] rounded-full flex items-center justify-center font-bold">!</div>';
+    }
+
+    html += '</div>';
+  }
+  document.getElementById('calendarGrid').innerHTML = html;
+
+  if (trips && trips.length) {
+    var legend = '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-100 border border-amber-300"></span><span class="font-label-md text-on-surface-variant">Active</span></div>' +
+      '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-100 border border-blue-300"></span><span class="font-label-md text-on-surface-variant">Completed</span></div>' +
+      '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-100 border border-red-300"></span><span class="font-label-md text-on-surface-variant">Cancelled</span></div>' +
+      '<div class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center font-bold">!</span><span class="font-label-md text-on-surface-variant">Schedule conflict</span></div>';
+    document.getElementById('calendarLegend').innerHTML = legend;
+  } else {
+    document.getElementById('calendarLegend').innerHTML = '<span class="font-label-md text-on-surface-variant">No trips scheduled this month</span>';
   }
 }
+
+document.getElementById('prevMonth').addEventListener('click', function() {
+  calendarDate.setMonth(calendarDate.getMonth() - 1);
+  var trips = getTrips();
+  renderCalendar(trips);
+});
+document.getElementById('nextMonth').addEventListener('click', function() {
+  calendarDate.setMonth(calendarDate.getMonth() + 1);
+  var trips = getTrips();
+  renderCalendar(trips);
+});
 
 function cancelTrip(id) {
   if (!confirm('Cancel this trip?')) return;
@@ -484,7 +626,7 @@ function cancelTrip(id) {
   var t = trips.find(function(x) { return x.id === id; });
   if (t) t.status = 'cancelled';
   saveTrips(trips);
-  loadTrips();
+  loadDashboard();
 }
 
 function completeTrip(id) {
@@ -493,7 +635,7 @@ function completeTrip(id) {
   var t = trips.find(function(x) { return x.id === id; });
   if (t) t.status = 'completed';
   saveTrips(trips);
-  loadTrips();
+  loadDashboard();
 }
 
 function editTrip(id) {
@@ -546,7 +688,7 @@ function showTripNotifications() {
 
 initTheme();
 initAuth();
-loadTrips();
+loadDashboard();
 initTripNotifications();
 </script>
 </body>

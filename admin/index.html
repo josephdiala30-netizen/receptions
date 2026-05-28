@@ -551,7 +551,7 @@ function initAuth() {
   if (!session || !session.loggedIn) { goTo('login/'); return; }
   if (session.role !== 'admin') {
     if (session.role === 'executive_task') { goTo('executive_task/'); return; }
-    goTo(''); return;
+    goTo('executive_path/'); return;
   }
   var initial = (session.name || session.username).charAt(0).toUpperCase();
   document.getElementById('userBtn').textContent = initial;

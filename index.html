@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Executive Path | Dashboard</title>
+<title>Executive Path — Empower Your Executive Journey</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script>
 tailwind.config = {
@@ -42,21 +42,17 @@ tailwind.config = {
         "body-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
         "label-md": ["-apple-system", "Inter", "system-ui", "sans-serif"],
         "title-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
-        "code-sm": ["-apple-system", "Inter", "system-ui", "sans-serif"],
-        "display-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
         "body-md": ["-apple-system", "Inter", "system-ui", "sans-serif"],
-        "headline-lg-mobile": ["-apple-system", "Inter", "system-ui", "sans-serif"],
-        "headline-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"]
+        "headline-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "display-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"]
       },
       fontSize: {
         "headline-md": ["24px", {lineHeight: "32px", fontWeight: "600"}],
         "body-lg": ["16px", {lineHeight: "24px", fontWeight: "400"}],
         "label-md": ["12px", {lineHeight: "16px", fontWeight: "500"}],
         "title-lg": ["20px", {lineHeight: "28px", fontWeight: "600"}],
-        "code-sm": ["12px", {lineHeight: "16px", fontWeight: "400"}],
         "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700"}],
         "body-md": ["14px", {lineHeight: "20px", fontWeight: "400"}],
-        "headline-lg-mobile": ["24px", {lineHeight: "32px", fontWeight: "600"}],
         "headline-lg": ["32px", {lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600"}]
       }
     }
@@ -83,7 +79,6 @@ tailwind.config = {
   --tertiary-fixed: #89f5e7; --primary: #091426; --surface-dim: #cbdbf5;
   --surface-bright: #f8f9ff; --secondary-fixed: #dae2fd;
 }
-
 .dark {
   --on-primary-container: #b0b8cc; --on-surface: #e4e8ee; --outline: #90949c;
   --on-background: #e4e8ee; --on-secondary-fixed: #c4cce0; --surface-container-highest: #2c3848;
@@ -103,303 +98,327 @@ tailwind.config = {
   --tertiary-fixed: #00201d; --primary: #b0c8e8; --surface-dim: #141c2a;
   --surface-bright: #2a3448; --secondary-fixed: #131b2e;
 }
-
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   display: inline-flex; align-items: center; justify-content: center;
   vertical-align: middle;
 }
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
-
 * { -webkit-tap-highlight-color: transparent; }
-
-html, body {
-  min-height: 100%;
-  scroll-behavior: smooth;
-}
+html, body { min-height: 100%; scroll-behavior: smooth; }
 body { overflow-x: hidden; }
-button, input, select, textarea { min-width: 0; }
 
-@media (max-width: 767px) {
-  .sidebar-glass { width: min(100%, 20rem); }
-  .sidebar-glass .w-72 { width: 100%; }
-  .max-w-screen-2xl, .max-w-4xl, .max-w-md { padding-left: 1rem; padding-right: 1rem; }
-  .grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
-  .overflow-x-auto { -webkit-overflow-scrolling: touch; }
-  table { min-width: 100%; }
-  th, td { word-break: break-word; }
-  .text-headline-lg { font-size: 1.35rem; line-height: 1.75rem; }
-  .text-title-lg { font-size: 1.125rem; line-height: 1.75rem; }
-}
-
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.15); } 50% { box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(9, 20, 38, 0.08); } 50% { box-shadow: 0 0 0 20px rgba(9, 20, 38, 0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
 
-.card-enter { animation: fadeInUp 0.5s ease both; }
-.card-enter:nth-child(1) { animation-delay: 0.05s; }
-.card-enter:nth-child(2) { animation-delay: 0.1s; }
-.card-enter:nth-child(3) { animation-delay: 0.15s; }
-.card-enter:nth-child(4) { animation-delay: 0.2s; }
-.card-enter:nth-child(5) { animation-delay: 0.25s; }
-.card-enter:nth-child(6) { animation-delay: 0.3s; }
+.anim-up { animation: fadeInUp 0.7s ease both; }
+.anim-up-1 { animation: fadeInUp 0.7s ease 0.1s both; }
+.anim-up-2 { animation: fadeInUp 0.7s ease 0.2s both; }
+.anim-up-3 { animation: fadeInUp 0.7s ease 0.3s both; }
+.anim-up-4 { animation: fadeInUp 0.7s ease 0.4s both; }
+.anim-right { animation: slideInRight 0.8s ease both; }
+.float-icon { animation: float 3s ease-in-out infinite; }
 
-.card-lift { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.card-lift:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
-.dark .card-lift:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
-
-.glow-green { box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.15); }
-.glow-blue { box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15); }
-.glow-amber { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15); }
-.glow-purple { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.15); }
-
-.stat-gradient-1 { background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%); }
-.stat-gradient-2 { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
-.stat-gradient-3 { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
-.stat-gradient-4 { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
-.dark .stat-gradient-1 { background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); }
-.dark .stat-gradient-2 { background: linear-gradient(135deg, #818CF8 0%, #6366F1 100%); }
-.dark .stat-gradient-3 { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
-.dark .stat-gradient-4 { background: linear-gradient(135deg, #F87171 0%, #EF4444 100%); }
-
-.sidebar-glass {
-  background: rgba(248, 249, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+.gradient-text {
+  background: linear-gradient(135deg, #091426 0%, #1e293b 50%, #0D9488 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.dark .sidebar-glass {
-  background: rgba(11, 19, 32, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+.dark .gradient-text {
+  background: linear-gradient(135deg, #b0c8e8 0%, #c4d0e8 50%, #50d4c4 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.feature-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+.dark .feature-card:hover {
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.hero-gradient {
+  background: radial-gradient(ellipse at 30% 50%, rgba(13, 148, 136, 0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 50%, rgba(99, 102, 241, 0.06) 0%, transparent 60%);
+}
+.dark .hero-gradient {
+  background: radial-gradient(ellipse at 30% 50%, rgba(80, 212, 196, 0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 50%, rgba(129, 140, 248, 0.08) 0%, transparent 60%);
+}
+
+.glow-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--outline-variant), transparent);
 }
 </style>
 </head>
-<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<body class="bg-background text-on-background font-body-md">
 
-<aside class="fixed left-0 top-0 h-full w-72 sidebar-glass border-r border-outline-variant z-50 flex flex-col p-8 hidden md:flex shadow-sm">
-  <div class="mb-10">
-    <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Executive Path</h1>
-    <p class="font-label-md text-label-md text-on-surface-variant mt-1">Travel Management</p>
-  </div>
-  <nav class="flex-1 space-y-1.5">
-    <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="goTo('')">
-      <span class="material-symbols-outlined">dashboard</span>
-      <span class="font-label-md">Dashboard</span>
-    </a>
-    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('plan_new_trip/')">
-      <span class="material-symbols-outlined">flight_takeoff</span>
-      <span class="font-label-md">Trips</span>
-    </a>
-    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('reports/')">
-      <span class="material-symbols-outlined">bar_chart</span>
-      <span class="font-label-md">Reports</span>
-    </a>
-    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('settings/')">
-      <span class="material-symbols-outlined">settings</span>
-      <span class="font-label-md">Settings</span>
-    </a>
-  </nav>
-  <button class="mt-auto bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="goTo('plan_new_trip/')">
-    <span class="material-symbols-outlined">add</span> New Trip
-  </button>
-</aside>
-
-<main class="md:ml-72 min-h-screen">
-
-<header class="bg-surface/80 backdrop-blur-xl sticky top-0 z-40 border-b border-outline-variant flex justify-between items-center w-full px-6 md:px-10 h-16">
-  <div class="flex items-center gap-4 flex-1">
-    <button class="md:hidden material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">menu</button>
-    <div class="relative w-full max-w-sm">
-      <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
-      <input class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 pl-10 pr-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Search..." type="text"/>
+<!-- Header -->
+<header class="fixed top-0 left-0 w-full bg-surface/80 backdrop-blur-xl border-b border-outline-variant z-50">
+  <div class="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary text-2xl">workspace_premium</span>
+      <span class="font-headline-md font-bold text-primary tracking-tight">Executive Path</span>
     </div>
-  </div>
-  <div class="flex items-center gap-2">
-    <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
-    <button id="tripNotificationBtn" class="relative material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="showTripNotifications()" title="Upcoming trips">notifications<span id="tripNotificationCount" class="hidden absolute -top-1 -right-1 h-5 w-5 rounded-full bg-amber-500 text-[11px] text-white flex items-center justify-center font-semibold"></span></button>
-    <a class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" href="#" onclick="goTo('guide/')">help</a>
-    <div class="relative">
-      <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-primary text-on-primary flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
-      <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
-        <div class="px-4 py-3 border-b border-outline-variant">
-          <p id="userNameDisplay" class="font-body-md font-semibold text-primary inline"></p>
-          <span id="adminBadge" class="hidden text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-bold ml-1 align-middle">Admin</span>
-          <p id="userUsernameDisplay" class="font-label-md text-on-surface-variant mt-0.5"></p>
-        </div>
-        <button class="w-full flex items-center gap-3 px-4 py-3 mt-1 rounded-xl text-on-surface-variant hover:bg-surface-container-high font-label-md transition-all duration-200 active:scale-[0.98]" onclick="doLogout()">
-          <span class="material-symbols-outlined text-sm">logout</span> Sign Out
-        </button>
-      </div>
+    <div class="flex items-center gap-3">
+      <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
+      <a class="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-label-md text-on-surface-variant hover:bg-surface-container-high transition-all" href="#features">Features</a>
+      <a class="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-label-md text-on-surface-variant hover:bg-surface-container-high transition-all" href="#capabilities">Capabilities</a>
+      <a class="bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-[0.97] shadow-sm" href="login/">Sign In</a>
     </div>
   </div>
 </header>
 
-<section class="p-4 md:p-8 max-w-screen-2xl mx-auto">
-
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-  <div>
-    <h2 class="font-headline-lg text-headline-lg text-primary">Dashboard</h2>
-    <p class="font-body-lg text-on-surface-variant">Overview of your upcoming trips and travel activity</p>
+<!-- Hero -->
+<section class="hero-gradient pt-28 pb-20 md:pt-36 md:pb-28 relative overflow-hidden">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-10 w-64 h-64 border border-outline-variant/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-10 right-20 w-80 h-80 border border-outline-variant/20 rounded-full blur-3xl"></div>
   </div>
-  <div class="flex gap-3">
-    <button class="flex items-center gap-2 border border-outline-variant px-4 py-2 rounded-lg font-label-md text-on-surface-variant hover:bg-surface-container transition-colors" onclick="goTo('trip_itinerary/')">
-      <span class="material-symbols-outlined">calendar_month</span> View Itinerary
-    </button>
-    <button class="flex items-center gap-2 bg-[#0D9488] text-white px-6 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="goTo('plan_new_trip/')">
-      <span class="material-symbols-outlined">add</span> New Trip
-    </button>
-  </div>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
-
-<div class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-  <div class="flex justify-between items-center mb-6">
-    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-primary inline-block"></span> Upcoming Trips</h3>
-    <div class="flex items-center gap-1 bg-surface-container rounded-lg p-0.5">
-      <button class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-xs">Month</button>
-      <button class="px-3 py-1.5 rounded-lg text-on-surface-variant font-label-md text-xs hover:text-primary transition-colors">Week</button>
-    </div>
-  </div>
-  <div id="upcomingTrips" class="space-y-4"></div>
-</div>
-
-<div class="md:col-span-4 grid grid-rows-2 gap-6">
-  <div class="bg-gradient-to-br from-[#0D9488] to-[#0F766E] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg" style="animation: fadeInUp 0.5s ease both;">
-    <div class="relative z-10">
-      <span class="font-label-md uppercase tracking-wider text-white/70">Total Trips</span>
-      <p class="font-display-lg text-[36px] font-bold mt-2" id="totalTrips">0</p>
-      <div class="mt-3 flex items-center gap-2 text-emerald-200" id="totalTripsSub">
-        <span class="material-symbols-outlined text-emerald-200">flight_takeoff</span>
-        <span class="font-label-md">No trips yet</span>
+  <div class="max-w-6xl mx-auto px-4 md:px-8 relative">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 bg-surface-container-low border border-outline-variant rounded-full px-4 py-1.5 font-label-md text-on-surface-variant mb-6 anim-up">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        All-in-one executive management platform
       </div>
-    </div>
-    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
-    <div class="absolute -left-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
-  </div>
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-    <div class="flex items-center justify-between mb-5">
-      <span class="font-title-lg text-title-lg text-primary">Quick Stats</span>
-      <span class="font-label-md text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-lg font-semibold" id="statTotal">0 total</span>
-    </div>
-    <div class="grid grid-cols-2 gap-3">
-      <div class="stat-gradient-1 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.1s both;">
-        <span class="material-symbols-outlined text-white/80 text-sm">flight_takeoff</span>
-        <p class="font-headline-md font-bold mt-1" id="statActive">0</p>
-        <p class="font-label-md text-white/70">Active</p>
+      <h1 class="font-display-lg text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-[1.1] tracking-tight mb-6 anim-up-1">
+        <span class="gradient-text">Empower Your<br/>Executive Journey</span>
+      </h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-10 anim-up-2">
+        From trip planning to task execution — isa lang ang kailangan mo. <br class="hidden md:inline"/>
+        Streamline operations, track accomplishments, and lead with confidence.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 anim-up-3">
+        <a class="bg-primary text-on-primary px-8 py-3.5 rounded-xl font-title-lg font-semibold hover:opacity-90 transition-all active:scale-[0.97] shadow-lg shadow-primary/20 w-full sm:w-auto text-center" href="login/">
+          <span class="flex items-center justify-center gap-2">Get Started <span class="material-symbols-outlined text-lg">arrow_forward</span></span>
+        </a>
+        <a class="border border-outline-variant text-on-surface-variant px-8 py-3.5 rounded-xl font-title-lg hover:bg-surface-container-high transition-all active:scale-[0.97] w-full sm:w-auto text-center" href="#features">
+          <span class="flex items-center justify-center gap-2">Explore Features <span class="material-symbols-outlined text-lg">expand_more</span></span>
+        </a>
       </div>
-      <div class="stat-gradient-2 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.15s both;">
-        <span class="material-symbols-outlined text-white/80 text-sm">task_alt</span>
-        <p class="font-headline-md font-bold mt-1" id="statCompleted">0</p>
-        <p class="font-label-md text-white/70">Completed</p>
-      </div>
-      <div class="stat-gradient-4 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.2s both;">
-        <span class="material-symbols-outlined text-white/80 text-sm">cancel</span>
-        <p class="font-headline-md font-bold mt-1" id="statCancelled">0</p>
-        <p class="font-label-md text-white/70">Cancelled</p>
+      <div class="mt-12 flex items-center justify-center gap-6 md:gap-10 text-on-surface-variant anim-up-4">
+        <div class="text-center"><p class="font-headline-md font-bold text-primary">5+</p><p class="font-label-md mt-0.5">Modules</p></div>
+        <div class="w-px h-10 bg-outline-variant"></div>
+        <div class="text-center"><p class="font-headline-md font-bold text-primary">3</p><p class="font-label-md mt-0.5">User Roles</p></div>
+        <div class="w-px h-10 bg-outline-variant"></div>
+        <div class="text-center"><p class="font-headline-md font-bold text-primary">100%</p><p class="font-label-md mt-0.5">Client-Side</p></div>
       </div>
     </div>
   </div>
-</div>
-
-<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-  <div class="flex justify-between items-center mb-4">
-    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-amber-500 inline-block"></span> Travel Calendar</h3>
-    <div class="flex items-center gap-3">
-      <button id="prevMonth" class="material-symbols-outlined text-on-surface-variant p-1.5 hover:bg-surface-container-high rounded-xl transition-all active:scale-90">chevron_left</button>
-      <span id="calendarMonth" class="font-body-md font-semibold text-primary min-w-[140px] text-center"></span>
-      <button id="nextMonth" class="material-symbols-outlined text-on-surface-variant p-1.5 hover:bg-surface-container-high rounded-xl transition-all active:scale-90">chevron_right</button>
-    </div>
-  </div>
-  <div class="grid grid-cols-7 gap-1 text-center mb-2">
-    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Sun</div>
-    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Mon</div>
-    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Tue</div>
-    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Wed</div>
-    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Thu</div>
-    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Fri</div>
-    <div class="font-label-md text-on-surface-variant py-1.5 font-semibold text-xs">Sat</div>
-  </div>
-  <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 text-center"></div>
-  <div id="calendarLegend" class="mt-5 flex flex-wrap gap-4 text-sm"></div>
-</div>
-
-<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm card-enter card-lift flex flex-col">
-  <div class="p-6 border-b border-outline-variant flex justify-between items-center">
-    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-purple-500 inline-block"></span> Recent Activity</h3>
-  </div>
-  <div id="recentActivity" class="flex flex-col items-center justify-center py-10 text-center">
-    <span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span>
-    <p class="font-body-md text-on-surface-variant mt-3">No recent activity</p>
-  </div>
-</div>
-
-</div>
 </section>
-</main>
 
-<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg border-t border-outline-variant h-16 flex items-center justify-around z-50">
-  <a class="flex flex-col items-center gap-0.5 text-primary font-bold active:scale-90 transition-all" href="#" onclick="goTo('')">
-    <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>
-    <span class="font-label-md text-[10px]">Dashboard</span>
-  </a>
-  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('plan_new_trip/')">
-    <span class="material-symbols-outlined text-xl">flight_takeoff</span>
-    <span class="font-label-md text-[10px]">Trips</span>
-  </a>
-  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('reports/')">
-    <span class="material-symbols-outlined text-xl">bar_chart</span>
-    <span class="font-label-md text-[10px]">Reports</span>
-  </a>
-  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('settings/')">
-    <span class="material-symbols-outlined text-xl">settings</span>
-    <span class="font-label-md text-[10px]">Settings</span>
-  </a>
-</nav>
+<div class="glow-line"></div>
 
-<div id="mobile-menu" class="md:hidden hidden fixed inset-0 bg-black/50 z-50" onclick="this.classList.add('hidden')">
-  <div class="absolute left-0 top-0 h-full w-72 sidebar-glass shadow-xl p-8" onclick="event.stopPropagation()">
-    <div class="mb-10 flex justify-between items-center">
-      <div>
-        <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Executive Path</h1>
-        <p class="font-label-md text-label-md text-on-surface-variant mt-1">Travel Management</p>
-      </div>
-      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors" onclick="document.getElementById('mobile-menu').classList.add('hidden')">close</button>
+<!-- Features -->
+<section id="features" class="py-20 md:py-28">
+  <div class="max-w-6xl mx-auto px-4 md:px-8">
+    <div class="text-center mb-16">
+      <span class="font-label-md text-primary font-semibold uppercase tracking-wider">Features</span>
+      <h2 class="font-headline-lg text-headline-lg md:text-[40px] font-bold text-primary mt-2">Everything You Need to Execute</h2>
+      <p class="font-body-lg text-on-surface-variant mt-3 max-w-2xl mx-auto">Complete toolkit designed for busy executives who need to get things done efficiently.</p>
     </div>
-    <nav class="flex-1 space-y-1.5">
-      <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="goTo('')"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('plan_new_trip/')"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md">Trips</span></a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('reports/')"><span class="material-symbols-outlined">bar_chart</span> <span class="font-label-md">Reports</span></a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('settings/')"><span class="material-symbols-outlined">settings</span> <span class="font-label-md">Settings</span></a>
-    </nav>
-    <button class="mt-auto w-full bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="goTo('plan_new_trip/')">
-      <span class="material-symbols-outlined">add</span> New Trip
-    </button>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="feature-card bg-surface-container-lowest border border-outline-variant rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-5"><span class="material-symbols-outlined text-2xl">flight_takeoff</span></div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">Trip Planning & Management</h3>
+        <p class="font-body-md text-on-surface-variant leading-relaxed">Plan, organize, and track executive trips with itinerary details, driver assignment, van scheduling, and real-time status updates.</p>
+      </div>
+      <div class="feature-card bg-surface-container-lowest border border-outline-variant rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-5"><span class="material-symbols-outlined text-2xl">checklist</span></div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">Task Execution</h3>
+        <p class="font-body-md text-on-surface-variant leading-relaxed">Create, assign, and monitor tasks with priority levels, status tracking, due dates, and category organization to stay on top of deliverables.</p>
+      </div>
+      <div class="feature-card bg-surface-container-lowest border border-outline-variant rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-5"><span class="material-symbols-outlined text-2xl">map</span></div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">Planner & Roadmap</h3>
+        <p class="font-body-md text-on-surface-variant leading-relaxed">Strategic planning with milestones and progress tracking. Visualize your roadmap from conception to completion with measurable goals.</p>
+      </div>
+      <div class="feature-card bg-surface-container-lowest border border-outline-variant rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center mb-5"><span class="material-symbols-outlined text-2xl">edit_note</span></div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">Daily Accomplishment Log</h3>
+        <p class="font-body-md text-on-surface-variant leading-relaxed">Log daily achievements, categorize work items, and track time spent. Keep a permanent record of what you accomplished each day.</p>
+      </div>
+      <div class="feature-card bg-surface-container-lowest border border-outline-variant rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-5"><span class="material-symbols-outlined text-2xl">calendar_month</span></div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">Calendar View</h3>
+        <p class="font-body-md text-on-surface-variant leading-relaxed">Interactive monthly calendar with color-coded task indicators, quick status views, and day-by-day breakdowns for better scheduling.</p>
+      </div>
+      <div class="feature-card bg-surface-container-lowest border border-outline-variant rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mb-5"><span class="material-symbols-outlined text-2xl">bar_chart</span></div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">Reports & Analytics</h3>
+        <p class="font-body-md text-on-surface-variant leading-relaxed">Comprehensive reports with data visualization, trend analysis, and exportable summaries to measure performance and identify patterns.</p>
+      </div>
+    </div>
   </div>
-</div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- Capabilities / What the system can do -->
+<section id="capabilities" class="py-20 md:py-28">
+  <div class="max-w-6xl mx-auto px-4 md:px-8">
+    <div class="text-center mb-16">
+      <span class="font-label-md text-primary font-semibold uppercase tracking-wider">Capabilities</span>
+      <h2 class="font-headline-lg text-headline-lg md:text-[40px] font-bold text-primary mt-2">Ano ang kaya ng system?</h2>
+      <p class="font-body-lg text-on-surface-variant mt-3 max-w-2xl mx-auto">Here's what our platform can do for you and your organization.</p>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 md:p-10">
+        <h3 class="font-title-lg font-semibold text-primary flex items-center gap-2 mb-6"><span class="material-symbols-outlined text-primary">badge</span> Role-Based Access</h3>
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Executive Path</strong> — Full travel management: trips, itinerary, reports, expenses, settings.</span></li>
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Executive Task</strong> — Task-focused dashboard with planner, daily log, and milestone tracking.</span></li>
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Administrator</strong> — Full control panel: manage users, view all data, import/export backups, global search.</span></li>
+        </ul>
+      </div>
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 md:p-10">
+        <h3 class="font-title-lg font-semibold text-primary flex items-center gap-2 mb-6"><span class="material-symbols-outlined text-primary">storage</span> Data Management</h3>
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Client-Side Storage</strong> — All data stored locally sa iyong browser. Fast, private, at walang server setup na kailangan.</span></li>
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Backup & Restore</strong> — Export all data as JSON, import anytime. Perfect for migration or safekeeping.</span></li>
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Multi-User Ready</strong> — Each user has isolated data. Admins can view, manage, and search across all users.</span></li>
+        </ul>
+      </div>
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 md:p-10">
+        <h3 class="font-title-lg font-semibold text-primary flex items-center gap-2 mb-6"><span class="material-symbols-outlined text-primary">travel_explore</span> Executive Travel Tools</h3>
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Trip Request</strong> — Mag-request ng trip with destination, date, time, van assignment, at driver details.</span></li>
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Itinerary View</strong> — Tingnan ang lahat ng trips nang maayos at organized. Filter by date, status, o destination.</span></li>
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Calendar Overview</strong> — Visual calendar ng lahat ng trips with month navigation at conflict detection.</span></li>
+        </ul>
+      </div>
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 md:p-10">
+        <h3 class="font-title-lg font-semibold text-primary flex items-center gap-2 mb-6"><span class="material-symbols-outlined text-primary">settings_account_child</span> Admin Control Panel</h3>
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">User Management</strong> — Create, edit, delete users. Assign roles, reset passwords. Lahat nasa isang lugar.</span></li>
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Cross-User Views</strong> — Browse tasks, plans, logs, at trips ng kahit sinong user. Full transparency.</span></li>
+          <li class="flex items-start gap-3"><span class="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span><span class="font-body-md text-on-surface-variant"><strong class="text-primary">Global Search</strong> — Search across all users and all modules. Hanapin agad ang kailangan mo.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- How It Works -->
+<section class="py-20 md:py-28 bg-surface-container-low/30">
+  <div class="max-w-6xl mx-auto px-4 md:px-8">
+    <div class="text-center mb-16">
+      <span class="font-label-md text-primary font-semibold uppercase tracking-wider">How It Works</span>
+      <h2 class="font-headline-lg text-headline-lg md:text-[40px] font-bold text-primary mt-2">Simple. Secure. Streamlined.</h2>
+      <p class="font-body-lg text-on-surface-variant mt-3 max-w-2xl mx-auto">Getting started takes just a few minutes. Walang kumplikadong setup.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
+          <span class="material-symbols-outlined text-3xl">person_add</span>
+        </div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">1. Create Account</h3>
+        <p class="font-body-md text-on-surface-variant">Mag-register gamit ang iyong name at username. Choose your role — Executive Path, Executive Task, or Admin.</p>
+      </div>
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
+          <span class="material-symbols-outlined text-3xl">dashboard_customize</span>
+        </div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">2. Set Up Your Space</h3>
+        <p class="font-body-md text-on-surface-variant">Mag-plano ng trips, gumawa ng tasks, mag-set ng milestones. Everything is saved automatically.</p>
+      </div>
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-2xl bg-primary text-on-primary flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
+          <span class="material-symbols-outlined text-3xl">rocket_launch</span>
+        </div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">3. Execute & Track</h3>
+        <p class="font-body-md text-on-surface-variant">Manage daily, track progress, generate reports. I-monitor ang accomplishments at mag-export ng data anytime.</p>
+      </div>
+    </div>
+    <div class="text-center mt-12">
+      <a class="inline-flex items-center gap-2 bg-primary text-on-primary px-8 py-3.5 rounded-xl font-title-lg font-semibold hover:opacity-90 transition-all active:scale-[0.97] shadow-lg shadow-primary/20" href="login/">
+        Start Now — Free <span class="material-symbols-outlined text-lg">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- Use Cases -->
+<section class="py-20 md:py-28">
+  <div class="max-w-6xl mx-auto px-4 md:px-8">
+    <div class="text-center mb-16">
+      <span class="font-label-md text-primary font-semibold uppercase tracking-wider">Use Cases</span>
+      <h2 class="font-headline-lg text-headline-lg md:text-[40px] font-bold text-primary mt-2">Sino ang para sa system na ito?</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 feature-card">
+        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-4"><span class="material-symbols-outlined text-xl">domain</span></div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">Corporate Executives</h3>
+        <p class="font-body-md text-on-surface-variant">For executives who need to manage trips, track tasks, at mag-monitor ng daily accomplishments ng team.</p>
+      </div>
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 feature-card">
+        <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-4"><span class="material-symbols-outlined text-xl">admin_panel_settings</span></div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">Administrators</h3>
+        <p class="font-body-md text-on-surface-variant">For admins who need full visibility across users, data management, backups, at system-wide monitoring.</p>
+      </div>
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 feature-card">
+        <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4"><span class="material-symbols-outlined text-xl">groups</span></div>
+        <h3 class="font-title-lg font-semibold text-primary mb-2">Operations Teams</h3>
+        <p class="font-body-md text-on-surface-variant">For teams handling logistics, transportation, at daily operations tracking with milestone-based planning.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-20">
+  <div class="max-w-4xl mx-auto px-4 md:px-8 text-center">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-3xl p-10 md:p-16 shadow-sm">
+      <span class="material-symbols-outlined text-5xl text-primary float-icon">workspace_premium</span>
+      <h2 class="font-headline-lg md:text-[40px] font-bold text-primary mt-4 mb-4">Ready to take control?</h2>
+      <p class="font-body-lg text-on-surface-variant max-w-xl mx-auto mb-8">Sign in or create your account now at simulang i-manage ang iyong executive tasks, trips, at accomplishments — all in one place.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a class="bg-primary text-on-primary px-8 py-3.5 rounded-xl font-title-lg font-semibold hover:opacity-90 transition-all active:scale-[0.97] shadow-lg shadow-primary/20 w-full sm:w-auto text-center" href="login/">
+          <span class="flex items-center justify-center gap-2">Get Started <span class="material-symbols-outlined text-lg">login</span></span>
+        </a>
+        <a class="border border-outline-variant text-on-surface-variant px-8 py-3.5 rounded-xl font-title-lg hover:bg-surface-container-high transition-all w-full sm:w-auto text-center" href="login/">
+          <span class="flex items-center justify-center gap-2">Sign In <span class="material-symbols-outlined text-lg">arrow_forward</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-outline-variant py-10">
+  <div class="max-w-6xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary text-xl">workspace_premium</span>
+      <span class="font-headline-md font-bold text-primary">Executive Path</span>
+    </div>
+    <p class="font-label-md text-on-surface-variant text-center md:text-right">Empowering executives to plan, track, and execute with confidence. &copy; 2026</p>
+  </div>
+</footer>
 
 <script>
-function getSession() {
-  return JSON.parse(localStorage.getItem('session') || 'null');
-}
-
 function getBaseUrl() {
   var p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
   return p.substring(0, p.lastIndexOf('/') + 1);
 }
-function goTo(path) { window.location.href = getBaseUrl() + path; }
 
 function initTheme() {
   var theme = localStorage.getItem('theme') || 'light';
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
   if (theme === 'dark') {
     document.documentElement.classList.add('dark');
-    document.getElementById('themeToggle').textContent = 'light_mode';
+    btn.textContent = 'light_mode';
   } else {
-    document.getElementById('themeToggle').textContent = 'dark_mode';
+    btn.textContent = 'dark_mode';
   }
 }
 
@@ -409,287 +428,13 @@ function toggleTheme() {
   document.getElementById('themeToggle').textContent = isDark ? 'light_mode' : 'dark_mode';
 }
 
-function tripsKey() {
-  var s = getSession();
-  return s ? 'trips_' + s.username : 'trips';
-}
-
-function getTrips() {
-  var session = getSession();
-  if (session && session.isAdmin) {
-    var all = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i);
-      if (key.startsWith('trips_')) {
-        var user = key.replace('trips_', '');
-        var userTrips = JSON.parse(localStorage.getItem(key) || '[]');
-        userTrips.forEach(function(t) { t._user = user; });
-        all = all.concat(userTrips);
-      }
-    }
-    all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
-    return all;
-  }
-  return JSON.parse(localStorage.getItem(tripsKey()) || '[]');
-}
-
-function saveTrips(t) {
-  var session = getSession();
-  if (session && session.isAdmin) {
-    var byUser = {};
-    t.forEach(function(trip) {
-      var u = trip._user || 'unknown';
-      if (!byUser[u]) byUser[u] = [];
-      byUser[u].push(trip);
-    });
-    for (var user in byUser) { localStorage.setItem('trips_' + user, JSON.stringify(byUser[user])); }
-    return;
-  }
-  localStorage.setItem(tripsKey(), JSON.stringify(t));
-}
-
-function initAuth() {
-  var session = getSession();
-  if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
-  if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
-  if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
-  var initial = (session.name || session.username).charAt(0).toUpperCase();
-  document.getElementById('userBtn').textContent = initial;
-  document.getElementById('userNameDisplay').textContent = session.name || session.username;
-  document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
-  var badge = document.getElementById('adminBadge');
-  if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
-}
-
-function toggleUserMenu() {
-  document.getElementById('userMenu').classList.toggle('hidden');
-}
-
-function doLogout() {
-  localStorage.removeItem('session');
-  window.location.href = getBaseUrl() + 'login/';
-}
-
-document.addEventListener('click', function(e) {
-  var menu = document.getElementById('userMenu');
-  if (menu && !menu.classList.contains('hidden') && !e.target.closest('#userBtn') && !e.target.closest('#userMenu')) {
-    menu.classList.add('hidden');
-  }
-});
-
-var calendarDate = new Date();
-
-function loadDashboard() {
-  const trips = getTrips();
-  const upcoming = document.getElementById('upcomingTrips');
-  const totalEl = document.getElementById('totalTrips');
-  const totalSub = document.getElementById('totalTripsSub');
-  const statActive = document.getElementById('statActive');
-  const statCompleted = document.getElementById('statCompleted');
-  const statCancelled = document.getElementById('statCancelled');
-  const statTotal = document.getElementById('statTotal');
-  const recent = document.getElementById('recentActivity');
-
-  totalEl.textContent = trips.length;
-
-  if (trips.length === 0) {
-    totalSub.innerHTML = '<span class="material-symbols-outlined">remove_red_eye</span><span class="font-label-md">No trips this quarter</span>';
-    upcoming.innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-center"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">calendar_month</span><p class="font-body-md text-on-surface-variant mt-4">No upcoming trips</p><p class="font-label-md text-on-surface-variant">Create a new trip to get started</p></div>';
-    statActive.textContent = '0';
-    statCompleted.textContent = '0';
-    statCancelled.textContent = '0';
-    statTotal.textContent = '0 total';
-    recent.innerHTML = '<span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span><p class="font-body-md text-on-surface-variant mt-3">No recent activity</p>';
-    renderCalendar([]);
-    return;
-  }
-
-  var active = trips.filter(function(t) { return t.status !== 'completed' && t.status !== 'cancelled'; });
-  var completed = trips.filter(function(t) { return t.status === 'completed'; });
-  var cancelled = trips.filter(function(t) { return t.status === 'cancelled'; });
-  var activeTrips = trips.filter(function(t) { return t.status !== 'cancelled'; });
-
-  totalSub.innerHTML = '<span class="material-symbols-outlined">flight_takeoff</span><span class="font-label-md">' + trips.length + ' trip' + (trips.length > 1 ? 's' : '') + ' total</span>';
-  statActive.textContent = active.length;
-  statCompleted.textContent = completed.length;
-  statCancelled.textContent = cancelled.length;
-  statTotal.textContent = trips.length + ' total';
-
-  var session = getSession();
-  var isAdmin = session && session.isAdmin;
-  upcoming.innerHTML = activeTrips.map(function(t) {
-    var statusBadge = t.status === 'completed'
-      ? '<span class="font-label-md bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Completed</span>'
-      : t.status === 'cancelled'
-      ? '<span class="font-label-md bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Cancelled</span>'
-      : '';
-    return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant card-lift">' +
-      '<div class="p-3 rounded-xl bg-amber-100 text-amber-600"><span class="material-symbols-outlined">flight_takeoff</span></div>' +
-      '<div class="flex-1" onclick="window.location.href=\'/trip_itinerary/\'"><div class="flex items-center gap-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.name) + '</h4>' + statusBadge + '</div>' +
-      '<div class="flex items-center gap-4 mt-1 text-on-surface-variant flex-wrap">' +
-      (isAdmin ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">account_circle</span> ' + escapeHtml(t._user || '?') + '</span>' : '') +
-      '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(t.requestor) + '</span>' +
-      '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> ' + escapeHtml(t.destination) + '</span>' +
-      '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + t.date + '</span>' +
-      (t.time ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> ' + escapeHtml(t.time) + '</span>' : '') +
-      (t.van ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">directions_car</span> ' + escapeHtml(t.van) + '</span>' : '') +
-      (t.driver ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">badge</span> ' + escapeHtml(t.driver) + '</span>' : '') +
-      '</div></div>' +
-      '<div class="flex items-start gap-1 ml-2">' +
-      (t.status !== 'completed' ? '<button class="p-1.5 rounded-lg hover:bg-green-100 text-green-600 transition-colors" title="Mark Completed" onclick="event.stopPropagation(); completeTrip(' + t.id + ')"><span class="material-symbols-outlined text-sm">check</span></button>' : '') +
-      (t.status !== 'cancelled' && t.status !== 'completed' ? '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Cancel" onclick="event.stopPropagation(); cancelTrip(' + t.id + ')"><span class="material-symbols-outlined text-sm">close</span></button>' : '') +
-      (t.status !== 'completed' ? '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="event.stopPropagation(); editTrip(' + t.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' : '') +
-      '</div></div>';
-  }).join('');
-
-  var recentItems = trips.slice(0, 5).map(function(t) {
-    var action = t.status === 'completed' ? 'marked completed' : t.status === 'cancelled' ? 'cancelled' : 'submitted';
-    return '<div class="flex items-center gap-4 px-6 py-4 border-b border-outline-variant last:border-b-0 hover:bg-surface-container-low transition-colors">' +
-      '<div class="p-2 rounded-full bg-surface-container-high text-amber-600"><span class="material-symbols-outlined text-sm">flight_takeoff</span></div>' +
-      '<div class="flex-1"><p class="font-body-md font-medium">' + escapeHtml(t.name) + ' <span class="text-on-surface-variant font-normal">' + action + '</span></p>' +
-      '<p class="font-label-md text-on-surface-variant">' + t.date + ' &middot; ' + escapeHtml(t.destination) + '</p></div></div>';
-  }).join('');
-  recent.innerHTML = recentItems || '<span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span><p class="font-body-md text-on-surface-variant mt-3">No recent activity</p>';
-
-  renderCalendar(trips);
-}
-
-function renderCalendar(trips) {
-  var year = calendarDate.getFullYear();
-  var month = calendarDate.getMonth();
-  document.getElementById('calendarMonth').textContent = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
-
-  var firstDay = new Date(year, month, 1).getDay();
-  var daysInMonth = new Date(year, month + 1, 0).getDate();
-  var today = new Date();
-  var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-
-  var tripsByDate = {};
-  (trips || []).forEach(function(t) {
-    if (!t.date || t.status === 'cancelled') return;
-    if (!tripsByDate[t.date]) tripsByDate[t.date] = [];
-    tripsByDate[t.date].push(t);
-  });
-
-  var html = '';
-  for (var i = 0; i < firstDay; i++) {
-    html += '<div class="min-h-[60px]"></div>';
-  }
-  for (var d = 1; d <= daysInMonth; d++) {
-    var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-    var isToday = dateStr === todayStr;
-    var dayTrips = tripsByDate[dateStr] || [];
-    var hasConflict = dayTrips.length > 1;
-
-    html += '<div class="min-h-[60px] p-1 rounded-lg border ' + (isToday ? 'border-primary bg-primary-container/20' : 'border-transparent hover:bg-surface-container-high') + ' transition-colors relative group">';
-    html += '<div class="font-body-md font-medium ' + (isToday ? 'text-primary' : 'text-on-surface') + '">' + d + '</div>';
-
-    dayTrips.forEach(function(t) {
-      var color = t.status === 'completed' ? 'bg-blue-100 text-blue-700' : t.status === 'cancelled' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-700';
-      var timeStr = t.time ? ' ' + t.time : '';
-      html += '<div class="' + color + ' text-[10px] leading-tight px-1 rounded mt-0.5 truncate font-medium" title="' + escapeHtml(t.name) + timeStr + '">' + escapeHtml(t.name) + '</div>';
-    });
-
-    if (hasConflict) {
-      html += '<div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] rounded-full flex items-center justify-center font-bold">!</div>';
-    }
-
-    html += '</div>';
-  }
-  document.getElementById('calendarGrid').innerHTML = html;
-
-  if (trips && trips.length) {
-    var legend = '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-100 border border-amber-300"></span><span class="font-label-md text-on-surface-variant">Active</span></div>' +
-      '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-100 border border-blue-300"></span><span class="font-label-md text-on-surface-variant">Completed</span></div>' +
-      '<div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-100 border border-red-300"></span><span class="font-label-md text-on-surface-variant">Cancelled</span></div>' +
-      '<div class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center font-bold">!</span><span class="font-label-md text-on-surface-variant">Schedule conflict</span></div>';
-    document.getElementById('calendarLegend').innerHTML = legend;
-  } else {
-    document.getElementById('calendarLegend').innerHTML = '<span class="font-label-md text-on-surface-variant">No trips scheduled this month</span>';
-  }
-}
-
-document.getElementById('prevMonth').addEventListener('click', function() {
-  calendarDate.setMonth(calendarDate.getMonth() - 1);
-  var trips = getTrips();
-  renderCalendar(trips);
-});
-document.getElementById('nextMonth').addEventListener('click', function() {
-  calendarDate.setMonth(calendarDate.getMonth() + 1);
-  var trips = getTrips();
-  renderCalendar(trips);
-});
-
-function cancelTrip(id) {
-  if (!confirm('Cancel this trip?')) return;
-  var trips = getTrips();
-  var t = trips.find(function(x) { return x.id === id; });
-  if (t) t.status = 'cancelled';
-  saveTrips(trips);
-  loadDashboard();
-}
-
-function completeTrip(id) {
-  if (!confirm('Mark this trip as completed?')) return;
-  var trips = getTrips();
-  var t = trips.find(function(x) { return x.id === id; });
-  if (t) t.status = 'completed';
-  saveTrips(trips);
-  loadDashboard();
-}
-
-function editTrip(id) {
-  localStorage.setItem('editTripId', id);
-  goTo('plan_new_trip/');
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function initTripNotifications() {
-  var btn = document.getElementById('tripNotificationBtn');
-  var badge = document.getElementById('tripNotificationCount');
-  if (!btn || !badge) return;
-  var upcoming = getTrips().filter(function(t) {
-    if (!t.date) return false;
-    var tripDate = new Date(t.date + 'T' + (t.time || '00:00'));
-    if (isNaN(tripDate)) return false;
-    var diff = tripDate.getTime() - new Date().getTime();
-    return diff >= 0 && diff <= 3 * 24 * 60 * 60 * 1000;
-  });
-  if (upcoming.length > 0) {
-    badge.textContent = upcoming.length;
-    badge.classList.remove('hidden');
-    btn.title = upcoming.length + ' upcoming trip(s) in the next 3 days';
-  } else {
-    badge.classList.add('hidden');
-    btn.title = 'No upcoming trips';
-  }
-}
-
-function showTripNotifications() {
-  var trips = getTrips().filter(function(t) {
-    if (!t.date) return false;
-    var tripDate = new Date(t.date + 'T' + (t.time || '00:00'));
-    if (isNaN(tripDate)) return false;
-    var diff = tripDate.getTime() - new Date().getTime();
-    return diff >= 0 && diff <= 3 * 24 * 60 * 60 * 1000;
-  });
-  if (!trips.length) {
-    alert('Walang paparating na trip sa susunod na 3 araw.');
-    return;
-  }
-  alert('Paparating na trip:\n\n' + trips.map(function(t) {
-    return '- ' + (t.name || 'Untitled') + ' (' + t.date + (t.time ? ' ' + t.time : '') + ') - ' + (t.destination || 'N/A');
-  }).join('\n'));
+var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
+if (existingSession && existingSession.loggedIn) {
+  var role = existingSession.role || 'executive_path';
+  window.location.href = getBaseUrl() + (role === 'executive_task' ? 'executive_task/' : role === 'admin' ? 'admin/' : 'executive_path/');
 }
 
 initTheme();
-initAuth();
-loadDashboard();
-initTripNotifications();
 </script>
 </body>
 </html>
