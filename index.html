@@ -186,19 +186,19 @@ button, input, select, textarea { min-width: 0; }
     <p class="font-label-md text-label-md text-on-surface-variant mt-1">Travel Management</p>
   </div>
   <nav class="flex-1 space-y-1.5">
-    <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="/">
+    <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="goTo('')">
       <span class="material-symbols-outlined">dashboard</span>
       <span class="font-label-md">Dashboard</span>
     </a>
-    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/plan_new_trip/">
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('plan_new_trip/')">
       <span class="material-symbols-outlined">flight_takeoff</span>
       <span class="font-label-md">Trips</span>
     </a>
-    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/reports/">
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('reports/')">
       <span class="material-symbols-outlined">bar_chart</span>
       <span class="font-label-md">Reports</span>
     </a>
-    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/settings/">
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('settings/')">
       <span class="material-symbols-outlined">settings</span>
       <span class="font-label-md">Settings</span>
     </a>
@@ -221,7 +221,7 @@ button, input, select, textarea { min-width: 0; }
   <div class="flex items-center gap-2">
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
     <button id="tripNotificationBtn" class="relative material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="showTripNotifications()" title="Upcoming trips">notifications<span id="tripNotificationCount" class="hidden absolute -top-1 -right-1 h-5 w-5 rounded-full bg-amber-500 text-[11px] text-white flex items-center justify-center font-semibold"></span></button>
-    <a class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" href="/guide/">help</a>
+    <a class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" href="#" onclick="goTo('guide/')">help</a>
     <div class="relative">
       <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-primary text-on-primary flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
       <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
@@ -343,19 +343,19 @@ button, input, select, textarea { min-width: 0; }
 </main>
 
 <nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg border-t border-outline-variant h-16 flex items-center justify-around z-50">
-  <a class="flex flex-col items-center gap-0.5 text-primary font-bold active:scale-90 transition-all" href="/">
+  <a class="flex flex-col items-center gap-0.5 text-primary font-bold active:scale-90 transition-all" href="#" onclick="goTo('')">
     <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>
     <span class="font-label-md text-[10px]">Dashboard</span>
   </a>
-  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="/plan_new_trip/">
+  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('plan_new_trip/')">
     <span class="material-symbols-outlined text-xl">flight_takeoff</span>
     <span class="font-label-md text-[10px]">Trips</span>
   </a>
-  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="/reports/">
+  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('reports/')">
     <span class="material-symbols-outlined text-xl">bar_chart</span>
     <span class="font-label-md text-[10px]">Reports</span>
   </a>
-  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="/settings/">
+  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('settings/')">
     <span class="material-symbols-outlined text-xl">settings</span>
     <span class="font-label-md text-[10px]">Settings</span>
   </a>
@@ -371,10 +371,10 @@ button, input, select, textarea { min-width: 0; }
       <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors" onclick="document.getElementById('mobile-menu').classList.add('hidden')">close</button>
     </div>
     <nav class="flex-1 space-y-1.5">
-      <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="/"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/plan_new_trip/"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md">Trips</span></a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/reports/"><span class="material-symbols-outlined">bar_chart</span> <span class="font-label-md">Reports</span></a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="/settings/"><span class="material-symbols-outlined">settings</span> <span class="font-label-md">Settings</span></a>
+      <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="goTo('')"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('plan_new_trip/')"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md">Trips</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('reports/')"><span class="material-symbols-outlined">bar_chart</span> <span class="font-label-md">Reports</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="goTo('settings/')"><span class="material-symbols-outlined">settings</span> <span class="font-label-md">Settings</span></a>
     </nav>
     <button class="mt-auto w-full bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="goTo('plan_new_trip/')">
       <span class="material-symbols-outlined">add</span> New Trip

@@ -187,7 +187,7 @@ button, input, select, textarea { min-width: 0; }
     <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Executive Task</h1>
     <p class="font-label-md text-label-md text-on-surface-variant mt-1">Task Management</p>
   </div>
-  <nav class="flex-1 space-y-1.5">
+  <nav class="sidebar-desktop flex-1 space-y-1.5">
     <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="showSection('pageDashboard'); loadDashboard();">
       <span class="material-symbols-outlined">dashboard</span>
       <span class="font-label-md">Dashboard</span>
@@ -439,7 +439,7 @@ button, input, select, textarea { min-width: 0; }
       </div>
       <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors" onclick="document.getElementById('mobile-menu').classList.add('hidden')">close</button>
     </div>
-    <nav class="flex-1 space-y-1.5">
+    <nav class="sidebar-mobile flex-1 space-y-1.5">
       <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="showSection('pageDashboard'); loadDashboard(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showAllTasks()"><span class="material-symbols-outlined">checklist</span> <span class="font-label-md">All Tasks</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPlanner(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">map</span> <span class="font-label-md">Planner</span></a>
@@ -852,7 +852,23 @@ function renderTaskCard(t) {
     '</div></div>';
 }
 
+function setActiveNav(id) {
+  var sections = ['pageDashboard','pageAllTasks','pagePlanner','pageDailyLog'];
+  var sidebars = [document.querySelectorAll('.sidebar-desktop a'), document.querySelectorAll('.sidebar-mobile a')];
+  sidebars.forEach(function(links) {
+    links.forEach(function(link, i) {
+      var section = sections[i];
+      if (section === id) {
+        link.className = 'flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm';
+      } else {
+        link.className = 'flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200';
+      }
+    });
+  });
+}
+
 function showSection(id) {
+  setActiveNav(id);
   document.getElementById('pageDashboard').classList.toggle('hidden', id !== 'pageDashboard');
   document.getElementById('pageAllTasks').classList.toggle('hidden', id !== 'pageAllTasks');
   document.getElementById('pagePlanner').classList.toggle('hidden', id !== 'pagePlanner');
