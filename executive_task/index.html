@@ -594,7 +594,7 @@ button, input, select, textarea { min-width: 0; }
 <div id="logModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeLogModal()">
   <div class="bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-6">
-      <h3 id="logModalTitle" class="font-title-lg text-title-lg text-primary">New Accomplishment</h3>
+      <h3 id="logModalTitle" class="font-title-lg text-title-lg text-primary">New Daily Job</h3>
       <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="closeLogModal()">close</button>
     </div>
     <div class="space-y-4">
@@ -604,18 +604,75 @@ button, input, select, textarea { min-width: 0; }
           <input id="logDate" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" type="date"/>
         </div>
         <div>
-          <label class="font-label-md text-on-surface-variant block mb-1.5">Category</label>
-          <input id="logCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="e.g. Development, Meeting, etc." type="text"/>
+          <label class="font-label-md text-on-surface-variant block mb-1.5">Job Category *</label>
+          <select id="logCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="toggleCategoryDetails(this.value)">
+            <option value="Technical Support">Technical Support</option>
+            <option value="Uploading/Encoding">Uploading/Encoding</option>
+            <option value="Development">Development</option>
+            <option value="Meeting">Meeting</option>
+            <option value="Testing">Testing</option>
+            <option value="Documentation">Documentation</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
       </div>
-      <div>
-        <label class="font-label-md text-on-surface-variant block mb-1.5">Title / Accomplishment *</label>
-        <input id="logTitle" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="What did you accomplish?" type="text"/>
+      
+      <!-- IT Service Report Details (conditional) -->
+      <div id="itReportDetails" class="p-4 bg-surface-container-low rounded-2xl border border-outline-variant space-y-4">
+        <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold text-sm border-b border-outline-variant/60 pb-1.5">
+          <span class="material-symbols-outlined text-base">support</span> IT Service Report Details
+        </div>
+        <p class="text-[11px] text-on-surface-variant -mt-2">Technical Support jobs also add to the IT Service Report.</p>
+        <div>
+          <label class="font-label-md text-on-surface-variant block mb-1.5">Report Title *</label>
+          <input id="logReportTitle" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Brief summary of the issue" type="text"/>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="font-label-md text-on-surface-variant block mb-1.5">Requestor Name *</label>
+            <input id="logRequestorName" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Who reported this?" type="text"/>
+          </div>
+          <div>
+            <label class="font-label-md text-on-surface-variant block mb-1.5">Severity</label>
+            <select id="logSeverity" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="font-label-md text-on-surface-variant block mb-1.5">Department</label>
+            <select id="logDepartment" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
+              <option value="">Select Department</option>
+              <option value="IT">IT</option>
+              <option value="HR">HR</option>
+              <option value="Finance">Finance</option>
+              <option value="Operations">Operations</option>
+              <option value="Sales">Sales</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Executive">Executive</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-label-md text-on-surface-variant block mb-1.5">Incident Date</label>
+            <input id="logIncidentDate" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" type="datetime-local"/>
+          </div>
+        </div>
+        <div>
+          <label class="font-label-md text-on-surface-variant block mb-1.5">Report Resolution (Optional)</label>
+          <textarea id="logResolution" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[60px]" placeholder="How was this fixed? (If already resolved)"></textarea>
+        </div>
       </div>
+      
       <div>
-        <label class="font-label-md text-on-surface-variant block mb-1.5">Detailed Description</label>
-        <textarea id="logDesc" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px]" placeholder="Describe what you did in detail..."></textarea>
+        <label class="font-label-md text-on-surface-variant block mb-1.5">Description *</label>
+        <textarea id="logDesc" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-h-[100px]" placeholder="Enter detailed job description (supports more than 5000 characters)..."></textarea>
       </div>
+      
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="font-label-md text-on-surface-variant block mb-1.5">Time Spent</label>
@@ -624,8 +681,9 @@ button, input, select, textarea { min-width: 0; }
         <div>
           <label class="font-label-md text-on-surface-variant block mb-1.5">Status</label>
           <select id="logStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
-            <option value="draft">Draft</option>
-            <option value="submitted">Submitted</option>
+            <option value="pending">Pending</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
           </select>
         </div>
       </div>
@@ -1618,25 +1676,48 @@ function loadDailyLog() {
 
 function renderLogEntry(e) {
   var catColors = {
-    Development: 'bg-blue-100 text-blue-700',
-    Design: 'bg-purple-100 text-purple-700',
-    Meeting: 'bg-amber-100 text-amber-700',
-    Testing: 'bg-rose-100 text-rose-700',
-    Documentation: 'bg-cyan-100 text-cyan-700',
-    Research: 'bg-indigo-100 text-indigo-700',
-    Other: 'bg-gray-100 text-gray-700'
+    'Technical Support': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+    'Uploading/Encoding': 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    Development: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    Meeting: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    Testing: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+    Documentation: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+    Other: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
   };
-  var isSubmitted = e.status === 'submitted';
-  return '<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 card-lift">' +
+  
+  var statusClass = e.status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                    e.status === 'in-progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+                    
+  var statusLabel = e.status === 'completed' ? 'Completed' :
+                    e.status === 'in-progress' ? 'In Progress' : 'Pending';
+                    
+  var itDetailsHtml = '';
+  if (e.category === 'Technical Support' && e.reportTitle) {
+    itDetailsHtml = '<div class="mt-3 p-4 bg-surface-container-low rounded-xl border border-outline-variant/60 space-y-2 text-xs">' +
+      '  <div class="font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1"><span class="material-symbols-outlined text-sm">support</span> IT Service Report Details</div>' +
+      '  <div class="grid grid-cols-2 gap-2 text-on-surface-variant">' +
+      '    <div><span class="font-medium">Report Title:</span> <span class="text-primary font-semibold">' + escapeHtml(e.reportTitle) + '</span></div>' +
+      '    <div><span class="font-medium">Requestor:</span> <span class="text-primary font-semibold">' + escapeHtml(e.requestorName || 'N/A') + '</span></div>' +
+      '    <div><span class="font-medium">Severity:</span> <span class="text-primary font-semibold">' + escapeHtml(e.severity || 'Medium') + '</span></div>' +
+      '    <div><span class="font-medium">Department:</span> <span class="text-primary font-semibold">' + escapeHtml(e.department || 'N/A') + '</span></div>' +
+      '    <div class="col-span-2"><span class="font-medium">Incident Date:</span> <span class="text-primary font-semibold">' + escapeHtml(e.incidentDate ? e.incidentDate.replace('T', ' ') : 'N/A') + '</span></div>' +
+      '  </div>' +
+      (e.resolution ? '  <div class="border-t border-outline-variant/60 pt-2"><span class="font-medium text-on-surface-variant">Resolution:</span> <p class="text-primary mt-0.5">' + escapeHtml(e.resolution) + '</p></div>' : '') +
+      '</div>';
+  }
+
+  return '<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 card-lift space-y-3">' +
     '<div class="flex items-start justify-between gap-4">' +
     '<div class="flex-1 min-w-0">' +
     '<div class="flex items-center gap-2 flex-wrap">' +
-    '<span class="material-symbols-outlined text-sm ' + (isSubmitted ? 'text-emerald-500' : 'text-on-surface-variant') + '">' + (isSubmitted ? 'check_circle' : 'radio_button_unchecked') + '</span>' +
     '<h4 class="font-body-md font-semibold text-primary truncate">' + escapeHtml(e.title) + '</h4>' +
     '<span class="font-label-md px-2.5 py-0.5 rounded-full text-xs font-semibold ' + (catColors[e.category] || catColors.Other) + '">' + escapeHtml(e.category || 'Other') + '</span>' +
+    '<span class="font-label-md px-2.5 py-0.5 rounded-full text-xs font-semibold ' + statusClass + '">' + escapeHtml(statusLabel) + '</span>' +
     (e.timeSpent ? '<span class="font-label-md text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span>' + escapeHtml(e.timeSpent) + '</span>' : '') +
     '</div>' +
     (e.description ? '<p class="font-label-md text-on-surface-variant mt-2 whitespace-pre-wrap">' + escapeHtml(e.description) + '</p>' : '') +
+    itDetailsHtml +
     '</div>' +
     '<div class="flex items-center gap-1 flex-shrink-0">' +
     '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="openEditLogModal(' + e.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
@@ -1648,13 +1729,21 @@ var editingLogId = null;
 
 function openCreateLogModal() {
   editingLogId = null;
-  document.getElementById('logModalTitle').textContent = 'New Accomplishment';
+  document.getElementById('logModalTitle').textContent = 'New Daily Job';
   document.getElementById('logDate').value = todayStr();
   document.getElementById('logCategory').value = 'Development';
-  document.getElementById('logTitle').value = '';
   document.getElementById('logDesc').value = '';
   document.getElementById('logTime').value = '';
-  document.getElementById('logStatus').value = 'draft';
+  document.getElementById('logStatus').value = 'pending';
+  
+  document.getElementById('logReportTitle').value = '';
+  document.getElementById('logRequestorName').value = '';
+  document.getElementById('logSeverity').value = 'Medium';
+  document.getElementById('logDepartment').value = '';
+  document.getElementById('logIncidentDate').value = '';
+  document.getElementById('logResolution').value = '';
+  
+  toggleCategoryDetails('Development');
   document.getElementById('logModal').classList.remove('hidden');
 }
 
@@ -1663,13 +1752,30 @@ function openEditLogModal(id) {
   var e = entries.find(function(x) { return x.id === id; });
   if (!e) return;
   editingLogId = id;
-  document.getElementById('logModalTitle').textContent = 'Edit Accomplishment';
+  document.getElementById('logModalTitle').textContent = 'Edit Daily Job';
   document.getElementById('logDate').value = e.date || todayStr();
   document.getElementById('logCategory').value = e.category || 'Development';
-  document.getElementById('logTitle').value = e.title || '';
   document.getElementById('logDesc').value = e.description || '';
   document.getElementById('logTime').value = e.timeSpent || '';
-  document.getElementById('logStatus').value = e.status || 'draft';
+  document.getElementById('logStatus').value = e.status || 'pending';
+  
+  if (e.category === 'Technical Support') {
+    document.getElementById('logReportTitle').value = e.reportTitle || '';
+    document.getElementById('logRequestorName').value = e.requestorName || '';
+    document.getElementById('logSeverity').value = e.severity || 'Medium';
+    document.getElementById('logDepartment').value = e.department || '';
+    document.getElementById('logIncidentDate').value = e.incidentDate || '';
+    document.getElementById('logResolution').value = e.resolution || '';
+  } else {
+    document.getElementById('logReportTitle').value = '';
+    document.getElementById('logRequestorName').value = '';
+    document.getElementById('logSeverity').value = 'Medium';
+    document.getElementById('logDepartment').value = '';
+    document.getElementById('logIncidentDate').value = '';
+    document.getElementById('logResolution').value = '';
+  }
+  
+  toggleCategoryDetails(e.category || 'Development');
   document.getElementById('logModal').classList.remove('hidden');
 }
 
@@ -1678,10 +1784,35 @@ function closeLogModal() {
 }
 
 function saveLogEntry() {
-  var title = document.getElementById('logTitle').value.trim();
   var date = document.getElementById('logDate').value;
-  if (!title) { alert('Please enter an accomplishment title.'); return; }
+  var category = document.getElementById('logCategory').value;
+  var description = document.getElementById('logDesc').value.trim();
   if (!date) { alert('Please select a date.'); return; }
+  if (!description) { alert('Please enter a description.'); return; }
+
+  var title = '';
+  var reportTitle = '';
+  var requestorName = '';
+  var severity = '';
+  var department = '';
+  var incidentDate = '';
+  var resolution = '';
+
+  if (category === 'Technical Support') {
+    reportTitle = document.getElementById('logReportTitle').value.trim();
+    requestorName = document.getElementById('logRequestorName').value.trim();
+    if (!reportTitle || !requestorName) {
+      alert('Report Title and Requestor Name are required for Technical Support.');
+      return;
+    }
+    severity = document.getElementById('logSeverity').value;
+    department = document.getElementById('logDepartment').value;
+    incidentDate = document.getElementById('logIncidentDate').value;
+    resolution = document.getElementById('logResolution').value.trim();
+    title = reportTitle;
+  } else {
+    title = category + ' Job';
+  }
 
   var entries = getLogEntries();
   var now = new Date().toISOString();
@@ -1691,24 +1822,49 @@ function saveLogEntry() {
     if (e) {
       e.title = title;
       e.date = date;
-      e.category = document.getElementById('logCategory').value;
-      e.description = document.getElementById('logDesc').value.trim();
+      e.category = category;
+      e.description = description;
       e.timeSpent = document.getElementById('logTime').value.trim();
       e.status = document.getElementById('logStatus').value;
       e.updatedAt = now;
+      
+      if (category === 'Technical Support') {
+        e.reportTitle = reportTitle;
+        e.requestorName = requestorName;
+        e.severity = severity;
+        e.department = department;
+        e.incidentDate = incidentDate;
+        e.resolution = resolution;
+      } else {
+        delete e.reportTitle;
+        delete e.requestorName;
+        delete e.severity;
+        delete e.department;
+        delete e.incidentDate;
+        delete e.resolution;
+      }
     }
   } else {
-    entries.push({
+    var newEntry = {
       id: Date.now(),
       date: date,
-      category: document.getElementById('logCategory').value,
+      category: category,
       title: title,
-      description: document.getElementById('logDesc').value.trim(),
+      description: description,
       timeSpent: document.getElementById('logTime').value.trim(),
       status: document.getElementById('logStatus').value,
       createdAt: now,
       updatedAt: now
-    });
+    };
+    if (category === 'Technical Support') {
+      newEntry.reportTitle = reportTitle;
+      newEntry.requestorName = requestorName;
+      newEntry.severity = severity;
+      newEntry.department = department;
+      newEntry.incidentDate = incidentDate;
+      newEntry.resolution = resolution;
+    }
+    entries.push(newEntry);
   }
 
   saveLogEntries(entries);
