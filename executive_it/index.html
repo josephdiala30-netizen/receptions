@@ -853,7 +853,7 @@ var currentView = 'dashboard';
 
 function switchView(view) {
   currentView = view;
-  var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Plans &amp; Roadmaps', 'Accomplishments', 'Tickets', 'Systems'];
+  var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems'];
   views.forEach(function(v) {
     var el = document.getElementById('view' + v);
     if (el) el.classList.toggle('hidden', v.toLowerCase() !== view);
