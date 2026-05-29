@@ -291,6 +291,7 @@ button, input, select, textarea { min-width: 0; }
       <option value="admin">Admin</option>
       <option value="executive_path">Executive Path</option>
       <option value="executive_task">Executive Task</option>
+      <option value="executive_it">Executive IT</option>
     </select>
     <input id="userSearch" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 w-48" placeholder="Search users..." oninput="renderUsers()" type="text"/>
     <button class="flex items-center gap-2 bg-[#6366F1] text-white px-6 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="openUserModal()">
@@ -462,6 +463,7 @@ button, input, select, textarea { min-width: 0; }
     <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsPlans"/> <span class="font-label-md">Plans</span></label>
     <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsTrips"/> <span class="font-label-md">Trips</span></label>
     <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsLogs"/> <span class="font-label-md">Logs</span></label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsIT"/> <span class="font-label-md">IT Data</span></label>
   </div>
 </div>
 <div id="globalSearchResults"></div>
@@ -509,8 +511,13 @@ button, input, select, textarea { min-width: 0; }
         <select id="userRole" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
           <option value="executive_path">Executive Path</option>
           <option value="executive_task">Executive Task</option>
+          <option value="executive_it">Executive IT</option>
           <option value="admin">Administrator</option>
         </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="userIsAdmin" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500"/>
+        <label for="userIsAdmin" class="font-label-md text-on-surface-variant cursor-pointer">Portal Admin (can view all users' data within their portal)</label>
       </div>
       <div class="flex gap-3 pt-2">
         <button class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-title-lg hover:opacity-90 transition-all active:scale-[0.98]" onclick="saveUser()">Save</button>
@@ -602,23 +609,35 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function getUsers() { return JSON.parse(localStorage.getItem('users') || '[]'); }
-function saveUsers(users) { localStorage.setItem('users', JSON.stringify(users)); }
+function getUsers() {
+  var regular = JSON.parse(localStorage.getItem('users') || '[]');
+  var it = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+  return regular.concat(it);
+}
+function saveUsers(users) {
+  var regular = users.filter(function(u) { return u.role !== 'executive_it'; });
+  var it = users.filter(function(u) { return u.role === 'executive_it'; });
+  localStorage.setItem('users', JSON.stringify(regular));
+  localStorage.setItem('users_executive_it', JSON.stringify(it));
+}
 
 function collectUserData(username) {
-  return {
+  var data = {
     tasks: JSON.parse(localStorage.getItem('tasks_' + username) || '[]'),
     plans: JSON.parse(localStorage.getItem('plans_' + username) || '[]'),
     milestones: JSON.parse(localStorage.getItem('milestones_' + username) || '[]'),
     dailylog: JSON.parse(localStorage.getItem('dailylog_' + username) || '[]'),
     trips: JSON.parse(localStorage.getItem('trips_' + username) || '[]')
   };
+  ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+    data['it_' + t] = JSON.parse(localStorage.getItem('it_' + t + '_' + username) || '[]');
+  });
+  return data;
 }
 
 function loadDashboard() {
   showSection('pageDashboard');
   var users = getUsers();
-  users = users.filter(function(u) { return u.role !== 'executive_it'; });
   document.getElementById('adminTotalUsers').textContent = users.length;
 
   var allTasks = [], allPlans = [], allLogs = [], allTrips = [], allMstones = [];
@@ -642,8 +661,8 @@ function loadDashboard() {
   document.getElementById('adminTotalMilestones').textContent = allMstones.length;
   document.getElementById('adminTotalKeys').textContent = localStorage.length;
 
-  var roleLabel = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task' };
-  var roleColors = { admin: 'bg-amber-100 text-amber-700', executive_path: 'bg-blue-100 text-blue-700', executive_task: 'bg-indigo-100 text-indigo-700' };
+  var roleLabel = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task', executive_it: 'Exec IT' };
+  var roleColors = { admin: 'bg-amber-100 text-amber-700', executive_path: 'bg-blue-100 text-blue-700', executive_task: 'bg-indigo-100 text-indigo-700', executive_it: 'bg-purple-100 text-purple-700' };
   document.getElementById('adminUserList').innerHTML = users.map(function(u) {
     return '<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors">' +
       '<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">' + (u.name || u.username).charAt(0).toUpperCase() + '</div>' +
@@ -675,7 +694,6 @@ async function hashPass(pass) {
 
 function renderUsers() {
   var users = getUsers();
-  users = users.filter(function(u) { return u.role !== 'executive_it'; });
   var filter = document.getElementById('userRoleFilter').value;
   var search = document.getElementById('userSearch').value.toLowerCase();
   if (filter !== 'all') users = users.filter(function(u) { return u.role === filter; });
@@ -691,8 +709,8 @@ function renderUsers() {
     return;
   }
 
-  var roleLabels = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task' };
-  var roleColors = { admin: 'bg-amber-100 text-amber-700', executive_path: 'bg-blue-100 text-blue-700', executive_task: 'bg-indigo-100 text-indigo-700' };
+  var roleLabels = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task', executive_it: 'Exec IT' };
+  var roleColors = { admin: 'bg-amber-100 text-amber-700', executive_path: 'bg-blue-100 text-blue-700', executive_task: 'bg-indigo-100 text-indigo-700', executive_it: 'bg-purple-100 text-purple-700' };
 
   container.innerHTML = '<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">' +
     '<div class="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-surface-container border-b border-outline-variant font-label-md text-on-surface-variant">' +
@@ -720,6 +738,7 @@ function openUserModal(data) {
   document.getElementById('userUsername').value = data ? data.username : '';
   document.getElementById('userPassword').value = '';
   document.getElementById('userRole').value = data ? (data.role || 'executive_path') : 'executive_path';
+  document.getElementById('userIsAdmin').checked = data ? !!data.isAdmin : false;
   document.getElementById('userModal').classList.remove('hidden');
 }
 
@@ -730,6 +749,7 @@ async function saveUser() {
   var username = document.getElementById('userUsername').value.trim();
   var password = document.getElementById('userPassword').value;
   var role = document.getElementById('userRole').value;
+  var isAdmin = document.getElementById('userIsAdmin').checked;
   var editId = document.getElementById('editUserId').value;
   var errEl = document.getElementById('userModal').querySelector('.space-y-4');
   var oldErr = document.getElementById('userModalErr');
@@ -746,7 +766,7 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Username already exists.'; errEl.prepend(err); return;
     }
-    users[idx].name = name; users[idx].username = username; users[idx].role = role;
+    users[idx].name = name; users[idx].username = username; users[idx].role = role; users[idx].isAdmin = isAdmin;
     if (password) users[idx].password = await hashPass(password);
     saveUsers(users);
   } else {
@@ -758,7 +778,7 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Password is required for new users.'; errEl.prepend(err); return;
     }
-    users.push({ username: username, name: name, password: await hashPass(password), role: role, isAdmin: role === 'admin' });
+    users.push({ username: username, name: name, password: await hashPass(password), role: role, isAdmin: isAdmin });
     saveUsers(users);
   }
   closeUserModal();
@@ -777,13 +797,13 @@ function deleteUser(username) {
   var users = getUsers().filter(function(u) { return u.username !== username; });
   saveUsers(users);
   ['tasks','plans','milestones','dailylog','trips'].forEach(function(k) { localStorage.removeItem(k + '_' + username); });
+  ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(k) { localStorage.removeItem('it_' + k + '_' + username); });
   renderUsers();
   loadDashboard();
 }
 
 function populateUserFilters() {
   var users = getUsers();
-  users = users.filter(function(u) { return u.role !== 'executive_it'; });
   var sel = ['taskUserFilter','planUserFilter','logUserFilter','tripUserFilter'];
   var opts = '<option value="all">All Users</option>';
   users.forEach(function(u) { opts += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + '</option>'; });
@@ -979,17 +999,20 @@ function loadSystemInfo() {
 function exportAllData() {
   var users = getUsers();
   var data = { exportedAt: new Date().toISOString(), users: users };
+  var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
   users.forEach(function(u) {
     data['tasks_' + u.username] = JSON.parse(localStorage.getItem('tasks_' + u.username) || '[]');
     data['plans_' + u.username] = JSON.parse(localStorage.getItem('plans_' + u.username) || '[]');
     data['milestones_' + u.username] = JSON.parse(localStorage.getItem('milestones_' + u.username) || '[]');
     data['dailylog_' + u.username] = JSON.parse(localStorage.getItem('dailylog_' + u.username) || '[]');
     data['trips_' + u.username] = JSON.parse(localStorage.getItem('trips_' + u.username) || '[]');
+    itTypes.forEach(function(t) {
+      data['it_' + t + '_' + u.username] = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username) || '[]');
+    });
   });
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'scheduler-backup-' + new Date().toISOString().slice(0,10) + '.json';
   a.click(); URL.revokeObjectURL(a.href);
-  data.users = data.users.filter(function(u) { return u.role !== 'executive_it'; });
 }
 
 function importData() {
@@ -1001,13 +1024,18 @@ function importData() {
     try {
       var data = JSON.parse(e.target.result);
       if (!data.users || !data.exportedAt) { alert('Invalid backup file format.'); return; }
-      localStorage.setItem('users', JSON.stringify(data.users));
+      saveUsers(data.users);
+      var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
       data.users.forEach(function(u) {
         if (data['tasks_' + u.username]) localStorage.setItem('tasks_' + u.username, JSON.stringify(data['tasks_' + u.username]));
         if (data['plans_' + u.username]) localStorage.setItem('plans_' + u.username, JSON.stringify(data['plans_' + u.username]));
         if (data['milestones_' + u.username]) localStorage.setItem('milestones_' + u.username, JSON.stringify(data['milestones_' + u.username]));
         if (data['dailylog_' + u.username]) localStorage.setItem('dailylog_' + u.username, JSON.stringify(data['dailylog_' + u.username]));
         if (data['trips_' + u.username]) localStorage.setItem('trips_' + u.username, JSON.stringify(data['trips_' + u.username]));
+        itTypes.forEach(function(t) {
+          var k = 'it_' + t + '_' + u.username;
+          if (data[k]) localStorage.setItem(k, JSON.stringify(data[k]));
+        });
       });
       fileInput.value = '';
       alert('Data imported successfully!');
@@ -1019,11 +1047,17 @@ function importData() {
 
 function clearAllData() {
   if (!confirm('Are you sure you want to clear ALL data? This cannot be undone. User accounts will be preserved.')) return;
-  if (!confirm('FINAL WARNING: This will delete all tasks, plans, milestones, daily logs, and trips. Proceed?')) return;
+  if (!confirm('FINAL WARNING: This will delete all tasks, plans, milestones, daily logs, trips, and IT data. Proceed?')) return;
   localStorage.removeItem('session');
   var users = getUsers();
   users.forEach(function(u) {
     ['tasks_','plans_','milestones_','dailylog_','trips_'].forEach(function(p) { localStorage.removeItem(p + u.username); });
+  });
+  ['it_assets_','it_services_','it_maintenance_','it_inventory_','it_task_','it_planner_','it_accomplishments_','it_tickets_','it_systems_'].forEach(function(p) {
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key.startsWith(p)) { localStorage.removeItem(key); i--; }
+    }
   });
   alert('All data cleared. User accounts preserved. Redirecting to login...');
   doLogout();
@@ -1039,9 +1073,9 @@ function performGlobalSearch() {
   var searchPlans = document.getElementById('gsPlans').checked;
   var searchTrips = document.getElementById('gsTrips').checked;
   var searchLogs = document.getElementById('gsLogs').checked;
+  var searchIT = document.getElementById('gsIT').checked;
 
   var users = getUsers();
-  users = users.filter(function(u) { return u.role !== 'executive_it'; });
   var allResults = [];
 
   if (searchUsers) {
@@ -1080,6 +1114,15 @@ function performGlobalSearch() {
         if ((l.title || '').toLowerCase().indexOf(q) !== -1 || (l.description || '').toLowerCase().indexOf(q) !== -1 || (l.category || '').toLowerCase().indexOf(q) !== -1) {
           allResults.push({ type: 'log', title: l.title, subtitle: uname, user: uname, date: l.date });
         }
+      });
+    }
+    if (searchIT) {
+      ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(itType) {
+        JSON.parse(localStorage.getItem('it_' + itType + '_' + u.username) || '[]').forEach(function(item) {
+          if ((item.name || item.title || item.description || '').toLowerCase().indexOf(q) !== -1) {
+            allResults.push({ type: 'it_' + itType, title: item.name || item.title || '(unnamed)', subtitle: uname, user: uname, date: item.date || item.createdAt });
+          }
+        });
       });
     }
   });
