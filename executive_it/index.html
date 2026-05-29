@@ -724,19 +724,49 @@ function renderMaintenance() {
     return;
   }
   el.innerHTML = data.map(function(item) {
-    var statusColor = item.status === 'scheduled' ? 'bg-blue-100 text-blue-700' : item.status === 'in-progress' ? 'bg-amber-100 text-amber-700' : item.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
-    return '<div class="flex items-start gap-4 p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift">' +
-      '<div class="p-3 rounded-xl bg-orange-100 text-orange-600"><span class="material-symbols-outlined">handyman</span></div>' +
-      '<div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.title) + '</h4><span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.status || 'scheduled') + '</span></div>' +
-      '<p class="font-label-md text-on-surface-variant mt-1">' + escapeHtml(item.description || '') + '</p>' +
-      '<div class="flex items-center gap-4 mt-1.5 text-on-surface-variant flex-wrap">' +
-      (item.asset ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">devices</span> ' + escapeHtml(item.asset) + '</span>' : '') +
-      (item.scheduledDate ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.scheduledDate) + '</span>' : '') +
-      '</div></div>' +
-      '<div class="flex items-start gap-1">' +
-      '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
-      '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
-      '</div></div>';
+    var statusColor = item.status === 'scheduled' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 
+                      item.status === 'in-progress' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 
+                      item.status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 
+                      'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+                      
+    var frequency = item.frequency || 'Quarterly';
+    var period = item.period || '1st Quarter';
+    var refNo = item.reference || 'N/A';
+    var model = item.model || 'N/A';
+    var serial = item.serial || 'N/A';
+    var dateVal = item.inspectionDate || item.scheduledDate || 'N/A';
+    var inspected = item.inspectedBy || 'N/A';
+    var checked = item.checkedBy || 'N/A';
+    
+    return '<div class="p-6 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift space-y-4">' +
+      '<div class="flex items-start justify-between gap-4">' +
+      '  <div class="flex items-center gap-3">' +
+      '    <div class="p-3 rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400"><span class="material-symbols-outlined">handyman</span></div>' +
+      '    <div>' +
+      '      <div class="flex items-center gap-2 flex-wrap">' +
+      '        <h4 class="font-body-lg font-bold text-primary">' + escapeHtml(item.equipment || item.asset || item.title) + '</h4>' +
+      '        <span class="font-label-md ' + statusColor + ' px-2.5 py-0.5 rounded-full text-xs font-semibold">' + escapeHtml(item.status || 'scheduled') + '</span>' +
+      '      </div>' +
+      '      <p class="font-label-md text-on-surface-variant mt-0.5">' + escapeHtml(frequency) + ' Inspection &middot; ' + escapeHtml(period) + '</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <div class="flex items-center gap-1">' +
+      '    <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+      '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+      '  </div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs bg-surface-container-low/40 p-4 rounded-xl border border-outline-variant/60">' +
+      '  <div><span class="text-on-surface-variant block font-medium">Inspection Date</span><span class="text-primary font-semibold">' + escapeHtml(dateVal) + '</span></div>' +
+      '  <div><span class="text-on-surface-variant block font-medium">Reference No.</span><span class="text-primary font-semibold">' + escapeHtml(refNo) + '</span></div>' +
+      '  <div><span class="text-on-surface-variant block font-medium">Model</span><span class="text-primary font-semibold">' + escapeHtml(model) + '</span></div>' +
+      '  <div><span class="text-on-surface-variant block font-medium">Serial Number</span><span class="text-primary font-semibold">' + escapeHtml(serial) + '</span></div>' +
+      '</div>' +
+      (item.description ? '<div class="text-sm border-l-2 border-primary/20 pl-3 py-1"><span class="text-on-surface-variant font-medium block text-xs mb-0.5">Details / Remarks</span><p class="text-primary">' + escapeHtml(item.description) + '</p></div>' : '') +
+      '<div class="flex items-center justify-between text-xs pt-2 border-t border-outline-variant/60 flex-wrap gap-2 text-on-surface-variant">' +
+      '  <div><span>Inspected By: </span><strong class="text-primary">' + escapeHtml(inspected) + '</strong></div>' +
+      '  <div><span>Checked By: </span><strong class="text-primary">' + escapeHtml(checked) + '</strong></div>' +
+      '</div>' +
+      '</div>';
   }).join('');
 }
 
@@ -986,13 +1016,46 @@ function getFormHtml(type, item) {
       '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Service</button></div>';
   }
   if (type === 'maintenance') {
+    var defaultDate = new Date().toISOString().split('T')[0];
     return '<div class="space-y-4">' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Title *</label><input id="fTitle" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.title || '') + '"/></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Description</label><textarea id="fDescription" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 resize-none">' + escapeHtml(item.description || '') + '</textarea></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Asset</label><input id="fAsset" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Asset name or ID" value="' + escapeHtml(item.asset || '') + '"/></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Scheduled Date</label><input id="fScheduledDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.scheduledDate || '') + '"/></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Status</label><select id="fStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="scheduled"' + (item.status === 'scheduled' || !item.status ? ' selected' : '') + '>Scheduled</option><option value="in-progress"' + (item.status === 'in-progress' ? ' selected' : '') + '>In Progress</option><option value="completed"' + (item.status === 'completed' ? ' selected' : '') + '>Completed</option><option value="cancelled"' + (item.status === 'cancelled' ? ' selected' : '') + '>Cancelled</option></select></div>' +
-      '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Maintenance</button></div>';
+      '  <div class="text-center pb-2 border-b border-outline-variant"><h4 class="font-title-lg font-bold text-primary">Quarterly Equipment Inspection</h4><p class="text-xs text-on-surface-variant">Form ITDF-OI</p></div>' +
+      '  <div class="grid grid-cols-2 gap-4">' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Inspection Date *</label><input id="fInspectionDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.inspectionDate || item.scheduledDate || defaultDate) + '"/></div>' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Reference No.</label><input id="fReference" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. REF-2026-001" value="' + escapeHtml(item.reference || '') + '"/></div>' +
+      '  </div>' +
+      '  <div class="grid grid-cols-2 gap-4">' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Equipment *</label><input id="fEquipment" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Printer, Laptop" value="' + escapeHtml(item.equipment || item.asset || '') + '"/></div>' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Inspection Frequency</label><select id="fFrequency" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '      <option value="Quarterly"' + (item.frequency === 'Quarterly' || !item.frequency ? ' selected' : '') + '>Quarterly</option>' +
+      '      <option value="Monthly"' + (item.frequency === 'Monthly' ? ' selected' : '') + '>Monthly</option>' +
+      '      <option value="Weekly"' + (item.frequency === 'Weekly' ? ' selected' : '') + '>Weekly</option>' +
+      '      <option value="Annually"' + (item.frequency === 'Annually' ? ' selected' : '') + '>Annually</option>' +
+      '    </select></div>' +
+      '  </div>' +
+      '  <div class="grid grid-cols-2 gap-4">' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Inspection Period</label><select id="fPeriod" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '      <option value="1st Quarter"' + (item.period === '1st Quarter' || !item.period ? ' selected' : '') + '>1st Quarter</option>' +
+      '      <option value="2nd Quarter"' + (item.period === '2nd Quarter' ? ' selected' : '') + '>2nd Quarter</option>' +
+      '      <option value="3rd Quarter"' + (item.period === '3rd Quarter' ? ' selected' : '') + '>3rd Quarter</option>' +
+      '      <option value="4th Quarter"' + (item.period === '4th Quarter' ? ' selected' : '') + '>4th Quarter</option>' +
+      '    </select></div>' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Model</label><input id="fModel" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Latitude 5420" value="' + escapeHtml(item.model || '') + '"/></div>' +
+      '  </div>' +
+      '  <div class="grid grid-cols-2 gap-4">' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Serial Number</label><input id="fSerial" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter Serial No." value="' + escapeHtml(item.serial || '') + '"/></div>' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Status</label><select id="fStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '      <option value="scheduled"' + (item.status === 'scheduled' || !item.status ? ' selected' : '') + '>Scheduled</option>' +
+      '      <option value="in-progress"' + (item.status === 'in-progress' ? ' selected' : '') + '>In Progress</option>' +
+      '      <option value="completed"' + (item.status === 'completed' ? ' selected' : '') + '>Completed</option>' +
+      '      <option value="cancelled"' + (item.status === 'cancelled' ? ' selected' : '') + '>Cancelled</option>' +
+      '    </select></div>' +
+      '  </div>' +
+      '  <div><label class="font-label-md text-on-surface-variant block mb-1">Details / Remarks</label><textarea id="fDescription" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 resize-none" placeholder="Enter inspection details, findings or remarks...">' + escapeHtml(item.description || '') + '</textarea></div>' +
+      '  <div class="grid grid-cols-2 gap-4">' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Inspected By</label><input id="fInspectedBy" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Name of Inspector" value="' + escapeHtml(item.inspectedBy || '') + '"/></div>' +
+      '    <div><label class="font-label-md text-on-surface-variant block mb-1">Checked By</label><input id="fCheckedBy" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Name of Verifier" value="' + escapeHtml(item.checkedBy || '') + '"/></div>' +
+      '  </div>' +
+      '  <button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Maintenance Activity</button></div>';
   }
   if (type === 'inventory') {
     return '<div class="space-y-4">' +
@@ -1072,13 +1135,22 @@ function saveItem() {
     item.cost = document.getElementById('fCost').value.trim();
     item.status = document.getElementById('fStatus').value;
   } else if (type === 'maintenance') {
-    var title = document.getElementById('fTitle').value.trim();
-    if (!title) { alert('Title is required.'); return; }
-    item.title = title;
+    var equipment = document.getElementById('fEquipment').value.trim();
+    if (!equipment) { alert('Equipment name is required.'); return; }
+    item.equipment = equipment;
+    item.title = equipment + ' Inspection';
+    item.inspectionDate = document.getElementById('fInspectionDate').value;
+    item.scheduledDate = item.inspectionDate;
+    item.reference = document.getElementById('fReference').value.trim();
+    item.frequency = document.getElementById('fFrequency').value;
+    item.period = document.getElementById('fPeriod').value;
+    item.model = document.getElementById('fModel').value.trim();
+    item.serial = document.getElementById('fSerial').value.trim();
     item.description = document.getElementById('fDescription').value.trim();
-    item.asset = document.getElementById('fAsset').value.trim();
-    item.scheduledDate = document.getElementById('fScheduledDate').value;
+    item.inspectedBy = document.getElementById('fInspectedBy').value.trim();
+    item.checkedBy = document.getElementById('fCheckedBy').value.trim();
     item.status = document.getElementById('fStatus').value;
+    item.asset = equipment;
   } else if (type === 'inventory') {
     var name = document.getElementById('fName').value.trim();
     if (!name) { alert('Item name is required.'); return; }
