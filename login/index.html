@@ -282,11 +282,8 @@ function doLogin() {
   }
 
   var users = JSON.parse(localStorage.getItem('users') || '[]');
-  // For Executive IT, also check the isolated IT user store
-  if (selectedPortal === 'executive_it') {
-    var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
-    users = users.concat(itUsers);
-  }
+  var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+  users = users.concat(itUsers);
 
   hashPass(pass).then(function(hash) {
     var found = users.find(function(u) { return u.username === user && u.password === hash; });
