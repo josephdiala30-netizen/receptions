@@ -140,6 +140,7 @@ button, input, select, textarea { min-width: 0; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
 </style>
+  <link rel="stylesheet" href="../styles/custom.css" />
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -510,7 +511,7 @@ button, input, select, textarea { min-width: 0; }
       <div><label class="font-label-md text-on-surface-variant block mb-1.5">Role</label>
         <select id="userRole" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
           <option value="executive_path">Executive Path</option>
-          <option value="executive_task">Executive Task</option>
+          <option value="executive_task" selected>Executive Task</option>
           <option value="executive_it">Executive IT</option>
           <option value="admin">Administrator</option>
         </select>
@@ -737,7 +738,7 @@ function openUserModal(data) {
   document.getElementById('userName').value = data ? (data.name || '') : '';
   document.getElementById('userUsername').value = data ? data.username : '';
   document.getElementById('userPassword').value = '';
-  document.getElementById('userRole').value = data ? (data.role || 'executive_path') : 'executive_path';
+  document.getElementById('userRole').value = data ? (data.role || 'executive_task') : 'executive_task';
   document.getElementById('userIsAdmin').checked = data ? !!data.isAdmin : false;
   document.getElementById('userModal').classList.remove('hidden');
 }
