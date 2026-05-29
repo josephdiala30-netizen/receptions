@@ -141,11 +141,6 @@ button, input, select, textarea { min-width: 0; }
   <button id="tabLogin" class="flex-1 py-2.5 text-center font-label-md rounded-lg bg-primary text-on-primary transition-all" onclick="switchTab('login')">Login</button>
   <button id="tabRegister" class="flex-1 py-2.5 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary transition-all" onclick="switchTab('register')">Register</button>
 </div>
-<div class="flex justify-around mb-4">
-  <button id="portalPath" class="flex-1 py-2 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary" onclick="selectPortal('executive_path')">Executive Path</button>
-  <button id="portalTask" class="flex-1 py-2 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary" onclick="selectPortal('executive_task')">Executive Task</button>
-  <button id="portalIT" class="flex-1 py-2 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary" onclick="selectPortal('executive_it')">Executive IT</button>
-</div>
 
     <div id="loginForm">
       <div class="space-y-4">
@@ -369,13 +364,13 @@ if (existingSession && existingSession.loggedIn) {
   // Seed global users (non-IT) and seed the Executive IT account separately to isolate it
   var users = JSON.parse(localStorage.getItem('users') || '[]');
   if (!users.some(function(u) { return u.username === 'superadmin'; })) {
-    users.push({ username: 'superadmin', name: 'Super Administrator', password: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', isAdmin: true, role: 'admin' });
+    users.push({ username: 'superadmin', name: 'Super Administrator', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' });
   }
   if (!users.some(function(u) { return u.username === 'admin'; })) {
-    users.push({ username: 'admin', name: 'Administrator', password: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', isAdmin: true, role: 'executive_path' });
+    users.push({ username: 'admin', name: 'Administrator', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'executive_path' });
   }
   if (!users.some(function(u) { return u.username === 'executive'; })) {
-    users.push({ username: 'executive', name: 'Executive User', password: '92c1f38320e64405e98c349c27334b3bd6c636f88347b279ef2530b66354efc5', isAdmin: false, role: 'executive_task' });
+    users.push({ username: 'executive', name: 'Executive User', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: false, role: 'executive_task' });
   }
   if (!users.some(function(u) { return u.username === 'task_admin'; })) {
     users.push({ username: 'task_admin', name: 'Task Administrator', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: true, role: 'executive_task' });
@@ -384,11 +379,16 @@ if (existingSession && existingSession.loggedIn) {
 
   // Executive IT accounts stored separately so they're not visible to other portals
   var usersIt = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+  var itDirty = false;
   if (!usersIt.some(function(u) { return u.username === 'it_executive'; })) {
     usersIt.push({ username: 'it_executive', name: 'Executive IT', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: false, role: 'executive_it' });
+    itDirty = true;
   }
   if (!usersIt.some(function(u) { return u.username === 'it_admin'; })) {
     usersIt.push({ username: 'it_admin', name: 'IT Administrator', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: true, role: 'executive_it' });
+    itDirty = true;
+  }
+  if (itDirty) {
     localStorage.setItem('users_executive_it', JSON.stringify(usersIt));
   }
 })();
