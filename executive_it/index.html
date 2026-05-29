@@ -2384,6 +2384,29 @@ function saveItem() {
       ticket.status = item.status === 'completed' ? 'resolved' : item.status === 'in-progress' ? 'in-progress' : 'open';
       ticket.assignedTo = getSession().name || getSession().username;
       saveData('tickets', tickets);
+
+      // Also sync to IT Services for organized job tracking
+      var services = getData('services');
+      var svc = services.find(function(s) { return s.accomplishmentId === item.id; });
+      if (!svc) {
+        svc = {
+          id: generateId(),
+          accomplishmentId: item.id,
+          createdAt: Date.now()
+        };
+        services.push(svc);
+      }
+      svc.name = reportTitle;
+      svc.description = description;
+      svc.requestorName = requestorName;
+      svc.severity = item.severity;
+      svc.category = 'General';
+      svc.department = item.department;
+      svc.incidentDate = item.incidentDate;
+      svc.resolution = item.resolution;
+      svc.cost = '';
+      svc.status = item.status === 'completed' ? 'resolved' : item.status === 'in-progress' ? 'in-progress' : 'open';
+      saveData('services', services);
     } else {
       item.title = category + ' Job';
       delete item.reportTitle;
