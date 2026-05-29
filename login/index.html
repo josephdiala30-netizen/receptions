@@ -284,12 +284,6 @@
 
     initTheme();
 
-    var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
-    if (existingSession && existingSession.loggedIn) {
-      var role = existingSession.role || 'executive_path';
-      window.location.href = getBaseUrl() + role + '/';
-    }
-
     (function seedAccounts() {
       var users = JSON.parse(localStorage.getItem('users') || '[]');
       if (!users.some(function(u) { return u.username === 'superadmin'; })) {
@@ -320,6 +314,12 @@
         localStorage.setItem('users_executive_it', JSON.stringify(usersIt));
       }
     })();
+
+    var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
+    if (existingSession && existingSession.loggedIn) {
+      var role = existingSession.role || 'executive_path';
+      window.location.href = getBaseUrl() + role + '/';
+    }
 
     updateRegisterVisibility();
   </script>

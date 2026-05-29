@@ -2,5 +2,20 @@
   "version": 2,
   "public": true,
   "cleanUrls": true,
-  "trailingSlash": true
+  "trailingSlash": true,
+  "rewrites": [
+    { "source": "/admin/", "destination": "/admin/index.html" },
+    { "source": "/login/", "destination": "/login/index.html" },
+    { "source": "/executive_path/", "destination": "/executive_path/index.html" },
+    { "source": "/executive_task/", "destination": "/executive_task/index.html" },
+    { "source": "/executive_it/", "destination": "/executive_it/index.html" },
+    { "source": "/settings/", "destination": "/settings/index.html" },
+    { "source": "/guide/", "destination": "/guide/index.html" },
+    { "source": "/reports/", "destination": "/reports/index.html" },
+    { "source": "/plan_new_trip/", "destination": "/plan_new_trip/index.html" },
+    { "source": "/trip_itinerary/", "destination": "/trip_itinerary/index.html" },
+    { "source": "/expenses_budgeting/", "destination": "/expenses_budgeting/index.html" },
+    { "source": "/dashboard_calendar_view/", "destination": "/dashboard_calendar_view/index.html" },
+    { "source": "/manager_approval_dashboard/", "destination": "/manager_approval_dashboard/index.html" }
+  ]
 }
