@@ -1518,6 +1518,34 @@ function toggleMilestone(planId, idx, checked) {
   renderPlanner();
 }
 
+// ==================== TEXT TO TABLE ====================
+function textToTable(text) {
+  if (!text) return null;
+  var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+  if (lines.length < 1) return null;
+  var hasTabs = lines.some(function(l) { return l.indexOf('\t') >= 0; });
+  if (!hasTabs) return null;
+  var cols = lines[0].split('\t').length;
+  if (cols < 2) return null;
+  var rows = lines.map(function(l) { return l.split('\t'); });
+  var html = '<div class="overflow-x-auto mt-2 rounded-xl border border-outline-variant/60"><table class="w-full text-xs border-collapse">';
+  html += '<thead><tr>';
+  rows[0].forEach(function(cell) {
+    html += '<th class="px-3 py-2 bg-primary text-on-primary font-semibold text-left whitespace-nowrap">' + escapeHtml(cell) + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+  for (var i = 1; i < rows.length; i++) {
+    html += '<tr class="' + (i % 2 === 0 ? 'bg-surface-container-low/40' : '') + ' border-t border-outline-variant/40">';
+    for (var j = 0; j < cols; j++) {
+      var cell = rows[i][j] || '';
+      html += '<td class="px-3 py-2 text-on-surface-variant' + (j === 0 ? ' font-medium text-primary' : '') + '">' + escapeHtml(cell) + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  return html;
+}
+
 // ==================== DAILY ACCOMPLISHMENTS ====================
 function renderAccomplishments() {
   var data = getData('accomplishments');
@@ -1540,6 +1568,18 @@ function renderAccomplishments() {
                    category === 'Uploading/Encoding' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
                    
+    var descriptionHtml = '';
+    if (category === 'Uploading/Encoding') {
+      var tableHtml = textToTable(item.description);
+      if (tableHtml) {
+        descriptionHtml = tableHtml;
+      } else {
+        descriptionHtml = '<p class="font-label-md text-on-surface-variant mt-2 whitespace-pre-wrap">' + escapeHtml(item.description) + '</p>';
+      }
+    } else {
+      descriptionHtml = item.description ? '<p class="font-label-md text-on-surface-variant mt-2 whitespace-pre-wrap">' + escapeHtml(item.description) + '</p>' : '';
+    }
+
     var itDetailsHtml = '';
     if (category === 'Technical Support' && item.reportTitle) {
       itDetailsHtml = '<div class="mt-3 p-4 bg-surface-container-low rounded-xl border border-outline-variant/60 space-y-2 text-xs">' +
@@ -1564,7 +1604,7 @@ function renderAccomplishments() {
       '      <span class="font-label-md ' + statusClass + ' px-2 py-0.5 rounded-full text-xs font-semibold">' + escapeHtml(statusLabel) + '</span>' +
       '      ' + (item.date ? '<span class="font-label-md text-on-surface-variant flex items-center gap-1 ml-2"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.date) + '</span>' : '') +
       '    </div>' +
-      '    ' + (item.description ? '<p class="font-label-md text-on-surface-variant mt-2 whitespace-pre-wrap">' + escapeHtml(item.description) + '</p>' : '') +
+      '    ' + descriptionHtml +
       '    ' + itDetailsHtml +
       '  </div>' +
       '  <div class="flex items-start gap-1">' +
