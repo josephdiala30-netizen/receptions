@@ -566,8 +566,103 @@ function getDataKey(type) {
   return 'it_' + type + '_' + (session ? session.username : 'anon');
 }
 
+function getInitialRoadmaps() {
+  var baseId = Date.now();
+  return [
+    {
+      id: baseId + 101,
+      createdAt: baseId - 86400000 * 5,
+      title: 'Cloud Migration & Disaster Recovery Modernization',
+      description: 'Migrating legacy on-premise local servers to secure AWS Cloud hosting. Setting up automated daily backup scripts and multi-regional redundancy protocols.',
+      startDate: '2026-03-01',
+      endDate: '2026-06-30',
+      progress: 65,
+      status: 'active',
+      category: 'Infrastructure',
+      priority: 'High',
+      projectLead: 'Joseph Diala',
+      department: 'IT Department',
+      budget: '₱350,000',
+      milestones: '[x] AWS Infrastructure Architecture Design\n[x] Database Migration Dry-Run (Successful)\n[/] Live Application Sync & Cloud Deployment\n[ ] Final DNS cutover & Staff training'
+    },
+    {
+      id: baseId + 102,
+      createdAt: baseId - 86400000 * 15,
+      title: 'Office Network Security Hardening (VLAN & Firewall Setup)',
+      description: 'Hardening local networking security by segregating departments into dedicated VLANs, configuring hardware firewall rules (Fortinet), and deploying endpoint antivirus on all company devices.',
+      startDate: '2026-01-10',
+      endDate: '2026-02-28',
+      progress: 100,
+      status: 'completed',
+      category: 'Cybersecurity',
+      priority: 'Critical',
+      projectLead: 'Mark Santos',
+      department: 'Security & Operations',
+      budget: '₱120,000',
+      milestones: '[x] Network topology assessment & IP planning\n[x] VLAN configuration on core switches\n[x] Firewall setup & URL filtering policy deployment\n[x] Endpoint detection & response (EDR) installation'
+    },
+    {
+      id: baseId + 103,
+      createdAt: baseId - 86400000 * 2,
+      title: 'Biometric Access Control & CCTV Surveillance Upgrade',
+      description: 'Upgrading office security by installing IP-based biometric door locks integrated with Active Directory, and setting up high-definition IP cameras around critical assets.',
+      startDate: '2026-05-01',
+      endDate: '2026-06-15',
+      progress: 40,
+      status: 'active',
+      category: 'Hardware Upgrade',
+      priority: 'Medium',
+      projectLead: 'Joseph Diala',
+      department: 'Facilities & IT',
+      budget: '₱180,000',
+      milestones: '[x] Equipment procurement & cable routing layout\n[/] Biometric device mounting & power cabling\n[ ] Centralized NVR config and storage allocation\n[ ] AD authentication synchronization test'
+    },
+    {
+      id: baseId + 104,
+      createdAt: baseId - 86400000 * 1,
+      title: 'Enterprise ERP Software Integration (Phase 1)',
+      description: 'Planning and requirements gathering for the transition from manual accounting spreadsheets to a centralized ERP platform. Phase 1 targets General Ledger, Accounts Payable, and Inventory.',
+      startDate: '2026-06-01',
+      endDate: '2026-09-30',
+      progress: 15,
+      status: 'pending',
+      category: 'Software Development',
+      priority: 'High',
+      projectLead: 'Elena Cruz (ERP Consultant)',
+      department: 'Finance, Procurement & IT',
+      budget: '₱1,200,000',
+      milestones: '[/] Vendor demo evaluation & selection\n[ ] Detailed business requirements documentation (BRD)\n[ ] Data structure mapping & cleansing\n[ ] Development of custom API integrations'
+    },
+    {
+      id: baseId + 105,
+      createdAt: baseId,
+      title: 'Quarterly IT Service Desk Optimization & SLA Policy Review',
+      description: 'Refining IT ticketing response guidelines, reviewing SLA metrics, and upgrading the ticketing portal interface to improve response rates and customer satisfaction.',
+      startDate: '2026-07-01',
+      endDate: '2026-08-15',
+      progress: 0,
+      status: 'pending',
+      category: 'IT Service Desk',
+      priority: 'Low',
+      projectLead: 'Sarah Lim',
+      department: 'IT Support Desk',
+      budget: '₱30,000',
+      milestones: '[ ] Audit of current ticket response times & bottlenecks\n[ ] Draft revised SLA priority matrices\n[ ] Ticket portal automation rules config\n[ ] Helpdesk staff refresher training session'
+    }
+  ];
+}
+
 function getData(type) {
   var session = getSession();
+  var defaultSeeded = false;
+  if (type === 'planner') {
+    var key = getDataKey(type);
+    if (!localStorage.getItem(key)) {
+      localStorage.setItem(key, JSON.stringify(getInitialRoadmaps()));
+      defaultSeeded = true;
+    }
+  }
+
   if (session && session.isAdmin && session.role === 'executive_it') {
     var all = [];
     for (var i = 0; i < localStorage.length; i++) {
@@ -578,6 +673,12 @@ function getData(type) {
         items.forEach(function(item) { item._user = user; });
         all = all.concat(items);
       }
+    }
+    if (type === 'planner' && all.length === 0 && defaultSeeded) {
+      var adminKey = getDataKey(type);
+      var items = JSON.parse(localStorage.getItem(adminKey) || '[]');
+      items.forEach(function(item) { item._user = session.username; });
+      all = all.concat(items);
     }
     all.sort(function(a, b) { return (b.id || 0) - (a.id || 0); });
     return all;
@@ -897,29 +998,127 @@ function renderPlanner() {
     el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center ml-16 bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">map</span><p class="font-body-md text-on-surface-variant mt-4">No plans yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'planner\')">Create First Plan</button></div>';
     return;
   }
+  
   el.innerHTML = data.map(function(item) {
     var statusColor = item.status === 'active' ? 'bg-emerald-500' : item.status === 'pending' ? 'bg-amber-500' : item.status === 'completed' ? 'bg-blue-500' : 'bg-gray-400';
-    var statusLabel = item.status === 'active' ? 'bg-emerald-100 text-emerald-700' : item.status === 'pending' ? 'bg-amber-100 text-amber-700' : item.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700';
+    var statusLabel = item.status === 'active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    : item.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    : item.status === 'completed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
     var barColor = item.status === 'active' ? 'bg-emerald-400' : item.status === 'pending' ? 'bg-amber-400' : item.status === 'completed' ? 'bg-blue-400' : 'bg-gray-300';
     var dateRange = '';
     if (item.startDate && item.endDate) dateRange = escapeHtml(item.startDate) + ' — ' + escapeHtml(item.endDate);
     else if (item.startDate) dateRange = 'From ' + escapeHtml(item.startDate);
     else if (item.endDate) dateRange = 'Until ' + escapeHtml(item.endDate);
-    return '<div class="relative pl-16 pb-8">' +
-      '<div class="absolute left-5 top-1 w-6 h-6 rounded-full border-4 border-surface ' + statusColor + ' z-10"></div>' +
-      '<div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 card-lift">' +
-      '<div class="flex items-start justify-between gap-4">' +
-      '<div class="flex-1">' +
-      '<div class="flex items-center gap-2 flex-wrap mb-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.title) + '</h4><span class="font-label-md ' + statusLabel + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.status || 'active') + '</span></div>' +
-      (item.description ? '<p class="font-label-md text-on-surface-variant mb-3">' + escapeHtml(item.description) + '</p>' : '') +
-      (dateRange ? '<div class="flex items-center gap-2 text-on-surface-variant mb-3"><span class="material-symbols-outlined text-sm">calendar_month</span><span class="font-label-md">' + dateRange + '</span></div>' : '') +
-      '<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full rounded-full transition-all ' + barColor + '" style="width:' + (item.progress || 0) + '%"></div></div>' +
-      '<span class="font-label-md text-on-surface-variant mt-1 block text-right">' + (item.progress || 0) + '%</span>' +
-      '</div>' +
-      '<div class="flex items-start gap-1 shrink-0">' +
-      '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'planner\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
-      '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'planner\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
-      '</div></div></div></div>';
+
+    var catIcons = {
+      'Infrastructure': 'dns',
+      'Cybersecurity': 'security',
+      'Software Development': 'code',
+      'Hardware Upgrade': 'hardware',
+      'Compliance/Audit': 'fact_check',
+      'IT Service Desk': 'support_agent'
+    };
+    var iconName = catIcons[item.category] || 'map';
+
+    var catColors = {
+      'Infrastructure': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      'Cybersecurity': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+      'Software Development': 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+      'Hardware Upgrade': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+      'Compliance/Audit': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+      'IT Service Desk': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
+    };
+    var catColor = catColors[item.category] || 'bg-surface-container text-on-surface-variant';
+
+    var prioColors = {
+      'Critical': 'bg-rose-100 text-rose-700 border border-rose-300 font-bold dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800',
+      'High': 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+      'Medium': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+      'Low': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+    };
+    var prioColor = prioColors[item.priority] || 'bg-surface-container text-on-surface-variant';
+
+    var milestonesHtml = '';
+    if (item.milestones) {
+      var lines = item.milestones.split('\n');
+      var parsedMilestones = lines.map(function(line) {
+        line = line.trim();
+        if (!line) return '';
+        var status = 'pending';
+        var text = line;
+        if (line.indexOf('[x]') === 0 || line.indexOf('[X]') === 0) {
+          status = 'completed';
+          text = line.substring(3).trim();
+        } else if (line.indexOf('[/]') === 0) {
+          status = 'in-progress';
+          text = line.substring(3).trim();
+        } else if (line.indexOf('[ ]') === 0) {
+          status = 'pending';
+          text = line.substring(3).trim();
+        }
+        
+        var icon = status === 'completed' ? 'check_circle' : status === 'in-progress' ? 'published_with_changes' : 'radio_button_unchecked';
+        var textColor = status === 'completed' ? 'text-emerald-600 dark:text-emerald-400 line-through opacity-70' : status === 'in-progress' ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-on-surface-variant';
+        var iconColor = status === 'completed' ? 'text-emerald-500' : status === 'in-progress' ? 'text-blue-500' : 'text-on-surface-variant/60';
+        
+        return '<li class="flex items-center gap-2 text-xs ' + textColor + '">' +
+               '  <span class="material-symbols-outlined text-[16px] ' + iconColor + '">' + icon + '</span>' +
+               '  <span>' + escapeHtml(text) + '</span>' +
+               '</li>';
+      }).filter(Boolean).join('');
+      
+      if (parsedMilestones) {
+        milestonesHtml = '<div class="mt-3 bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/60">' +
+                         '  <span class="text-xs font-semibold text-primary block mb-2 uppercase tracking-wider text-[10px]">Key Milestones</span>' +
+                         '  <ul class="space-y-2">' + parsedMilestones + '</ul>' +
+                         '</div>';
+      }
+    }
+
+    return '<div class="relative pl-16 pb-8 card-enter">' +
+      '  <div class="absolute left-5 top-1 w-6 h-6 rounded-full border-4 border-surface ' + statusColor + ' z-10"></div>' +
+      '  <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 card-lift space-y-4">' +
+      '    <div class="flex items-start justify-between gap-4">' +
+      '      <div class="flex-1">' +
+      '        <div class="flex items-center gap-2 flex-wrap mb-2">' +
+      '          <span class="p-2 rounded-xl bg-teal-100 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400 flex items-center justify-center mr-1"><span class="material-symbols-outlined text-lg">' + iconName + '</span></span>' +
+      '          <h4 class="font-body-md font-bold text-primary text-base">' + escapeHtml(item.title) + '</h4>' +
+      '          <span class="font-label-md ' + statusLabel + ' px-2 py-0.5 rounded-full text-xs font-semibold">' + escapeHtml(item.status || 'active') + '</span>' +
+      '          <span class="font-label-md ' + catColor + ' px-2 py-0.5 rounded-full text-xs font-semibold">' + escapeHtml(item.category || 'General') + '</span>' +
+      '          <span class="font-label-md ' + prioColor + ' px-2.5 py-0.5 rounded-full text-xs font-semibold">Priority: ' + escapeHtml(item.priority || 'Medium') + '</span>' +
+      '        </div>' +
+      '        ' + (item.description ? '<p class="font-body-md text-on-surface-variant mt-1 mb-3 text-sm leading-relaxed">' + escapeHtml(item.description) + '</p>' : '') +
+      '        ' + (dateRange ? '<div class="flex items-center gap-2 text-on-surface-variant mb-3"><span class="material-symbols-outlined text-sm">calendar_month</span><span class="font-label-md text-xs font-semibold">' + dateRange + '</span></div>' : '') +
+      '      </div>' +
+      '      <div class="flex items-start gap-1 shrink-0">' +
+      '        <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'planner\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+      '        <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'planner\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+      '      </div>' +
+      '    </div>' +
+      '    ' +
+      '    <!-- Project Metadata Row -->' +
+      '    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/60">' +
+      '      <div><span class="text-on-surface-variant block font-medium uppercase tracking-wider text-[9px]">Project Lead</span><span class="text-primary font-semibold">' + escapeHtml(item.projectLead || 'N/A') + '</span></div>' +
+      '      <div><span class="text-on-surface-variant block font-medium uppercase tracking-wider text-[9px]">Department / Scope</span><span class="text-primary font-semibold">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
+      '      <div><span class="text-on-surface-variant block font-medium uppercase tracking-wider text-[9px]">Estimated Budget</span><span class="text-teal-600 dark:text-teal-400 font-bold">' + escapeHtml(item.budget || 'N/A') + '</span></div>' +
+      '    </div>' +
+      '    ' +
+      '    <!-- Milestones Checklist -->' +
+      '    ' + milestonesHtml +
+      '    ' +
+      '    <!-- Progress Bar -->' +
+      '    <div class="space-y-1">' +
+      '      <div class="flex items-center justify-between text-xs font-semibold text-on-surface-variant">' +
+      '        <span>Progress Tracker</span>' +
+      '        <span class="text-primary">' + (item.progress || 0) + '%</span>' +
+      '      </div>' +
+      '      <div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden border border-outline-variant/30">' +
+      '        <div class="h-full rounded-full transition-all ' + barColor + '" style="width:' + (item.progress || 0) + '%"></div>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
   }).join('');
 }
 
@@ -1382,14 +1581,106 @@ function getFormHtml(type, item) {
       '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Task</button></div>';
   }
   if (type === 'planner') {
+    var category = item.category || 'Infrastructure';
+    var priority = item.priority || 'Medium';
+    var status = item.status || 'active';
+    var milestones = item.milestones || '';
     return '<div class="space-y-4">' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Plan Title *</label><input id="fTitle" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.title || '') + '"/></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Description</label><textarea id="fDescription" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 resize-none">' + escapeHtml(item.description || '') + '</textarea></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Start Date</label><input id="fStartDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.startDate || '') + '"/></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">End Date</label><input id="fEndDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.endDate || '') + '"/></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Progress (%)</label><input id="fProgress" type="number" min="0" max="100" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + (item.progress || 0) + '"/></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Status</label><select id="fStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="active"' + ((item.status === 'active' || !item.status) ? ' selected' : '') + '>Active</option><option value="pending"' + (item.status === 'pending' ? ' selected' : '') + '>Pending</option><option value="completed"' + (item.status === 'completed' ? ' selected' : '') + '>Completed</option></select></div>' +
-      '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Plan</button></div>';
+      '  <!-- Title -->' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Plan Title *</label>' +
+      '    <input id="fTitle" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="e.g. AWS Cloud Migration" value="' + escapeHtml(item.title || '') + '"/>' +
+      '  </div>' +
+      
+      '  <!-- Category + Priority -->' +
+      '  <div class="grid grid-cols-2 gap-4">' +
+      '    <div>' +
+      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Category</label>' +
+      '      <select id="fCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '        <option value="Infrastructure"' + (category === 'Infrastructure' ? ' selected' : '') + '>Infrastructure</option>' +
+      '        <option value="Cybersecurity"' + (category === 'Cybersecurity' ? ' selected' : '') + '>Cybersecurity</option>' +
+      '        <option value="Software Development"' + (category === 'Software Development' ? ' selected' : '') + '>Software Development</option>' +
+      '        <option value="Hardware Upgrade"' + (category === 'Hardware Upgrade' ? ' selected' : '') + '>Hardware Upgrade</option>' +
+      '        <option value="Compliance/Audit"' + (category === 'Compliance/Audit' ? ' selected' : '') + '>Compliance/Audit</option>' +
+      '        <option value="IT Service Desk"' + (category === 'IT Service Desk' ? ' selected' : '') + '>IT Service Desk</option>' +
+      '      </select>' +
+      '    </div>' +
+      '    <div>' +
+      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Priority</label>' +
+      '      <select id="fPriority" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '        <option value="Critical"' + (priority === 'Critical' ? ' selected' : '') + '>Critical</option>' +
+      '        <option value="High"' + (priority === 'High' ? ' selected' : '') + '>High</option>' +
+      '        <option value="Medium"' + (priority === 'Medium' ? ' selected' : '') + '>Medium</option>' +
+      '        <option value="Low"' + (priority === 'Low' ? ' selected' : '') + '>Low</option>' +
+      '      </select>' +
+      '    </div>' +
+      '  </div>' +
+
+      '  <!-- Project Lead + Scope/Department -->' +
+      '  <div class="grid grid-cols-2 gap-4">' +
+      '    <div>' +
+      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Project Lead</label>' +
+      '      <input id="fProjectLead" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Joseph Diala" value="' + escapeHtml(item.projectLead || '') + '"/>' +
+      '    </div>' +
+      '    <div>' +
+      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Department / Scope</label>' +
+      '      <input id="fDepartment" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. IT Department, Company-Wide" value="' + escapeHtml(item.department || '') + '"/>' +
+      '    </div>' +
+      '  </div>' +
+
+      '  <!-- Start Date + End Date -->' +
+      '  <div class="grid grid-cols-2 gap-4">' +
+      '    <div>' +
+      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Start Date</label>' +
+      '      <input id="fStartDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.startDate || '') + '"/>' +
+      '    </div>' +
+      '    <div>' +
+      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">End Date</label>' +
+      '      <input id="fEndDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.endDate || '') + '"/>' +
+      '    </div>' +
+      '  </div>' +
+
+      '  <!-- Budget + Progress -->' +
+      '  <div class="grid grid-cols-2 gap-4">' +
+      '    <div>' +
+      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Estimated Budget</label>' +
+      '      <input id="fBudget" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. ₱350,000" value="' + escapeHtml(item.budget || '') + '"/>' +
+      '    </div>' +
+      '    <div>' +
+      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Progress (%)</label>' +
+      '      <input id="fProgress" type="number" min="0" max="100" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + (item.progress || 0) + '"/>' +
+      '    </div>' +
+      '  </div>' +
+
+      '  <!-- Description -->' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Description</label>' +
+      '    <textarea id="fDescription" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 resize-none" placeholder="Provide details of the project plan...">' + escapeHtml(item.description || '') + '</textarea>' +
+      '  </div>' +
+
+      '  <!-- Milestones Checklist -->' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Milestones (One per line)</label>' +
+      '    <p class="text-[10px] text-on-surface-variant mb-1">Use <code>[x]</code> for completed, <code>[/]</code> for in-progress, or <code>[ ]</code> for pending milestones. Example: <code>[x] Design Phase</code></p>' +
+      '    <textarea id="fMilestones" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-[12px] font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 h-28 resize-none" placeholder="[x] Stage 1\n[/] Stage 2\n[ ] Stage 3">' + escapeHtml(milestones) + '</textarea>' +
+      '  </div>' +
+
+      '  <!-- Status -->' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Status</label>' +
+      '    <select id="fStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '      <option value="active"' + (status === 'active' ? ' selected' : '') + '>Active</option>' +
+      '      <option value="pending"' + (status === 'pending' ? ' selected' : '') + '>Pending</option>' +
+      '      <option value="completed"' + (status === 'completed' ? ' selected' : '') + '>Completed</option>' +
+      '    </select>' +
+      '  </div>' +
+
+      '  <!-- Action Buttons -->' +
+      '  <div class="flex gap-3 pt-1">' +
+      '    <button class="flex-1 border border-outline-variant text-on-surface-variant py-2.5 rounded-xl font-label-md font-semibold hover:bg-surface-container transition-all" onclick="closeModal()">✕ Cancel</button>' +
+      '    <button class="flex-1 bg-teal-600 text-white py-2.5 rounded-xl font-label-md font-semibold hover:bg-teal-700 transition-all flex items-center justify-center gap-2" onclick="saveItem()"><span class="material-symbols-outlined text-sm">save</span> Save Plan</button>' +
+      '  </div>' +
+      '</div>';
   }
   if (type === 'accomplishment') {
     var defaultDate = new Date().toISOString().split('T')[0];
@@ -1570,6 +1861,12 @@ function saveItem() {
     item.endDate = document.getElementById('fEndDate').value;
     item.progress = parseInt(document.getElementById('fProgress').value) || 0;
     item.status = document.getElementById('fStatus').value;
+    item.category = document.getElementById('fCategory').value;
+    item.priority = document.getElementById('fPriority').value;
+    item.projectLead = document.getElementById('fProjectLead').value.trim();
+    item.department = document.getElementById('fDepartment').value.trim();
+    item.budget = document.getElementById('fBudget').value.trim();
+    item.milestones = document.getElementById('fMilestones').value.trim();
   } else if (type === 'accomplishment') {
     var category = document.getElementById('fCategory').value;
     var description = document.getElementById('fDescription').value.trim();
