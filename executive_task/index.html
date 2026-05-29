@@ -1656,6 +1656,16 @@ function renderLogEntry(e) {
 
 var editingLogId = null;
 
+function toggleCategoryDetails(category) {
+  var el = document.getElementById('itReportDetails');
+  if (!el) return;
+  if (category === 'Technical Support') {
+    el.style.display = '';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
 function openCreateLogModal() {
   editingLogId = null;
   document.getElementById('logModalTitle').textContent = 'New Daily Job';
