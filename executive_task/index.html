@@ -233,6 +233,7 @@ button, input, select, textarea { min-width: 0; }
       <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
         <div class="px-4 py-3 border-b border-outline-variant">
           <p id="userNameDisplay" class="font-body-md font-semibold text-primary inline"></p>
+          <span id="adminBadge" class="hidden text-xs bg-primary text-on-primary px-2 py-0.5 rounded-full font-label-md ml-2">Admin</span>
           <p id="userUsernameDisplay" class="font-label-md text-on-surface-variant mt-0.5"></p>
         </div>
         <button class="w-full flex items-center gap-3 px-4 py-3 mt-1 rounded-xl text-on-surface-variant hover:bg-surface-container-high font-label-md transition-all duration-200 active:scale-[0.98]" onclick="doLogout()">
@@ -743,16 +744,54 @@ function toggleTheme() {
   document.getElementById('themeToggle').textContent = isDark ? 'light_mode' : 'dark_mode';
 }
 
+function isAdmin() {
+  var s = getSession();
+  return s && s.isAdmin && (s.role === 'executive_task' || s.role === 'executive_path');
+}
+
+function collectAllKeys(prefix) {
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key.startsWith(prefix)) keys.push(key);
+  }
+  return keys;
+}
+
 function tasksKey() {
   var s = getSession();
   return s ? 'tasks_' + s.username : 'tasks';
 }
 
 function getTasks() {
+  if (isAdmin()) {
+    var all = [];
+    collectAllKeys('tasks_').forEach(function(key) {
+      var user = key.replace('tasks_', '');
+      var items = JSON.parse(localStorage.getItem(key) || '[]');
+      items.forEach(function(item) { item._user = user; });
+      all = all.concat(items);
+    });
+    all.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    return all;
+  }
   return JSON.parse(localStorage.getItem(tasksKey()) || '[]');
 }
 
 function saveTasks(t) {
+  var s = getSession();
+  if (isAdmin()) {
+    var byUser = {};
+    t.forEach(function(item) {
+      var u = item._user || s.username;
+      if (!byUser[u]) byUser[u] = [];
+      byUser[u].push(item);
+    });
+    for (var user in byUser) {
+      localStorage.setItem('tasks_' + user, JSON.stringify(byUser[user]));
+    }
+    return;
+  }
   localStorage.setItem(tasksKey(), JSON.stringify(t));
 }
 
@@ -766,6 +805,8 @@ function initAuth() {
   document.getElementById('userBtn').textContent = initial;
   document.getElementById('userNameDisplay').textContent = session.name || session.username;
   document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
+  var badge = document.getElementById('adminBadge');
+  if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
 }
 
 function toggleUserMenu() {
@@ -1149,10 +1190,34 @@ function plannerKey() {
 }
 
 function getPlans() {
+  if (isAdmin()) {
+    var all = [];
+    collectAllKeys('plans_').forEach(function(key) {
+      var user = key.replace('plans_', '');
+      var items = JSON.parse(localStorage.getItem(key) || '[]');
+      items.forEach(function(item) { item._user = user; });
+      all = all.concat(items);
+    });
+    all.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    return all;
+  }
   return JSON.parse(localStorage.getItem(plannerKey()) || '[]');
 }
 
 function savePlans(p) {
+  var s = getSession();
+  if (isAdmin()) {
+    var byUser = {};
+    p.forEach(function(item) {
+      var u = item._user || s.username;
+      if (!byUser[u]) byUser[u] = [];
+      byUser[u].push(item);
+    });
+    for (var user in byUser) {
+      localStorage.setItem('plans_' + user, JSON.stringify(byUser[user]));
+    }
+    return;
+  }
   localStorage.setItem(plannerKey(), JSON.stringify(p));
 }
 
@@ -1466,10 +1531,34 @@ function dailyLogKey() {
 }
 
 function getLogEntries() {
+  if (isAdmin()) {
+    var all = [];
+    collectAllKeys('dailylog_').forEach(function(key) {
+      var user = key.replace('dailylog_', '');
+      var items = JSON.parse(localStorage.getItem(key) || '[]');
+      items.forEach(function(item) { item._user = user; });
+      all = all.concat(items);
+    });
+    all.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    return all;
+  }
   return JSON.parse(localStorage.getItem(dailyLogKey()) || '[]');
 }
 
 function saveLogEntries(entries) {
+  var s = getSession();
+  if (isAdmin()) {
+    var byUser = {};
+    entries.forEach(function(item) {
+      var u = item._user || s.username;
+      if (!byUser[u]) byUser[u] = [];
+      byUser[u].push(item);
+    });
+    for (var user in byUser) {
+      localStorage.setItem('dailylog_' + user, JSON.stringify(byUser[user]));
+    }
+    return;
+  }
   localStorage.setItem(dailyLogKey(), JSON.stringify(entries));
 }
 

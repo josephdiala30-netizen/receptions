@@ -272,6 +272,7 @@ button, input, select, textarea { min-width: 0; }
       <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
         <div class="px-4 py-3 border-b border-outline-variant">
           <p id="userNameDisplay" class="font-body-md font-semibold text-primary inline"></p>
+          <span id="adminBadge" class="hidden text-xs bg-primary text-on-primary px-2 py-0.5 rounded-full font-label-md ml-2">Admin</span>
           <p id="userUsernameDisplay" class="font-label-md text-on-surface-variant mt-0.5"></p>
         </div>
         <button class="w-full flex items-center gap-3 px-4 py-3 mt-1 rounded-xl text-on-surface-variant hover:bg-surface-container-high font-label-md transition-all duration-200 active:scale-[0.98]" onclick="doLogout()">
@@ -560,6 +561,8 @@ function initAuth() {
   document.getElementById('userBtn').textContent = initial;
   document.getElementById('userNameDisplay').textContent = session.name || session.username;
   document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
+  var badge = document.getElementById('adminBadge');
+  if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
 }
 
 function toggleUserMenu() {
@@ -585,10 +588,38 @@ function getDataKey(type) {
 }
 
 function getData(type) {
+  var session = getSession();
+  if (session && session.isAdmin && session.role === 'executive_it') {
+    var all = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key.startsWith('it_' + type + '_')) {
+        var user = key.replace('it_' + type + '_', '');
+        var items = JSON.parse(localStorage.getItem(key) || '[]');
+        items.forEach(function(item) { item._user = user; });
+        all = all.concat(items);
+      }
+    }
+    all.sort(function(a, b) { return (b.id || 0) - (a.id || 0); });
+    return all;
+  }
   return JSON.parse(localStorage.getItem(getDataKey(type)) || '[]');
 }
 
 function saveData(type, data) {
+  var session = getSession();
+  if (session && session.isAdmin && session.role === 'executive_it') {
+    var byUser = {};
+    data.forEach(function(item) {
+      var u = item._user || session.username;
+      if (!byUser[u]) byUser[u] = [];
+      byUser[u].push(item);
+    });
+    for (var user in byUser) {
+      localStorage.setItem('it_' + type + '_' + user, JSON.stringify(byUser[user]));
+    }
+    return;
+  }
   localStorage.setItem(getDataKey(type), JSON.stringify(data));
 }
 
