@@ -822,34 +822,10 @@ function tasksKey() {
 }
 
 function getTasks() {
-  if (isAdmin()) {
-    var all = [];
-    collectAllKeys('tasks_').forEach(function(key) {
-      var user = key.replace('tasks_', '');
-      var items = JSON.parse(localStorage.getItem(key) || '[]');
-      items.forEach(function(item) { item._user = user; });
-      all = all.concat(items);
-    });
-    all.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
-    return all;
-  }
   return JSON.parse(localStorage.getItem(tasksKey()) || '[]');
 }
 
 function saveTasks(t) {
-  var s = getSession();
-  if (isAdmin()) {
-    var byUser = {};
-    t.forEach(function(item) {
-      var u = item._user || s.username;
-      if (!byUser[u]) byUser[u] = [];
-      byUser[u].push(item);
-    });
-    for (var user in byUser) {
-      localStorage.setItem('tasks_' + user, JSON.stringify(byUser[user]));
-    }
-    return;
-  }
   localStorage.setItem(tasksKey(), JSON.stringify(t));
 }
 
@@ -1248,34 +1224,10 @@ function plannerKey() {
 }
 
 function getPlans() {
-  if (isAdmin()) {
-    var all = [];
-    collectAllKeys('plans_').forEach(function(key) {
-      var user = key.replace('plans_', '');
-      var items = JSON.parse(localStorage.getItem(key) || '[]');
-      items.forEach(function(item) { item._user = user; });
-      all = all.concat(items);
-    });
-    all.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
-    return all;
-  }
   return JSON.parse(localStorage.getItem(plannerKey()) || '[]');
 }
 
 function savePlans(p) {
-  var s = getSession();
-  if (isAdmin()) {
-    var byUser = {};
-    p.forEach(function(item) {
-      var u = item._user || s.username;
-      if (!byUser[u]) byUser[u] = [];
-      byUser[u].push(item);
-    });
-    for (var user in byUser) {
-      localStorage.setItem('plans_' + user, JSON.stringify(byUser[user]));
-    }
-    return;
-  }
   localStorage.setItem(plannerKey(), JSON.stringify(p));
 }
 
@@ -1589,34 +1541,10 @@ function dailyLogKey() {
 }
 
 function getLogEntries() {
-  if (isAdmin()) {
-    var all = [];
-    collectAllKeys('dailylog_').forEach(function(key) {
-      var user = key.replace('dailylog_', '');
-      var items = JSON.parse(localStorage.getItem(key) || '[]');
-      items.forEach(function(item) { item._user = user; });
-      all = all.concat(items);
-    });
-    all.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
-    return all;
-  }
   return JSON.parse(localStorage.getItem(dailyLogKey()) || '[]');
 }
 
 function saveLogEntries(entries) {
-  var s = getSession();
-  if (isAdmin()) {
-    var byUser = {};
-    entries.forEach(function(item) {
-      var u = item._user || s.username;
-      if (!byUser[u]) byUser[u] = [];
-      byUser[u].push(item);
-    });
-    for (var user in byUser) {
-      localStorage.setItem('dailylog_' + user, JSON.stringify(byUser[user]));
-    }
-    return;
-  }
   localStorage.setItem(dailyLogKey(), JSON.stringify(entries));
 }
 

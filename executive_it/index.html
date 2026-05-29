@@ -838,67 +838,28 @@ function getInitialServiceReports() {
 }
 
 function getData(type) {
-  var session = getSession();
-  var defaultSeeded = false;
   if (type === 'planner') {
     var key = getDataKey(type);
     if (!localStorage.getItem(key)) {
       localStorage.setItem(key, JSON.stringify(getInitialRoadmaps()));
-      defaultSeeded = true;
     }
   }
   if (type === 'task') {
     var key = getDataKey(type);
     if (!localStorage.getItem(key)) {
       localStorage.setItem(key, JSON.stringify(getInitialTasks()));
-      defaultSeeded = true;
     }
   }
   if (type === 'services') {
     var key = getDataKey(type);
     if (!localStorage.getItem(key)) {
       localStorage.setItem(key, JSON.stringify(getInitialServiceReports()));
-      defaultSeeded = true;
     }
-  }
-
-  if (session && session.isAdmin && session.role === 'executive_it') {
-    var all = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i);
-      if (key.startsWith('it_' + type + '_')) {
-        var user = key.replace('it_' + type + '_', '');
-        var items = JSON.parse(localStorage.getItem(key) || '[]');
-        items.forEach(function(item) { item._user = user; });
-        all = all.concat(items);
-      }
-    }
-    if ((type === 'planner' || type === 'task' || type === 'services') && all.length === 0 && defaultSeeded) {
-      var adminKey = getDataKey(type);
-      var items = JSON.parse(localStorage.getItem(adminKey) || '[]');
-      items.forEach(function(item) { item._user = session.username; });
-      all = all.concat(items);
-    }
-    all.sort(function(a, b) { return (b.id || 0) - (a.id || 0); });
-    return all;
   }
   return JSON.parse(localStorage.getItem(getDataKey(type)) || '[]');
 }
 
 function saveData(type, data) {
-  var session = getSession();
-  if (session && session.isAdmin && session.role === 'executive_it') {
-    var byUser = {};
-    data.forEach(function(item) {
-      var u = item._user || session.username;
-      if (!byUser[u]) byUser[u] = [];
-      byUser[u].push(item);
-    });
-    for (var user in byUser) {
-      localStorage.setItem('it_' + type + '_' + user, JSON.stringify(byUser[user]));
-    }
-    return;
-  }
   localStorage.setItem(getDataKey(type), JSON.stringify(data));
 }
 

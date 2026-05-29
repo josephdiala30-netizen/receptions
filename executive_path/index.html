@@ -415,36 +415,10 @@ function tripsKey() {
 }
 
 function getTrips() {
-  var session = getSession();
-  if (session && session.isAdmin) {
-    var all = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i);
-      if (key.startsWith('trips_')) {
-        var user = key.replace('trips_', '');
-        var userTrips = JSON.parse(localStorage.getItem(key) || '[]');
-        userTrips.forEach(function(t) { t._user = user; });
-        all = all.concat(userTrips);
-      }
-    }
-    all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
-    return all;
-  }
   return JSON.parse(localStorage.getItem(tripsKey()) || '[]');
 }
 
 function saveTrips(t) {
-  var session = getSession();
-  if (session && session.isAdmin) {
-    var byUser = {};
-    t.forEach(function(trip) {
-      var u = trip._user || 'unknown';
-      if (!byUser[u]) byUser[u] = [];
-      byUser[u].push(trip);
-    });
-    for (var user in byUser) { localStorage.setItem('trips_' + user, JSON.stringify(byUser[user])); }
-    return;
-  }
   localStorage.setItem(tripsKey(), JSON.stringify(t));
 }
 
