@@ -1519,14 +1519,42 @@ function toggleMilestone(planId, idx, checked) {
 }
 
 // ==================== TEXT TO TABLE ====================
+function detectDelimiter(lines) {
+  var delims = [
+    { char: '\t', name: 'tab' },
+    { char: '|', name: 'pipe' },
+    { char: ',', name: 'comma' },
+    { char: ';', name: 'semicolon' }
+  ];
+  var best = null;
+  var bestScore = 0;
+  delims.forEach(function(d) {
+    var counts = {};
+    lines.forEach(function(l) {
+      var c = l.split(d.char).length;
+      counts[c] = (counts[c] || 0) + 1;
+    });
+    var maxCount = 0;
+    var maxCols = 0;
+    for (var c in counts) {
+      if (counts[c] > maxCount) { maxCount = counts[c]; maxCols = parseInt(c); }
+    }
+    if (maxCols >= 2 && maxCount >= Math.ceil(lines.length * 0.6)) {
+      var score = maxCount * maxCols;
+      if (score > bestScore) { bestScore = score; best = d.char; }
+    }
+  });
+  return best;
+}
+
 function parseTableRows(text) {
   if (!text) return null;
   var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
   if (lines.length < 1) return null;
-  var hasTabs = lines.some(function(l) { return l.indexOf('\t') >= 0; });
+  var delim = detectDelimiter(lines);
   var rows;
-  if (hasTabs) {
-    rows = lines.map(function(l) { return l.split('\t'); });
+  if (delim) {
+    rows = lines.map(function(l) { return l.split(delim).map(function(c) { return c.trim(); }); });
   } else {
     rows = lines.map(function(l) { return [l]; });
   }
