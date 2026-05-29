@@ -190,6 +190,10 @@ button, input, select, textarea { min-width: 0; }
       <span class="material-symbols-outlined">planner</span>
       <span class="font-label-md">Planner</span>
     </a>
+    <a id="navAccomplishments" class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200 cursor-pointer" onclick="switchView('accomplishments')">
+      <span class="material-symbols-outlined">assignment_turned_in</span>
+      <span class="font-label-md">Daily Accomplishments</span>
+    </a>
     <a id="navTickets" class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200 cursor-pointer" onclick="switchView('tickets')">
       <span class="material-symbols-outlined">confirmation_number</span>
       <span class="font-label-md">Support Tickets</span>
@@ -236,6 +240,9 @@ button, input, select, textarea { min-width: 0; }
       </a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all cursor-pointer" onclick="switchView('planner');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">planner</span><span class="font-label-md">Planner</span>
+      </a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all cursor-pointer" onclick="switchView('accomplishments');document.getElementById('mobile-menu').classList.add('hidden')">
+        <span class="material-symbols-outlined">assignment_turned_in</span><span class="font-label-md">Daily Accomplishments</span>
       </a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all cursor-pointer" onclick="switchView('tickets');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">confirmation_number</span><span class="font-label-md">Support Tickets</span>
@@ -424,7 +431,7 @@ button, input, select, textarea { min-width: 0; }
   <div id="taskList" class="space-y-3"></div>
 </section>
 
-<!-- ============ PLANNER VIEW ============ -->
+<!-- ============ PLANNER VIEW (timeline) ============ -->
 <section id="viewPlanner" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
   <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
     <div>
@@ -435,7 +442,24 @@ button, input, select, textarea { min-width: 0; }
       <span class="material-symbols-outlined text-sm">add</span> New Plan
     </button>
   </div>
-  <div id="plannerList" class="space-y-3"></div>
+  <div id="plannerTimeline" class="relative">
+    <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-outline-variant"></div>
+    <div id="plannerList"></div>
+  </div>
+</section>
+
+<!-- ============ DAILY ACCOMPLISHMENTS VIEW ============ -->
+<section id="viewAccomplishments" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+      <h2 class="font-headline-lg text-headline-lg text-primary">Daily Job Accomplishments</h2>
+      <p class="font-body-lg text-on-surface-variant">Record and track your daily accomplishments</p>
+    </div>
+    <button class="flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('accomplishment')">
+      <span class="material-symbols-outlined text-sm">add</span> New Accomplishment
+    </button>
+  </div>
+  <div id="accomplishmentList" class="space-y-3"></div>
 </section>
 
 <!-- ============ TICKETS VIEW ============ -->
@@ -573,15 +597,15 @@ var currentView = 'dashboard';
 
 function switchView(view) {
   currentView = view;
-  var views = ['Dashboard', 'Assets', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Tickets', 'Systems'];
+  var views = ['Dashboard', 'Assets', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems'];
   views.forEach(function(v) {
     var el = document.getElementById('view' + v);
     if (el) el.classList.toggle('hidden', v.toLowerCase() !== view);
   });
 
   // Update sidebar active state
-  var navIds = ['navDashboard', 'navAssets', 'navServices', 'navMaintenance', 'navInventory', 'navTask', 'navPlanner', 'navTickets', 'navSystems'];
-  var viewMap = { dashboard: 'navDashboard', assets: 'navAssets', services: 'navServices', maintenance: 'navMaintenance', inventory: 'navInventory', task: 'navTask', planner: 'navPlanner', tickets: 'navTickets', systems: 'navSystems' };
+  var navIds = ['navDashboard', 'navAssets', 'navServices', 'navMaintenance', 'navInventory', 'navTask', 'navPlanner', 'navAccomplishments', 'navTickets', 'navSystems'];
+  var viewMap = { dashboard: 'navDashboard', assets: 'navAssets', services: 'navServices', maintenance: 'navMaintenance', inventory: 'navInventory', task: 'navTask', planner: 'navPlanner', accomplishments: 'navAccomplishments', tickets: 'navTickets', systems: 'navSystems' };
   navIds.forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -600,6 +624,7 @@ function switchView(view) {
   else if (view === 'inventory') renderInventory();
   else if (view === 'task') renderTask();
   else if (view === 'planner') renderPlanner();
+  else if (view === 'accomplishments') renderAccomplishments();
   else if (view === 'tickets') renderTickets();
   else if (view === 'systems') renderSystems();
 }
@@ -611,6 +636,7 @@ function loadDashboard() {
   var inventory = getData('inventory');
   var tasks = getData('task');
   var plans = getData('planner');
+  var accomplishments = getData('accomplishments');
 
   document.getElementById('statServices').textContent = services.length;
   document.getElementById('statMaintenance').textContent = maintenance.filter(function(m) { return m.status !== 'completed'; }).length;
@@ -624,6 +650,7 @@ function loadDashboard() {
   inventory.forEach(function(i) { allItems.push({ type: 'inventory', icon: 'inventory', color: 'text-teal-600', name: i.name, detail: i.quantity || '0', time: i.createdAt }); });
   tasks.forEach(function(t) { allItems.push({ type: 'task', icon: 'task', color: 'text-purple-600', name: t.title, detail: t.priority || 'medium', time: t.createdAt }); });
   plans.forEach(function(p) { allItems.push({ type: 'plan', icon: 'planner', color: 'text-pink-600', name: p.title, detail: p.status || 'active', time: p.createdAt }); });
+  accomplishments.forEach(function(a) { allItems.push({ type: 'accomplishment', icon: 'assignment_turned_in', color: 'text-green-600', name: a.title, detail: a.date || '', time: a.createdAt }); });
 
   allItems.sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
   var recentEl = document.getElementById('recentActivity');
@@ -785,29 +812,70 @@ function markTaskDone(id) {
   if (item) { item.status = 'done'; saveData('task', data); renderTask(); }
 }
 
-// ==================== PLANNER ====================
+// ==================== PLANNER (timeline) ====================
 function renderPlanner() {
   var data = getData('planner');
   var el = document.getElementById('plannerList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">planner</span><p class="font-body-md text-on-surface-variant mt-4">No plans yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'planner\')">Create First Plan</button></div>';
+    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center ml-16 bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">planner</span><p class="font-body-md text-on-surface-variant mt-4">No plans yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'planner\')">Create First Plan</button></div>';
     return;
   }
   el.innerHTML = data.map(function(item) {
-    var statusColor = item.status === 'active' ? 'bg-emerald-100 text-emerald-700' : item.status === 'pending' ? 'bg-amber-100 text-amber-700' : item.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700';
-    return '<div class="flex items-start gap-4 p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift">' +
-      '<div class="p-3 rounded-xl bg-pink-100 text-pink-600"><span class="material-symbols-outlined">planner</span></div>' +
-      '<div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.title) + '</h4><span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.status || 'active') + '</span></div>' +
-      '<p class="font-label-md text-on-surface-variant mt-1">' + escapeHtml(item.description || '') + '</p>' +
-      '<div class="flex items-center gap-4 mt-1.5 text-on-surface-variant flex-wrap">' +
-      (item.startDate ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.startDate) + '</span>' : '') +
-      (item.endDate ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">event</span> ' + escapeHtml(item.endDate) + '</span>' : '') +
-      '</div></div>' +
-      '<div class="flex items-start gap-1">' +
+    var statusColor = item.status === 'active' ? 'bg-emerald-500' : item.status === 'pending' ? 'bg-amber-500' : item.status === 'completed' ? 'bg-blue-500' : 'bg-gray-400';
+    var statusLabel = item.status === 'active' ? 'bg-emerald-100 text-emerald-700' : item.status === 'pending' ? 'bg-amber-100 text-amber-700' : item.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700';
+    var barColor = item.status === 'active' ? 'bg-emerald-400' : item.status === 'pending' ? 'bg-amber-400' : item.status === 'completed' ? 'bg-blue-400' : 'bg-gray-300';
+    var dateRange = '';
+    if (item.startDate && item.endDate) dateRange = escapeHtml(item.startDate) + ' — ' + escapeHtml(item.endDate);
+    else if (item.startDate) dateRange = 'From ' + escapeHtml(item.startDate);
+    else if (item.endDate) dateRange = 'Until ' + escapeHtml(item.endDate);
+    return '<div class="relative pl-16 pb-8">' +
+      '<div class="absolute left-5 top-1 w-6 h-6 rounded-full border-4 border-surface ' + statusColor + ' z-10"></div>' +
+      '<div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 card-lift">' +
+      '<div class="flex items-start justify-between gap-4">' +
+      '<div class="flex-1">' +
+      '<div class="flex items-center gap-2 flex-wrap mb-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.title) + '</h4><span class="font-label-md ' + statusLabel + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.status || 'active') + '</span></div>' +
+      (item.description ? '<p class="font-label-md text-on-surface-variant mb-3">' + escapeHtml(item.description) + '</p>' : '') +
+      (dateRange ? '<div class="flex items-center gap-2 text-on-surface-variant mb-3"><span class="material-symbols-outlined text-sm">calendar_month</span><span class="font-label-md">' + dateRange + '</span></div>' : '') +
+      '<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full rounded-full transition-all ' + barColor + '" style="width:' + (item.progress || 0) + '%"></div></div>' +
+      '<span class="font-label-md text-on-surface-variant mt-1 block text-right">' + (item.progress || 0) + '%</span>' +
+      '</div>' +
+      '<div class="flex items-start gap-1 shrink-0">' +
       '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'planner\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
       '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'planner\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+      '</div></div></div></div>';
+  }).join('');
+}
+
+// ==================== DAILY ACCOMPLISHMENTS ====================
+function renderAccomplishments() {
+  var data = getData('accomplishments');
+  var el = document.getElementById('accomplishmentList');
+  if (data.length === 0) {
+    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">assignment_turned_in</span><p class="font-body-md text-on-surface-variant mt-4">No accomplishments yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'accomplishment\')">Record First Accomplishment</button></div>';
+    return;
+  }
+  data.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; });
+  el.innerHTML = data.map(function(item) {
+    var statusIcon = item.status === 'done' ? 'check_circle' : 'radio_button_unchecked';
+    var statusColor = item.status === 'done' ? 'text-emerald-600' : 'text-amber-600';
+    return '<div class="flex items-start gap-4 p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift">' +
+      '<button class="p-1 mt-0.5 ' + statusColor + ' transition-colors" onclick="toggleAccomplishment(' + item.id + ')"><span class="material-symbols-outlined">' + statusIcon + '</span></button>' +
+      '<div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.title) + '</h4>' +
+      (item.date ? '<span class="font-label-md text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.date) + '</span>' : '') +
+      '</div>' +
+      (item.description ? '<p class="font-label-md text-on-surface-variant mt-1">' + escapeHtml(item.description) + '</p>' : '') +
+      '</div>' +
+      '<div class="flex items-start gap-1">' +
+      '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'accomplishment\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+      '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'accomplishment\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
       '</div></div>';
   }).join('');
+}
+
+function toggleAccomplishment(id) {
+  var data = getData('accomplishments');
+  var item = data.find(function(x) { return x.id === id; });
+  if (item) { item.status = item.status === 'done' ? 'pending' : 'done'; saveData('accomplishments', data); renderAccomplishments(); }
 }
 
 // ==================== TICKETS ====================
@@ -892,14 +960,15 @@ function openAddModal(type) {
   var title = document.getElementById('modalTitle');
   var body = document.getElementById('modalBody');
 
-  var titles = { asset: 'Add IT Asset', service: 'New IT Service', maintenance: 'Schedule Maintenance', inventory: 'Add Inventory Item', task: 'New Task', planner: 'New Plan', ticket: 'Create Ticket', system: 'Add System' };
+  var titles = { asset: 'Add IT Asset', service: 'New IT Service', maintenance: 'Schedule Maintenance', inventory: 'Add Inventory Item', task: 'New Task', planner: 'New Plan', accomplishment: 'New Accomplishment', ticket: 'Create Ticket', system: 'Add System' };
   title.textContent = titles[type] || 'Add Item';
   body.innerHTML = getFormHtml(type, null);
   modal.classList.remove('hidden');
 }
 
 function editItem(type, id) {
-  var data = getData(type + 's');
+  var dataKey = type === 'asset' ? 'assets' : type === 'service' ? 'services' : type === 'ticket' ? 'tickets' : type === 'system' ? 'systems' : type === 'accomplishment' ? 'accomplishments' : type;
+  var data = getData(dataKey);
   var item = data.find(function(x) { return x.id === id; });
   if (!item) return;
   editingType = type;
@@ -909,7 +978,7 @@ function editItem(type, id) {
   var title = document.getElementById('modalTitle');
   var body = document.getElementById('modalBody');
 
-  var titles = { asset: 'Edit Asset', service: 'Edit Service', maintenance: 'Edit Maintenance', inventory: 'Edit Inventory Item', task: 'Edit Task', planner: 'Edit Plan', ticket: 'Edit Ticket', system: 'Edit System' };
+  var titles = { asset: 'Edit Asset', service: 'Edit Service', maintenance: 'Edit Maintenance', inventory: 'Edit Inventory Item', task: 'Edit Task', planner: 'Edit Plan', accomplishment: 'Edit Accomplishment', ticket: 'Edit Ticket', system: 'Edit System' };
   title.textContent = titles[type] || 'Edit Item';
   body.innerHTML = getFormHtml(type, item);
   modal.classList.remove('hidden');
@@ -983,8 +1052,17 @@ function getFormHtml(type, item) {
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Description</label><textarea id="fDescription" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 resize-none">' + escapeHtml(item.description || '') + '</textarea></div>' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Start Date</label><input id="fStartDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.startDate || '') + '"/></div>' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">End Date</label><input id="fEndDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.endDate || '') + '"/></div>' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Progress (%)</label><input id="fProgress" type="number" min="0" max="100" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + (item.progress || 0) + '"/></div>' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Status</label><select id="fStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="active"' + ((item.status === 'active' || !item.status) ? ' selected' : '') + '>Active</option><option value="pending"' + (item.status === 'pending' ? ' selected' : '') + '>Pending</option><option value="completed"' + (item.status === 'completed' ? ' selected' : '') + '>Completed</option></select></div>' +
       '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Plan</button></div>';
+  }
+  if (type === 'accomplishment') {
+    return '<div class="space-y-4">' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Title *</label><input id="fTitle" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.title || '') + '"/></div>' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Description</label><textarea id="fDescription" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 resize-none">' + escapeHtml(item.description || '') + '</textarea></div>' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Date</label><input id="fDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.date || new Date().toISOString().split('T')[0]) + '"/></div>' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Status</label><select id="fStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="done"' + ((item.status === 'done' || !item.status) ? ' selected' : '') + '>Done</option><option value="pending"' + (item.status === 'pending' ? ' selected' : '') + '>Pending</option></select></div>' +
+      '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Accomplishment</button></div>';
   }
   if (type === 'ticket') {
     return '<div class="space-y-4">' +
@@ -1009,7 +1087,7 @@ function getFormHtml(type, item) {
 
 function saveItem() {
   var type = editingType;
-  var dataKey = type + 's';
+  var dataKey = type === 'asset' ? 'assets' : type === 'service' ? 'services' : type === 'ticket' ? 'tickets' : type === 'system' ? 'systems' : type === 'accomplishment' ? 'accomplishments' : type;
   var data = getData(dataKey);
 
   var item = {};
@@ -1066,6 +1144,14 @@ function saveItem() {
     item.description = document.getElementById('fDescription').value.trim();
     item.startDate = document.getElementById('fStartDate').value;
     item.endDate = document.getElementById('fEndDate').value;
+    item.progress = parseInt(document.getElementById('fProgress').value) || 0;
+    item.status = document.getElementById('fStatus').value;
+  } else if (type === 'accomplishment') {
+    var title = document.getElementById('fTitle').value.trim();
+    if (!title) { alert('Title is required.'); return; }
+    item.title = title;
+    item.description = document.getElementById('fDescription').value.trim();
+    item.date = document.getElementById('fDate').value;
     item.status = document.getElementById('fStatus').value;
   } else if (type === 'ticket') {
     var title = document.getElementById('fTitle').value.trim();
@@ -1095,7 +1181,7 @@ function saveItem() {
 
 function deleteItem(type, id) {
   if (!confirm('Delete this item?')) return;
-  var dataKey = type + 's';
+  var dataKey = type === 'asset' ? 'assets' : type === 'service' ? 'services' : type === 'ticket' ? 'tickets' : type === 'system' ? 'systems' : type === 'accomplishment' ? 'accomplishments' : type;
   var data = getData(dataKey).filter(function(x) { return x.id !== id; });
   saveData(dataKey, data);
   switchView(currentView);
