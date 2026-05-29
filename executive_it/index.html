@@ -582,7 +582,6 @@ function getInitialRoadmaps() {
       category: 'Infrastructure',
       priority: 'High',
       projectLead: 'Joseph Diala',
-      department: 'IT Department',
       budget: '₱350,000',
       milestones: '[x] AWS Infrastructure Architecture Design\n[x] Database Migration Dry-Run (Successful)\n[/] Live Application Sync & Cloud Deployment\n[ ] Final DNS cutover & Staff training'
     },
@@ -598,7 +597,6 @@ function getInitialRoadmaps() {
       category: 'Cybersecurity',
       priority: 'Critical',
       projectLead: 'Mark Santos',
-      department: 'Security & Operations',
       budget: '₱120,000',
       milestones: '[x] Network topology assessment & IP planning\n[x] VLAN configuration on core switches\n[x] Firewall setup & URL filtering policy deployment\n[x] Endpoint detection & response (EDR) installation'
     },
@@ -614,7 +612,6 @@ function getInitialRoadmaps() {
       category: 'Hardware Upgrade',
       priority: 'Medium',
       projectLead: 'Joseph Diala',
-      department: 'Facilities & IT',
       budget: '₱180,000',
       milestones: '[x] Equipment procurement & cable routing layout\n[/] Biometric device mounting & power cabling\n[ ] Centralized NVR config and storage allocation\n[ ] AD authentication synchronization test'
     },
@@ -630,7 +627,6 @@ function getInitialRoadmaps() {
       category: 'Software Development',
       priority: 'High',
       projectLead: 'Elena Cruz (ERP Consultant)',
-      department: 'Finance, Procurement & IT',
       budget: '₱1,200,000',
       milestones: '[/] Vendor demo evaluation & selection\n[ ] Detailed business requirements documentation (BRD)\n[ ] Data structure mapping & cleansing\n[ ] Development of custom API integrations'
     },
@@ -646,7 +642,6 @@ function getInitialRoadmaps() {
       category: 'IT Service Desk',
       priority: 'Low',
       projectLead: 'Sarah Lim',
-      department: 'IT Support Desk',
       budget: '₱30,000',
       milestones: '[ ] Audit of current ticket response times & bottlenecks\n[ ] Draft revised SLA priority matrices\n[ ] Ticket portal automation rules config\n[ ] Helpdesk staff refresher training session'
     },
@@ -662,7 +657,6 @@ function getInitialRoadmaps() {
       category: 'Compliance/Audit',
       priority: 'High',
       projectLead: 'Joseph Diala',
-      department: 'Security & Operations',
       budget: '₱250,000',
       milestones: '[x] Gap analysis of current security posture\n[/] Remediation of critical vulnerabilities (Phase 1)\n[ ] Draft ISO 27001 policies & procedures\n[ ] Internal audit & management review\n[ ] External certification audit preparation'
     },
@@ -678,7 +672,6 @@ function getInitialRoadmaps() {
       category: 'Software Development',
       priority: 'Critical',
       projectLead: 'Joseph Diala',
-      department: 'Executive IT & Operations',
       budget: '₱3,500,000',
       milestones: '[x] Stakeholder interviews & needs assessment\n[x] Technology stack evaluation & recommendations\n[/] Approval workflow automation (Leave, Overtime, Purchase Request)\n[/] Document digitization & cloud storage migration (Google Workspace)\n[ ] AI-powered data analytics dashboard prototype\n[ ] User acceptance testing (UAT) and staff training rollout'
     }
@@ -1293,7 +1286,7 @@ function renderPlanner() {
   var data = getData('planner');
   var el = document.getElementById('plannerList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center ml-16 bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">map</span><p class="font-body-md text-on-surface-variant mt-4">No plans yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'planner\')">Create First Plan</button></div>';
+    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">map</span><p class="font-body-md text-on-surface-variant mt-4">No plans yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'planner\')">Create First Plan</button></div>';
     return;
   }
   
@@ -1340,7 +1333,7 @@ function renderPlanner() {
     var milestonesHtml = '';
     if (item.milestones) {
       var lines = item.milestones.split('\n');
-      var parsedMilestones = lines.map(function(line) {
+      var parsedMilestones = lines.map(function(line, idx) {
         line = line.trim();
         if (!line) return '';
         var status = 'pending';
@@ -1355,14 +1348,16 @@ function renderPlanner() {
           status = 'pending';
           text = line.substring(3).trim();
         }
-        
-        var icon = status === 'completed' ? 'check_circle' : status === 'in-progress' ? 'published_with_changes' : 'radio_button_unchecked';
-        var textColor = status === 'completed' ? 'text-emerald-600 dark:text-emerald-400 line-through opacity-70' : status === 'in-progress' ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-on-surface-variant';
-        var iconColor = status === 'completed' ? 'text-emerald-500' : status === 'in-progress' ? 'text-blue-500' : 'text-on-surface-variant/60';
-        
-        return '<li class="flex items-center gap-2 text-xs ' + textColor + '">' +
-               '  <span class="material-symbols-outlined text-[16px] ' + iconColor + '">' + icon + '</span>' +
-               '  <span>' + escapeHtml(text) + '</span>' +
+
+        var checked = status === 'completed' ? 'checked' : '';
+        var inProgress = status === 'in-progress';
+        var textClass = status === 'completed' ? 'line-through opacity-60' : inProgress ? 'font-semibold' : '';
+        var itemId = item.id;
+
+        return '<li class="flex items-center gap-2 text-xs ' + textClass + '">' +
+               '  <input type="checkbox" ' + checked + ' onchange="toggleMilestone(' + itemId + ',' + idx + ',this.checked)" class="w-3.5 h-3.5 rounded accent-emerald-500 cursor-pointer" />' +
+               '  <span class="' + (inProgress ? 'text-blue-600 dark:text-blue-400' : 'text-on-surface-variant') + '">' + escapeHtml(text) + '</span>' +
+               '  ' + (inProgress ? '<span class="text-[10px] px-1 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-full">In Progress</span>' : '') +
                '</li>';
       }).filter(Boolean).join('');
       
@@ -1396,9 +1391,8 @@ function renderPlanner() {
       '    </div>' +
       '    ' +
       '    <!-- Project Metadata Row -->' +
-      '    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/60">' +
+          '    <div class="grid grid-cols-2 md:grid-cols-2 gap-3 text-xs bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/60">' +
       '      <div><span class="text-on-surface-variant block font-medium uppercase tracking-wider text-[9px]">Project Lead</span><span class="text-primary font-semibold">' + escapeHtml(item.projectLead || 'N/A') + '</span></div>' +
-      '      <div><span class="text-on-surface-variant block font-medium uppercase tracking-wider text-[9px]">Department / Scope</span><span class="text-primary font-semibold">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
       '      <div><span class="text-on-surface-variant block font-medium uppercase tracking-wider text-[9px]">Estimated Budget</span><span class="text-teal-600 dark:text-teal-400 font-bold">' + escapeHtml(item.budget || 'N/A') + '</span></div>' +
       '    </div>' +
       '    ' +
@@ -1418,6 +1412,37 @@ function renderPlanner() {
       '  </div>' +
       '</div>';
   }).join('');
+}
+
+function toggleMilestone(planId, idx, checked) {
+  var data = getData('planner');
+  var plan = data.find(function(p) { return p.id === planId; });
+  if (!plan || !plan.milestones) return;
+  var lines = plan.milestones.split('\n');
+  if (idx >= lines.length) return;
+  var line = lines[idx].trim();
+  var text = line;
+  if (line.indexOf('[x]') === 0 || line.indexOf('[X]') === 0 || line.indexOf('[/]') === 0) {
+    text = line.substring(3).trim();
+  } else if (line.indexOf('[ ]') === 0) {
+    text = line.substring(3).trim();
+  }
+  lines[idx] = (checked ? '[x] ' : '[ ] ') + text;
+  plan.milestones = lines.join('\n');
+
+  // Auto-update progress based on completed milestones
+  var total = 0;
+  var done = 0;
+  lines.forEach(function(l) {
+    l = l.trim();
+    if (!l) return;
+    total++;
+    if (l.indexOf('[x]') === 0 || l.indexOf('[X]') === 0) done++;
+  });
+  plan.progress = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  saveData('planner', data);
+  renderPlanner();
 }
 
 // ==================== DAILY ACCOMPLISHMENTS ====================
@@ -1898,14 +1923,7 @@ function getFormHtml(type, item) {
       '  <div class="grid grid-cols-2 gap-4">' +
       '    <div>' +
       '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Category</label>' +
-      '      <select id="fCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
-      '        <option value="Infrastructure"' + (category === 'Infrastructure' ? ' selected' : '') + '>Infrastructure</option>' +
-      '        <option value="Cybersecurity"' + (category === 'Cybersecurity' ? ' selected' : '') + '>Cybersecurity</option>' +
-      '        <option value="Software Development"' + (category === 'Software Development' ? ' selected' : '') + '>Software Development</option>' +
-      '        <option value="Hardware Upgrade"' + (category === 'Hardware Upgrade' ? ' selected' : '') + '>Hardware Upgrade</option>' +
-      '        <option value="Compliance/Audit"' + (category === 'Compliance/Audit' ? ' selected' : '') + '>Compliance/Audit</option>' +
-      '        <option value="IT Service Desk"' + (category === 'IT Service Desk' ? ' selected' : '') + '>IT Service Desk</option>' +
-      '      </select>' +
+      '      <input id="fCategory" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="e.g. Infrastructure, R&D, Operations" value="' + escapeHtml(item.category || '') + '"/>' +
       '    </div>' +
       '    <div>' +
       '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Priority</label>' +
@@ -1918,16 +1936,10 @@ function getFormHtml(type, item) {
       '    </div>' +
       '  </div>' +
 
-      '  <!-- Project Lead + Scope/Department -->' +
-      '  <div class="grid grid-cols-2 gap-4">' +
-      '    <div>' +
-      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Project Lead</label>' +
-      '      <input id="fProjectLead" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Joseph Diala" value="' + escapeHtml(item.projectLead || '') + '"/>' +
-      '    </div>' +
-      '    <div>' +
-      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Department / Scope</label>' +
-      '      <input id="fDepartment" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. IT Department, Company-Wide" value="' + escapeHtml(item.department || '') + '"/>' +
-      '    </div>' +
+      '  <!-- Project Lead -->' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Project Lead</label>' +
+      '    <input id="fProjectLead" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Joseph Diala" value="' + escapeHtml(item.projectLead || '') + '"/>' +
       '  </div>' +
 
       '  <!-- Start Date + End Date -->' +
@@ -2168,7 +2180,6 @@ function saveItem() {
     item.category = document.getElementById('fCategory').value;
     item.priority = document.getElementById('fPriority').value;
     item.projectLead = document.getElementById('fProjectLead').value.trim();
-    item.department = document.getElementById('fDepartment').value.trim();
     item.budget = document.getElementById('fBudget').value.trim();
     item.milestones = document.getElementById('fMilestones').value.trim();
   } else if (type === 'accomplishment') {
