@@ -1589,6 +1589,41 @@ function buildTableHtml(rows, opts) {
   return html;
 }
 
+function buildTableHtmlSplit(rows) {
+  var showHeader = true;
+  var startRow = 1;
+  var dataRows = rows.slice(startRow);
+  var cols = rows[0].length;
+  var maxPerCol = 20;
+  if (dataRows.length <= maxPerCol) {
+    return buildTableHtml(rows, { maxRows: rows.length });
+  }
+  var numCols = Math.ceil(dataRows.length / maxPerCol);
+  var html = '<div style="display:grid;grid-template-columns:repeat(' + numCols + ',1fr);gap:1rem;">';
+  for (var c = 0; c < numCols; c++) {
+    var start = c * maxPerCol;
+    var end = Math.min(start + maxPerCol, dataRows.length);
+    var colRows = [rows[0]].concat(dataRows.slice(start, end));
+    html += '<div class="overflow-x-auto rounded-xl border border-outline-variant/60"><table class="w-full text-xs border-collapse">';
+    html += '<thead><tr>';
+    rows[0].forEach(function(cell) {
+      html += '<th class="px-3 py-2 bg-primary text-on-primary font-semibold text-left whitespace-nowrap">' + escapeHtml(cell) + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+    colRows.slice(1).forEach(function(row, idx) {
+      html += '<tr class="' + (idx % 2 === 0 ? 'bg-surface-container-low/40' : '') + ' border-t border-outline-variant/40">';
+      for (var j = 0; j < cols; j++) {
+        var cell = row[j] || '';
+        html += '<td class="px-3 py-2 text-on-surface-variant' + (j === 0 ? ' font-medium text-primary' : '') + '">' + escapeHtml(cell) + '</td>';
+      }
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
 function viewAccomplishmentTable(id) {
   var data = getData('accomplishments');
   var item = data.find(function(x) { return x.id === id; });
@@ -1596,7 +1631,7 @@ function viewAccomplishmentTable(id) {
   var rows = parseTableRows(item.description);
   var modal = document.getElementById('modal');
   document.getElementById('modalTitle').textContent = 'Uploading/Encoding — Full Table';
-  var fullHtml = rows ? buildTableHtml(rows, { maxRows: rows.length }) : '<div class="font-label-md text-on-surface-variant whitespace-pre-wrap">' + escapeHtml(item.description) + '</div>';
+  var fullHtml = rows ? buildTableHtmlSplit(rows) : '<div class="font-label-md text-on-surface-variant whitespace-pre-wrap">' + escapeHtml(item.description) + '</div>';
   document.getElementById('modalBody').innerHTML = '<div class="space-y-3">' +
     '<div class="flex items-center gap-2 pb-2 border-b border-outline-variant text-on-surface-variant"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.date || '') + ' &middot; <span class="font-semibold text-primary">' + escapeHtml(item.title) + '</span></div>' +
     fullHtml +
