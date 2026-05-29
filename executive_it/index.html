@@ -401,14 +401,15 @@ button, input, select, textarea { min-width: 0; }
 <section id="viewTask" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
   <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
     <div>
-      <h2 class="font-headline-lg text-headline-lg text-primary">Task</h2>
-      <p class="font-body-lg text-on-surface-variant">Manage and track IT tasks</p>
+      <h2 class="font-headline-lg text-headline-lg text-primary">Task Board</h2>
+      <p class="font-body-lg text-on-surface-variant">Drag and manage IT tasks across stages</p>
     </div>
     <button class="flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('task')">
       <span class="material-symbols-outlined text-sm">add</span> New Task
     </button>
   </div>
-  <div id="taskList" class="space-y-3"></div>
+  <div id="dueNotifications" class="mb-4 space-y-2 hidden"></div>
+  <div id="taskList" class="kanban-board grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"></div>
 </section>
 
 <!-- ============ PLANNER VIEW (timeline) ============ -->
@@ -648,6 +649,143 @@ function getInitialRoadmaps() {
       department: 'IT Support Desk',
       budget: '₱30,000',
       milestones: '[ ] Audit of current ticket response times & bottlenecks\n[ ] Draft revised SLA priority matrices\n[ ] Ticket portal automation rules config\n[ ] Helpdesk staff refresher training session'
+    },
+    {
+      id: baseId + 106,
+      createdAt: baseId - 86400000 * 1,
+      title: 'Cybersecurity Compliance Audit & ISO 27001 Readiness',
+      description: 'Conduct a full cybersecurity audit of existing infrastructure, identify compliance gaps, and implement remediation plans to align with ISO 27001 standards.',
+      startDate: '2026-06-01',
+      endDate: '2026-10-30',
+      progress: 25,
+      status: 'active',
+      category: 'Compliance/Audit',
+      priority: 'High',
+      projectLead: 'Joseph Diala',
+      department: 'Security & Operations',
+      budget: '₱250,000',
+      milestones: '[x] Gap analysis of current security posture\n[/] Remediation of critical vulnerabilities (Phase 1)\n[ ] Draft ISO 27001 policies & procedures\n[ ] Internal audit & management review\n[ ] External certification audit preparation'
+    },
+    {
+      id: baseId + 107,
+      createdAt: baseId - 86400000 * 3,
+      title: 'Company-wide Digital Transformation Roadmap 2026-2027',
+      description: 'Define the digital transformation roadmap covering paperless workflows, automated approvals, cloud collaboration tools, and AI-powered analytics for all departments.',
+      startDate: '2026-04-01',
+      endDate: '2026-12-31',
+      progress: 35,
+      status: 'active',
+      category: 'Software Development',
+      priority: 'Critical',
+      projectLead: 'Joseph Diala',
+      department: 'Executive IT & Operations',
+      budget: '₱3,500,000',
+      milestones: '[x] Stakeholder interviews & needs assessment\n[x] Technology stack evaluation & recommendations\n[/] Approval workflow automation (Leave, Overtime, Purchase Request)\n[/] Document digitization & cloud storage migration (Google Workspace)\n[ ] AI-powered data analytics dashboard prototype\n[ ] User acceptance testing (UAT) and staff training rollout'
+    }
+  ];
+}
+
+function getInitialTasks() {
+  var baseId = Date.now();
+  return [
+    {
+      id: baseId + 1,
+      createdAt: baseId - 86400000 * 3,
+      title: 'Configure firewall rules for new branch office',
+      description: 'Set up VPN tunnel and ACL rules between main office and new Makati branch.',
+      priority: 'high',
+      assignedTo: 'Mark Santos',
+      status: 'in-progress',
+      dueDate: new Date(baseId + 86400000).toISOString().slice(0, 10),
+      dueTime: '17:00'
+    },
+    {
+      id: baseId + 2,
+      createdAt: baseId - 86400000 * 5,
+      title: 'Deploy Windows security patches to all workstations',
+      description: 'Roll out KB5053598 and KB5053602 via WSUS to 120 company devices.',
+      priority: 'high',
+      assignedTo: 'Joseph Diala',
+      status: 'todo',
+      dueDate: new Date(baseId + 86400000 * 3).toISOString().slice(0, 10),
+      dueTime: '12:00'
+    },
+    {
+      id: baseId + 3,
+      createdAt: baseId - 86400000 * 7,
+      title: 'Replace expired SSL certificate on company portal',
+      description: 'Renew wildcard SSL for *.netizensoft.com and update bindings on IIS.',
+      priority: 'medium',
+      assignedTo: 'Sarah Lim',
+      status: 'done',
+      dueDate: new Date(baseId - 86400000 * 2).toISOString().slice(0, 10),
+      dueTime: '09:00'
+    },
+    {
+      id: baseId + 4,
+      createdAt: baseId - 86400000 * 1,
+      title: 'Inventory check — laptop allocation for new hires',
+      description: 'Audit available laptop units and prepare 5 units for Q3 onboarding.',
+      priority: 'medium',
+      assignedTo: '',
+      status: 'todo',
+      dueDate: new Date(baseId).toISOString().slice(0, 10),
+      dueTime: '23:59'
+    },
+    {
+      id: baseId + 5,
+      createdAt: baseId - 86400000 * 2,
+      title: 'Migrate shared drives to OneDrive for Business',
+      description: 'Transfer department shared folders from on-prem file server to Microsoft 365.',
+      priority: 'low',
+      assignedTo: 'Joseph Diala',
+      status: 'in-progress',
+      dueDate: new Date(baseId + 86400000 * 7).toISOString().slice(0, 10),
+      dueTime: '16:00'
+    },
+    {
+      id: baseId + 6,
+      createdAt: baseId - 86400000 * 4,
+      title: 'Biometric enrollment for new employees',
+      description: 'Enroll fingerprints and assign access levels for 3 new accounting staff.',
+      priority: 'low',
+      assignedTo: 'Mark Santos',
+      status: 'todo',
+      dueDate: new Date(baseId + 86400000 * 5).toISOString().slice(0, 10),
+      dueTime: '10:00'
+    },
+    {
+      id: baseId + 7,
+      createdAt: baseId - 86400000 * 10,
+      title: 'Set up email signatures for executive team',
+      description: 'Design and deploy standardized email signatures with branding for all C-level executives.',
+      priority: 'low',
+      assignedTo: 'Sarah Lim',
+      status: 'done',
+      dueDate: new Date(baseId - 86400000 * 3).toISOString().slice(0, 10),
+      dueTime: '14:00'
+    },
+    {
+      id: baseId + 8,
+      createdAt: baseId - 86400000 * 6,
+      title: 'Audit user access rights in Active Directory',
+      description: 'Review and clean up inactive accounts, stale groups, and excessive permissions.',
+      priority: 'high',
+      assignedTo: 'Joseph Diala',
+      status: 'in-progress',
+      dueDate: new Date(baseId + 3600000).toISOString().slice(0, 10),
+      dueTime: new Date(baseId + 3600000).toISOString().slice(11, 16)
+    },
+    {
+      id: baseId + 9,
+      createdAt: baseId - 86400000 * 8,
+      title: 'Set up CCTV monitoring dashboard for security team',
+      description: 'Configure NVR recording schedules and enable remote viewing via mobile app.',
+      priority: 'medium',
+      assignedTo: 'Mark Santos',
+      status: 'done',
+      dueDate: new Date(baseId - 86400000 * 5).toISOString().slice(0, 10),
+      dueTime: '11:00'
     }
   ];
 }
@@ -659,6 +797,13 @@ function getData(type) {
     var key = getDataKey(type);
     if (!localStorage.getItem(key)) {
       localStorage.setItem(key, JSON.stringify(getInitialRoadmaps()));
+      defaultSeeded = true;
+    }
+  }
+  if (type === 'task') {
+    var key = getDataKey(type);
+    if (!localStorage.getItem(key)) {
+      localStorage.setItem(key, JSON.stringify(getInitialTasks()));
       defaultSeeded = true;
     }
   }
@@ -674,7 +819,7 @@ function getData(type) {
         all = all.concat(items);
       }
     }
-    if (type === 'planner' && all.length === 0 && defaultSeeded) {
+    if ((type === 'planner' || type === 'task') && all.length === 0 && defaultSeeded) {
       var adminKey = getDataKey(type);
       var items = JSON.parse(localStorage.getItem(adminKey) || '[]');
       items.forEach(function(item) { item._user = session.username; });
@@ -790,6 +935,91 @@ function getTimeAgo(ts) {
   var days = Math.floor(hrs / 24);
   return days + 'd ago';
 }
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  var parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(parts[1]) - 1] + ' ' + parseInt(parts[2]) + ', ' + parts[0];
+}
+
+function checkDueTasks() {
+  var data = getData('task');
+  var now = Date.now();
+  var overdue = [];
+  var urgent = [];
+  var totalDue = 0;
+
+  data.forEach(function(item) {
+    if (item.status === 'done' || !item.dueDate) return;
+    var dueDateTime = new Date(item.dueDate + (item.dueTime ? 'T' + item.dueTime : 'T23:59'));
+    var diffMs = dueDateTime - now;
+    var diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffMs < 0) {
+      overdue.push(item);
+      totalDue++;
+    } else if (diffHours <= 24) {
+      urgent.push(item);
+      totalDue++;
+    }
+  });
+
+  var navTask = document.getElementById('navTask');
+  if (navTask) {
+    var badge = navTask.querySelector('.due-badge');
+    if (totalDue > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'due-badge ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full';
+        navTask.appendChild(badge);
+      }
+      badge.textContent = totalDue;
+      badge.style.display = 'inline';
+    } else if (badge) {
+      badge.style.display = 'none';
+    }
+  }
+
+  var bannerEl = document.getElementById('dueNotifications');
+  if (!bannerEl) return;
+  if (overdue.length === 0 && urgent.length === 0) {
+    bannerEl.classList.add('hidden');
+    return;
+  }
+  bannerEl.classList.remove('hidden');
+
+  var html = '';
+  if (overdue.length > 0) {
+    html += '<div class="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-200 dark:border-red-900">' +
+      '<span class="material-symbols-outlined text-red-500 text-sm mt-0.5">error</span>' +
+      '<div><p class="font-label-md font-semibold text-red-700 dark:text-red-400">Overdue (' + overdue.length + ')</p>' +
+      '<ul class="mt-1 space-y-0.5">';
+    overdue.forEach(function(t) {
+      var label = formatDate(t.dueDate);
+      if (t.dueTime) label += ' ' + t.dueTime;
+      html += '<li class="font-label-md text-xs text-red-600 dark:text-red-400 flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">circle</span>' + escapeHtml(t.title) + ' — due ' + label + '</li>';
+    });
+    html += '</ul></div></div>';
+  }
+  if (urgent.length > 0) {
+    html += '<div class="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-900">' +
+      '<span class="material-symbols-outlined text-amber-500 text-sm mt-0.5">warning</span>' +
+      '<div><p class="font-label-md font-semibold text-amber-700 dark:text-amber-400">Due within 24 hours (' + urgent.length + ')</p>' +
+      '<ul class="mt-1 space-y-0.5">';
+    urgent.forEach(function(t) {
+      var label = formatDate(t.dueDate);
+      if (t.dueTime) label += ' ' + t.dueTime;
+      html += '<li class="font-label-md text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">circle</span>' + escapeHtml(t.title) + ' — due ' + label + '</li>';
+    });
+    html += '</ul></div></div>';
+  }
+  bannerEl.innerHTML = html;
+}
+
+// Check for due tasks every 60 seconds
+setInterval(checkDueTasks, 60000);
 
 // ==================== SERVICES ====================
 function renderServices() {
@@ -964,30 +1194,98 @@ function renderTask() {
   var data = getData('task');
   var el = document.getElementById('taskList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">task</span><p class="font-body-md text-on-surface-variant mt-4">No tasks yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'task\')">Create First Task</button></div>';
+    el.innerHTML = '<div class="md:col-span-3 flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">task</span><p class="font-body-md text-on-surface-variant mt-4">No tasks yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'task\')">Create First Task</button></div>';
     return;
   }
-  el.innerHTML = data.map(function(item) {
-    var statusColor = item.status === 'todo' ? 'bg-gray-100 text-gray-700' : item.status === 'in-progress' ? 'bg-blue-100 text-blue-700' : item.status === 'done' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
-    var prioColor = item.priority === 'high' ? 'bg-red-100 text-red-700' : item.priority === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700';
-    return '<div class="flex items-start gap-4 p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift">' +
-      '<div class="p-3 rounded-xl bg-purple-100 text-purple-600"><span class="material-symbols-outlined">task</span></div>' +
-      '<div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.title) + '</h4><span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.status || 'todo') + '</span><span class="font-label-md ' + prioColor + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.priority || 'medium') + '</span></div>' +
-      '<p class="font-label-md text-on-surface-variant mt-1">' + escapeHtml(item.description || '') + '</p>' +
-      (item.assignedTo ? '<span class="font-label-md text-on-surface-variant mt-1 flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(item.assignedTo) + '</span>' : '') +
+
+  var columns = [
+    { key: 'todo', label: 'To Do', icon: 'radio_button_unchecked', color: 'border-l-gray-400', headerBg: 'bg-gray-100 text-gray-700 dark:bg-gray-800/50 dark:text-gray-300', cardBorder: 'border-l-gray-400' },
+    { key: 'in-progress', label: 'In Progress', icon: 'published_with_changes', color: 'border-l-blue-500', headerBg: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', cardBorder: 'border-l-blue-500' },
+    { key: 'done', label: 'Done', icon: 'check_circle', color: 'border-l-emerald-500', headerBg: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300', cardBorder: 'border-l-emerald-500' }
+  ];
+
+  var html = '';
+  columns.forEach(function(col) {
+    var items = data.filter(function(t) { return (t.status || 'todo') === col.key; });
+    var colIcon = col.icon;
+
+    html += '<div class="kanban-column bg-surface-container-low/40 rounded-2xl border border-outline-variant/80 flex flex-col min-h-[300px]">' +
+      '<div class="flex items-center justify-between px-4 py-3 border-b border-outline-variant/60">' +
+        '<div class="flex items-center gap-2">' +
+          '<span class="material-symbols-outlined text-sm ' + col.headerBg.split(' ')[1] + '">' + colIcon + '</span>' +
+          '<h3 class="font-label-md font-semibold text-on-surface">' + col.label + '</h3>' +
+          '<span class="font-label-md text-xs px-1.5 py-0.5 rounded-full ' + col.headerBg + '">' + items.length + '</span>' +
+        '</div>' +
+        '<button class="p-1 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Add task" onclick="openAddModal(\'task\')"><span class="material-symbols-outlined text-sm">add</span></button>' +
       '</div>' +
-      '<div class="flex items-start gap-1">' +
-      (item.status !== 'done' ? '<button class="p-1.5 rounded-lg hover:bg-green-100 text-green-600 transition-colors" title="Mark Done" onclick="markTaskDone(' + item.id + ')"><span class="material-symbols-outlined text-sm">check</span></button>' : '') +
-      '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'task\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
-      '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'task\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
-      '</div></div>';
-  }).join('');
+      '<div class="flex-1 p-3 space-y-3 overflow-y-auto max-h-[600px]">';
+
+    if (items.length === 0) {
+      html += '<div class="flex flex-col items-center justify-center py-8 text-center"><span class="material-symbols-outlined text-[32px] text-surface-container-highest">drag_indicator</span><p class="font-label-md text-on-surface-variant mt-2">No tasks</p></div>';
+    } else {
+      items.forEach(function(item) {
+        var prioColor = item.priority === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : item.priority === 'medium' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+        var prioLabel = item.priority || 'medium';
+
+        var dueHtml = '';
+        var dueClass = '';
+        if (item.dueDate) {
+          var now = new Date();
+          var dueDate = new Date(item.dueDate + (item.dueTime ? 'T' + item.dueTime : 'T23:59'));
+          var diffMs = dueDate - now;
+          var diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+          var isOverdue = diffMs < 0;
+          var isUrgent = diffHours >= 0 && diffHours <= 24;
+
+          if (isOverdue) {
+            dueClass = 'text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400';
+          } else if (isUrgent) {
+            dueClass = 'text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400';
+          } else {
+            dueClass = 'text-on-surface-variant bg-surface-container dark:bg-surface-container-high';
+          }
+
+          var dueLabel = formatDate(item.dueDate);
+          if (item.dueTime) dueLabel += ' ' + item.dueTime;
+          if (isOverdue) dueLabel = '🔴 Overdue — ' + dueLabel;
+          else if (isUrgent) dueLabel = '⚡ Due soon — ' + dueLabel;
+
+          dueHtml = '<div class="flex items-center gap-1 mt-1.5 text-xs rounded-lg px-2 py-0.5 ' + dueClass + '"><span class="material-symbols-outlined text-[14px]">schedule</span><span>' + dueLabel + '</span></div>';
+        }
+
+        html += '<div class="kanban-card bg-surface-container-lowest rounded-xl border border-outline-variant border-l-4 ' + col.cardBorder + ' p-3 shadow-sm hover:shadow-md transition-all">' +
+          '<div class="flex items-start justify-between gap-2">' +
+            '<h4 class="font-label-md font-semibold text-on-surface flex-1 break-words">' + escapeHtml(item.title) + '</h4>' +
+            '<span class="font-label-md text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap ' + prioColor + '">' + escapeHtml(prioLabel) + '</span>' +
+          '</div>' +
+          (item.description ? '<p class="font-label-md text-xs text-on-surface-variant mt-1 line-clamp-2">' + escapeHtml(item.description) + '</p>' : '') +
+          (item.assignedTo ? '<div class="flex items-center gap-1 mt-1.5 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-[14px]">person</span><span>' + escapeHtml(item.assignedTo) + '</span></div>' : '') +
+          dueHtml +
+          '<div class="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/40">' +
+            '<div class="flex items-center gap-1">' +
+              (col.key !== 'todo' ? '<button class="p-1 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Move to ' + (col.key === 'in-progress' ? 'To Do' : 'In Progress') + '" onclick="moveTask(' + item.id + ',\'' + (col.key === 'in-progress' ? 'todo' : 'in-progress') + '\')"><span class="material-symbols-outlined text-sm">chevron_left</span></button>' : '') +
+              (col.key !== 'done' ? '<button class="p-1 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Move to ' + (col.key === 'todo' ? 'In Progress' : 'Done') + '" onclick="moveTask(' + item.id + ',\'' + (col.key === 'todo' ? 'in-progress' : 'done') + '\')"><span class="material-symbols-outlined text-sm">chevron_right</span></button>' : '') +
+            '</div>' +
+            '<div class="flex items-center gap-1">' +
+              '<button class="p-1 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'task\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+              '<button class="p-1 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'task\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      });
+    }
+
+    html += '</div></div>';
+  });
+
+  el.innerHTML = html;
+  checkDueTasks();
 }
 
-function markTaskDone(id) {
+function moveTask(id, newStatus) {
   var data = getData('task');
   var item = data.find(function(x) { return x.id === id; });
-  if (item) { item.status = 'done'; saveData('task', data); renderTask(); }
+  if (item) { item.status = newStatus; saveData('task', data); renderTask(); checkDueTasks(); }
 }
 
 // ==================== PLANNER (timeline) ====================
@@ -1575,6 +1873,10 @@ function getFormHtml(type, item) {
     return '<div class="space-y-4">' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Title *</label><input id="fTitle" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.title || '') + '"/></div>' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Description</label><textarea id="fDescription" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 resize-none">' + escapeHtml(item.description || '') + '</textarea></div>' +
+      '<div class="grid grid-cols-2 gap-4">' +
+        '<div><label class="font-label-md text-on-surface-variant block mb-1">Due Date</label><input id="fDueDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.dueDate || '') + '"/></div>' +
+        '<div><label class="font-label-md text-on-surface-variant block mb-1">Due Time</label><input id="fDueTime" type="time" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.dueTime || '') + '"/></div>' +
+      '</div>' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Priority</label><select id="fPriority" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="low"' + (item.priority === 'low' ? ' selected' : '') + '>Low</option><option value="medium"' + ((item.priority === 'medium' || !item.priority) ? ' selected' : '') + '>Medium</option><option value="high"' + (item.priority === 'high' ? ' selected' : '') + '>High</option></select></div>' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Assigned To</label><input id="fAssigned" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.assignedTo || '') + '"/></div>' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Status</label><select id="fStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="todo"' + ((item.status === 'todo' || !item.status) ? ' selected' : '') + '>To Do</option><option value="in-progress"' + (item.status === 'in-progress' ? ' selected' : '') + '>In Progress</option><option value="done"' + (item.status === 'done' ? ' selected' : '') + '>Done</option></select></div>' +
@@ -1849,6 +2151,8 @@ function saveItem() {
     if (!title) { alert('Task title is required.'); return; }
     item.title = title;
     item.description = document.getElementById('fDescription').value.trim();
+    item.dueDate = document.getElementById('fDueDate').value;
+    item.dueTime = document.getElementById('fDueTime').value;
     item.priority = document.getElementById('fPriority').value;
     item.assignedTo = document.getElementById('fAssigned').value.trim();
     item.status = document.getElementById('fStatus').value;
@@ -1970,6 +2274,7 @@ function toggleCategoryDetails(val) {
 initTheme();
 initAuth();
 loadDashboard();
+checkDueTasks();
 </script>
 </body>
 </html>
