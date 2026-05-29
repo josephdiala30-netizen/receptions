@@ -187,8 +187,8 @@ button, input, select, textarea { min-width: 0; }
       <span class="font-label-md">Task</span>
     </a>
     <a id="navPlanner" class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200 cursor-pointer" onclick="switchView('planner')">
-      <span class="material-symbols-outlined">planner</span>
-      <span class="font-label-md">Planner</span>
+      <span class="material-symbols-outlined">map</span>
+      <span class="font-label-md">Plans &amp; Roadmaps</span>
     </a>
     <a id="navAccomplishments" class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200 cursor-pointer" onclick="switchView('accomplishments')">
       <span class="material-symbols-outlined">assignment_turned_in</span>
@@ -239,7 +239,7 @@ button, input, select, textarea { min-width: 0; }
         <span class="material-symbols-outlined">task</span><span class="font-label-md">Task</span>
       </a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all cursor-pointer" onclick="switchView('planner');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">planner</span><span class="font-label-md">Planner</span>
+        <span class="material-symbols-outlined">map</span><span class="font-label-md">Plans &amp; Roadmaps</span>
       </a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all cursor-pointer" onclick="switchView('accomplishments');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">assignment_turned_in</span><span class="font-label-md">Daily Accomplishments</span>
@@ -322,7 +322,7 @@ button, input, select, textarea { min-width: 0; }
     </div>
     <div class="card-enter card-lift bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 md:p-6">
       <div class="flex items-center justify-between mb-3">
-        <div class="p-2.5 rounded-xl stat-gradient-4 text-white"><span class="material-symbols-outlined">planner</span></div>
+        <div class="p-2.5 rounded-xl stat-gradient-4 text-white"><span class="material-symbols-outlined">map</span></div>
       </div>
       <p id="statPlans" class="font-headline-md text-headline-md font-bold text-primary">0</p>
       <p class="font-label-md text-on-surface-variant mt-1">Active Plans</p>
@@ -436,7 +436,7 @@ button, input, select, textarea { min-width: 0; }
 <section id="viewPlanner" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
   <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
     <div>
-      <h2 class="font-headline-lg text-headline-lg text-primary">Planner</h2>
+      <h2 class="font-headline-lg text-headline-lg text-primary">Plans &amp; Roadmaps</h2>
       <p class="font-body-lg text-on-surface-variant">Plan and schedule IT activities and timelines</p>
     </div>
     <button class="flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('planner')">
@@ -628,7 +628,7 @@ var currentView = 'dashboard';
 
 function switchView(view) {
   currentView = view;
-  var views = ['Dashboard', 'Assets', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems'];
+  var views = ['Dashboard', 'Assets', 'Services', 'Maintenance', 'Inventory', 'Task', 'Plans &amp; Roadmaps', 'Accomplishments', 'Tickets', 'Systems'];
   views.forEach(function(v) {
     var el = document.getElementById('view' + v);
     if (el) el.classList.toggle('hidden', v.toLowerCase() !== view);
@@ -680,7 +680,7 @@ function loadDashboard() {
   maintenance.forEach(function(m) { allItems.push({ type: 'maintenance', icon: 'handyman', color: 'text-orange-600', name: m.title, detail: m.status || 'scheduled', time: m.createdAt }); });
   inventory.forEach(function(i) { allItems.push({ type: 'inventory', icon: 'inventory', color: 'text-teal-600', name: i.name, detail: i.quantity || '0', time: i.createdAt }); });
   tasks.forEach(function(t) { allItems.push({ type: 'task', icon: 'task', color: 'text-purple-600', name: t.title, detail: t.priority || 'medium', time: t.createdAt }); });
-  plans.forEach(function(p) { allItems.push({ type: 'plan', icon: 'planner', color: 'text-pink-600', name: p.title, detail: p.status || 'active', time: p.createdAt }); });
+  plans.forEach(function(p) { allItems.push({ type: 'plan', icon: 'map', color: 'text-pink-600', name: p.title, detail: p.status || 'active', time: p.createdAt }); });
   accomplishments.forEach(function(a) { allItems.push({ type: 'accomplishment', icon: 'assignment_turned_in', color: 'text-green-600', name: a.title, detail: a.date || '', time: a.createdAt }); });
 
   allItems.sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
@@ -848,7 +848,7 @@ function renderPlanner() {
   var data = getData('planner');
   var el = document.getElementById('plannerList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center ml-16 bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">planner</span><p class="font-body-md text-on-surface-variant mt-4">No plans yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'planner\')">Create First Plan</button></div>';
+    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center ml-16 bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">map</span><p class="font-body-md text-on-surface-variant mt-4">No plans yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'planner\')">Create First Plan</button></div>';
     return;
   }
   el.innerHTML = data.map(function(item) {
