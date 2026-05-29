@@ -815,18 +815,46 @@ function renderInventory() {
   }
   el.innerHTML = data.map(function(item) {
     var qty = parseInt(item.quantity) || 0;
-    var stockColor = qty > 10 ? 'bg-emerald-100 text-emerald-700' : qty > 0 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
-    return '<div class="flex items-start gap-4 p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift">' +
-      '<div class="p-3 rounded-xl bg-teal-100 text-teal-600"><span class="material-symbols-outlined">inventory</span></div>' +
-      '<div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.name) + '</h4><span class="font-label-md ' + stockColor + ' px-2 py-0.5 rounded-full">' + qty + ' in stock</span></div>' +
-      '<div class="flex items-center gap-4 mt-1.5 text-on-surface-variant flex-wrap">' +
-      '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">category</span> ' + escapeHtml(item.category || 'Supply') + '</span>' +
-      (item.location ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> ' + escapeHtml(item.location) + '</span>' : '') +
-      '</div></div>' +
-      '<div class="flex items-start gap-1">' +
-      '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'inventory\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
-      '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'inventory\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
-      '</div></div>';
+    var stockColor = qty > 10 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                   : qty > 0  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                               : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+    var statusColor = item.status === 'Active' ? 'bg-green-100 text-green-700'
+                    : item.status === 'In Use' ? 'bg-blue-100 text-blue-700'
+                    : item.status === 'For Repair' ? 'bg-red-100 text-red-700'
+                    : item.status === 'Disposed' ? 'bg-gray-100 text-gray-500'
+                    : 'bg-surface-container text-on-surface-variant';
+    var brand = item.brand || '';
+    var model = item.model || '';
+    var equipLine = [brand, model].filter(Boolean).join(' — ');
+    return '<div class="p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift space-y-3">' +
+      '<div class="flex items-start gap-4">' +
+      '  <div class="p-3 rounded-xl bg-teal-100 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400"><span class="material-symbols-outlined">inventory</span></div>' +
+      '  <div class="flex-1">' +
+      '    <div class="flex items-center gap-2 flex-wrap">' +
+      '      <h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.name) + '</h4>' +
+      (item.status ? '      <span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full text-xs">' + escapeHtml(item.status) + '</span>' : '') +
+      '      <span class="font-label-md ' + stockColor + ' px-2 py-0.5 rounded-full text-xs">' + qty + ' in stock</span>' +
+      '    </div>' +
+      '    <p class="font-label-md text-on-surface-variant mt-0.5">' + escapeHtml(item.category || 'Item') + (equipLine ? ' &middot; ' + escapeHtml(equipLine) : '') + '</p>' +
+      '  </div>' +
+      '  <div class="flex items-start gap-1">' +
+      '    <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'inventory\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+      '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'inventory\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+      '  </div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/60">' +
+      '  <div><span class="text-on-surface-variant block font-medium">Serial No.</span><span class="text-primary font-semibold">' + escapeHtml(item.serial || 'N/A') + '</span></div>' +
+      '  <div><span class="text-on-surface-variant block font-medium">Asset Tag</span><span class="text-primary font-semibold">' + escapeHtml(item.assetTag || 'N/A') + '</span></div>' +
+      '  <div><span class="text-on-surface-variant block font-medium">Location</span><span class="text-primary font-semibold">' + escapeHtml(item.location || 'N/A') + '</span></div>' +
+      '  <div><span class="text-on-surface-variant block font-medium">Department</span><span class="text-primary font-semibold">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
+      '</div>' +
+      '<div class="flex items-center justify-between text-xs pt-1 border-t border-outline-variant/60 flex-wrap gap-2 text-on-surface-variant">' +
+      (item.assignedTo ? '  <div><span>Assigned To: </span><strong class="text-primary">' + escapeHtml(item.assignedTo) + '</strong></div>' : '<div></div>') +
+      (item.warrantyExpiry ? '  <div><span>Warranty: </span><strong class="text-amber-600">' + escapeHtml(item.warrantyExpiry) + '</strong></div>' : '') +
+      (item.purchaseDate ? '  <div><span>Purchased: </span><strong class="text-primary">' + escapeHtml(item.purchaseDate) + '</strong></div>' : '') +
+      '</div>' +
+      (item.notes ? '<div class="text-xs border-l-2 border-teal-400/40 pl-3 py-1"><span class="text-on-surface-variant font-medium block mb-0.5">Notes</span><p class="text-primary">' + escapeHtml(item.notes) + '</p></div>' : '') +
+      '</div>';
   }).join('');
 }
 
@@ -1229,12 +1257,120 @@ function getFormHtml(type, item) {
       '</div>';
   }
   if (type === 'inventory') {
+    var invStatus = item.status || 'Active';
     return '<div class="space-y-4">' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Item Name *</label><input id="fName" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.name || '') + '"/></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Category</label><select id="fCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="Supply"' + (item.category === 'Supply' || !item.category ? ' selected' : '') + '>Supply</option><option value="Spare Part"' + (item.category === 'Spare Part' ? ' selected' : '') + '>Spare Part</option><option value="Tool"' + (item.category === 'Tool' ? ' selected' : '') + '>Tool</option><option value="Equipment"' + (item.category === 'Equipment' ? ' selected' : '') + '>Equipment</option><option value="Consumable"' + (item.category === 'Consumable' ? ' selected' : '') + '>Consumable</option></select></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Quantity</label><input id="fQuantity" type="number" min="0" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + (item.quantity || 0) + '"/></div>' +
-      '<div><label class="font-label-md text-on-surface-variant block mb-1">Location</label><input id="fLocation" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Storage location" value="' + escapeHtml(item.location || '') + '"/></div>' +
-      '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Item</button></div>';
+
+      '<!-- Row 1: Item Name + Item Type -->' +
+      '<div class="grid grid-cols-2 gap-4">' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">ITEM NAME *</label>' +
+      '    <input id="fName" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="e.g., Dell Laptop, HP Printer" value="' + escapeHtml(item.name || '') + '"/>' +
+      '  </div>' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">ITEM TYPE *</label>' +
+      '    <select id="fCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '      <option value="Computer"' + (item.category === 'Computer' || !item.category ? ' selected' : '') + '>Computer</option>' +
+      '      <option value="Laptop"' + (item.category === 'Laptop' ? ' selected' : '') + '>Laptop</option>' +
+      '      <option value="Printer"' + (item.category === 'Printer' ? ' selected' : '') + '>Printer</option>' +
+      '      <option value="Monitor"' + (item.category === 'Monitor' ? ' selected' : '') + '>Monitor</option>' +
+      '      <option value="UPS"' + (item.category === 'UPS' ? ' selected' : '') + '>UPS</option>' +
+      '      <option value="Network Device"' + (item.category === 'Network Device' ? ' selected' : '') + '>Network Device</option>' +
+      '      <option value="Storage Device"' + (item.category === 'Storage Device' ? ' selected' : '') + '>Storage Device</option>' +
+      '      <option value="Peripheral"' + (item.category === 'Peripheral' ? ' selected' : '') + '>Peripheral</option>' +
+      '      <option value="Supply"' + (item.category === 'Supply' ? ' selected' : '') + '>Supply</option>' +
+      '      <option value="Spare Part"' + (item.category === 'Spare Part' ? ' selected' : '') + '>Spare Part</option>' +
+      '      <option value="Consumable"' + (item.category === 'Consumable' ? ' selected' : '') + '>Consumable</option>' +
+      '      <option value="Tool"' + (item.category === 'Tool' ? ' selected' : '') + '>Tool</option>' +
+      '      <option value="Other"' + (item.category === 'Other' ? ' selected' : '') + '>Other</option>' +
+      '    </select>' +
+      '  </div>' +
+      '</div>' +
+
+      '<!-- Row 2: Brand + Model -->' +
+      '<div class="grid grid-cols-2 gap-4">' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">BRAND</label>' +
+      '    <input id="fBrand" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="e.g., Dell, HP" value="' + escapeHtml(item.brand || '') + '"/>' +
+      '  </div>' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">MODEL</label>' +
+      '    <input id="fModel" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="e.g., Latitude 5420" value="' + escapeHtml(item.model || '') + '"/>' +
+      '  </div>' +
+      '</div>' +
+
+      '<!-- Row 3: Serial Number + Asset Tag -->' +
+      '<div class="grid grid-cols-2 gap-4">' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">SERIAL NUMBER</label>' +
+      '    <input id="fSerial" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="Enter serial number" value="' + escapeHtml(item.serial || '') + '"/>' +
+      '  </div>' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">ASSET TAG</label>' +
+      '    <input id="fAssetTag" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="Internal asset tag" value="' + escapeHtml(item.assetTag || '') + '"/>' +
+      '  </div>' +
+      '</div>' +
+
+      '<!-- Row 4: Location + Department -->' +
+      '<div class="grid grid-cols-2 gap-4">' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">LOCATION</label>' +
+      '    <input id="fLocation" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="e.g., Room 101, IT Office" value="' + escapeHtml(item.location || '') + '"/>' +
+      '  </div>' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">DEPARTMENT</label>' +
+      '    <input id="fDepartment" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="e.g., IT, HR, Finance" value="' + escapeHtml(item.department || '') + '"/>' +
+      '  </div>' +
+      '</div>' +
+
+      '<!-- Row 5: Status + Assigned To -->' +
+      '<div class="grid grid-cols-2 gap-4">' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">STATUS</label>' +
+      '    <select id="fStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '      <option value="Active"' + (invStatus === 'Active' ? ' selected' : '') + '>Active</option>' +
+      '      <option value="In Use"' + (invStatus === 'In Use' ? ' selected' : '') + '>In Use</option>' +
+      '      <option value="In Storage"' + (invStatus === 'In Storage' ? ' selected' : '') + '>In Storage</option>' +
+      '      <option value="For Repair"' + (invStatus === 'For Repair' ? ' selected' : '') + '>For Repair</option>' +
+      '      <option value="Disposed"' + (invStatus === 'Disposed' ? ' selected' : '') + '>Disposed</option>' +
+      '    </select>' +
+      '  </div>' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">ASSIGNED TO</label>' +
+      '    <input id="fAssignedTo" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" placeholder="Person or department" value="' + escapeHtml(item.assignedTo || '') + '"/>' +
+      '  </div>' +
+      '</div>' +
+
+      '<!-- Row 6: Initial Stock Quantity (full width) -->' +
+      '<div>' +
+      '  <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">INITIAL STOCK QUANTITY</label>' +
+      '  <input id="fQuantity" type="number" min="0" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" value="' + (item.quantity || 0) + '"/>' +
+      '</div>' +
+
+      '<!-- Row 7: Purchase Date + Warranty Expiry -->' +
+      '<div class="grid grid-cols-2 gap-4">' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">PURCHASE DATE</label>' +
+      '    <input id="fPurchaseDate" type="date" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" value="' + escapeHtml(item.purchaseDate || '') + '"/>' +
+      '  </div>' +
+      '  <div>' +
+      '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">WARRANTY EXPIRY</label>' +
+      '    <input id="fWarrantyExpiry" type="date" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30" value="' + escapeHtml(item.warrantyExpiry || '') + '"/>' +
+      '  </div>' +
+      '</div>' +
+
+      '<!-- Row 8: Notes -->' +
+      '<div>' +
+      '  <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">NOTES</label>' +
+      '  <textarea id="fNotes" rows="3" class="w-full bg-surface-container border border-teal-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-teal-400/30 resize-none" placeholder="Additional notes...">' + escapeHtml(item.notes || '') + '</textarea>' +
+      '</div>' +
+
+      '<!-- Action Buttons -->' +
+      '<div class="flex gap-3 pt-1">' +
+      '  <button class="flex-1 border border-outline-variant text-on-surface-variant py-2.5 rounded-xl font-label-md font-semibold hover:bg-surface-container transition-all" onclick="closeModal()">Cancel</button>' +
+      '  <button class="flex-1 bg-teal-600 text-white py-2.5 rounded-xl font-label-md font-semibold hover:bg-teal-700 transition-all" onclick="saveItem()">Add Item</button>' +
+      '</div>' +
+
+      '</div>';
   }
   if (type === 'task') {
     return '<div class="space-y-4">' +
@@ -1405,8 +1541,18 @@ function saveItem() {
     if (!name) { alert('Item name is required.'); return; }
     item.name = name;
     item.category = document.getElementById('fCategory').value;
-    item.quantity = document.getElementById('fQuantity').value;
+    item.brand = document.getElementById('fBrand').value.trim();
+    item.model = document.getElementById('fModel').value.trim();
+    item.serial = document.getElementById('fSerial').value.trim();
+    item.assetTag = document.getElementById('fAssetTag').value.trim();
     item.location = document.getElementById('fLocation').value.trim();
+    item.department = document.getElementById('fDepartment').value.trim();
+    item.status = document.getElementById('fStatus').value;
+    item.assignedTo = document.getElementById('fAssignedTo').value.trim();
+    item.quantity = parseInt(document.getElementById('fQuantity').value) || 0;
+    item.purchaseDate = document.getElementById('fPurchaseDate').value;
+    item.warrantyExpiry = document.getElementById('fWarrantyExpiry').value;
+    item.notes = document.getElementById('fNotes').value.trim();
   } else if (type === 'task') {
     var title = document.getElementById('fTitle').value.trim();
     if (!title) { alert('Task title is required.'); return; }
