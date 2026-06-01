@@ -1,0 +1,174 @@
+[
+  {
+    "id": 1780291974408,
+    "createdAt": 1780291974138,
+    "name": "Sharp Toner",
+    "category": "Printer",
+    "brand": "Sharp Copier",
+    "model": "FT-300",
+    "serial": "",
+    "assetTag": "",
+    "location": "IT Server Room",
+    "department": "IT",
+    "status": "active",
+    "assignedTo": "Joseph Diala",
+    "quantity": 6,
+    "purchaseDate": "2026-04-29",
+    "warrantyExpiry": "0000-00-00",
+    "notes": "Stocks for AGX Clark",
+    "movements": [
+      {
+        "date": "2026-04-28",
+        "type": "in",
+        "qty": 4,
+        "reference": "",
+        "person": "Joseph Diala",
+        "notes": "Initial Stock",
+        "timestamp": 1780291974138
+      },
+      {
+        "date": "2026-04-30",
+        "type": "out",
+        "qty": 1,
+        "reference": "",
+        "person": "Joseph Diala",
+        "notes": "Send to Bataan Warehouse 01 C/O Sir Mark",
+        "timestamp": 1780291974138
+      }
+    ]
+  },
+  {
+    "id": 1780291974409,
+    "createdAt": 1780291974138,
+    "name": "Canon Toner",
+    "category": "Printer",
+    "brand": "Canon Laser Printer",
+    "model": "CF283X",
+    "serial": "",
+    "assetTag": "",
+    "location": "IT Server Room",
+    "department": "IT",
+    "status": "active",
+    "assignedTo": "Joseph Diala",
+    "quantity": 4,
+    "purchaseDate": "2026-04-29",
+    "warrantyExpiry": "0000-00-00",
+    "notes": "Stock for All",
+    "movements": [
+      {
+        "date": "2026-04-28",
+        "type": "in",
+        "qty": 4,
+        "reference": "",
+        "person": "Joseph Diala",
+        "notes": "Initial Stock",
+        "timestamp": 1780291974138
+      },
+      {
+        "date": "2026-05-12",
+        "type": "out",
+        "qty": 2,
+        "reference": "",
+        "person": "Joseph Diala",
+        "notes": "requested by Bataan Warehouse C/O Miss Cristine Cruto",
+        "timestamp": 1780291974138
+      }
+    ]
+  },
+  {
+    "id": 1780291974410,
+    "createdAt": 1780291974138,
+    "name": "Lenovo Laptop",
+    "category": "Laptop",
+    "brand": "Lenovo",
+    "model": "ThinkBook 14-IML",
+    "serial": "LR0ETL1A",
+    "assetTag": "N/A",
+    "location": "Server Room",
+    "department": "IT",
+    "status": "active",
+    "assignedTo": "",
+    "quantity": 2,
+    "purchaseDate": "0000-00-00",
+    "warrantyExpiry": "0000-00-00",
+    "notes": "Used / Spared laptop for OJT use",
+    "movements": [
+      {
+        "date": "2026-05-08",
+        "type": "in",
+        "qty": 1,
+        "reference": "",
+        "person": "Joseph Diala",
+        "notes": "Initial Stock",
+        "timestamp": 1780291974138
+      }
+    ]
+  },
+  {
+    "id": 1780291974411,
+    "createdAt": 1780291974138,
+    "name": "Lenovo Laptop",
+    "category": "Laptop",
+    "brand": "Lenovo",
+    "model": "Thinkpad E408",
+    "serial": "PF-1HEGJ3",
+    "assetTag": "N/A",
+    "location": "Server Room",
+    "department": "IT",
+    "status": "active",
+    "assignedTo": "",
+    "quantity": 2,
+    "purchaseDate": "0000-00-00",
+    "warrantyExpiry": "0000-00-00",
+    "notes": "Service unit used for OJTs",
+    "movements": [
+      {
+        "date": "2026-05-12",
+        "type": "in",
+        "qty": 1,
+        "reference": "",
+        "person": "Joseph Diala",
+        "notes": "Initial Stock",
+        "timestamp": 1780291974138
+      }
+    ]
+  },
+  {
+    "id": 1780291974412,
+    "createdAt": 1780291974138,
+    "name": "Maintenance Box",
+    "category": "Other",
+    "brand": "Epson",
+    "model": "T04D1",
+    "serial": "N/A",
+    "assetTag": "N/A",
+    "location": "IT Office",
+    "department": "IT",
+    "status": "active",
+    "assignedTo": "Joseph Diala",
+    "quantity": 8,
+    "purchaseDate": "2026-05-13",
+    "warrantyExpiry": "0000-00-00",
+    "notes": "Epson Maintenance Box",
+    "movements": [
+      {
+        "date": "2026-05-12",
+        "type": "in",
+        "qty": 5,
+        "reference": "",
+        "person": "Joseph Diala",
+        "notes": "Initial Stock",
+        "timestamp": 1780291974138
+      },
+      {
+        "date": "2026-05-28",
+        "type": "out",
+        "qty": 1,
+        "reference": "",
+        "person": "Joseph Diala",
+        "notes": "Requested by Sir LF from Molex",
+        "timestamp": 1780291974138
+      }
+    ]
+  }
+]

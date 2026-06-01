@@ -1,0 +1,11 @@
+[
+  {
+    "id": 2,
+    "title": "Update:",
+    "message": "Removed help guide, added a new page Daily Job. to track your daily tasks",
+    "announcement_type": "update",
+    "created_at": "2026-03-11 07:52:09",
+    "expires_at": "2026-03-18 10:52:09",
+    "is_active": true
+  }
+]

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Maintenance Diagnostic</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+  h1 { font-size: 1.3rem; margin-bottom: 4px; }
+  .sub { color: #94a3b8; font-size: 0.85rem; margin-bottom: 20px; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .card h2 { font-size: 1rem; margin-bottom: 10px; color: #f8fafc; }
+  .card .val { font-family: monospace; font-size: 0.85rem; color: #e2e8f0; white-space: pre-wrap; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .badge-green { background: #064e3b; color: #6ee7b7; }
+  .badge-red { background: #450a0a; color: #fca5a5; }
+  .badge-yellow { background: #451a03; color: #fdba74; }
+  .badge-blue { background: #1e3a5f; color: #93c5fd; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #1e293b; }
+  th { background: #0f172a; color: #94a3b8; font-weight: 600; position: sticky; top: 0; }
+  .btn { display: inline-block; padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; margin: 4px; }
+  .btn-primary { background: #6366f1; color: #fff; }
+  .btn-primary:hover { background: #4f46e5; }
+  .btn-success { background: #22c55e; color: #fff; }
+  .btn-success:hover { background: #16a34a; }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .btn-danger:hover { background: #dc2626; }
+  .actions { margin: 12px 0; }
+  .green { color: #6ee7b7; }
+  .red { color: #fca5a5; }
+  .yellow { color: #fdba74; }
+  .scroll { max-height: 400px; overflow: auto; }
+</style>
+</head>
+<body>
+<h1>IT Maintenance Diagnostic</h1>
+<p class="sub">Use this page to diagnose why maintenance data doesn't appear in the Executive IT view.</p>
+
+<div class="card">
+  <h2>Step 1: Import Data</h2>
+  <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:12px;">Import the joseph_diala data directly into localStorage.</p>
+  <button class="btn btn-primary" onclick="doImport()">Import Data Now</button>
+  <div id="importStatus" style="margin-top:8px;font-size:0.8rem;"></div>
+</div>
+
+<div class="card">
+  <h2>Step 2: Debug Info</h2>
+  <button class="btn btn-success" onclick="showDebug()">Refresh Debug Info</button>
+  <div id="debugOutput" style="margin-top:10px;font-family:monospace;font-size:0.8rem;color:#94a3b8;">Click the button above to refresh.</div>
+</div>
+
+<div class="card">
+  <h2>Step 3: Create Test Session &amp; Redirect</h2>
+  <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:12px;">Creates a session for joseph_diala and opens the Executive IT page in a new tab.</p>
+  <button class="btn btn-primary" onclick="createSessionAndGo()">Login as joseph_diala</button>
+</div>
+
+<div class="card">
+  <h2>Step 4: Verify Maintenance Data Renders</h2>
+  <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:12px;">This simulates what the Executive IT page does to render maintenance data.</p>
+  <button class="btn btn-success" onclick="simulateRender()">Simulate Render</button>
+  <div id="simulateOutput" style="margin-top:10px;"></div>
+</div>
+
+<script>
+function logStatus(id, msg, type) {
+  var el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.color = type === 'error' ? '#fca5a5' : type === 'success' ? '#6ee7b7' : '#e2e8f0';
+}
+
+function doImport() {
+  var statusEl = document.getElementById('importStatus');
+  statusEl.textContent = 'Loading...';
+  
+  fetch('joseph_diala_import.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      // Save user
+      var user = data.users[0];
+      var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+      var existing = itUsers.findIndex(function(u) { return u.username === user.username; });
+      if (existing >= 0) { itUsers[existing] = user; }
+      else { itUsers.push(user); }
+      localStorage.setItem('users_executive_it', JSON.stringify(itUsers));
+
+      // Write data keys
+      var written = 0;
+      Object.keys(data).forEach(function(k) {
+        if (k === 'exportedAt' || k === 'users') return;
+        if (k.startsWith('it_') || k.startsWith('tasks_') || k.startsWith('plans_') || k.startsWith('dailylog_') || k.startsWith('trips_')) {
+          localStorage.setItem(k, JSON.stringify(data[k]));
+          written++;
+        }
+      });
+
+      statusEl.innerHTML = '<span class="green">Done! ' + written + ' keys written, 1 user account saved.</span>';
+      showDebug();
+    })
+    .catch(function(err) {
+      statusEl.innerHTML = '<span class="red">ERROR: ' + err.message + '</span>';
+    });
+}
+
+function showDebug() {
+  var out = document.getElementById('debugOutput');
+  var session = JSON.parse(localStorage.getItem('session') || 'null');
+  var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+  var maintenance = JSON.parse(localStorage.getItem('it_maintenance_joseph_diala') || '[]');
+  var services = JSON.parse(localStorage.getItem('it_services_joseph_diala') || '[]');
+  var inventory = JSON.parse(localStorage.getItem('it_inventory_joseph_diala') || '[]');
+  var tasks = JSON.parse(localStorage.getItem('it_task_joseph_diala') || '[]');
+  var accomplishments = JSON.parse(localStorage.getItem('it_accomplishments_joseph_diala') || '[]');
+
+  var html = '';
+  html += '── SESSION ──\n';
+  if (session) {
+    html += 'username: ' + session.username + '\n';
+    html += 'role: ' + session.role + '\n';
+    html += 'loggedIn: ' + session.loggedIn + '\n';
+  } else {
+    html += '<span class="yellow">No session found.</span>\n';
+  }
+  
+  html += '\n── USERS ──\n';
+  html += 'users_executive_it has ' + itUsers.length + ' account(s):\n';
+  itUsers.forEach(function(u) {
+    html += '  - ' + u.username + ' (role: ' + u.role + ')\n';
+  });
+  var hasJoseph = itUsers.some(function(u) { return u.username === 'joseph_diala'; });
+  if (!hasJoseph) html += '  <span class="red">WARNING: joseph_diala not found!</span>\n';
+  
+  html += '\n── DATA KEYS ──\n';
+  html += 'it_maintenance_joseph_diala: ' + maintenance.length + ' items\n';
+  html += 'it_services_joseph_diala: ' + services.length + ' items\n';
+  html += 'it_inventory_joseph_diala: ' + inventory.length + ' items\n';
+  html += 'it_task_joseph_diala: ' + tasks.length + ' items\n';
+  html += 'it_accomplishments_joseph_diala: ' + accomplishments.length + ' items\n';
+  
+  if (maintenance.length > 0) {
+    html += '\n── MAINTENANCE SAMPLE ──\n';
+    html += '(showing first 3 of ' + maintenance.length + ')\n';
+    maintenance.slice(0, 3).forEach(function(item, i) {
+      html += '[' + (i + 1) + '] ' + (item.equipment || item.asset || item.title) + '\n';
+      html += '    frequency: ' + item.frequency + '\n';
+      html += '    period: ' + (item.period || '(empty)') + '\n';
+      html += '    status: ' + item.status + '\n';
+      html += '    date: ' + (item.inspectionDate || item.scheduledDate) + '\n';
+    });
+
+    // Check frequency distribution
+    var freqs = {};
+    var noFreq = 0;
+    maintenance.forEach(function(item) {
+      var f = item.frequency;
+      if (f) { freqs[f] = (freqs[f] || 0) + 1; }
+      else { noFreq++; }
+    });
+    html += '\n── FREQUENCY DISTRIBUTION ──\n';
+    Object.keys(freqs).forEach(function(f) { html += '  ' + f + ': ' + freqs[f] + '\n'; });
+    if (noFreq) html += '  (no frequency): ' + noFreq + '\n';
+  } else {
+    html += '\n<span class="red">WARNING: No maintenance data found for joseph_diala!</span>\n';
+  }
+
+  out.innerHTML = html;
+}
+
+function createSessionAndGo() {
+  var session = { username: 'joseph_diala', name: 'Joseph Diala', isAdmin: false, role: 'executive_it', loggedIn: true, timestamp: Date.now() };
+  localStorage.setItem('session', JSON.stringify(session));
+  alert('Session created! Opening Executive IT page in new tab...');
+  window.open('../executive_it/index.html', '_blank');
+}
+
+function simulateRender() {
+  var out = document.getElementById('simulateOutput');
+  var data = JSON.parse(localStorage.getItem('it_maintenance_joseph_diala') || '[]');
+
+  if (data.length === 0) {
+    out.innerHTML = '<span class="red">No data found. Import first.</span>';
+    return;
+  }
+
+  // Group by frequency, then by period (same as renderMaintenance)
+  var freqOrder = { 'Weekly': 0, 'Monthly': 1, 'Quarterly': 2, 'Annually': 3 };
+  var groups = {};
+  data.forEach(function(item) {
+    var freq = item.frequency || 'Quarterly';
+    var period = item.period || 'N/A';
+    if (!groups[freq]) groups[freq] = {};
+    if (!groups[freq][period]) groups[freq][period] = [];
+    groups[freq][period].push(item);
+  });
+
+  var freqKeys = Object.keys(groups).sort(function(a, b) { return (freqOrder[a] || 99) - (freqOrder[b] || 99); });
+  
+  var html = '<div class="scroll"><table>';
+  html += '<tr><th>Frequency</th><th>Period</th><th>Items</th><th>Sample Equipment</th></tr>';
+  
+  freqKeys.forEach(function(freq) {
+    var periods = groups[freq];
+    var periodKeys = Object.keys(periods).sort();
+    periodKeys.forEach(function(period) {
+      var items = periods[period];
+      var sample = items.slice(0, 3).map(function(i) { return i.equipment || i.asset || i.title; }).join(', ');
+      html += '<tr><td><span class="badge badge-blue">' + freq + '</span></td><td>' + period + '</td><td>' + items.length + '</td><td>' + sample + '</td></tr>';
+    });
+  });
+  html += '</table></div>';
+  html += '<div style="margin-top:8px;color:#94a3b8;font-size:0.8rem;">Total: ' + data.length + ' items across ' + freqKeys.length + ' frequency groups.</div>';
+
+  out.innerHTML = html;
+}
+</script>
+</body>
+</html>

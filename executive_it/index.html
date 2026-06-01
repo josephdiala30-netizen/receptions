@@ -871,7 +871,21 @@ function getData(type) {
       localStorage.setItem(key, JSON.stringify(getInitialServiceReports()));
     }
   }
-  return JSON.parse(localStorage.getItem(getDataKey(type)) || '[]');
+  var key2 = getDataKey(type);
+  var data = JSON.parse(localStorage.getItem(key2) || '[]');
+  if (data.length === 0 && (type === 'maintenance' || type === 'services' || type === 'accomplishments' || type === 'inventory')) {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('it_' + type + '_') === 0 && k !== key2) {
+        data = JSON.parse(localStorage.getItem(k) || '[]');
+        if (data.length > 0) {
+          localStorage.setItem(key2, JSON.stringify(data));
+          break;
+        }
+      }
+    }
+  }
+  return data;
 }
 
 function saveData(type, data) {
@@ -1059,33 +1073,69 @@ function renderServices() {
     el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">support</span><p class="font-body-md text-on-surface-variant mt-4">No IT services yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'service\')">Add First Service</button></div>';
     return;
   }
-  el.innerHTML = data.map(function(item) {
-    var statusColor = item.status === 'open' ? 'bg-blue-100 text-blue-700' : item.status === 'in-progress' ? 'bg-amber-100 text-amber-700' : item.status === 'resolved' || item.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : item.status === 'closed' ? 'bg-gray-100 text-gray-600' : 'bg-blue-100 text-blue-700';
-    var severityColor = item.severity === 'Critical' ? 'bg-red-100 text-red-700' : item.severity === 'High' ? 'bg-orange-100 text-orange-700' : item.severity === 'Low' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700';
-    return '<div class="p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift space-y-3">' +
-      '<div class="flex items-start gap-4">' +
-        '<div class="p-3 rounded-xl bg-blue-100 text-blue-600"><span class="material-symbols-outlined">support</span></div>' +
-        '<div class="flex-1 min-w-0">' +
-          '<div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.name) + '</h4>' +
-          '<span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.status || 'open') + '</span>' +
-          '<span class="font-label-md ' + severityColor + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.severity || 'Medium') + '</span></div>' +
-          (item.requestorName ? '<p class="font-label-md text-on-surface-variant mt-1"><span class="material-symbols-outlined text-sm align-middle">person</span> ' + escapeHtml(item.requestorName) + '</p>' : '') +
-          (item.department ? '<p class="font-label-md text-on-surface-variant"><span class="material-symbols-outlined text-sm align-middle">business</span> ' + escapeHtml(item.department) + '</p>' : '') +
-        '</div>' +
-        '<div class="flex items-start gap-1 shrink-0">' +
-          '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'service\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
-          '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'service\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
-        '</div>' +
+
+  // Group by month using incidentDate or createdAt
+  var months = {};
+  data.forEach(function(item) {
+    var dateStr = item.incidentDate || (item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : '');
+    var m = getMonthLabel(dateStr);
+    if (!months[m.key]) months[m.key] = { label: m.label, key: m.key, items: [] };
+    months[m.key].items.push(item);
+  });
+
+  var monthKeys = Object.keys(months).sort().reverse();
+  var html = '';
+  monthKeys.forEach(function(mKey, mi) {
+    var month = months[mKey];
+    month.items.sort(function(a, b) {
+      var da = a.incidentDate || (a.createdAt ? new Date(a.createdAt).toISOString().split('T')[0] : '');
+      var db = b.incidentDate || (b.createdAt ? new Date(b.createdAt).toISOString().split('T')[0] : '');
+      return da > db ? -1 : da < db ? 1 : 0;
+    });
+    var monthId = 'svc-month-' + mKey;
+    var openCount = month.items.filter(function(i) { return i.status === 'open' || i.status === 'in-progress'; }).length;
+
+    html += '<div class="mb-4 card-enter" style="animation-delay:' + (mi * 0.05) + 's">' +
+      '<div class="sticky top-16 z-10 bg-surface-container-low/90 backdrop-blur-md rounded-t-2xl px-5 py-3 border border-outline-variant flex items-center gap-3 cursor-pointer select-none" onclick="toggleCollapse(\'' + monthId + '\', this)">' +
+      '  <span class="material-symbols-outlined text-on-surface-variant transition-transform" id="icon-' + monthId + '">expand_less</span>' +
+      '  <span class="material-symbols-outlined text-primary">calendar_month</span>' +
+      '  <h3 class="font-title-lg font-bold text-primary">' + escapeHtml(month.label) + '</h3>' +
+      '  <span class="font-label-md text-on-surface-variant bg-surface-container-high px-2.5 py-0.5 rounded-full text-xs">' + month.items.length + ' entries</span>' +
+      (openCount > 0 ? '  <span class="font-label-md bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs">' + openCount + ' open</span>' : '') +
       '</div>' +
-      (item.description ? '<p class="font-label-md text-sm text-on-surface-variant border-l-2 border-blue-400/40 pl-3">' + escapeHtml(item.description) + '</p>' : '') +
-      '<div class="flex items-center gap-4 text-xs text-on-surface-variant flex-wrap">' +
-        '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">category</span> ' + escapeHtml(item.category || 'General') + '</span>' +
-        (item.cost ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">attach_money</span> ' + escapeHtml(item.cost) + '</span>' : '') +
-        (item.incidentDate ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.incidentDate.replace('T', ' ')) + '</span>' : '') +
-      '</div>' +
-      (item.resolution ? '<div class="text-xs border-l-2 border-teal-400/40 pl-3 py-1"><span class="text-on-surface-variant font-medium block mb-0.5">Resolution</span><p class="text-primary">' + escapeHtml(item.resolution) + '</p></div>' : '') +
-    '</div>';
-  }).join('');
+      '<div id="' + monthId + '">';
+
+    month.items.forEach(function(item) {
+      var statusColor = item.status === 'open' ? 'bg-blue-100 text-blue-700' : item.status === 'in-progress' ? 'bg-amber-100 text-amber-700' : item.status === 'resolved' || item.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : item.status === 'closed' ? 'bg-gray-100 text-gray-600' : 'bg-blue-100 text-blue-700';
+      var severityColor = item.severity === 'Critical' ? 'bg-red-100 text-red-700' : item.severity === 'High' ? 'bg-orange-100 text-orange-700' : item.severity === 'Low' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700';
+      html += '<div class="mx-2 mb-2 p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift space-y-3">' +
+        '<div class="flex items-start gap-4">' +
+          '<div class="p-3 rounded-xl bg-blue-100 text-blue-600"><span class="material-symbols-outlined">support</span></div>' +
+          '<div class="flex-1 min-w-0">' +
+            '<div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.name) + '</h4>' +
+            '<span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.status || 'open') + '</span>' +
+            '<span class="font-label-md ' + severityColor + ' px-2 py-0.5 rounded-full">' + escapeHtml(item.severity || 'Medium') + '</span></div>' +
+            (item.requestorName ? '<p class="font-label-md text-on-surface-variant mt-1"><span class="material-symbols-outlined text-sm align-middle">person</span> ' + escapeHtml(item.requestorName) + '</p>' : '') +
+            (item.department ? '<p class="font-label-md text-on-surface-variant"><span class="material-symbols-outlined text-sm align-middle">business</span> ' + escapeHtml(item.department) + '</p>' : '') +
+          '</div>' +
+          '<div class="flex items-start gap-1 shrink-0">' +
+            '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'service\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+            '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'service\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+          '</div>' +
+        '</div>' +
+        (item.description ? '<p class="font-label-md text-sm text-on-surface-variant border-l-2 border-blue-400/40 pl-3">' + escapeHtml(item.description) + '</p>' : '') +
+        '<div class="flex items-center gap-4 text-xs text-on-surface-variant flex-wrap">' +
+          '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">category</span> ' + escapeHtml(item.category || 'General') + '</span>' +
+          (item.cost ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">attach_money</span> ' + escapeHtml(item.cost) + '</span>' : '') +
+          (item.incidentDate ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.incidentDate.replace('T', ' ')) + '</span>' : '') +
+        '</div>' +
+        (item.resolution ? '<div class="text-xs border-l-2 border-teal-400/40 pl-3 py-1"><span class="text-on-surface-variant font-medium block mb-0.5">Resolution</span><p class="text-primary">' + escapeHtml(item.resolution) + '</p></div>' : '') +
+      '</div>';
+    });
+
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
 }
 
 // ==================== MAINTENANCE ====================
@@ -1132,12 +1182,12 @@ function renderMaintenance() {
       
       html += '<div class="mb-3">' +
         '<div class="flex items-center gap-2 px-5 py-1.5 cursor-pointer select-none" onclick="toggleCollapse(\'' + periodId + '\', this)">' +
-        '  <span class="material-symbols-outlined text-sm text-on-surface-variant transition-transform" id="icon-' + periodId + '">expand_more</span>' +
+        '  <span class="material-symbols-outlined text-sm text-on-surface-variant transition-transform" id="icon-' + periodId + '">expand_less</span>' +
         '  <span class="material-symbols-outlined text-sm text-amber-600">schedule</span>' +
         '  <h4 class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider">' + escapeHtml(period) + '</h4>' +
         '  <span class="font-label-md bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full text-xs">' + items.length + '</span>' +
         '</div>' +
-        '<div id="' + periodId + '" class="hidden">';
+        '<div id="' + periodId + '">';
 
       items.sort(function(a, b) { return (b.inspectionDate || b.scheduledDate || '') > (a.inspectionDate || a.scheduledDate || '') ? 1 : -1; });
       items.forEach(function(item) {
@@ -2029,7 +2079,7 @@ function renderAccomplishments() {
 
       html += '<div class="mb-3">' +
         '<div class="flex items-center gap-2 px-5 py-1.5 cursor-pointer select-none" onclick="toggleCollapse(\'' + catId + '\', this)">' +
-        '  <span class="material-symbols-outlined text-sm text-on-surface-variant transition-transform" id="icon-' + catId + '">expand_more</span>' +
+        '  <span class="material-symbols-outlined text-sm text-on-surface-variant transition-transform" id="icon-' + catId + '">expand_less</span>' +
         '  <span class="material-symbols-outlined text-sm ' + cfg.cls.split(' ')[0] + '">' + cfg.icon + '</span>' +
         '  <h4 class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider">' + escapeHtml(cat) + '</h4>' +
         '  <span class="font-label-md ' + cfg.cls + ' px-2 py-0.5 rounded-full text-xs">' + items.length + '</span>' +

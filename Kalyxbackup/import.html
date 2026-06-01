@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Direct Import — Joseph Diala</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 32px; max-width: 520px; width: 100%; }
+  h1 { font-size: 1.4rem; margin: 0 0 6px; color: #f8fafc; }
+  p { color: #94a3b8; font-size: 0.9rem; margin: 0 0 20px; line-height: 1.5; }
+  .status { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 16px; margin-bottom: 16px; font-size: 0.85rem; max-height: 200px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; }
+  .status.success { border-color: #22c55e; }
+  .status.error { border-color: #ef4444; }
+  .status.info { border-color: #3b82f6; }
+  .btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; background: #6366f1; color: #fff; }
+  .btn:hover { background: #4f46e5; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-success { background: #22c55e; }
+  .btn-success:hover { background: #16a34a; }
+  .btn-outline { background: transparent; border: 1px solid #334155; color: #e2e8f0; margin-top: 8px; }
+  .btn-outline:hover { background: #1e293b; }
+  .key-list { font-size: 0.8rem; color: #94a3b8; margin-top: 12px; }
+  .key-list span { display: inline-block; background: #0f172a; padding: 2px 8px; border-radius: 4px; margin: 2px; font-family: monospace; font-size: 0.75rem; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Import Joseph Diala Data</h1>
+  <p>This writes all 353 records directly to <code>localStorage</code> for the user <strong>joseph_diala</strong>.</p>
+  <div id="status" class="status info">
+    Click "Import Now" to begin.
+  </div>
+  <button id="importBtn" class="btn" onclick="doImport()">Import Now</button>
+  <button id="verifyBtn" class="btn btn-outline hidden" onclick="verifyImport()">Verify Import</button>
+  <div id="details" class="key-list"></div>
+</div>
+<script>
+var DATA = null;
+
+function sha256(str) {
+  var enc = new TextEncoder().encode(str);
+  return crypto.subtle.digest('SHA-256', enc).then(function(buf) {
+    return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+  });
+}
+
+function log(msg, type) {
+  var el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + (type || 'info');
+}
+
+function doImport() {
+  var btn = document.getElementById('importBtn');
+  btn.disabled = true;
+  log('Loading joseph_diala_import.json...');
+  
+  fetch('joseph_diala_import.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      DATA = data;
+      log('Loaded JSON. Writing to localStorage...');
+
+      // 1. Save user account
+      var user = data.users[0];
+      var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+      var existing = itUsers.findIndex(function(u) { return u.username === user.username; });
+      if (existing >= 0) {
+        itUsers[existing] = user;
+      } else {
+        itUsers.push(user);
+      }
+      localStorage.setItem('users_executive_it', JSON.stringify(itUsers));
+      log('User account saved: ' + user.username);
+
+      // 2. Write IT data keys
+      var keys = Object.keys(data);
+      var written = [];
+      keys.forEach(function(k) {
+        if (k === 'exportedAt' || k === 'users') return;
+        if (k.startsWith('it_') || k.startsWith('tasks_') || k.startsWith('plans_') || k.startsWith('dailylog_') || k.startsWith('trips_')) {
+          localStorage.setItem(k, JSON.stringify(data[k]));
+          written.push(k);
+        }
+      });
+
+      log('Done! ' + written.length + ' keys written to localStorage.\n\n' + written.join('\n'), 'success');
+      document.getElementById('verifyBtn').classList.remove('hidden');
+      document.getElementById('details').innerHTML = written.map(function(k) {
+        return '<span>' + k + ' (' + data[k].length + ')</span>';
+      }).join(' ');
+    })
+    .catch(function(err) {
+      log('ERROR: ' + err.message, 'error');
+      btn.disabled = false;
+    });
+}
+
+function verifyImport() {
+  var userData = JSON.parse(localStorage.getItem('it_maintenance_joseph_diala') || '[]');
+  var userServices = JSON.parse(localStorage.getItem('it_services_joseph_diala') || '[]');
+  var userAcc = JSON.parse(localStorage.getItem('it_accomplishments_joseph_diala') || '[]');
+  var userInv = JSON.parse(localStorage.getItem('it_inventory_joseph_diala') || '[]');
+  var userTask = JSON.parse(localStorage.getItem('it_task_joseph_diala') || '[]');
+
+  var session = JSON.parse(localStorage.getItem('session') || 'null');
+
+  var msg = '=== VERIFICATION ===\n'
+    + 'Session user: ' + (session ? session.username + ' (role: ' + session.role + ')' : 'NOT LOGGED IN') + '\n\n'
+    + 'it_maintenance_joseph_diala: ' + userData.length + ' items\n'
+    + 'it_services_joseph_diala: ' + userServices.length + ' items\n'
+    + 'it_accomplishments_joseph_diala: ' + userAcc.length + ' items\n'
+    + 'it_inventory_joseph_diala: ' + userInv.length + ' items\n'
+    + 'it_task_joseph_diala: ' + userTask.length + ' items\n\n';
+
+  if (userData.length > 0) {
+    msg += 'Sample maintenance items:\n';
+    msg += userData.slice(0, 3).map(function(i) { return '  - ' + i.title + ' (' + i.inspectionDate + ')'; }).join('\n');
+  }
+
+  log(msg, userData.length > 0 ? 'success' : 'error');
+}
+</script>
+</body>
+</html>
