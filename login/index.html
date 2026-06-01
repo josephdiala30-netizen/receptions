@@ -65,10 +65,10 @@
       <!-- Login Form -->
       <div id="loginForm">
         <div class="space-y-4">
-          <h2 class="text-lg font-bold text-primary text-center">Executive Path Login</h2>
+          <h2 class="text-lg font-bold text-primary text-center">KALYX TASK LOGIN</h2>
           <div>
-            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Username</label>
-            <input id="loginUser" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all" placeholder="Enter username" type="text" autocomplete="username"/>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Username / Email</label>
+            <input id="loginUser" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all" placeholder="Enter username or email" type="text" autocomplete="username"/>
           </div>
           <div>
             <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Password</label>
@@ -90,6 +90,10 @@
           <div>
             <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Username</label>
             <input id="regUser" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all" placeholder="Choose a username" type="text"/>
+          </div>
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Email</label>
+            <input id="regEmail" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all" placeholder="Enter email address" type="email"/>
           </div>
           <div>
             <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Password</label>
@@ -198,7 +202,7 @@
       var errEl = document.getElementById('loginError');
 
       if (!user || !pass) {
-        errEl.textContent = 'Please enter username and password.';
+        errEl.textContent = 'Please enter username/email and password.';
         errEl.classList.remove('hidden');
         return;
       }
@@ -210,14 +214,14 @@
       // Hash the entered password and check both hashed and plaintext stored passwords
       hashPass(pass).then(function(hash) {
         var found = users.find(function(u) {
-          return u.username === user && (u.password === hash || u.password === pass);
+          return (u.username === user || u.email === user) && (u.password === hash || u.password === pass);
         });
         if (found) {
           var role = found.role || 'executive_path';
-          localStorage.setItem('session', JSON.stringify({ username: user, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
+          localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
           window.location.href = getBaseUrl() + role + '/';
         } else {
-          errEl.textContent = 'Invalid username or password.';
+          errEl.textContent = 'Invalid username/email or password.';
           errEl.classList.remove('hidden');
         }
       }).catch(function() {
@@ -228,11 +232,12 @@
     function doRegister() {
       var name = document.getElementById('regName').value.trim();
       var user = document.getElementById('regUser').value.trim();
+      var email = document.getElementById('regEmail').value.trim();
       var pass = document.getElementById('regPass').value;
       var pass2 = document.getElementById('regPass2').value;
       var errEl = document.getElementById('regError');
 
-      if (!name || !user || !pass) {
+      if (!name || !user || !email || !pass) {
         errEl.textContent = 'Please fill in all fields.';
         errEl.classList.remove('hidden');
         return;
@@ -260,15 +265,21 @@
         errEl.classList.remove('hidden');
         return;
       }
+      if (email && users.find(function(u) { return u.email && u.email === email; })) {
+        errEl.textContent = 'Email already in use.';
+        errEl.classList.remove('hidden');
+        return;
+      }
 
       hashPass(pass).then(function(hash) {
         var role = 'executive_task';
-        users.push({ username: user, name: name, password: hash, isAdmin: false, role: role });
+        users.push({ username: user, name: name, email: email, password: hash, isAdmin: false, role: role });
         localStorage.setItem('users', JSON.stringify(users));
         
         // Clear inputs
         document.getElementById('regName').value = '';
         document.getElementById('regUser').value = '';
+        document.getElementById('regEmail').value = '';
         document.getElementById('regPass').value = '';
         document.getElementById('regPass2').value = '';
 
@@ -287,27 +298,27 @@
     (function seedAccounts() {
       var users = JSON.parse(localStorage.getItem('users') || '[]');
       if (!users.some(function(u) { return u.username === 'superadmin'; })) {
-        users.push({ username: 'superadmin', name: 'Super Administrator', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' });
+        users.push({ username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' });
       }
       if (!users.some(function(u) { return u.username === 'admin'; })) {
-        users.push({ username: 'admin', name: 'Administrator', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'executive_path' });
+        users.push({ username: 'admin', name: 'Administrator', email: 'admin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'executive_path' });
       }
       if (!users.some(function(u) { return u.username === 'executive'; })) {
-        users.push({ username: 'executive', name: 'Executive User', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: false, role: 'executive_task' });
+        users.push({ username: 'executive', name: 'Executive User', email: 'executive@kalyx.com', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: false, role: 'executive_task' });
       }
       if (!users.some(function(u) { return u.username === 'task_admin'; })) {
-        users.push({ username: 'task_admin', name: 'Task Administrator', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: true, role: 'executive_task' });
+        users.push({ username: 'task_admin', name: 'Task Administrator', email: 'task_admin@kalyx.com', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: true, role: 'executive_task' });
       }
       localStorage.setItem('users', JSON.stringify(users));
 
       var usersIt = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
       var itDirty = false;
       if (!usersIt.some(function(u) { return u.username === 'it_executive'; })) {
-        usersIt.push({ username: 'it_executive', name: 'Executive IT', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: false, role: 'executive_it' });
+        usersIt.push({ username: 'it_executive', name: 'Executive IT', email: 'it_executive@kalyx.com', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: false, role: 'executive_it' });
         itDirty = true;
       }
       if (!usersIt.some(function(u) { return u.username === 'it_admin'; })) {
-        usersIt.push({ username: 'it_admin', name: 'IT Administrator', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: true, role: 'executive_it' });
+        usersIt.push({ username: 'it_admin', name: 'IT Administrator', email: 'it_admin@kalyx.com', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: true, role: 'executive_it' });
         itDirty = true;
       }
       if (itDirty) {

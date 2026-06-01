@@ -359,9 +359,14 @@ button, input, select, textarea { min-width: 0; }
       <h2 class="font-headline-lg text-headline-lg text-primary">IT Services</h2>
       <p class="font-body-lg text-on-surface-variant">Manage IT service offerings and requests</p>
     </div>
-    <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('service')">
-      <span class="material-symbols-outlined text-sm">add</span> New Service
-    </button>
+    <div class="flex gap-2">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="printServicesReport()">
+        <span class="material-symbols-outlined text-sm">assessment</span> Print Report
+      </button>
+      <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('service')">
+        <span class="material-symbols-outlined text-sm">add</span> New Service
+      </button>
+    </div>
   </div>
   <div id="serviceList" class="space-y-3"></div>
 </section>
@@ -373,9 +378,14 @@ button, input, select, textarea { min-width: 0; }
       <h2 class="font-headline-lg text-headline-lg text-primary">IT Maintenance</h2>
       <p class="font-body-lg text-on-surface-variant">Schedule and track maintenance activities</p>
     </div>
-    <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('maintenance')">
-      <span class="material-symbols-outlined text-sm">add</span> Schedule Maintenance
-    </button>
+    <div class="flex gap-2">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="printMaintenanceReport()">
+        <span class="material-symbols-outlined text-sm">assessment</span> Print Report
+      </button>
+      <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('maintenance')">
+        <span class="material-symbols-outlined text-sm">add</span> Schedule Maintenance
+      </button>
+    </div>
   </div>
   <div id="maintenanceList" class="space-y-3"></div>
 </section>
@@ -387,9 +397,17 @@ button, input, select, textarea { min-width: 0; }
       <h2 class="font-headline-lg text-headline-lg text-primary">IT Inventory</h2>
       <p class="font-body-lg text-on-surface-variant">Track IT supplies, spare parts, and consumables</p>
     </div>
-    <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('inventory')">
-      <span class="material-symbols-outlined text-sm">add</span> Add Item
-    </button>
+    <div class="flex gap-2">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="printInventoryChecklist()">
+        <span class="material-symbols-outlined text-sm">checklist</span> Print Checklist
+      </button>
+      <button class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all active:scale-[0.97] shadow-sm" onclick="printInventoryReport()">
+        <span class="material-symbols-outlined text-sm">assessment</span> Print Report
+      </button>
+      <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('inventory')">
+        <span class="material-symbols-outlined text-sm">add</span> Add Item
+      </button>
+    </div>
   </div>
   <div id="inventoryList" class="space-y-3"></div>
 </section>
@@ -1078,71 +1096,304 @@ function renderMaintenance() {
     el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">handyman</span><p class="font-body-md text-on-surface-variant mt-4">No maintenance schedules</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'maintenance\')">Schedule First</button></div>';
     return;
   }
-  el.innerHTML = data.map(function(item) {
-    var statusColor = item.status === 'scheduled' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 
-                      item.status === 'in-progress' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 
-                      item.status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 
-                      'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-                      
-    var frequency = item.frequency || 'Quarterly';
-    var period = item.period || 'Q1 (Jan - Mar)';
-    var refNo = item.reference || 'ITDF-01';
-    var brand = item.brand || '';
-    var model = item.model || '';
-    var serial = item.serial || '';
-    var dateVal = item.inspectionDate || item.scheduledDate || 'N/A';
-    var inspected = item.inspectedBy || 'N/A';
-    var checked = item.checkedBy || 'N/A';
-    var checks = item.checks || {};
-    var equipInfo = [brand, model].filter(Boolean).join(' — ') || 'N/A';
-    
-    // Build activity checklist pills
-    var activities = [
-      { key: 'checkParts', label: 'Check Parts' },
-      { key: 'cleanInteriors', label: 'Clean Interiors' },
-      { key: 'operatingCondition', label: 'Check Operating Condition' },
-      { key: 'electricalWires', label: 'Check Electrical Wires' }
-    ];
-    var checklistHtml = activities.map(function(a) {
-      var ok = checks[a.key];
-      return '<span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ' + (ok ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400') + '">' +
-        '<span class="material-symbols-outlined text-[14px]">' + (ok ? 'check_circle' : 'radio_button_unchecked') + '</span>' + escapeHtml(a.label) + '</span>';
-    }).join('');
-    
-    return '<div class="p-6 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift space-y-4">' +
-      '<div class="flex items-start justify-between gap-4">' +
-      '  <div class="flex items-center gap-3">' +
-      '    <div class="p-3 rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400"><span class="material-symbols-outlined">handyman</span></div>' +
-      '    <div>' +
-      '      <div class="flex items-center gap-2 flex-wrap">' +
-      '        <h4 class="font-body-lg font-bold text-primary">' + escapeHtml(item.equipment || item.asset || item.title) + '</h4>' +
-      '        <span class="font-label-md ' + statusColor + ' px-2.5 py-0.5 rounded-full text-xs font-semibold">' + escapeHtml(item.status || 'scheduled') + '</span>' +
-      '      </div>' +
-      '      <p class="font-label-md text-on-surface-variant mt-0.5">' + escapeHtml(frequency) + ' Inspection &middot; ' + escapeHtml(period) + '</p>' +
-      '    </div>' +
-      '  </div>' +
-      '  <div class="flex items-center gap-1">' +
-      '    <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
-      '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
-      '  </div>' +
+
+  // Group by frequency, then by period
+  var freqOrder = { 'Weekly': 0, 'Monthly': 1, 'Quarterly': 2, 'Annually': 3 };
+  var groups = {};
+  data.forEach(function(item) {
+    var freq = item.frequency || 'Quarterly';
+    var period = item.period || 'N/A';
+    if (!groups[freq]) groups[freq] = {};
+    if (!groups[freq][period]) groups[freq][period] = [];
+    groups[freq][period].push(item);
+  });
+
+  var freqKeys = Object.keys(groups).sort(function(a, b) { return (freqOrder[a] || 99) - (freqOrder[b] || 99); });
+  var html = '';
+
+  freqKeys.forEach(function(freq) {
+    var periods = groups[freq];
+    var periodKeys = Object.keys(periods).sort();
+    var totalInFreq = data.filter(function(d) { return (d.frequency || 'Quarterly') === freq; }).length;
+    var freqId = 'mnt-freq-' + freq.replace(/\s+/g, '');
+
+    html += '<div class="mb-5">' +
+      '<div class="sticky top-16 z-10 bg-surface-container-low/90 backdrop-blur-md rounded-t-2xl px-5 py-3 border border-outline-variant flex items-center gap-3 cursor-pointer select-none" onclick="toggleCollapse(\'' + freqId + '\', this)">' +
+      '  <span class="material-symbols-outlined text-on-surface-variant transition-transform" id="icon-' + freqId + '">expand_less</span>' +
+      '  <span class="material-symbols-outlined text-primary">handyman</span>' +
+      '  <h3 class="font-title-lg font-bold text-primary">' + escapeHtml(freq) + ' Inspection</h3>' +
+      '  <span class="font-label-md text-on-surface-variant bg-surface-container-high px-2.5 py-0.5 rounded-full text-xs">' + totalInFreq + ' entries</span>' +
       '</div>' +
-      '<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs bg-surface-container-low/40 p-4 rounded-xl border border-outline-variant/60">' +
-      '  <div><span class="text-on-surface-variant block font-medium">Inspection Date</span><span class="text-primary font-semibold">' + escapeHtml(dateVal) + '</span></div>' +
-      '  <div><span class="text-on-surface-variant block font-medium">Reference No.</span><span class="text-primary font-semibold">' + escapeHtml(refNo) + '</span></div>' +
-      '  <div><span class="text-on-surface-variant block font-medium">Equipment Info</span><span class="text-primary font-semibold">' + escapeHtml(equipInfo) + '</span></div>' +
-      '  <div><span class="text-on-surface-variant block font-medium">Serial Number</span><span class="text-primary font-semibold">' + escapeHtml(serial || 'N/A') + '</span></div>' +
-      '</div>' +
-      '<div>' +
-      '  <p class="text-xs font-semibold text-on-surface-variant mb-2">Maintenance Activities</p>' +
-      '  <div class="flex flex-wrap gap-2">' + checklistHtml + '</div>' +
-      '</div>' +
-      (item.description ? '<div class="text-sm border-l-2 border-primary/20 pl-3 py-1"><span class="text-on-surface-variant font-medium block text-xs mb-0.5">Maintenance Recommendations</span><p class="text-primary">' + escapeHtml(item.description) + '</p></div>' : '') +
-      '<div class="flex items-center justify-between text-xs pt-2 border-t border-outline-variant/60 flex-wrap gap-2 text-on-surface-variant">' +
-      '  <div><span>Inspected By: </span><strong class="text-primary">' + escapeHtml(inspected) + '</strong></div>' +
-      '  <div><span>Checked By: </span><strong class="text-primary">' + escapeHtml(checked) + '</strong></div>' +
-      '</div>' +
-      '</div>';
+      '<div id="' + freqId + '">';
+
+    periodKeys.forEach(function(period) {
+      var items = periods[period];
+      var periodId = 'mnt-period-' + freq.replace(/\s+/g, '') + '-' + period.replace(/[^a-zA-Z0-9]/g, '');
+      
+      html += '<div class="mb-3">' +
+        '<div class="flex items-center gap-2 px-5 py-1.5 cursor-pointer select-none" onclick="toggleCollapse(\'' + periodId + '\', this)">' +
+        '  <span class="material-symbols-outlined text-sm text-on-surface-variant transition-transform" id="icon-' + periodId + '">expand_more</span>' +
+        '  <span class="material-symbols-outlined text-sm text-amber-600">schedule</span>' +
+        '  <h4 class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider">' + escapeHtml(period) + '</h4>' +
+        '  <span class="font-label-md bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full text-xs">' + items.length + '</span>' +
+        '</div>' +
+        '<div id="' + periodId + '" class="hidden">';
+
+      items.sort(function(a, b) { return (b.inspectionDate || b.scheduledDate || '') > (a.inspectionDate || a.scheduledDate || '') ? 1 : -1; });
+      items.forEach(function(item) {
+        var statusColor = item.status === 'scheduled' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 
+                          item.status === 'in-progress' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 
+                          item.status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 
+                          'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+                          
+        var refNo = item.reference || 'ITDF-01';
+        var brand = item.brand || '';
+        var model = item.model || '';
+        var serial = item.serial || '';
+        var dateVal = item.inspectionDate || item.scheduledDate || 'N/A';
+        var inspected = item.inspectedBy || 'N/A';
+        var checked = item.checkedBy || 'N/A';
+        var checks = item.checks || {};
+        var equipInfo = [brand, model].filter(Boolean).join(' — ') || 'N/A';
+        
+        var activities = [
+          { key: 'checkParts', label: 'Check Parts' },
+          { key: 'cleanInteriors', label: 'Clean Interiors' },
+          { key: 'operatingCondition', label: 'Check Operating Condition' },
+          { key: 'electricalWires', label: 'Check Electrical Wires' }
+        ];
+        var checklistHtml = activities.map(function(a) {
+          var ok = checks[a.key];
+          return '<span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ' + (ok ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400') + '">' +
+            '<span class="material-symbols-outlined text-[14px]">' + (ok ? 'check_circle' : 'radio_button_unchecked') + '</span>' + escapeHtml(a.label) + '</span>';
+        }).join('');
+
+        html += '<div class="mx-5 mb-2 p-5 bg-surface-container-lowest border border-outline-variant rounded-xl card-lift space-y-3">' +
+          '<div class="flex items-start justify-between gap-4">' +
+          '  <div class="flex items-center gap-3">' +
+          '    <div class="p-2.5 rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400"><span class="material-symbols-outlined">handyman</span></div>' +
+          '    <div>' +
+          '      <div class="flex items-center gap-2 flex-wrap">' +
+          '        <h4 class="font-body-md font-bold text-primary">' + escapeHtml(item.equipment || item.asset || item.title) + '</h4>' +
+          '        <span class="font-label-md ' + statusColor + ' px-2.5 py-0.5 rounded-full text-xs font-semibold">' + escapeHtml(item.status || 'scheduled') + '</span>' +
+          '      </div>' +
+          '      <p class="font-label-md text-on-surface-variant mt-0.5">' + escapeHtml(dateVal) + ' &middot; Ref: ' + escapeHtml(refNo) + '</p>' +
+          '    </div>' +
+          '  </div>' +
+          '  <div class="flex items-center gap-1">' +
+          '    <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+          '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+          '  </div>' +
+          '</div>' +
+          '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-surface-container-low/40 p-3 rounded-xl border border-outline-variant/60">' +
+          '  <div><span class="text-on-surface-variant block font-medium">Equipment Info</span><span class="text-primary font-semibold">' + escapeHtml(equipInfo) + '</span></div>' +
+          '  <div><span class="text-on-surface-variant block font-medium">Serial Number</span><span class="text-primary font-semibold">' + escapeHtml(serial || 'N/A') + '</span></div>' +
+          '  <div><span class="text-on-surface-variant block font-medium">Inspected By</span><span class="text-primary font-semibold">' + escapeHtml(inspected) + '</span></div>' +
+          '  <div><span class="text-on-surface-variant block font-medium">Checked By</span><span class="text-primary font-semibold">' + escapeHtml(checked) + '</span></div>' +
+          '</div>' +
+          '<div>' +
+          '  <p class="text-xs font-semibold text-on-surface-variant mb-1.5">Maintenance Activities</p>' +
+          '  <div class="flex flex-wrap gap-1.5">' + checklistHtml + '</div>' +
+          '</div>' +
+          (item.description ? '<div class="text-xs border-l-2 border-primary/20 pl-3 py-1"><span class="text-on-surface-variant font-medium block mb-0.5">Maintenance Recommendations</span><p class="text-primary">' + escapeHtml(item.description) + '</p></div>' : '') +
+          '</div>';
+      });
+
+      html += '</div></div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  el.innerHTML = html;
+}
+
+function printServicesReport() {
+  var data = getData('services');
+  if (data.length === 0) { alert('No IT services to report.'); return; }
+  var total = data.length;
+  var open = data.filter(function(s) { return s.status === 'open' || s.status === 'in-progress'; }).length;
+  var resolved = data.filter(function(s) { return s.status === 'resolved' || s.status === 'closed'; }).length;
+  var critical = data.filter(function(s) { return s.severity === 'Critical'; }).length;
+  var high = data.filter(function(s) { return s.severity === 'High'; }).length;
+  var medium = data.filter(function(s) { return s.severity === 'Medium'; }).length;
+  var low = data.filter(function(s) { return s.severity === 'Low'; }).length;
+  var departments = {};
+  data.forEach(function(s) {
+    var d = s.department || 'Other';
+    departments[d] = (departments[d] || 0) + 1;
+  });
+  var deptHtml = Object.keys(departments).sort().map(function(d) {
+    return '<tr><td>' + escapeHtml(d) + '</td><td><strong>' + departments[d] + '</strong></td></tr>';
   }).join('');
+
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>IT Services Report</title>');
+  w.document.write('<style>');
+  w.document.write('body{font-family:Inter,Segoe UI,sans-serif;padding:35px;color:#1e1b4d}');
+  w.document.write('h2{margin:0 0 4px;font-size:24px;color:#1e1b4d;letter-spacing:-0.02em}');
+  w.document.write('h3{margin:24px 0 10px;font-size:14px;color:#4f46e5;border-bottom:2px solid #4f46e5;padding-bottom:5px;text-transform:uppercase;letter-spacing:.06em}');
+  w.document.write('p.sub{margin:0 0 24px;font-size:12px;color:#6b7280}');
+  w.document.write('.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}');
+  w.document.write('.summary-card{border:1px solid #e2e8f0;border-radius:8px;padding:10px 8px;text-align:center;background:#faf8f5}');
+  w.document.write('.summary-card .num{font-size:20px;font-weight:800;color:#1e1b4d;line-height:1.1}');
+  w.document.write('.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;font-weight:600;margin-top:2px}');
+  w.document.write('.summary-card.critical{border-color:#fecaca;background:#fef2f2}.summary-card.critical .num{color:#dc2626}');
+  w.document.write('.summary-card.open{border-color:#bfdbfe;background:#eff6ff}.summary-card.open .num{color:#2563eb}');
+  w.document.write('.summary-card.resolved{border-color:#a7f3d0;background:#ecfdf5}.summary-card.resolved .num{color:#059669}');
+  w.document.write('table{width:100%;border-collapse:collapse;font-size:10.5px;margin-bottom:16px}');
+  w.document.write('th{background:#4f46e5;color:#fff;padding:8px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}');
+  w.document.write('td{padding:7px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top}');
+  w.document.write('tr:nth-child(even){background:#f8fafc}');
+  w.document.write('tr:hover{background:#eef2ff}');
+  w.document.write('.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:9px;font-weight:600;letter-spacing:.02em}');
+  w.document.write('.tag-open{background:#dbeafe;color:#1d4ed8}');
+  w.document.write('.tag-progress{background:#fef3c7;color:#d97706}');
+  w.document.write('.tag-resolved{background:#d1fae5;color:#059669}');
+  w.document.write('.tag-closed{background:#e5e7eb;color:#4b5563}');
+  w.document.write('.tag-critical{background:#fecaca;color:#dc2626}');
+  w.document.write('.tag-high{background:#fed7aa;color:#ea580c}');
+  w.document.write('.tag-medium{background:#fde68a;color:#ca8a04}');
+  w.document.write('.tag-low{background:#d1fae5;color:#059669}');
+  w.document.write('.footer{margin-top:24px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:14px}');
+  w.document.write('.header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #4f46e5}');
+  w.document.write('.header-bar .logo{font-size:20px;font-weight:800;color:#4f46e5}');
+  w.document.write('.header-bar .date{font-size:10px;color:#6b7280}');
+  w.document.write('@media print{body{padding:15px}.summary-grid{gap:6px}.summary-card{padding:6px}.summary-card .num{font-size:16px}.summary-card .lbl{font-size:6px}}');
+  w.document.write('</style></head><body>');
+  w.document.write('<div class="header-bar"><div class="logo">KALYX &mdash; IT Services Report</div><div class="date">Generated: ' + new Date().toLocaleString() + '</div></div>');
+  w.document.write('<div class="summary-grid">' +
+    '<div class="summary-card"><div class="num">' + total + '</div><div class="lbl">Total Services</div></div>' +
+    '<div class="summary-card open"><div class="num">' + open + '</div><div class="lbl">Open / In Progress</div></div>' +
+    '<div class="summary-card resolved"><div class="num">' + resolved + '</div><div class="lbl">Resolved / Closed</div></div>' +
+    '<div class="summary-card critical"><div class="num">' + critical + '</div><div class="lbl">Critical Severity</div></div>' +
+    '</div>');
+  w.document.write('<div class="summary-grid">' +
+    '<div class="summary-card"><div class="num">' + high + '</div><div class="lbl">High Severity</div></div>' +
+    '<div class="summary-card"><div class="num">' + medium + '</div><div class="lbl">Medium Severity</div></div>' +
+    '<div class="summary-card"><div class="num">' + low + '</div><div class="lbl">Low Severity</div></div>' +
+    '<div class="summary-card"><div class="num">' + Object.keys(departments).length + '</div><div class="lbl">Departments</div></div>' +
+    '</div>');
+  w.document.write('<h3>Department Breakdown</h3>');
+  w.document.write('<table><thead><tr><th>Department</th><th>Service Requests</th></tr></thead><tbody>' + deptHtml + '</tbody></table>');
+  w.document.write('<h3>Detailed Service List</h3>');
+  w.document.write('<table><thead><tr>' +
+    '<th>#</th><th>Service / Issue</th><th>Requestor</th><th>Department</th><th>Severity</th><th>Status</th><th>Date Reported</th><th>Resolution</th>' +
+    '</tr></thead><tbody>');
+  data.forEach(function(item, i) {
+    var statusTag = 'tag-' + (item.status === 'open' ? 'open' : item.status === 'in-progress' ? 'progress' : item.status === 'resolved' ? 'resolved' : 'closed');
+    var sevTag = 'tag-' + (item.severity || '').toLowerCase();
+    w.document.write('<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><strong>' + escapeHtml(item.name) + '</strong></td>' +
+      '<td>' + escapeHtml(item.requestorName || '—') + '</td>' +
+      '<td>' + escapeHtml(item.department || '—') + '</td>' +
+      '<td><span class="tag ' + sevTag + '">' + escapeHtml(item.severity || 'Medium') + '</span></td>' +
+      '<td><span class="tag ' + statusTag + '">' + escapeHtml(item.status || 'open') + '</span></td>' +
+      '<td>' + escapeHtml((item.incidentDate || '').replace('T', ' ')) + '</td>' +
+      '<td>' + escapeHtml(item.resolution ? item.resolution.substring(0, 80) + (item.resolution.length > 80 ? '...' : '') : '—') + '</td>' +
+      '</tr>');
+  });
+  w.document.write('</tbody></table>');
+  w.document.write('<div class="footer">KALYX IT Services Report &middot; Page 1 &middot; Confidential</div>');
+  w.document.write('</body></html>');
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 400);
+}
+
+function printMaintenanceReport() {
+  var data = getData('maintenance');
+  if (data.length === 0) { alert('No maintenance records to report.'); return; }
+  var total = data.length;
+  var scheduled = data.filter(function(m) { return m.status === 'scheduled'; }).length;
+  var inProgress = data.filter(function(m) { return m.status === 'in-progress'; }).length;
+  var completed = data.filter(function(m) { return m.status === 'completed'; }).length;
+  var freqCounts = {};
+  data.forEach(function(m) {
+    var f = m.frequency || 'Quarterly';
+    freqCounts[f] = (freqCounts[f] || 0) + 1;
+  });
+  var freqHtml = Object.keys(freqCounts).sort(function(a, b) {
+    var order = { Weekly: 0, Monthly: 1, Quarterly: 2, Annually: 3 };
+    return (order[a] || 99) - (order[b] || 99);
+  }).map(function(f) {
+    return '<tr><td>' + escapeHtml(f) + '</td><td><strong>' + freqCounts[f] + '</strong></td></tr>';
+  }).join('');
+
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>IT Maintenance Report</title>');
+  w.document.write('<style>');
+  w.document.write('body{font-family:Inter,Segoe UI,sans-serif;padding:35px;color:#1e1b4d}');
+  w.document.write('h2{margin:0 0 4px;font-size:24px;color:#1e1b4d;letter-spacing:-0.02em}');
+  w.document.write('h3{margin:24px 0 10px;font-size:14px;color:#4f46e5;border-bottom:2px solid #4f46e5;padding-bottom:5px;text-transform:uppercase;letter-spacing:.06em}');
+  w.document.write('p.sub{margin:0 0 24px;font-size:12px;color:#6b7280}');
+  w.document.write('.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}');
+  w.document.write('.summary-card{border:1px solid #e2e8f0;border-radius:8px;padding:10px 8px;text-align:center;background:#faf8f5}');
+  w.document.write('.summary-card .num{font-size:20px;font-weight:800;color:#1e1b4d;line-height:1.1}');
+  w.document.write('.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;font-weight:600;margin-top:2px}');
+  w.document.write('.summary-card.scheduled{border-color:#bfdbfe;background:#eff6ff}.summary-card.scheduled .num{color:#2563eb}');
+  w.document.write('.summary-card.progress{border-color:#fde68a;background:#fffbeb}.summary-card.progress .num{color:#d97706}');
+  w.document.write('.summary-card.done{border-color:#a7f3d0;background:#ecfdf5}.summary-card.done .num{color:#059669}');
+  w.document.write('table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px}');
+  w.document.write('th{background:#4f46e5;color:#fff;padding:7px 8px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}');
+  w.document.write('td{padding:6px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top}');
+  w.document.write('tr:nth-child(even){background:#f8fafc}');
+  w.document.write('.tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:8px;font-weight:600}');
+  w.document.write('.tag-scheduled{background:#dbeafe;color:#1d4ed8}');
+  w.document.write('.tag-progress{background:#fef3c7;color:#d97706}');
+  w.document.write('.tag-completed{background:#d1fae5;color:#059669}');
+  w.document.write('.check-ok{color:#059669;font-weight:700}.check-miss{color:#d1d5db}');
+  w.document.write('.footer{margin-top:24px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:14px}');
+  w.document.write('.header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #4f46e5}');
+  w.document.write('.header-bar .logo{font-size:20px;font-weight:800;color:#4f46e5}');
+  w.document.write('.header-bar .date{font-size:10px;color:#6b7280}');
+  w.document.write('@media print{body{padding:15px}.summary-grid{gap:6px}.summary-card{padding:6px}.summary-card .num{font-size:16px}.summary-card .lbl{font-size:6px}}');
+  w.document.write('</style></head><body>');
+  w.document.write('<div class="header-bar"><div class="logo">KALYX &mdash; IT Maintenance Report</div><div class="date">Generated: ' + new Date().toLocaleString() + '</div></div>');
+  w.document.write('<div class="summary-grid">' +
+    '<div class="summary-card"><div class="num">' + total + '</div><div class="lbl">Total Records</div></div>' +
+    '<div class="summary-card scheduled"><div class="num">' + scheduled + '</div><div class="lbl">Scheduled</div></div>' +
+    '<div class="summary-card progress"><div class="num">' + inProgress + '</div><div class="lbl">In Progress</div></div>' +
+    '<div class="summary-card done"><div class="num">' + completed + '</div><div class="lbl">Completed</div></div>' +
+    '</div>');
+  w.document.write('<h3>Maintenance Frequency Breakdown</h3>');
+  w.document.write('<table><thead><tr><th>Frequency</th><th>Count</th></tr></thead><tbody>' + freqHtml + '</tbody></table>');
+  w.document.write('<h3>Detailed Maintenance Records</h3>');
+  w.document.write('<table><thead><tr>' +
+    '<th>#</th><th>Equipment</th><th>Brand / Model</th><th>Serial No.</th><th>Frequency</th><th>Date</th><th>Inspected By</th><th>Status</th><th>Parts</th><th>Clean</th><th>Oper.</th><th>Elec.</th>' +
+    '</tr></thead><tbody>');
+  data.forEach(function(item, i) {
+    var checks = item.checks || {};
+    var statusTag = 'tag-' + (item.status === 'scheduled' ? 'scheduled' : item.status === 'in-progress' ? 'progress' : 'completed');
+    var em = item.brand || '';
+    var md = item.model || '';
+    var bm = [em, md].filter(Boolean).join(' / ') || '—';
+    var dateVal = item.inspectionDate || item.scheduledDate || '—';
+    var equipName = item.equipment || item.asset || item.title || '—';
+    var checkParts = checks.checkParts ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
+    var cleanInt = checks.cleanInteriors ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
+    var operCond = checks.operatingCondition ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
+    var electWir = checks.electricalWires ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
+    w.document.write('<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><strong>' + escapeHtml(equipName) + '</strong></td>' +
+      '<td>' + escapeHtml(bm) + '</td>' +
+      '<td>' + escapeHtml(item.serial || '—') + '</td>' +
+      '<td>' + escapeHtml(item.frequency || 'Quarterly') + '</td>' +
+      '<td>' + escapeHtml(dateVal) + '</td>' +
+      '<td>' + escapeHtml(item.inspectedBy || '—') + '</td>' +
+      '<td><span class="tag ' + statusTag + '">' + escapeHtml(item.status || 'scheduled') + '</span></td>' +
+      '<td style="text-align:center">' + checkParts + '</td>' +
+      '<td style="text-align:center">' + cleanInt + '</td>' +
+      '<td style="text-align:center">' + operCond + '</td>' +
+      '<td style="text-align:center">' + electWir + '</td>' +
+      '</tr>');
+  });
+  w.document.write('</tbody></table>');
+  w.document.write('<div class="footer">KALYX IT Maintenance Report &middot; Page 1 &middot; Confidential</div>');
+  w.document.write('</body></html>');
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 400);
 }
 
 function printMaintenanceForm() {
@@ -1150,7 +1401,7 @@ function printMaintenanceForm() {
   var modalContent = document.getElementById('modalBody');
   if (!modalContent) return;
   var w = window.open('', '_blank');
-  w.document.write('<html><head><title>Quarterly Equipment Inspection Checklist - ITDF-01</title>');
+  w.document.write('<html><head><title>Office Equipment Inspection Checklist - ITDF-01</title>');
   w.document.write('<style>body{font-family:Inter,sans-serif;padding:20px;color:#0b1c30} table{width:100%;border-collapse:collapse} th,td{padding:8px 12px;border:1px solid #ccc;text-align:left} th{background:#f0f4ff} input[type=checkbox]{accent-color:#0D9488} label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;font-weight:600} h4{margin:0 0 4px;font-size:15px} p{margin:0 0 12px;font-size:12px;color:#6b7280} .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px} .section{border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:12px} .sect-title{font-size:13px;font-weight:700;margin-bottom:8px}</style>');
   w.document.write('</head><body>');
   w.document.write(modalContent.innerHTML);
@@ -1181,6 +1432,17 @@ function renderInventory() {
     var brand = item.brand || '';
     var model = item.model || '';
     var equipLine = [brand, model].filter(Boolean).join(' — ');
+    var movements = item.movements || [];
+    var movHtml = movements.slice(-5).reverse().map(function(m) {
+      var mColor = m.type === 'in' ? 'text-emerald-600' : 'text-red-600';
+      var mIcon = m.type === 'in' ? 'add_circle' : 'remove_circle';
+      return '<div class="flex items-center gap-2 text-xs py-1 border-b border-outline-variant/30 last:border-0">' +
+        '<span class="material-symbols-outlined text-sm ' + mColor + '">' + mIcon + '</span>' +
+        '<span class="text-on-surface-variant flex-1">' + escapeHtml(m.date || '') + '</span>' +
+        '<span class="font-semibold ' + mColor + '">' + (m.type === 'in' ? '+' : '-') + m.qty + '</span>' +
+        '<span class="text-on-surface-variant truncate max-w-[120px]">' + escapeHtml(m.reference || m.destination || '') + '</span>' +
+        '</div>';
+    }).join('');
     return '<div class="p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift space-y-3">' +
       '<div class="flex items-start gap-4">' +
       '  <div class="p-3 rounded-xl bg-teal-100 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400"><span class="material-symbols-outlined">inventory</span></div>' +
@@ -1193,6 +1455,8 @@ function renderInventory() {
       '    <p class="font-label-md text-on-surface-variant mt-0.5">' + escapeHtml(item.category || 'Item') + (equipLine ? ' &middot; ' + escapeHtml(equipLine) : '') + '</p>' +
       '  </div>' +
       '  <div class="flex items-start gap-1">' +
+      '    <button class="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors" title="Stock In" onclick="recordStockMovement(' + item.id + ',\'in\')"><span class="material-symbols-outlined text-sm">add_circle</span></button>' +
+      '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Stock Out" onclick="recordStockMovement(' + item.id + ',\'out\')"><span class="material-symbols-outlined text-sm">remove_circle</span></button>' +
       '    <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'inventory\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
       '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'inventory\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
       '  </div>' +
@@ -1208,6 +1472,7 @@ function renderInventory() {
       (item.warrantyExpiry ? '  <div><span>Warranty: </span><strong class="text-amber-600">' + escapeHtml(item.warrantyExpiry) + '</strong></div>' : '') +
       (item.purchaseDate ? '  <div><span>Purchased: </span><strong class="text-primary">' + escapeHtml(item.purchaseDate) + '</strong></div>' : '') +
       '</div>' +
+      (movements.length > 0 ? '<div class="border-t border-outline-variant/60 pt-2"><div class="flex items-center justify-between mb-1"><span class="text-xs font-semibold text-on-surface-variant">Stock History (last 5)</span><span class="text-xs text-on-surface-variant">' + movements.length + ' total</span></div><div class="space-y-0 max-h-32 overflow-y-auto">' + movHtml + '</div></div>' : '') +
       (item.notes ? '<div class="text-xs border-l-2 border-teal-400/40 pl-3 py-1"><span class="text-on-surface-variant font-medium block mb-0.5">Notes</span><p class="text-primary">' + escapeHtml(item.notes) + '</p></div>' : '') +
       '</div>';
   }).join('');
@@ -1599,6 +1864,24 @@ function viewAccomplishmentTable(id) {
 }
 
 // ==================== DAILY ACCOMPLISHMENTS ====================
+function getMonthLabel(dateStr) {
+  if (!dateStr) return { label: 'No Date', key: '0000-00' };
+  var parts = dateStr.split('-');
+  if (parts.length < 2) return { label: 'No Date', key: '0000-00' };
+  var year = parts[0];
+  var monthNum = parseInt(parts[1], 10);
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return { label: months[monthNum - 1] + ' ' + year, key: year + '-' + (monthNum < 10 ? '0' : '') + monthNum };
+}
+
+var categoryConfig = {
+  'Technical Support':  { icon: 'support',        cls: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', order: 0 },
+  'Uploading/Encoding': { icon: 'cloud_upload',    cls: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', order: 1 },
+  'Other':              { icon: 'more_horiz',      cls: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',           order: 2 }
+};
+
+function getCatConfig(cat) { return categoryConfig[cat] || categoryConfig['Other']; }
+
 function renderAccomplishments() {
   var data = getData('accomplishments');
   var el = document.getElementById('accomplishmentList');
@@ -1606,73 +1889,131 @@ function renderAccomplishments() {
     el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">assignment_turned_in</span><p class="font-body-md text-on-surface-variant mt-4">No accomplishments yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'accomplishment\')">Record First Accomplishment</button></div>';
     return;
   }
-  data.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; });
-  el.innerHTML = data.map(function(item) {
-    var statusClass = item.status === 'completed' || item.status === 'done' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                      item.status === 'in-progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                      'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-                      
-    var statusLabel = item.status === 'completed' || item.status === 'done' ? 'Completed' :
-                      item.status === 'in-progress' ? 'In Progress' : 'Pending';
-                      
-    var category = item.category || 'Development';
-    var catClass = category === 'Technical Support' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' :
-                   category === 'Uploading/Encoding' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
-                   'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
-                   
-    var descriptionHtml = '';
-    if (category === 'Uploading/Encoding') {
-      var rows = parseTableRows(item.description);
-      if (rows && rows.length > 0) {
-        var previewRows = Math.min(3, rows.length - 1);
-        var tableHtml = buildTableHtml(rows, { maxRows: previewRows });
-        var rowCount = rows.length - 1;
-        descriptionHtml = '<div class="mt-2">' +
-          '<div class="max-h-40 overflow-hidden relative">' + tableHtml +
-          '<div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-surface-container-lowest to-transparent"></div></div>' +
-          '<button class="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-high/50 hover:bg-surface-container-high rounded-xl text-xs font-semibold text-primary transition-all" onclick="viewAccomplishmentTable(' + item.id + ')">' +
-          '<span class="material-symbols-outlined text-sm">open_in_new</span> View Full Table (' + rowCount + ' rows)</button></div>';
-      } else {
-        descriptionHtml = '<p class="font-label-md text-on-surface-variant mt-2 whitespace-pre-wrap">' + escapeHtml(item.description) + '</p>';
-      }
-    } else {
-      descriptionHtml = item.description ? '<p class="font-label-md text-on-surface-variant mt-2 whitespace-pre-wrap">' + escapeHtml(item.description) + '</p>' : '';
-    }
 
-    var itDetailsHtml = '';
-    if (category === 'Technical Support' && item.reportTitle) {
-      itDetailsHtml = '<div class="mt-3 p-4 bg-surface-container-low rounded-xl border border-outline-variant/60 space-y-2 text-xs">' +
-        '  <div class="font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1"><span class="material-symbols-outlined text-sm">support</span> IT Service Report Details</div>' +
-        '  <div class="grid grid-cols-2 gap-2 text-on-surface-variant">' +
-        '    <div><span class="font-medium">Report Title:</span> <span class="text-primary font-semibold">' + escapeHtml(item.reportTitle) + '</span></div>' +
-        '    <div><span class="font-medium">Requestor:</span> <span class="text-primary font-semibold">' + escapeHtml(item.requestorName || 'N/A') + '</span></div>' +
-        '    <div><span class="font-medium">Severity:</span> <span class="text-primary font-semibold">' + escapeHtml(item.severity || 'Medium') + '</span></div>' +
-        '    <div><span class="font-medium">Department:</span> <span class="text-primary font-semibold">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
-        '    <div class="col-span-2"><span class="font-medium">Incident Date:</span> <span class="text-primary font-semibold">' + escapeHtml(item.incidentDate ? item.incidentDate.replace('T', ' ') : 'N/A') + '</span></div>' +
-        '  </div>' +
-        (item.resolution ? '  <div class="border-t border-outline-variant/60 pt-2"><span class="font-medium text-on-surface-variant">Resolution:</span> <p class="text-primary mt-0.5">' + escapeHtml(item.resolution) + '</p></div>' : '') +
-        '</div>';
-    }
+  // Group by month, then by category
+  var months = {};
+  data.forEach(function(item) {
+    var m = getMonthLabel(item.date);
+    if (!months[m.key]) months[m.key] = { label: m.label, key: m.key, categories: {} };
+    var cat = item.category || 'Other';
+    if (!categoryConfig[cat]) cat = 'Other';
+    if (!months[m.key].categories[cat]) months[m.key].categories[cat] = [];
+    months[m.key].categories[cat].push(item);
+  });
 
-    return '<div class="p-5 bg-surface-container-lowest border border-outline-variant rounded-2xl card-lift space-y-3">' +
-      '<div class="flex items-start justify-between gap-4">' +
-      '  <div class="flex-1">' +
-      '    <div class="flex items-center gap-2 flex-wrap">' +
-      '      <h4 class="font-body-md font-semibold text-primary">' + escapeHtml(item.title) + '</h4>' +
-      '      <span class="font-label-md ' + catClass + ' px-2 py-0.5 rounded-full text-xs font-semibold">' + escapeHtml(category) + '</span>' +
-      '      <span class="font-label-md ' + statusClass + ' px-2 py-0.5 rounded-full text-xs font-semibold">' + escapeHtml(statusLabel) + '</span>' +
-      '      ' + (item.date ? '<span class="font-label-md text-on-surface-variant flex items-center gap-1 ml-2"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.date) + '</span>' : '') +
-      '    </div>' +
-      '    ' + descriptionHtml +
-      '    ' + itDetailsHtml +
-      '  </div>' +
-      '  <div class="flex items-start gap-1">' +
-      '    <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'accomplishment\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
-      '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'accomplishment\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
-      '  </div>' +
+  // Sort months descending, categories by order
+  var monthKeys = Object.keys(months).sort().reverse();
+  var html = '';
+  monthKeys.forEach(function(mKey, mi) {
+    var month = months[mKey];
+    var catKeys = Object.keys(month.categories).sort(function(a, b) {
+      return (getCatConfig(a).order || 99) - (getCatConfig(b).order || 99);
+    });
+    var totalEntries = data.filter(function(d) { return getMonthLabel(d.date).key === mKey; }).length;
+    var monthId = 'month-' + mKey;
+
+    html += '<div class="mb-4 card-enter" style="animation-delay:' + (mi * 0.05) + 's">' +
+      '<div class="sticky top-16 z-10 bg-surface-container-low/90 backdrop-blur-md rounded-t-2xl px-5 py-3 border border-outline-variant flex items-center gap-3 cursor-pointer select-none" onclick="toggleCollapse(\'' + monthId + '\', this)">' +
+      '  <span class="material-symbols-outlined text-on-surface-variant transition-transform" id="icon-' + monthId + '">expand_less</span>' +
+      '  <span class="material-symbols-outlined text-primary">calendar_month</span>' +
+      '  <h3 class="font-title-lg font-bold text-primary">' + escapeHtml(month.label) + '</h3>' +
+      '  <span class="font-label-md text-on-surface-variant bg-surface-container-high px-2.5 py-0.5 rounded-full text-xs">' + totalEntries + ' entries</span>' +
       '</div>' +
-      '</div>';
-  }).join('');
+      '<div id="' + monthId + '">';
+
+    catKeys.forEach(function(cat) {
+      var items = month.categories[cat];
+      var cfg = getCatConfig(cat);
+      var catId = 'cat-' + mKey + '-' + cat.replace(/\s+/g, '');
+
+      html += '<div class="mb-3">' +
+        '<div class="flex items-center gap-2 px-5 py-1.5 cursor-pointer select-none" onclick="toggleCollapse(\'' + catId + '\', this)">' +
+        '  <span class="material-symbols-outlined text-sm text-on-surface-variant transition-transform" id="icon-' + catId + '">expand_more</span>' +
+        '  <span class="material-symbols-outlined text-sm ' + cfg.cls.split(' ')[0] + '">' + cfg.icon + '</span>' +
+        '  <h4 class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider">' + escapeHtml(cat) + '</h4>' +
+        '  <span class="font-label-md ' + cfg.cls + ' px-2 py-0.5 rounded-full text-xs">' + items.length + '</span>' +
+        '</div>' +
+        '<div id="' + catId + '" class="hidden">';
+
+      items.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; });
+      items.forEach(function(item) {
+        var statusClass = item.status === 'completed' || item.status === 'done' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                          item.status === 'in-progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                          'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+        var statusLabel = item.status === 'completed' || item.status === 'done' ? 'Completed' :
+                          item.status === 'in-progress' ? 'In Progress' : 'Pending';
+
+        var descriptionHtml = '';
+        if (cat === 'Uploading/Encoding') {
+          var rows = parseTableRows(item.description);
+          if (rows && rows.length > 0) {
+            var previewRows = Math.min(3, rows.length - 1);
+            var tableHtml = buildTableHtml(rows, { maxRows: previewRows });
+            var rowCount = rows.length - 1;
+            descriptionHtml = '<div class="mt-2">' +
+              '<div class="max-h-40 overflow-hidden relative">' + tableHtml +
+              '<div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-surface-container-lowest to-transparent"></div></div>' +
+              '<button class="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 bg-surface-container-high/50 hover:bg-surface-container-high rounded-xl text-xs font-semibold text-primary transition-all" onclick="viewAccomplishmentTable(' + item.id + ')">' +
+              '<span class="material-symbols-outlined text-sm">open_in_new</span> View Full Table (' + rowCount + ' rows)</button></div>';
+          } else {
+            descriptionHtml = '<p class="font-label-md text-on-surface-variant mt-2 whitespace-pre-wrap">' + escapeHtml(item.description) + '</p>';
+          }
+        } else {
+          descriptionHtml = item.description ? '<p class="font-label-md text-on-surface-variant mt-2 whitespace-pre-wrap">' + escapeHtml(item.description) + '</p>' : '';
+        }
+
+        var itDetailsHtml = '';
+        if (cat === 'Technical Support' && item.reportTitle) {
+          itDetailsHtml = '<div class="mt-3 p-4 bg-surface-container-low rounded-xl border border-outline-variant/60 space-y-2 text-xs">' +
+            '  <div class="font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1"><span class="material-symbols-outlined text-sm">support</span> IT Service Report Details</div>' +
+            '  <div class="grid grid-cols-2 gap-2 text-on-surface-variant">' +
+            '    <div><span class="font-medium">Report Title:</span> <span class="text-primary font-semibold">' + escapeHtml(item.reportTitle) + '</span></div>' +
+            '    <div><span class="font-medium">Requestor:</span> <span class="text-primary font-semibold">' + escapeHtml(item.requestorName || 'N/A') + '</span></div>' +
+            '    <div><span class="font-medium">Severity:</span> <span class="text-primary font-semibold">' + escapeHtml(item.severity || 'Medium') + '</span></div>' +
+            '    <div><span class="font-medium">Department:</span> <span class="text-primary font-semibold">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
+            '    <div class="col-span-2"><span class="font-medium">Incident Date:</span> <span class="text-primary font-semibold">' + escapeHtml(item.incidentDate ? item.incidentDate.replace('T', ' ') : 'N/A') + '</span></div>' +
+            '  </div>' +
+            (item.resolution ? '  <div class="border-t border-outline-variant/60 pt-2"><span class="font-medium text-on-surface-variant">Resolution:</span> <p class="text-primary mt-0.5">' + escapeHtml(item.resolution) + '</p></div>' : '') +
+            '</div>';
+        }
+
+        html += '<div class="mx-5 mb-2 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl card-lift">' +
+          '<div class="flex items-start justify-between gap-4">' +
+          '  <div class="flex-1 min-w-0">' +
+          '    <div class="flex items-center gap-2 flex-wrap">' +
+          '      <h4 class="font-body-md font-semibold text-primary truncate">' + escapeHtml(item.title) + '</h4>' +
+          '      <span class="font-label-md ' + statusClass + ' px-2 py-0.5 rounded-full text-xs">' + escapeHtml(statusLabel) + '</span>' +
+          (item.date ? '      <span class="font-label-md text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.date) + '</span>' : '') +
+          '    </div>' +
+          '    ' + descriptionHtml +
+          '    ' + itDetailsHtml +
+          '  </div>' +
+          '  <div class="flex items-start gap-1 flex-shrink-0">' +
+          '    <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'accomplishment\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+          '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'accomplishment\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+          '  </div>' +
+          '</div>' +
+          '</div>';
+      });
+
+      html += '</div></div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  el.innerHTML = html;
+}
+
+function toggleCollapse(id, headerEl) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var isHidden = el.classList.contains('hidden');
+  el.classList.toggle('hidden');
+  var icon = document.getElementById('icon-' + id);
+  if (icon) {
+    icon.textContent = isHidden ? 'expand_less' : 'expand_more';
+  }
 }
 
 function toggleAccomplishment(id) {
@@ -1763,9 +2104,10 @@ function openAddModal(type) {
   var title = document.getElementById('modalTitle');
   var body = document.getElementById('modalBody');
 
-  var titles = { service: 'New IT Service', maintenance: 'Quarterly Equipment Inspection Checklist (ITDF-01)', inventory: 'Add Inventory Item', task: 'New Task', planner: 'New Plan', accomplishment: 'New Accomplishment', ticket: 'Create Ticket', system: 'Add System' };
+  var titles = { service: 'New IT Service', maintenance: 'Office Equipment Inspection Checklist (ITDF-01)', inventory: 'Add Inventory Item', task: 'New Task', planner: 'New Plan', accomplishment: 'New Accomplishment', ticket: 'Create Ticket', system: 'Add System' };
   title.textContent = titles[type] || 'Add Item';
   body.innerHTML = getFormHtml(type, null);
+  if (type === 'maintenance') { populatePeriodDropdown(); }
   modal.classList.remove('hidden');
 }
 
@@ -1784,6 +2126,7 @@ function editItem(type, id) {
   var titles = { service: 'Edit Service', maintenance: 'Edit Equipment Inspection (ITDF-01)', inventory: 'Edit Inventory Item', task: 'Edit Task', planner: 'Edit Plan', accomplishment: 'Edit Accomplishment', ticket: 'Edit Ticket', system: 'Edit System' };
   title.textContent = titles[type] || 'Edit Item';
   body.innerHTML = getFormHtml(type, item);
+  if (type === 'maintenance') { populatePeriodDropdown(item.period); }
   modal.classList.remove('hidden');
 }
 
@@ -1791,6 +2134,56 @@ function closeModal() {
   document.getElementById('modal').classList.add('hidden');
   editingType = null;
   editingId = null;
+}
+
+function populatePeriodDropdown(selectedValue) {
+  var freq = document.getElementById('fFrequency').value;
+  var select = document.getElementById('fPeriod');
+  select.innerHTML = '';
+  if (freq === 'Weekly') {
+    for (var i = 1; i <= 52; i++) {
+      var opt = document.createElement('option');
+      opt.value = 'Week ' + i;
+      opt.textContent = 'Week ' + i;
+      if (selectedValue === 'Week ' + i) opt.selected = true;
+      select.appendChild(opt);
+    }
+  } else if (freq === 'Monthly') {
+    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    months.forEach(function(m) {
+      var opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = m;
+      if (selectedValue === m) opt.selected = true;
+      select.appendChild(opt);
+    });
+  } else if (freq === 'Quarterly') {
+    var quarters = [
+      { value: 'Q1 (Jan - Mar)', label: 'Q1 (Jan - Mar)' },
+      { value: 'Q2 (Apr - Jun)', label: 'Q2 (Apr - Jun)' },
+      { value: 'Q3 (Jul - Sep)', label: 'Q3 (Jul - Sep)' },
+      { value: 'Q4 (Oct - Dec)', label: 'Q4 (Oct - Dec)' }
+    ];
+    quarters.forEach(function(q) {
+      var opt = document.createElement('option');
+      opt.value = q.value;
+      opt.textContent = q.label;
+      if (selectedValue === q.value) opt.selected = true;
+      select.appendChild(opt);
+    });
+  } else if (freq === 'Annually') {
+    var year = new Date().getFullYear();
+    for (var i = -1; i <= 3; i++) {
+      var opt = document.createElement('option');
+      opt.value = '' + (year + i);
+      opt.textContent = '' + (year + i);
+      if (selectedValue === '' + (year + i)) opt.selected = true;
+      select.appendChild(opt);
+    }
+  }
+  if (!selectedValue && select.options.length > 0) {
+    select.options[0].selected = true;
+  }
 }
 
 function getFormHtml(type, item) {
@@ -1890,7 +2283,7 @@ function getFormHtml(type, item) {
     var checks = item.checks || {};
     return '<div class="space-y-5">' +
       '  <div class="text-center pb-3 border-b border-outline-variant">' +
-      '    <h4 class="font-title-lg font-bold text-primary uppercase tracking-wide">Quarterly Office Equipment Inspection Checklist</h4>' +
+      '    <h4 class="font-title-lg font-bold text-primary uppercase tracking-wide">Office Equipment Inspection Checklist</h4>' +
       '    <p class="text-xs text-on-surface-variant mt-0.5">Form ITDF-01</p>' +
       '  </div>' +
 
@@ -1924,7 +2317,7 @@ function getFormHtml(type, item) {
       '    </div>' +
       '    <div>' +
       '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Inspection Frequency *</label>' +
-      '      <select id="fFrequency" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '      <select id="fFrequency" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="populatePeriodDropdown()">' +
       '        <option value="Quarterly"' + (item.frequency === 'Quarterly' || !item.frequency ? ' selected' : '') + '>Quarterly</option>' +
       '        <option value="Monthly"' + (item.frequency === 'Monthly' ? ' selected' : '') + '>Monthly</option>' +
       '        <option value="Weekly"' + (item.frequency === 'Weekly' ? ' selected' : '') + '>Weekly</option>' +
@@ -1936,12 +2329,7 @@ function getFormHtml(type, item) {
       '  <!-- Row 3: Inspection Period -->' +
       '  <div>' +
       '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Inspection Period *</label>' +
-      '    <select id="fPeriod" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
-      '      <option value="Q1 (Jan - Mar)"' + (item.period === 'Q1 (Jan - Mar)' || !item.period ? ' selected' : '') + '>Q1 (Jan - Mar)</option>' +
-      '      <option value="Q2 (Apr - Jun)"' + (item.period === 'Q2 (Apr - Jun)' ? ' selected' : '') + '>Q2 (Apr - Jun)</option>' +
-      '      <option value="Q3 (Jul - Sep)"' + (item.period === 'Q3 (Jul - Sep)' ? ' selected' : '') + '>Q3 (Jul - Sep)</option>' +
-      '      <option value="Q4 (Oct - Dec)"' + (item.period === 'Q4 (Oct - Dec)' ? ' selected' : '') + '>Q4 (Oct - Dec)</option>' +
-      '    </select>' +
+      '    <select id="fPeriod" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"></select>' +
       '  </div>' +
 
       '  <!-- Equipment Information -->' +
@@ -2262,11 +2650,7 @@ function getFormHtml(type, item) {
       '    <div><label class="font-label-md text-on-surface-variant block mb-1">Job Category *</label><select id="fCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="toggleCategoryDetails(this.value)">' +
       '      <option value="Technical Support"' + (category === 'Technical Support' ? ' selected' : '') + '>Technical Support</option>' +
       '      <option value="Uploading/Encoding"' + (category === 'Uploading/Encoding' ? ' selected' : '') + '>Uploading/Encoding</option>' +
-      '      <option value="Development"' + (category === 'Development' ? ' selected' : '') + '>Development</option>' +
-      '      <option value="Meeting"' + (category === 'Meeting' ? ' selected' : '') + '>Meeting</option>' +
-      '      <option value="Testing"' + (category === 'Testing' ? ' selected' : '') + '>Testing</option>' +
-      '      <option value="Documentation"' + (category === 'Documentation' ? ' selected' : '') + '>Documentation</option>' +
-      '      <option value="Other"' + (category === 'Other' ? ' selected' : '') + '>Other</option>' +
+      '      <option value="Other"' + (category === 'Other' || !item.category ? ' selected' : '') + '>Other</option>' +
       '    </select></div>' +
       '  </div>' +
       '  <div id="itReportDetails" class="p-4 bg-surface-container-low rounded-2xl border border-outline-variant space-y-4" ' + showItDetails + '>' +
@@ -2413,10 +2797,23 @@ function saveItem() {
     item.department = document.getElementById('fDepartment').value.trim();
     item.status = document.getElementById('fStatus').value;
     item.assignedTo = document.getElementById('fAssignedTo').value.trim();
-    item.quantity = parseInt(document.getElementById('fQuantity').value) || 0;
+    var qty = parseInt(document.getElementById('fQuantity').value) || 0;
+    item.quantity = qty;
     item.purchaseDate = document.getElementById('fPurchaseDate').value;
     item.warrantyExpiry = document.getElementById('fWarrantyExpiry').value;
     item.notes = document.getElementById('fNotes').value.trim();
+    if (!editingId && qty > 0) {
+      if (!item.movements) item.movements = [];
+      item.movements.push({
+        date: new Date().toISOString().split('T')[0],
+        type: 'in',
+        qty: qty,
+        reference: 'Initial stock / Purchase',
+        person: '',
+        notes: 'Initial inventory entry',
+        timestamp: Date.now()
+      });
+    }
   } else if (type === 'task') {
     var title = document.getElementById('fTitle').value.trim();
     if (!title) { alert('Task title is required.'); return; }
@@ -2547,6 +2944,247 @@ function deleteItem(type, id) {
   var data = getData(dataKey).filter(function(x) { return x.id !== id; });
   saveData(dataKey, data);
   switchView(currentView);
+}
+
+// ==================== STOCK MOVEMENT ====================
+function recordStockMovement(itemId, type) {
+  var data = getData('inventory');
+  var item = data.find(function(x) { return x.id === itemId; });
+  if (!item) return;
+  var modal = document.getElementById('modal');
+  var title = document.getElementById('modalTitle');
+  var body = document.getElementById('modalBody');
+  var label = type === 'in' ? 'Stock In' : 'Stock Out';
+  var today = new Date().toISOString().split('T')[0];
+  title.textContent = label + ' — ' + escapeHtml(item.name);
+  body.innerHTML = '<div class="space-y-4">' +
+    '<input id="smItemId" type="hidden" value="' + itemId + '"/>' +
+    '<input id="smType" type="hidden" value="' + type + '"/>' +
+    '<div>' +
+    '  <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Date *</label>' +
+    '  <input id="smDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + today + '"/>' +
+    '</div>' +
+    '<div class="grid grid-cols-2 gap-4">' +
+    '  <div>' +
+    '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Quantity *</label>' +
+    '    <input id="smQty" type="number" min="1" class="w-full bg-surface-container border border-' + (type === 'in' ? 'emerald' : 'red') + '-400 rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-' + (type === 'in' ? 'emerald' : 'red') + '-400/30" value="1"/>' +
+    '  </div>' +
+    '  <div>' +
+    '    <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Current Stock</label>' +
+    '    <div class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md text-primary font-semibold">' + (item.quantity || 0) + '</div>' +
+    '  </div>' +
+    '</div>' +
+    '<div>' +
+    '  <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">' + (type === 'in' ? 'Source / Supplier' : 'Destination / Recipient') + ' *</label>' +
+    '  <input id="smReference" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="' + (type === 'in' ? 'e.g., Supplier name, PO#' : 'e.g., Employee name, Department') + '" value=""/>' +
+    '</div>' +
+    '<div>' +
+    '  <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Person Responsible</label>' +
+    '  <input id="smPerson" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Who handled this transaction?" value=""/>' +
+    '</div>' +
+    '<div>' +
+    '  <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Notes</label>' +
+    '  <textarea id="smNotes" rows="2" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none" placeholder="Optional notes..."></textarea>' +
+    '</div>' +
+    '<div class="flex gap-3 pt-1">' +
+    '  <button class="flex-1 border border-outline-variant text-on-surface-variant py-2.5 rounded-xl font-label-md font-semibold hover:bg-surface-container transition-all" onclick="closeModal()">Cancel</button>' +
+    '  <button class="flex-1 bg-' + (type === 'in' ? 'emerald' : 'red') + '-600 text-white py-2.5 rounded-xl font-label-md font-semibold hover:bg-' + (type === 'in' ? 'emerald' : 'red') + '-700 transition-all flex items-center justify-center gap-2" onclick="saveStockMovement()"><span class="material-symbols-outlined text-sm">' + (type === 'in' ? 'add_circle' : 'remove_circle') + '</span> ' + label + '</button>' +
+    '</div>' +
+    '</div>';
+  modal.classList.remove('hidden');
+}
+
+function saveStockMovement() {
+  var itemId = parseInt(document.getElementById('smItemId').value);
+  var type = document.getElementById('smType').value;
+  var date = document.getElementById('smDate').value;
+  var qty = parseInt(document.getElementById('smQty').value) || 0;
+  var reference = document.getElementById('smReference').value.trim();
+  var person = document.getElementById('smPerson').value.trim();
+  var notes = document.getElementById('smNotes').value.trim();
+
+  if (!date) { alert('Date is required.'); return; }
+  if (qty < 1) { alert('Quantity must be at least 1.'); return; }
+  if (!reference) { alert((type === 'in' ? 'Source/Supplier' : 'Destination/Recipient') + ' is required.'); return; }
+
+  var data = getData('inventory');
+  var item = data.find(function(x) { return x.id === itemId; });
+  if (!item) return;
+  if (!item.movements) item.movements = [];
+
+  var currentQty = parseInt(item.quantity) || 0;
+  if (type === 'out' && qty > currentQty) {
+    if (!confirm('Stock out quantity (' + qty + ') exceeds current stock (' + currentQty + '). Continue anyway?')) return;
+  }
+
+  item.movements.push({
+    date: date,
+    type: type,
+    qty: qty,
+    reference: reference,
+    person: person,
+    notes: notes,
+    timestamp: Date.now()
+  });
+
+  item.quantity = type === 'in' ? currentQty + qty : Math.max(0, currentQty - qty);
+  item.status = item.quantity === 0 ? 'Disposed' : item.status;
+
+  saveData('inventory', data);
+  closeModal();
+  switchView(currentView);
+}
+
+// ==================== PRINT INVENTORY ====================
+function printInventoryChecklist() {
+  var data = getData('inventory');
+  if (data.length === 0) { alert('No inventory items to print.'); return; }
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>IT Inventory Stock Checklist</title>');
+  w.document.write('<style>');
+  w.document.write('body{font-family:Inter,sans-serif;padding:30px;color:#0b1c30}');
+  w.document.write('h2{margin:0 0 4px;font-size:22px;color:#1e1b4d}');
+  w.document.write('p{margin:0 0 20px;font-size:12px;color:#6b7280}');
+  w.document.write('table{width:100%;border-collapse:collapse;font-size:11px}');
+  w.document.write('th{background:#4f46e5;color:#fff;padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em}');
+  w.document.write('td{padding:7px 10px;border-bottom:1px solid #e2e8f0}');
+  w.document.write('tr:nth-child(even){background:#f8fafc}');
+  w.document.write('.ok{text-align:center}.ok span{color:#0d9488;font-size:16px}');
+  w.document.write('.footer{margin-top:20px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:12px}');
+  w.document.write('</style></head><body>');
+  w.document.write('<h2>IT Inventory Stock Checklist</h2>');
+  w.document.write('<p>Generated: ' + new Date().toLocaleString() + ' &middot; Total Items: ' + data.length + '</p>');
+  w.document.write('<table><thead><tr>' +
+    '<th>#</th><th>Item Name</th><th>Category</th><th>Brand / Model</th><th>Serial No.</th><th>Location</th><th>Status</th><th>Qty</th><th>Check</th>' +
+    '</tr></thead><tbody>');
+  data.forEach(function(item, i) {
+    var em = item.brand || '';
+    var md = item.model || '';
+    var bm = [em, md].filter(Boolean).join(' / ') || 'N/A';
+    w.document.write('<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><strong>' + escapeHtml(item.name) + '</strong></td>' +
+      '<td>' + escapeHtml(item.category || 'N/A') + '</td>' +
+      '<td>' + escapeHtml(bm) + '</td>' +
+      '<td>' + escapeHtml(item.serial || 'N/A') + '</td>' +
+      '<td>' + escapeHtml(item.location || 'N/A') + '</td>' +
+      '<td>' + escapeHtml(item.status || 'N/A') + '</td>' +
+      '<td><strong>' + (item.quantity || 0) + '</strong></td>' +
+      '<td class="ok"><span>&#9744;</span></td>' +
+      '</tr>');
+  });
+  w.document.write('</tbody></table>');
+  w.document.write('<div class="footer">Checked by: ___________________ &middot; Date: ___________________ &middot; Signature: ___________________</div>');
+  w.document.write('</body></html>');
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 400);
+}
+
+function printInventoryReport() {
+  var data = getData('inventory');
+  if (data.length === 0) { alert('No inventory items to report.'); return; }
+  var totalItems = data.length;
+  var totalQty = data.reduce(function(s, i) { return s + (parseInt(i.quantity) || 0); }, 0);
+  var activeItems = data.filter(function(i) { return i.status === 'Active'; }).length;
+  var inUseItems = data.filter(function(i) { return i.status === 'In Use'; }).length;
+  var forRepair = data.filter(function(i) { return i.status === 'For Repair'; }).length;
+  var disposed = data.filter(function(i) { return i.status === 'Disposed'; }).length;
+  var categories = {};
+  data.forEach(function(i) {
+    var cat = i.category || 'Other';
+    categories[cat] = (categories[cat] || 0) + (parseInt(i.quantity) || 0);
+  });
+  var catHtml = Object.keys(categories).sort().map(function(c) {
+    return '<tr><td>' + escapeHtml(c) + '</td><td><strong>' + categories[c] + '</strong></td></tr>';
+  }).join('');
+
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>IT Inventory Summary Report</title>');
+  w.document.write('<style>');
+  w.document.write('body{font-family:Inter,sans-serif;padding:30px;color:#0b1c30}');
+  w.document.write('h2{margin:0 0 4px;font-size:22px;color:#1e1b4d}');
+  w.document.write('h3{margin:20px 0 8px;font-size:14px;color:#4f46e5;border-bottom:2px solid #4f46e5;padding-bottom:4px}');
+  w.document.write('p{margin:0 0 20px;font-size:12px;color:#6b7280}');
+  w.document.write('table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px}');
+  w.document.write('th{background:#4f46e5;color:#fff;padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em}');
+  w.document.write('td{padding:6px 10px;border-bottom:1px solid #e2e8f0}');
+  w.document.write('tr:nth-child(even){background:#f8fafc}');
+  w.document.write('.mov-in{color:#0d9488;font-weight:600}.mov-out{color:#ef4444;font-weight:600}');
+  w.document.write('.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}');
+  w.document.write('.summary-card{border:1px solid #e2e8f0;border-radius:8px;padding:8px 8px;text-align:center}');
+  w.document.write('.summary-card .num{font-size:18px;font-weight:700;color:#1e1b4d}');
+  w.document.write('.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.05em;font-weight:600}');
+  w.document.write('.footer{margin-top:16px;font-size:9px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:10px}');
+  w.document.write('</style></head><body>');
+  w.document.write('<h2>IT Inventory Summary Report</h2>');
+  w.document.write('<p>Generated: ' + new Date().toLocaleString() + '</p>');
+  w.document.write('<div class="summary-grid">' +
+    '<div class="summary-card"><div class="num">' + totalItems + '</div><div class="lbl">Total Items</div></div>' +
+    '<div class="summary-card"><div class="num">' + totalQty + '</div><div class="lbl">Total Quantity</div></div>' +
+    '<div class="summary-card"><div class="num">' + activeItems + '</div><div class="lbl">Active</div></div>' +
+    '<div class="summary-card"><div class="num">' + inUseItems + '</div><div class="lbl">In Use</div></div>' +
+    '</div>');
+  w.document.write('<div class="summary-grid">' +
+    '<div class="summary-card"><div class="num">' + forRepair + '</div><div class="lbl">For Repair</div></div>' +
+    '<div class="summary-card"><div class="num">' + disposed + '</div><div class="lbl">Disposed</div></div>' +
+    '<div class="summary-card"><div class="num">' + (totalItems - activeItems - inUseItems - forRepair - disposed) + '</div><div class="lbl">Other</div></div>' +
+    '<div class="summary-card"><div class="num">' + Object.keys(categories).length + '</div><div class="lbl">Categories</div></div>' +
+    '</div>');
+  w.document.write('<h3>Category Breakdown</h3>');
+  w.document.write('<table><thead><tr><th>Category</th><th>Total Qty</th></tr></thead><tbody>' + catHtml + '</tbody></table>');
+  w.document.write('<h3>Detailed Inventory</h3>');
+  w.document.write('<table><thead><tr>' +
+    '<th>#</th><th>Item Name</th><th>Category</th><th>Brand / Model</th><th>Serial No.</th><th>Location</th><th>Status</th><th>Qty</th>' +
+    '</tr></thead><tbody>');
+  data.forEach(function(item, i) {
+    var em = item.brand || '';
+    var md = item.model || '';
+    var bm = [em, md].filter(Boolean).join(' / ') || 'N/A';
+    w.document.write('<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><strong>' + escapeHtml(item.name) + '</strong></td>' +
+      '<td>' + escapeHtml(item.category || 'N/A') + '</td>' +
+      '<td>' + escapeHtml(bm) + '</td>' +
+      '<td>' + escapeHtml(item.serial || 'N/A') + '</td>' +
+      '<td>' + escapeHtml(item.location || 'N/A') + '</td>' +
+      '<td>' + escapeHtml(item.status || 'N/A') + '</td>' +
+      '<td><strong>' + (item.quantity || 0) + '</strong></td>' +
+      '</tr>');
+  });
+  w.document.write('</tbody></table>');
+
+  w.document.write('<h3>Stock Movement History</h3>');
+  w.document.write('<table><thead><tr>' +
+    '<th>Date</th><th>Item</th><th>Type</th><th>Qty</th><th>Source / Destination</th><th>Person</th><th>Notes</th>' +
+    '</tr></thead><tbody>');
+  var hasMovements = false;
+  data.forEach(function(item) {
+    var movs = item.movements || [];
+    if (movs.length === 0) return;
+    hasMovements = true;
+    movs.forEach(function(m) {
+      var movClass = m.type === 'in' ? 'mov-in' : 'mov-out';
+      var movLabel = m.type === 'in' ? 'IN' : 'OUT';
+      w.document.write('<tr>' +
+        '<td>' + escapeHtml(m.date || 'N/A') + '</td>' +
+        '<td><strong>' + escapeHtml(item.name) + '</strong></td>' +
+        '<td class="' + movClass + '">' + movLabel + '</td>' +
+        '<td class="' + movClass + '">' + (m.type === 'in' ? '+' : '-') + m.qty + '</td>' +
+        '<td>' + escapeHtml(m.reference || 'N/A') + '</td>' +
+        '<td>' + escapeHtml(m.person || 'N/A') + '</td>' +
+        '<td>' + escapeHtml(m.notes || '') + '</td>' +
+        '</tr>');
+    });
+  });
+  if (!hasMovements) {
+    w.document.write('<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:16px">No stock movements recorded</td></tr>');
+  }
+  w.document.write('</tbody></table>');
+
+  w.document.write('<div class="footer">Prepared by: ___________________ &middot; Reviewed by: ___________________ &middot; Date: ___________________</div>');
+  w.document.write('</body></html>');
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 400);
 }
 
 // ==================== SEARCH ====================

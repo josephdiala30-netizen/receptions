@@ -507,6 +507,7 @@ button, input, select, textarea { min-width: 0; }
     <div class="space-y-4">
       <div><label class="font-label-md text-on-surface-variant block mb-1.5">Full Name *</label><input id="userName" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter full name" type="text"/></div>
       <div><label class="font-label-md text-on-surface-variant block mb-1.5">Username *</label><input id="userUsername" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter username" type="text"/></div>
+      <div><label class="font-label-md text-on-surface-variant block mb-1.5">Email</label><input id="userEmail" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter email address" type="email"/></div>
       <div><label class="font-label-md text-on-surface-variant block mb-1.5">Password</label><input id="userPassword" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Leave blank to keep current" type="password"/></div>
       <div><label class="font-label-md text-on-surface-variant block mb-1.5">Role</label>
         <select id="userRole" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
@@ -715,16 +716,17 @@ function renderUsers() {
 
   container.innerHTML = '<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">' +
     '<div class="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-surface-container border-b border-outline-variant font-label-md text-on-surface-variant">' +
-    '<div class="col-span-4">Name</div><div class="col-span-2">Username</div><div class="col-span-2">Role</div><div class="col-span-2">Data</div><div class="col-span-2 text-right">Actions</div></div>' +
+    '<div class="col-span-3">Name</div><div class="col-span-2">Email</div><div class="col-span-2">Username</div><div class="col-span-2">Role</div><div class="col-span-1">Data</div><div class="col-span-2 text-right">Actions</div></div>' +
     users.map(function(u) {
       var d = collectUserData(u.username);
       var total = d.tasks.length + d.plans.length + d.trips.length + d.dailylog.length;
       return '<div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 px-6 py-4 border-b border-outline-variant last:border-0 items-center hover:bg-surface-container-low transition-colors">' +
-        '<div class="md:col-span-4 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm flex-shrink-0">' + (u.name || u.username).charAt(0).toUpperCase() + '</div>' +
+        '<div class="md:col-span-3 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm flex-shrink-0">' + (u.name || u.username).charAt(0).toUpperCase() + '</div>' +
         '<div><p class="font-body-md font-semibold">' + escapeHtml(u.name || '—') + '</p></div></div>' +
+        '<div class="md:col-span-2"><span class="font-body-md text-on-surface-variant truncate block" title="' + escapeHtml(u.email || '') + '">' + escapeHtml(u.email || '—') + '</span></div>' +
         '<div class="md:col-span-2"><span class="font-body-md text-on-surface-variant">@' + escapeHtml(u.username) + '</span></div>' +
         '<div class="md:col-span-2"><span class="font-label-md px-2.5 py-1 rounded-full text-xs font-semibold ' + (roleColors[u.role] || '') + '">' + (roleLabels[u.role] || u.role) + '</span></div>' +
-        '<div class="md:col-span-2"><span class="font-label-md text-on-surface-variant">' + total + ' items</span></div>' +
+        '<div class="md:col-span-1"><span class="font-label-md text-on-surface-variant">' + total + '</span></div>' +
         '<div class="md:col-span-2 flex items-center justify-end gap-2">' +
         '<button class="px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-700 font-label-md hover:bg-indigo-200 transition-colors text-xs" onclick="editUser(\'' + u.username + '\')"><span class="material-symbols-outlined text-sm align-middle">edit</span> Edit</button>' +
         (u.role !== 'admin' ? '<button class="px-3 py-1.5 rounded-lg bg-red-100 text-red-700 font-label-md hover:bg-red-200 transition-colors text-xs" onclick="deleteUser(\'' + u.username + '\')"><span class="material-symbols-outlined text-sm align-middle">delete</span></button>' : '') +
@@ -737,6 +739,7 @@ function openUserModal(data) {
   document.getElementById('editUserId').value = data ? data.username : '';
   document.getElementById('userName').value = data ? (data.name || '') : '';
   document.getElementById('userUsername').value = data ? data.username : '';
+  document.getElementById('userEmail').value = data ? (data.email || '') : '';
   document.getElementById('userPassword').value = '';
   document.getElementById('userRole').value = data ? (data.role || 'executive_task') : 'executive_task';
   document.getElementById('userIsAdmin').checked = data ? !!data.isAdmin : false;
@@ -748,6 +751,7 @@ function closeUserModal() { document.getElementById('userModal').classList.add('
 async function saveUser() {
   var name = document.getElementById('userName').value.trim();
   var username = document.getElementById('userUsername').value.trim();
+  var email = document.getElementById('userEmail').value.trim();
   var password = document.getElementById('userPassword').value;
   var role = document.getElementById('userRole').value;
   var isAdmin = document.getElementById('userIsAdmin').checked;
@@ -767,7 +771,7 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Username already exists.'; errEl.prepend(err); return;
     }
-    users[idx].name = name; users[idx].username = username; users[idx].role = role; users[idx].isAdmin = isAdmin;
+    users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin;
     if (password) users[idx].password = await hashPass(password);
     saveUsers(users);
   } else {
@@ -779,7 +783,7 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Password is required for new users.'; errEl.prepend(err); return;
     }
-    users.push({ username: username, name: name, password: await hashPass(password), role: role, isAdmin: isAdmin });
+    users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin });
     saveUsers(users);
   }
   closeUserModal();
