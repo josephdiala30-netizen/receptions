@@ -218,17 +218,16 @@ data['it_task_' + USERNAME] = tasks;
 function quarterFromDate(d) {
   if (!d || d.length < 7) return '';
   var m = parseInt(d.substring(5, 7), 10);
-  if (m >= 1 && m <= 3) return 'Q1';
-  if (m >= 4 && m <= 6) return 'Q2';
-  if (m >= 7 && m <= 9) return 'Q3';
-  if (m >= 10 && m <= 12) return 'Q4';
+  if (m >= 1 && m <= 3) return 'Q1 (Jan - Mar)';
+  if (m >= 4 && m <= 6) return 'Q2 (Apr - Jun)';
+  if (m >= 7 && m <= 9) return 'Q3 (Jul - Sep)';
+  if (m >= 10 && m <= 12) return 'Q4 (Oct - Dec)';
   return '';
 }
-function monthLabel(d) {
-  if (!d || d.length < 7) return '';
-  var names = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  var m = parseInt(d.substring(5, 7), 10);
-  return names[m - 1] || '';
+function matchPeriod(raw) {
+  if (!raw) return '';
+  var map = { 'Q1': 'Q1 (Jan - Mar)', 'Q2': 'Q2 (Apr - Jun)', 'Q3': 'Q3 (Jul - Sep)', 'Q4': 'Q4 (Oct - Dec)' };
+  return map[raw] || raw;
 }
 var maintenance = [];
 ms.forEach(function(row) {
@@ -262,7 +261,7 @@ ic.forEach(function(row) {
     equipment: displayName,
     title: displayName + ' Inspection',
     inspectionDate: row[3] || '', scheduledDate: row[3] || '',
-    reference: row[2] || 'ITDF-01', frequency: row[5] || 'Quarterly', period: row[35] || '',
+    reference: row[2] || 'ITDF-01', frequency: row[5] || 'Quarterly', period: matchPeriod(row[35]) || '',
     brand: equipName, model: modelStr, serial: row[8] || '',
     description: row[36] || '',
     inspectedBy: row[25] || '', checkedBy: row[26] || '',

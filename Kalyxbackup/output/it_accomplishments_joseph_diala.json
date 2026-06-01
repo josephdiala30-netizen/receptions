@@ -1,7 +1,7 @@
 [
   {
-    "id": 1780291974204,
-    "createdAt": 1780291974138,
+    "id": 1780295815911,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Fix the outlook inbox of Ms. Maricel from AGX cebu",
     "date": "2026-03-02",
@@ -15,8 +15,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST files."
   },
   {
-    "id": 1780291974205,
-    "createdAt": 1780291974138,
+    "id": 1780295815912,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Assists Sir Albert to remove paper jam inside the Epson L5290 printer on the sales area",
     "date": "2026-03-02",
@@ -30,8 +30,8 @@
     "resolution": "Remove Paper Jam stuck inside the printer"
   },
   {
-    "id": 1780291974206,
-    "createdAt": 1780291974138,
+    "id": 1780295815913,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Problem: No Printout \\r\\n- Perform head cleaning for both Black and Color printer head",
     "date": "2026-03-02",
@@ -45,8 +45,8 @@
     "resolution": "Perform head cleaning for both Black and Color printer head remotely"
   },
   {
-    "id": 1780291974207,
-    "createdAt": 1780291974138,
+    "id": 1780295815914,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "The printer is disconnected on the network.",
     "date": "2026-03-02",
@@ -60,8 +60,8 @@
     "resolution": "Install and configure the printer to the laptop of Sir Jerome Manila"
   },
   {
-    "id": 1780291974208,
-    "createdAt": 1780291974138,
+    "id": 1780295815915,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Reset the maintenance Sharp Copier (Scratch) on the OPS.",
     "date": "2026-03-03",
@@ -69,8 +69,8 @@
     "title": ""
   },
   {
-    "id": 1780291974209,
-    "createdAt": 1780291974138,
+    "id": 1780295815916,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Install Epson Printer L5290 on the Laptop on Sir Mark Cabañez",
     "date": "2026-03-03",
@@ -78,8 +78,8 @@
     "title": ""
   },
   {
-    "id": 1780291974210,
-    "createdAt": 1780291974138,
+    "id": 1780295815917,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Clean the feeder guide of the sharp L5290 on OPS department",
     "date": "2026-03-03",
@@ -87,8 +87,8 @@
     "title": ""
   },
   {
-    "id": 1780291974211,
-    "createdAt": 1780291974138,
+    "id": 1780295815918,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to connect on the sysfreight",
     "date": "2026-03-03",
@@ -102,8 +102,8 @@
     "resolution": "Assists Miss Haydi Aswat of AGX Baguio, remotely and fix the DNS connection issue on the Sysfreight by adding the DNS server on the host file"
   },
   {
-    "id": 1780291974212,
-    "createdAt": 1780291974138,
+    "id": 1780295815919,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing SHPHSI260931-01 SHPHSI260684-01 SHPHSI261074-00 SHPHSI261037-00 SHPHSE260582-01 SHPHAE261643-01 SHPHSI260930-01\\r\\nSHPHSI261013-02 AE260936-01 AE261425-01 AE260874-01",
     "date": "2026-03-03",
@@ -111,8 +111,8 @@
     "title": ""
   },
   {
-    "id": 1780291974213,
-    "createdAt": 1780291974138,
+    "id": 1780295815920,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing \\r\\n\\r\\nSHPHAI261452-00\\r\\nSHPHRT257265-00 \\r\\nSHPHRT260924-00\\r\\nSHPHSI260944-01\\r\\nSHPHSI260956-01\\r\\nSHPHSI260946-01\\r\\nSHPHSI260958-01\\r\\nSHPHSI260941-01\\r\\nSHPHAI261651-01\\r\\nSHPHAI261809-01\\r\\nSHPHSI260954-01\\r\\nSHPHSI260939-01\\r\\nSHPHSI260977-00\\r\\nSHPHRT260943-00\\r\\nSHPHSI260818-01\\r\\nSHPHRT260925-00\\r\\nSHPHAI261670-01\\r\\nSHPHSI260818-01\\r\\nSHPHSI260731-01\\r\\nSHPHAI261670-03\\r\\nSHPHAI261354-00\\r\\nSHPHAI260176-00 \\r\\nSHPHAI260297-00\\r\\nSHPHAI260523-00\\r\\nSHPHAI260522-00\\r\\nSHPHAI261132-00\\r\\nSHPHAI260525-00\\r\\nSHPHAI261353-00\\r\\nSHPHSI260904-01\\r\\nSHPHAI261687-01\\r\\nSHPHSI260903-01\\r\\nSHPHSI260900-01\\r\\nSHPHSI260901-01\\r\\nSHPHSI261053-01\\r\\nSHPHAI261687-02\\r\\nSHPHRT260929-00",
     "date": "2026-03-04",
@@ -120,8 +120,8 @@
     "title": ""
   },
   {
-    "id": 1780291974214,
-    "createdAt": 1780291974138,
+    "id": 1780295815921,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "We relocated and moved the tables of the sales and CS departments.",
     "date": "2026-03-05",
@@ -129,8 +129,8 @@
     "title": ""
   },
   {
-    "id": 1780291974215,
-    "createdAt": 1780291974138,
+    "id": 1780295815922,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation: \\r\\nSHPHAI261718-01\\r\\nSHPHAI261382-01\\r\\nSHPHAI261507-00\\r\\nSHPHAI261508-00\\r\\nSHPHAI261658-01\\r\\nSHPHAI261645-01\\r\\nSHPHAI261712-01\\r\\nSHPHAI261713-01\\r\\nSHPHAI261719-01\\r\\nSHPHAI261749-01\\r\\nSHPHAI261752-01",
     "date": "2026-03-06",
@@ -138,8 +138,8 @@
     "title": ""
   },
   {
-    "id": 1780291974216,
-    "createdAt": 1780291974138,
+    "id": 1780295815923,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation: \\r\\nSHPHAI261759-01\\r\\nSHPHSI261056-04\\r\\nSHPHSI261056-05\\r\\nSHPHSI260918-01\\r\\nSHPHSE260497-01\\r\\nSHPHAE261647-00\\r\\nSHPHAE261676-00\\r\\nSHPHSE260645-01\\r\\nSHPHSE260645-01\\r\\nSHPHSI261039-00\\r\\nSHPHSI260773-01\\r\\nSHPHAE261433-01\\r\\nSHPHSE260384-01\\r\\nSHPHRT260933-00\\r\\nSHPHRT260931-00\\r\\nSHPHAI261827-01",
     "date": "2026-03-06",
@@ -147,8 +147,8 @@
     "title": ""
   },
   {
-    "id": 1780291974217,
-    "createdAt": 1780291974138,
+    "id": 1780295815924,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "We moved and fixed Mam Hermie\\'s telephone wire in her office.",
     "date": "2026-03-06",
@@ -156,8 +156,8 @@
     "title": ""
   },
   {
-    "id": 1780291974218,
-    "createdAt": 1780291974138,
+    "id": 1780295815925,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "The Epson L5290 printer in OPs has no printout, so I did head cleaning and refilled the printer\\'s ink tanks.",
     "date": "2026-03-09",
@@ -165,8 +165,8 @@
     "title": ""
   },
   {
-    "id": 1780291974219,
-    "createdAt": 1780291974138,
+    "id": 1780295815926,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHSE260600-01\\r\\nSHPHSI260081-00\\r\\nSHPHAE261522-01\\r\\nSHPHAI261804-00\\r\\nSHPHSI261176-00",
     "date": "2026-03-09",
@@ -174,8 +174,8 @@
     "title": ""
   },
   {
-    "id": 1780291974220,
-    "createdAt": 1780291974138,
+    "id": 1780295815927,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing Confirmation:\\r\\nSHPHSI261151-01\\r\\nSHPHSI260912-01\\r\\nSHPHSI260750-01\\r\\nSHPHSE260487-01\\r\\nSHPHAI261820-00\\r\\nSHPHAI261818-01\\r\\nSHPHAE261583-01\\r\\nSHPHSI261207-01",
     "date": "2026-03-09",
@@ -183,8 +183,8 @@
     "title": ""
   },
   {
-    "id": 1780291974221,
-    "createdAt": 1780291974138,
+    "id": 1780295815928,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing Confirmmation:\\r\\nSHPHAI261831-00\\r\\nSHPHSI261124-00\\r\\nSHPHSI261116-00\\r\\nSHPHSI261143-00\\r\\nSHPHSI260752-00\\r\\nSHPHSI261026-00 \\r\\nSHPHSI261025-00 \\r\\nSHPHAI261796-00",
     "date": "2026-03-09",
@@ -192,8 +192,8 @@
     "title": ""
   },
   {
-    "id": 1780291974222,
-    "createdAt": 1780291974138,
+    "id": 1780295815929,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assists Miss Jasmin installing printer and scanner on her service unit laptop",
     "date": "2026-03-10",
@@ -201,8 +201,8 @@
     "title": ""
   },
   {
-    "id": 1780291974223,
-    "createdAt": 1780291974138,
+    "id": 1780295815930,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Assist Sir Alwen of AGX cebu branch, performed laptop troubleshooting and run system disk scanning. the unit is working",
     "date": "2026-03-03",
@@ -216,8 +216,8 @@
     "resolution": "Assist Sir Alwen of AGX cebu branch, performed laptop troubleshooting and run system disk scanning. the unit is working"
   },
   {
-    "id": 1780291974224,
-    "createdAt": 1780291974138,
+    "id": 1780295815931,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assists Miss Cristine Cruto of AGX Hermosa Warehouse update and install printer and scanner on her laptop",
     "date": "2026-03-09",
@@ -225,8 +225,8 @@
     "title": ""
   },
   {
-    "id": 1780291974225,
-    "createdAt": 1780291974138,
+    "id": 1780295815932,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assists Sir Alwen of AGX Cebu Branch, the problem is the laptop is no display after login user account.performed system scan disk and system repair.",
     "date": "2026-03-10",
@@ -234,8 +234,8 @@
     "title": ""
   },
   {
-    "id": 1780291974226,
-    "createdAt": 1780291974138,
+    "id": 1780295815933,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE261675-01\\r\\nSHPHAE261667-01\\r\\nSHPHAE261668-01\\r\\nSHPHAE261669-01\\r\\nSHPHAE261670-01\\r\\nSHPHAE261672-01\\r\\nSHPHAE261673-01\\r\\nSHPHAE261674-01\\r\\nSHPHAE261636-01\\r\\nSHPHAE261683-01\\r\\nSHPHAE261640-01",
     "date": "2026-03-10",
@@ -243,8 +243,8 @@
     "title": ""
   },
   {
-    "id": 1780291974227,
-    "createdAt": 1780291974138,
+    "id": 1780295815934,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE261642-01\\r\\nSHPHAE261644-01\\r\\nSHPHAE261645-01\\r\\nSHPHAE261646-01\\r\\nSHPHAE261648-01\\r\\nSHPHAE261649-01\\r\\nSHPHAE261650-01\\r\\nSHPHAE261651-01\\r\\nSHPHAE261652-01\\r\\nSHPHAE261653-01\\r\\nSHPHAE261654-01\\r\\nSHPHAE261581-01",
     "date": "2026-03-10",
@@ -252,8 +252,8 @@
     "title": ""
   },
   {
-    "id": 1780291974228,
-    "createdAt": 1780291974138,
+    "id": 1780295815935,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE261581-01\\r\\nSHPHAE261588-01\\r\\nSHPHAE261587-01\\r\\nSHPHAE261586-01\\r\\nSHPHAE261582-01\\r\\nSHPHAE261627-01\\r\\nSHPHAE259717-01\\r\\nSHPHAE261628-01\\r\\nSHPHAE261629-01\\r\\nSHPHAE261630-01\\r\\nSHPHAE261631-01\\r\\nSHPHAE261632-01\\r\\nSHPHAE261633-01\\r\\nSHPHAE261634-01\\r\\nSHPHAE261635-01",
     "date": "2026-03-10",
@@ -261,8 +261,8 @@
     "title": ""
   },
   {
-    "id": 1780291974229,
-    "createdAt": 1780291974138,
+    "id": 1780295815936,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAI261854-00\\r\\nSHPHAI261883-00\\r\\nSHPHAI261780-01\\r\\nSHPHAI261778-01\\r\\nSHPHAI261855-00\\r\\nSHPHAI261987-01\\r\\nSHPHAE261212-01\\r\\nSHPHSI261217-01\\r\\nSHPHSI260973-01\\r\\nSHPHSI260688-01\\r\\nSHPHSI261222-01\\r\\nSHPHSI261215-01\\r\\nSHPHSI261216-01\\r\\nSHPHRT260967-00\\r\\nSHPHSI260844-01\\r\\nSHPHSI260914-01",
     "date": "2026-03-10",
@@ -270,8 +270,8 @@
     "title": ""
   },
   {
-    "id": 1780291974230,
-    "createdAt": 1780291974138,
+    "id": 1780295815937,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assist Sir Boyet Gutib of AGX Subic branch. her email is unable to recieve and send mails, fix and update the email credentials",
     "date": "2026-03-11",
@@ -279,8 +279,8 @@
     "title": ""
   },
   {
-    "id": 1780291974231,
-    "createdAt": 1780291974138,
+    "id": 1780295815938,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation: \\r\\nSHPHAI261965-02\\r\\nSHPHAI261915-01\\r\\nSHPHAI261958-06\\r\\nSHPHAI261958-11\\r\\nSHPHAI261958-05\\r\\nSHPHAI261958-10\\r\\nSHPHAI261965-07\\r\\nSHPHAI261958-02\\r\\nSHPHAI261965-01\\r\\nSHPHAI262003-02\\r\\nSHPHAI262006-01\\r\\nSHPHAI262003-01\\r\\nSHPHRT261079-00\\r\\nSHPHSI261195-01",
     "date": "2026-03-11",
@@ -288,8 +288,8 @@
     "title": ""
   },
   {
-    "id": 1780291974232,
-    "createdAt": 1780291974138,
+    "id": 1780295815939,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Engrave keychain for Auditors",
     "date": "2026-03-11",
@@ -297,8 +297,8 @@
     "title": ""
   },
   {
-    "id": 1780291974233,
-    "createdAt": 1780291974138,
+    "id": 1780295815940,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assist Sir Aldrich on Cleaning to bulletin board",
     "date": "2026-03-16",
@@ -306,8 +306,8 @@
     "title": ""
   },
   {
-    "id": 1780291974234,
-    "createdAt": 1780291974138,
+    "id": 1780295815941,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Performed Daily Maintenance and checking of all sharp copier in office",
     "date": "2026-03-16",
@@ -315,8 +315,8 @@
     "title": ""
   },
   {
-    "id": 1780291974235,
-    "createdAt": 1780291974138,
+    "id": 1780295815942,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assists Miss Jocelyn Serna of AGX Bataan office, Email inbox is full\\r\\nCreate a new pst files and and move all old email in the new pst files",
     "date": "2026-03-16",
@@ -324,8 +324,8 @@
     "title": ""
   },
   {
-    "id": 1780291974236,
-    "createdAt": 1780291974138,
+    "id": 1780295815943,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation: \\r\\nSHPHRT260835-00\\r\\nSHPHRT260834-00\\r\\nSHPHSE260656-00\\r\\nSHPHSE260646-00\\r\\nSHPHSE260661-00\\r\\nSHPHSE260663-00\\r\\nSHPHSE260711-00\\r\\nSHPHSE260710-00\\r\\nSHPHSE260696-00\\r\\nSHPHSE260697-00\\r\\nSHPHAI261885-00\\r\\nSHPHAI261709-00\\r\\nSHPHAI261833-00\\r\\nSHPHAI261591-00",
     "date": "2026-03-16",
@@ -333,8 +333,8 @@
     "title": ""
   },
   {
-    "id": 1780291974237,
-    "createdAt": 1780291974138,
+    "id": 1780295815944,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing Confirmation:\\r\\nSHPHAI261643-00\\r\\nSHPHSI261149-00\\r\\nSHPHAE261371-00\\r\\nSHPHSE260792-00\\r\\nSHPHSE260783-00\\r\\nSHPHAE261737-01 \t\t\t\t\\r\\nSHPHAE261736-01 \t\t\t\t\\r\\nSHPHAE261735-01 \t\t\t\t\\r\\nSHPHAE261819-01 \\r\\nSHPHAE261565-01 \t\t\t\t\\r\\nSHPHAE261482-01",
     "date": "2026-03-16",
@@ -342,8 +342,8 @@
     "title": ""
   },
   {
-    "id": 1780291974238,
-    "createdAt": 1780291974138,
+    "id": 1780295815945,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE261567-01 \t\t\t\t\\r\\nSHPHAE261568-01 \\r\\nSHPHRT260979-00\t\\r\\nSHPHRT260977-00\\r\\nSHPHRT260982-00\\r\\nSHPHAE261704-00\\r\\nSHPHSI261175-00\t\\r\\nSHPHAE2410822-01\\r\\nSHPHAE261906-01\\r\\nSHPHAE261931-00\\r\\nSHPHAE261560-02\\r\\nSHPHSI261068-01",
     "date": "2026-03-16",
@@ -351,8 +351,8 @@
     "title": ""
   },
   {
-    "id": 1780291974239,
-    "createdAt": 1780291974138,
+    "id": 1780295815946,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Upload billing confirmation\\r\\nSI260978-00\\r\\nSE260810-00\\r\\nSE260818-00\\r\\nSI260921-00\\r\\nSI261067-00\\r\\nSI261067-00\\r\\nSI261163-00\\r\\nSHPHRT260026-00\\r\\nSHPHSI260956-01\\r\\nSHPHAI262043-01\\r\\nSHPHRT261160-00\\r\\nSHPHRT260818-00\\r\\nSHPHRT260831-00\\r\\nSHPHRT260973-00\\r\\nSHPHRT260971-00\\r\\nSHPHRT260972-00\\r\\nSHPHRT260817-00",
     "date": "2026-03-17",
@@ -360,8 +360,8 @@
     "title": ""
   },
   {
-    "id": 1780291974240,
-    "createdAt": 1780291974138,
+    "id": 1780295815947,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Upload billing confirmation \\r\\nSHPHSI260222-00\\r\\nSHPHSI260224-00\\r\\nSHPHSI261266-01\\r\\nSHPHRT261013-00\\r\\nSHPHSE260812-00\\r\\nSHPHRT260803-00\\r\\nSHPHRT260807-00\\r\\nSHPHRT260806-00\\r\\nSHPHAI262002-01\\r\\nSHPHSI261162-01\\r\\nSHPHSI261169-01\\r\\nSHPHSI261272-01\\r\\nSHPHAE261847-02\\r\\nSHPHAI262126-02",
     "date": "2026-03-17",
@@ -369,8 +369,8 @@
     "title": ""
   },
   {
-    "id": 1780291974241,
-    "createdAt": 1780291974138,
+    "id": 1780295815948,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Upload billing confirmation \\r\\nSHPHAI262004-09\\r\\nSHPHAI262038-03\\r\\nSHPHAI262130-02\\r\\nSHPHAI262130-03\\r\\nSHPHAI262130-01\\r\\nSHPHAI262126-01\\r\\nSHPHAI262086-06\\r\\nSHPHAI262086-02\\r\\nSHPHAI262087-01\\r\\nSHPHAI262058-01\\r\\nSHPHSI261291-01\\r\\nSHPHSI261291-01\\r\\nSHPHSI261132-01\\r\\nSHPHSI261132-01",
     "date": "2026-03-17",
@@ -378,8 +378,8 @@
     "title": ""
   },
   {
-    "id": 1780291974242,
-    "createdAt": 1780291974138,
+    "id": 1780295815949,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Upload billing confirmation \\r\\nSHPHSI261174-00\\r\\nSHPHSI261242-00\\r\\nSHPHSE260757-01\\r\\nSHPHSE260761-01\\r\\nSHPHSE260776-01\\r\\nSHPHSE260776-01\\r\\nSHPHSE260869-01",
     "date": "2026-03-17",
@@ -387,8 +387,8 @@
     "title": ""
   },
   {
-    "id": 1780291974243,
-    "createdAt": 1780291974138,
+    "id": 1780295815950,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assists Miss Stepahie on installing the epson L5290 printer on her laptop",
     "date": "2026-03-18",
@@ -396,8 +396,8 @@
     "title": ""
   },
   {
-    "id": 1780291974244,
-    "createdAt": 1780291974138,
+    "id": 1780295815951,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Performed weekly maintenance on all the sharp copiers",
     "date": "2026-03-18",
@@ -405,8 +405,8 @@
     "title": ""
   },
   {
-    "id": 1780291974245,
-    "createdAt": 1780291974138,
+    "id": 1780295815952,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Check and fix the epson L5290 in the operations department the problem of the printer is incomplete printout. performed head cleaning and refill Ink tank",
     "date": "2026-03-18",
@@ -414,8 +414,8 @@
     "title": ""
   },
   {
-    "id": 1780291974246,
-    "createdAt": 1780291974138,
+    "id": 1780295815953,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Check and fix the epson L5290 in the CS/Sales department the problem of the printer is incomplete printout. performed head cleaning and refill Ink tank",
     "date": "2026-03-18",
@@ -423,8 +423,8 @@
     "title": ""
   },
   {
-    "id": 1780291974247,
-    "createdAt": 1780291974138,
+    "id": 1780295815954,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE261952-01\\r\\nSHPHSE260799-01\\r\\nSHPHAI261941-01\\r\\nSHPHSE260796-01\\r\\nSHPHSE260798-01\\r\\nSHPHAI261945-01\\r\\nSHPHAI261944-02\\r\\nSHPHAI262176-03\\r\\nSHPHAI262176-04\\r\\nSHPHAI261946-01\\r\\nSHPHAI262016-01\\r\\nSHPHAI261944-01\\r\\nSHPHSE260754-01\\r\\nSHPHAI262126-03\\r\\nSHPHSE260752-01\\r\\nSHPHSE260749-01\\r\\nSHPHAI261943-01\\r\\nSHPHSE260746-01\\r\\nSHPHRT261211-00\\r\\nSHPHSE260795-01\\r\\nSHPHSE260734-01\\r\\nSHPHAE261980-00\\r\\nSHPHAI262088-01\\r\\nSHPHAE261836-01\\r\\nSHPHSE260815-01\\r\\nSHPHAE261868-01\\r\\nSHPHAE2410824-01\\r\\nSHPHAE261860-01\\r\\nSHPHAE261861-01\\r\\nSHPHAE261863-01\\r\\nSHPHAE261864-01\\r\\nSHPHAE261865-01\\r\\nSHPHAE261866-01\\r\\nSHPHAE261867-01\\r\\nSHPHAE261912-01\\r\\nSHPHAE261913-01",
     "date": "2026-03-18",
@@ -432,8 +432,8 @@
     "title": ""
   },
   {
-    "id": 1780291974248,
-    "createdAt": 1780291974138,
+    "id": 1780295815955,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Uploading of Billing Confirmation:\\r\\nSHPHAE261914-01\\r\\nSHPHAE261915-01\\r\\nSHPHAE261916-01\\r\\nSHPHAE261917-01\\r\\nSHPHAE261918-01\\r\\nSHPHAE261919-01\\r\\nSHPHAE261920-01\\r\\nSHPHAE261897-01\\r\\nSHPHAE261898-01\\r\\nSHPHAE261899-01\\r\\nSHPHAE261900-01",
     "date": "2026-03-19",
@@ -441,8 +441,8 @@
     "title": ""
   },
   {
-    "id": 1780291974249,
-    "createdAt": 1780291974138,
+    "id": 1780295815956,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload of Billing confirmation:\\r\\nSHPHAE261901-01\\r\\nSHPHAE261902-01\\r\\nSHPHAE261903-01\\r\\nSHPHAE261904-01\\r\\nSHPHAE261905-01\\r\\nSHPHAE261907-01\\r\\nSHPHAE261980-01\\r\\nSHPHAE261909-01",
     "date": "2026-03-19",
@@ -450,8 +450,8 @@
     "title": ""
   },
   {
-    "id": 1780291974250,
-    "createdAt": 1780291974138,
+    "id": 1780295815957,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing confirmation: \\r\\nSHPHAE261881-01\\r\\nSHPHAE261895-01\\r\\nSHPHAE261895-02\\r\\nSHPHAE261895-03\\r\\nSHPHAE261956-01\\r\\nSHPHAE261896-01\\r\\nSHPHAI262111-01\\r\\nSHPHSI261170-01\\r\\nSHPHAI262056-01\\r\\nSHPHAI262055-01\\r\\nSHPHAI262057-02",
     "date": "2026-03-19",
@@ -459,8 +459,8 @@
     "title": ""
   },
   {
-    "id": 1780291974251,
-    "createdAt": 1780291974138,
+    "id": 1780295815958,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing confirmation:\\r\\nSHPHAI262134-01\\r\\nSHPHAI262248-00\\r\\nSHPHAI262247-01\\r\\nSHPHAI262229-00\\r\\nSHPHAE261986-01",
     "date": "2026-03-19",
@@ -468,8 +468,8 @@
     "title": ""
   },
   {
-    "id": 1780291974252,
-    "createdAt": 1780291974138,
+    "id": 1780295815959,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assist the supplier to repair the sharp copier in operation department",
     "date": "2026-03-16",
@@ -477,8 +477,8 @@
     "title": ""
   },
   {
-    "id": 1780291974253,
-    "createdAt": 1780291974138,
+    "id": 1780295815960,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assists Miss Leane Cano, Email inbox is full Create a new pst files and and move all old email in the new pst files",
     "date": "2026-03-23",
@@ -486,8 +486,8 @@
     "title": ""
   },
   {
-    "id": 1780291974254,
-    "createdAt": 1780291974138,
+    "id": 1780295815961,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assists Miss Nicole Kate , Email inbox is full Create a new pst files and and move all old email in the new pst files",
     "date": "2026-03-23",
@@ -495,8 +495,8 @@
     "title": ""
   },
   {
-    "id": 1780291974255,
-    "createdAt": 1780291974138,
+    "id": 1780295815962,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assists Miss Crytal Ramiscal, Email inbox is full Create a new pst files and and move all old email in the new pst files",
     "date": "2026-03-23",
@@ -504,8 +504,8 @@
     "title": ""
   },
   {
-    "id": 1780291974256,
-    "createdAt": 1780291974138,
+    "id": 1780295815963,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Assists Miss Jasmine Joye, installing Line app on her laptop",
     "date": "2026-03-23",
@@ -513,8 +513,8 @@
     "title": ""
   },
   {
-    "id": 1780291974257,
-    "createdAt": 1780291974138,
+    "id": 1780295815964,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Create a step-by-step guide for configuring network scanning on the copier",
     "date": "2026-03-24",
@@ -522,8 +522,8 @@
     "title": ""
   },
   {
-    "id": 1780291974258,
-    "createdAt": 1780291974138,
+    "id": 1780295815965,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Uploading of Billing Confirmation: SHPHAI262272-01 SHPHAI262283-01 SHPHSE260790-00 SHPHSE260790-00 SHPHSI261269-01 SHPHSI261246-01 SHPHSI261241-01 SHPHSI261241-01 SHPHSI261238-01 SHPHSI261270-01 SHPHAE261994-01 SHPHSE260894-00 SHPHAI262178-00 SHPHAI262093-01",
     "date": "2026-03-23",
@@ -531,8 +531,8 @@
     "title": ""
   },
   {
-    "id": 1780291974259,
-    "createdAt": 1780291974138,
+    "id": 1780295815966,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Uploading of Billing Confirmation: SHPHAE262085-01 SHPHAE262082-01 SHPHAE262030-01 SHPHAE262083-02 SHPHSI255317-00 SHPHSI261103-01 SHPHSI261104-01 SHPHSI261226-01 SHPHSI261193-01 SHPHSI261363-00 SHPHSI261370-00 SHPHSI261383-00 SHPHSI261412-00 SHPHSI261371-00 SHPHSI261368-00 SHPHSI261369-00 SHPHSI261367-00 SHPHSI261384-00 SHPHSI260927-01 SHPHAE261985-01 SHPHRT261292-00 SHPHRT261288-00 SHPHSE260838-01",
     "date": "2026-03-24",
@@ -540,8 +540,8 @@
     "title": ""
   },
   {
-    "id": 1780291974260,
-    "createdAt": 1780291974138,
+    "id": 1780295815967,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Encode billing confirmation: AI261953-01\\r\\nAI262098-01\\r\\nAI261690-01\\r\\nAI261913-01\\r\\nAI261952-01\\r\\nAI261691-01\\r\\nAI261726-01\\r\\nAI262124-01\\r\\nAI262121-01",
     "date": "2026-03-25",
@@ -549,8 +549,8 @@
     "title": ""
   },
   {
-    "id": 1780291974261,
-    "createdAt": 1780291974138,
+    "id": 1780295815968,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Encode billing confirmation: SHPHAI262193-00 SHPHAI262294-01 SHPHAI262298-00 SHPHAI262291-01 SHPHAI262292-01 SHPHAI262293-01 SHPHAI262294-02 SHPHAI262297-01 SHPHAI262295-00 SHPHAI262296-00 SHPHSI261328-00 SHPHRT261115-00 SHPHRT261111-00 SHPHRT261100-00 SHPHAI262345-01 SHPHAI259493-00 SHPHSI260135-00",
     "date": "2026-03-25",
@@ -558,8 +558,8 @@
     "title": ""
   },
   {
-    "id": 1780291974262,
-    "createdAt": 1780291974138,
+    "id": 1780295815969,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Encode Biliing Confirmation: \\r\\nAI261953-01\\r\\nAI262098-01\\r\\nAI261690-01\\r\\nAI261913-01\\r\\nAI261952-01\\r\\nAI261691-01\\r\\nAI261726-01\\r\\nAI262124-01\\r\\nAI262121-01",
     "date": "2026-03-25",
@@ -567,8 +567,8 @@
     "title": ""
   },
   {
-    "id": 1780291974263,
-    "createdAt": 1780291974138,
+    "id": 1780295815970,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Setup and Configure the network scanner of Miss Jasmin Joye Galang",
     "date": "2026-03-26",
@@ -576,8 +576,8 @@
     "title": ""
   },
   {
-    "id": 1780291974264,
-    "createdAt": 1780291974138,
+    "id": 1780295815971,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Epson L5290 Paper Jam issue: I removed the blockage inside the printer that was causing the printer to have difficulty feeding paper in the Operations Department.",
     "date": "2026-03-26",
@@ -585,8 +585,8 @@
     "title": ""
   },
   {
-    "id": 1780291974265,
-    "createdAt": 1780291974138,
+    "id": 1780295815972,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "I assist Mam Hermia Diaz in creating a new Microsoft Teams Account.",
     "date": "2026-03-26",
@@ -594,8 +594,8 @@
     "title": ""
   },
   {
-    "id": 1780291974266,
-    "createdAt": 1780291974138,
+    "id": 1780295815973,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "I assisted Sir Max with his email; he deleted the ALL-Link email and configured his grzanglobal email from the client.",
     "date": "2026-03-26",
@@ -603,8 +603,8 @@
     "title": ""
   },
   {
-    "id": 1780291974267,
-    "createdAt": 1780291974138,
+    "id": 1780295815974,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "I assisted Mam Hermie in her conference meeting with a client, I set up and configured her computer\\'s webcam and mic.",
     "date": "2026-03-26",
@@ -612,8 +612,8 @@
     "title": ""
   },
   {
-    "id": 1780291974268,
-    "createdAt": 1780291974138,
+    "id": 1780295815975,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing confirmation: SHPHSE260853-00 SHPHSE260873-00 SHPHAI261543-00 SHPHAE262151-01 SHPHAI261543-00 SHPHAE260589-01\\r\\nSHPHAI262498-01 SHPHAI262058-01 SHPHAI261780-01 SHPHAI261667-01  SHPHAI262413-01 AI261873-00 AI262232-01",
     "date": "2026-03-26",
@@ -621,8 +621,8 @@
     "title": ""
   },
   {
-    "id": 1780291974269,
-    "createdAt": 1780291974138,
+    "id": 1780295815976,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "I assisted Sir Neil Arreisgado of AGX Cebu, I set up his new laptop remotely, installed the apps he needed for work, and configured his outlook email.",
     "date": "2026-03-26",
@@ -630,8 +630,8 @@
     "title": ""
   },
   {
-    "id": 1780291974270,
-    "createdAt": 1780291974138,
+    "id": 1780295815977,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "I assisted Miss Hazel of AGX Cebu, her email was full, I created a new .PST file and just moved her old email to the new .PST file",
     "date": "2026-03-26",
@@ -639,8 +639,8 @@
     "title": ""
   },
   {
-    "id": 1780291974271,
-    "createdAt": 1780291974138,
+    "id": 1780295815978,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "I assisted Miss Hazel of AGX Cebu, her email was full, I created a new .PST file and just moved her old email to the new .PST file",
     "date": "2026-03-26",
@@ -648,8 +648,8 @@
     "title": ""
   },
   {
-    "id": 1780291974272,
-    "createdAt": 1780291974138,
+    "id": 1780295815979,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Performed weekly check/maintenance on printers and copiers throughout the office",
     "date": "2026-03-27",
@@ -663,8 +663,8 @@
     "resolution": "Performed weekly check/maintenance on printers and copiers throughout the office"
   },
   {
-    "id": 1780291974273,
-    "createdAt": 1780291974138,
+    "id": 1780295815980,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Miss Joana Oliva of AGX Subic. Her email was inbox is full;",
     "date": "2026-03-27",
@@ -678,8 +678,8 @@
     "resolution": "I created a new .PST file and just moved her old email to the new .PST file. Then I installed the Sharp printer on his computer."
   },
   {
-    "id": 1780291974274,
-    "createdAt": 1780291974138,
+    "id": 1780295815981,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Sir Aldrich asked me to do something. I put a table on his white board for his GDP tracking and monitoring.",
     "date": "2026-03-27",
@@ -687,8 +687,8 @@
     "title": ""
   },
   {
-    "id": 1780291974275,
-    "createdAt": 1780291974138,
+    "id": 1780295815982,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing confirmation: SHPHAE262216-01 SHPHAE262109-01 SHPHAE262217-01 SHPHSE260932-01 SHPHSI261498-02 SHPHAI262387-00 SHPHAI262501-00 SHPHSI261485-00 SHPHRT261322-00 SHPHRT261323-00",
     "date": "2026-03-27",
@@ -696,8 +696,8 @@
     "title": ""
   },
   {
-    "id": 1780291974276,
-    "createdAt": 1780291974138,
+    "id": 1780295815983,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "I fixed Mam Rosie\\'s printer because her printer setup is 2 up.",
     "date": "2026-03-27",
@@ -705,8 +705,8 @@
     "title": ""
   },
   {
-    "id": 1780291974277,
-    "createdAt": 1780291974138,
+    "id": 1780295815984,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "I assisted Sir Max with his email, he had me configure it on his iPhone and he also had me install Alibaba mail on his cellphone to configure the GR Zan Global email.",
     "date": "2026-03-27",
@@ -714,8 +714,8 @@
     "title": ""
   },
   {
-    "id": 1780291974278,
-    "createdAt": 1780291974138,
+    "id": 1780295815985,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing Confirmation: SHPHAI262499-03\\r\\nSHPHAI262499-04\\r\\nSHPHAI262537-03\\r\\nSHPHAI262456-04\\r\\nSHPHAI262449-02\\r\\nSHPHAI262456-02\\r\\nSHPHAI262456-03\\r\\nSHPHAI262457-01\\r\\nSHPHAI262449-07\\r\\nSHPHAI262537-04\\r\\nSHPHSE260837-00\\r\\nSHPHSE260747-00\\r\\nSHPHRT260711-00\\r\\nSHPHSE260830-00\\r\\nSHPHSE260853-00\\r\\nSHPHAI261482-03\\r\\nSHPHAE261822-01\\r\\nSHPHAI261482-03\\r\\nSHPHAE260630-01\\r\\nSHPHAE260678-01\\r\\nSHPHSI261059-01\\r\\nSHPHSI261179-00\\r\\nSHPHAI262305-01\\r\\nSHPHAI262305-02\\r\\nSHPHAI262028-00",
     "date": "2026-03-30",
@@ -723,8 +723,8 @@
     "title": ""
   },
   {
-    "id": 1780291974279,
-    "createdAt": 1780291974138,
+    "id": 1780295815986,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing Confirmation: SHPHAE262062-01 \t\t\t\t\t\t\t\t\t\t\t\\r\\n SHPHAE262029-01 \t\t\t\t\t\t\t\t\t\t\t\\r\\n SHPHAE262098-01 \t\t\t\t\t\t\t\t\t\t\t\t\\r\\n SHPHAE262097-01 \t\t\t\t\t\t\t\t\t\t\t\t\\r\\n SHPHAE262096-01 \t\t\t\t\t\t\t\t\t\t\t\\r\\n SHPHAE261982-01 \t\t\t\t\t\t\t\\r\\n SHPHAE261938-01 \t\t\t\t\t\t\t\t\t\t\\r\\n SHPHAE261936-01 \t\t\t\t\t\t\t\t\t\t\t\t\\r\\n SHPHAE2410825-01 \t\t\t\t\t\t\t\t\t\t\t\t\\r\\n SHPHAE261937-01\\r\\n SHPHRT261354-00 \t\t\t\t\\r\\n SHPHRT261358-00 \t\t\t\t\\r\\n SHPHRT261357-00 \t\t\t\t\\r\\n SHPHRT261356-00 \t\t\t\t\\r\\n SHPHRT261325-00 \t\t\t\t\\r\\n SHPHRT261352-00 \t\t\t\t\\r\\n SHPHRT261353-00",
     "date": "2026-03-30",
@@ -732,8 +732,8 @@
     "title": ""
   },
   {
-    "id": 1780291974280,
-    "createdAt": 1780291974138,
+    "id": 1780295815987,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing Confirmation: SHPHSI261506-00 1\t\t\t\t\\r\\nSHPHAI262510-00\t\\r\\nSHPHAI262511-00\t\\r\\nSHPHRT261364-00\t\\r\\nSHPHAI262532-00\t\\r\\nSHPHAI262542-00\\r\\nSHPHAI262543-00\\r\\nSHPHAI262507-00\\r\\nSHPHAI262461-00\\r\\nSHPHAI262512-00\\r\\nSHPHAI262516-00\\r\\nSHPHSI261551-01\\r\\nSHPHSI261551-02\\r\\nSHPHSI261551-03\\r\\nSHPHSI261550-03\\r\\nSHPHSI261550-01\\r\\nSHPHSI261550-02\\r\\nSHPHSE260933-01\\r\\nSHPHSE260932-01\\r\\nSHPHSE260869-01\\r\\nSHPHSE260776-01\\r\\nSHPHSE260935-01\\r\\nSHPHSE260934-01\\r\\nSHPHSE260870-01\\r\\nSHPHSI261268-01\\r\\nSHPHSE260760-01\\r\\nSHPHSE260757-01\\r\\nSHPHSI261411-00\\r\\nSHPHAI262351-00\\r\\nSHPHAI262349-00",
     "date": "2026-03-30",
@@ -741,8 +741,8 @@
     "title": ""
   },
   {
-    "id": 1780291974281,
-    "createdAt": 1780291974138,
+    "id": 1780295815988,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation: SHPHAI262485-00\\r\\nSHPHAI262460-00\\r\\nSHPHSI261365-00\\r\\nSHPHSI261456-00\\r\\nSHPHAI262415-00\\r\\nSHPHSI261303-00\\r\\nSHPHAI262476-00\\r\\nSHPHAI262347-00\\r\\nSHPHAI262424-00\\r\\nSHPHSI261366-00\\r\\nSHPHAI262435-00\\r\\nSHPHSI261457-00\\r\\nSHPHAI262434-00\\r\\nSE260906-00\\r\\nSE260892-00\\r\\nSE260892-00\\r\\nSE260855-00\\r\\nSHPHAI262028-00\\r\\nSHPHAI262305-02\\r\\nSHPHAI262305-01",
     "date": "2026-03-30",
@@ -750,8 +750,8 @@
     "title": ""
   },
   {
-    "id": 1780291974282,
-    "createdAt": 1780291974138,
+    "id": 1780295815989,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Her email inbox is full and she can no longer send or receive emails.",
     "date": "2026-03-30",
@@ -765,8 +765,8 @@
     "resolution": "I created a new .PST file and moved all of his old emails to the new .PST file."
   },
   {
-    "id": 1780291974283,
-    "createdAt": 1780291974138,
+    "id": 1780295815990,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "The wrong app opens when opening Microsoft Office.",
     "date": "2026-04-06",
@@ -780,8 +780,8 @@
     "resolution": "I Change the default file association and removed apps that were not needed on his laptop."
   },
   {
-    "id": 1780291974284,
-    "createdAt": 1780291974138,
+    "id": 1780295815991,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Miss Hazel of AGX Cebu, her email was full, I created a new .PST file and just moved her old email to the new .PST file",
     "date": "2026-03-26",
@@ -795,8 +795,8 @@
     "resolution": "I created a new .PST file and just moved her old email to the new .PST file"
   },
   {
-    "id": 1780291974285,
-    "createdAt": 1780291974138,
+    "id": 1780295815992,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Miss Hazel of AGX Cebu, her email was full",
     "date": "2026-04-06",
@@ -810,8 +810,8 @@
     "resolution": "I created a new .PST file and just moved her old email to the new .PST file"
   },
   {
-    "id": 1780291974286,
-    "createdAt": 1780291974138,
+    "id": 1780295815993,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I tried to print documents, but nothing came out of the black ink, I checked the black ink tank and found that the black ink tank was at a critical level.",
     "date": "2026-04-06",
@@ -825,8 +825,8 @@
     "resolution": "I refilled the ink tank with black but still no ink came out of the black, so I did a power cleaning and flushing to get rid of the air inside the ink system."
   },
   {
-    "id": 1780291974287,
-    "createdAt": 1780291974138,
+    "id": 1780295815994,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Weekly Preventive Maintenance for sharp copier and printers on Operations, Finance ang CS/Sales",
     "date": "2026-04-06",
@@ -840,8 +840,8 @@
     "resolution": "Weekly Preventive Maintenance for sharp copier and printers on Operations, Finance ang CS/Sales"
   },
   {
-    "id": 1780291974288,
-    "createdAt": 1780291974138,
+    "id": 1780295815995,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmations: \\r\\nSHPHAE262278-01\\r\\nSHPHSE260718-01\\r\\nSHPHAE262272-01\\r\\nSHPHAE262272-00\\r\\nSHPHAE262296-01",
     "date": "2026-04-06",
@@ -849,8 +849,8 @@
     "title": ""
   },
   {
-    "id": 1780291974289,
-    "createdAt": 1780291974138,
+    "id": 1780295815996,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Upload Billing Confirmations: \\r\\n\\r\\nSHPHSI261580-00\\r\\nSHPHSI261460-01\\r\\nSHPHSE261018-00\\r\\nSHPHSE261034-00\\r\\nSHPHAI262034-00\\r\\nSHPHSE260756-00\\r\\nSHPHAI262566-01\\r\\nSHPHSE261089-00\\r\\nSHPHSE261088-00\\r\\nSHPHSE261087-00\\r\\nSHPHSE261086-00\\r\\nSHPHSE260916-01\\r\\nSHPHAE262261-01\\r\\nSHPHAE262280-01\\r\\nSHPHSE261095-00\\r\\nSHPHSE261096-00\\r\\nSHPHSE261097-00\\r\\nSHPHSE261098-00\\r\\nSHPHSI261323-01\\r\\nSHPHSE261090-00\\r\\nSHPHSI261459-01\\r\\nSHPHAE262345-01\\r\\nSHPHAE262345-01\\r\\nSHPHAE262280-01\\r\\nSHPHSE261091-00\\r\\nSHPHSE261092-00\\r\\nSHPHSE261093-00\\r\\nSHPHSE261094-00\\r\\nSHPHAE262422-00\\r\\nSHPHSI261402-01\\r\\nSHPHSI261337-01\\r\\nSHPHAI262716-00\\r\\nSHPHAI262722-00\\r\\nSHPHAI262723-00\\r\\nSHPHAE262429-01\\r\\nSHPHAI262774-00\\r\\nSHPHAE262421-00\\r\\nSHPHAI262433-00\\r\\nSHPHAI262652-00\\r\\nSHPHAI262586-00\\r\\nSHPHAI262587-00\\r\\nSHPHAI262585-00\\r\\nSHPHAI262735-00\\r\\nSHPHAE262435-01\\r\\nSHPHAI262686-00\\r\\nSHPHAI262715-00\\r\\nSHPHAE262417-01\\r\\nSHPHSE261096-00",
     "date": "2026-04-07",
@@ -858,8 +858,8 @@
     "title": ""
   },
   {
-    "id": 1780291974290,
-    "createdAt": 1780291974138,
+    "id": 1780295815997,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Upload billing Confirmations:\\r\\n\\r\\nSHPHSE261057-01\\r\\nSHPHAI262552-01\\r\\nSHPHSI261686-00\\r\\nSHPHAI262836-01\\r\\nSHPHAI262643-02\\r\\nSHPHAI262837-01\\r\\nSHPHAE262213-01\\r\\nSHPHAI262646-01\\r\\nSHPHSI261713-01\\r\\nSHPHSI261668-01\\r\\nSHPHSI261712-01\\r\\nSHPHAE262195-01\\r\\nSHPHAE262204-01\\r\\nSHPHSE260962-00\\r\\nSHPHSE261027-00\\r\\nSHPHAE262292-01\\r\\nSHPHAE262269-01\\r\\nSHPHSE261038-00\\r\\nSHPHAE262289-01\\r\\nSHPHAE262211-01\\r\\nSHPHAE262190-01\\r\\nSHPHAE262185-01",
     "date": "2026-04-07",
@@ -867,8 +867,8 @@
     "title": ""
   },
   {
-    "id": 1780291974291,
-    "createdAt": 1780291974138,
+    "id": 1780295815998,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHSE261000-01\\r\\nSHPHSE261073-01\\r\\nSHPHSE260936-01\\r\\nSHPHSE261084-01\\r\\nSHPHSE261074-01\\r\\nSHPHSE261075-01\\r\\nSHPHAE262256-01\\r\\nSHPHRT261462-00\\r\\nSHPHSI261169-01\\r\\nSHPHAI262303-01\\r\\nSHPHAI262442-01\\r\\nSHPHAI262384-02\\r\\nSHPHAI262518-01\\r\\nSHPHAI262384-01\\r\\nSHPHAI262384-03\\r\\nSHPHAI262300-01\\r\\nSHPHAI262336-01\\r\\nSHPHAI262518-01\\r\\nRT261479-00\\r\\nRT261375-00\\r\\nRT261437-00\\r\\nRT261478-00\\r\\nRT261376-00\\r\\nSHPHAE262441-01\\r\\nSHPHSI261462-01\\r\\nSHPHSI261497-01\\r\\nSHPHSI261600-01\\r\\nSHPHSI261776-00\\r\\nSHPHSI261599-01",
     "date": "2026-04-08",
@@ -876,8 +876,8 @@
     "title": ""
   },
   {
-    "id": 1780291974292,
-    "createdAt": 1780291974138,
+    "id": 1780295815999,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Sir Alwen Rodrigues of AGX Cebu with his laptop; the problem is that it does not continue on Windows.",
     "date": "2026-04-08",
@@ -891,8 +891,8 @@
     "resolution": "I pressed the one touch button on his laptop to enter the bios setup, I restored the bios setup to default and I disabled the boot priority of his HDD so that the SSD would be the boot priority and the laptop worked and the issue went away."
   },
   {
-    "id": 1780291974293,
-    "createdAt": 1780291974138,
+    "id": 1780295816000,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Encode Billing Confirmations:\\r\\nSHPHSE260899-00\\r\\nSHPHSE260683-00\\r\\nSHPHSI261593-01\\r\\nSHPHSI261470-00\\r\\nSHPHSI260889-00\\r\\nSHPHSI260888-00\\r\\nSHPHRT260787-00\\r\\nSHPHAE262144-00\\r\\nSHPHAI262624-04\\r\\nSHPHAI262624-06\\r\\nSHPHAI262565-04\\r\\nSHPHAI262627-01\\r\\nSHPHAI262624-03\\r\\nSHPHAI262627-02\\r\\nSHPHAI262626-04\\r\\nSHPHAI262624-03\\r\\nSHPHAI262624-09\\r\\nSHPHAI262624-02\\r\\nSHPHAI262624-07\\r\\nSHPHSE261109-00\\r\\nAI262765-01\\r\\nAI262704-00\\r\\nAI262680-01\\r\\nAI262765-01\\r\\nAI262648-01\\r\\nSHPHSI261643-00\\r\\nSHPHSI261644-00\\r\\nSHPHSI261645-00\\r\\nAI261733-01\\r\\nAI262526-01\\r\\nAI262701-01\\r\\nAI262678-01\\r\\nAI262401-01\\r\\nAI262528-01\\r\\nSHPHAE262366-01",
     "date": "2026-04-10",
@@ -900,8 +900,8 @@
     "title": ""
   },
   {
-    "id": 1780291974294,
-    "createdAt": 1780291974138,
+    "id": 1780295816001,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Miss Merchelle Balermino. Her email was inbox is full;",
     "date": "2026-04-10",
@@ -915,8 +915,8 @@
     "resolution": "I created a new .PST file and just moved her old email to the new .PST file. Then I installed the Sharp printer on his computer."
   },
   {
-    "id": 1780291974295,
-    "createdAt": 1780291974138,
+    "id": 1780295816002,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Can\\'t log in to Microsoft Teams even though my credentials are correct",
     "date": "2026-04-10",
@@ -930,8 +930,8 @@
     "resolution": "I updated his laptop and uninstalled and reinstalled Microsoft Teams on his laptop, and Microsoft Teams worked and he was able to log in fine."
   },
   {
-    "id": 1780291974296,
-    "createdAt": 1780291974138,
+    "id": 1780295816003,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Unable to type using the laptop\\'s built-in keyboard.",
     "date": "2026-04-13",
@@ -945,8 +945,8 @@
     "resolution": "I updated windows and bios, the laptop keyboard seems to work, no more problems."
   },
   {
-    "id": 1780291974297,
-    "createdAt": 1780291974138,
+    "id": 1780295816004,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation: \\r\\nSHPHAE262550-00\\r\\nSHPHAE262541-00\\r\\nSHPHAE262544-00\\r\\nSHPHAE262543-00\\r\\nSHPHAE262542-00\\r\\nSHPHAE262539-00\\r\\nSHPHAE262598-00\\r\\nSHPHAE262344-01\\r\\nSHPHSI261564-01\\r\\nSHPHAE261288-00\\r\\nSHPHSI261555-00\\r\\nSHPHSI261553-00",
     "date": "2026-04-13",
@@ -954,8 +954,8 @@
     "title": ""
   },
   {
-    "id": 1780291974298,
-    "createdAt": 1780291974138,
+    "id": 1780295816005,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Can\\'t register esecure website",
     "date": "2026-04-13",
@@ -969,8 +969,8 @@
     "resolution": "Upload national Id and facial id on the website of esecure"
   },
   {
-    "id": 1780291974299,
-    "createdAt": 1780291974138,
+    "id": 1780295816006,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Can\\'t copy/paste and other functions don\\'t work in Google Sheets even though the account has full access.",
     "date": "2026-04-13",
@@ -984,8 +984,8 @@
     "resolution": "I cleared the cache on his computer\\'s web browser and moved his account to another browser to make the error go away. It\\'s possible that the problem is a compatibility issue."
   },
   {
-    "id": 1780291974300,
-    "createdAt": 1780291974138,
+    "id": 1780295816007,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "It automatically shuts down, doesn\\'t enter windows when opened, always repairs windows",
     "date": "2026-04-13",
@@ -999,8 +999,8 @@
     "resolution": "I uninstalled the latest updates to his windows and performed system restore. the unit is under monitoring and need to backup files"
   },
   {
-    "id": 1780291974301,
-    "createdAt": 1780291974138,
+    "id": 1780295816008,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload billing confirmation:\\r\\nSHPHSI261736-00\\r\\nSHPHSI261649-00\\r\\nSHPHSI261647-00\\r\\nSHPHSE260971-01\\r\\nSHPHAI262744-01\\r\\nSHPHAI262745-01\\r\\nSHPHRT261433-00\\r\\nSHPHAI262683-01\\r\\nSHPHSI261648-00\\r\\nSHPHSI261638-00\\r\\nSHPHSI261772-00\\r\\nSHPHSI261770-00\\r\\nSHPHSI261745-00\\r\\nSHPHSI261656-00\\r\\nSHPHSI261844-00\\r\\nSHPHSI261846-00\\r\\nSHPHAI262857-00",
     "date": "2026-04-14",
@@ -1008,8 +1008,8 @@
     "title": ""
   },
   {
-    "id": 1780291974302,
-    "createdAt": 1780291974138,
+    "id": 1780295816009,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload billing confirmation:\\r\\nSHPHAI262720-00\\r\\nSHPHAI262721-00\\r\\nSHPHAI262748-00\\r\\nSHPHAI262749-00\\r\\nSHPHAI262752-00\\r\\nSHPHAI262673-00\\r\\nSHPHAI262856-00\\r\\nSHPHAI262809-00\\r\\nSHPHAI262855-00\\r\\nSHPHSI261681-01\\r\\nSHPHSI261541-01\\r\\nSHPHSI261622-01\\r\\nSHPHSI261623-01\\r\\nSHPHSI261544-01",
     "date": "2026-04-14",
@@ -1017,8 +1017,8 @@
     "title": ""
   },
   {
-    "id": 1780291974303,
-    "createdAt": 1780291974138,
+    "id": 1780295816010,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Loose screws inside the laptop that cause to malfunction of other components on the laptop.",
     "date": "2026-04-14",
@@ -1032,8 +1032,8 @@
     "resolution": "Disassemble the laptop and remove the loose inside the laptop and cleaned the cpu fan the unit is working"
   },
   {
-    "id": 1780291974304,
-    "createdAt": 1780291974138,
+    "id": 1780295816011,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Esecure registration TIN Number for verification",
     "date": "2026-04-14",
@@ -1047,8 +1047,8 @@
     "resolution": "I assisted Sir Max in registering for eSecure."
   },
   {
-    "id": 1780291974305,
-    "createdAt": 1780291974138,
+    "id": 1780295816012,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to sync and download files on the synology.",
     "date": "2026-04-14",
@@ -1062,8 +1062,8 @@
     "resolution": "Reset password and re-loggin in the synology account in the synology app."
   },
   {
-    "id": 1780291974306,
-    "createdAt": 1780291974138,
+    "id": 1780295816013,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "The printer\\'s wasted ink is leaking from the ink absorber, the printer needs to be replaced and maintained.",
     "date": "2026-04-15",
@@ -1077,8 +1077,8 @@
     "resolution": "Cleaned the printer and replaced the ink absorber pad. The printer is now working and has no problems."
   },
   {
-    "id": 1780291974307,
-    "createdAt": 1780291974138,
+    "id": 1780295816014,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHSI261624-01\\r\\nSHPHSI261679-01\\r\\nSHPHSI261684-01\\r\\nSHPHSI261680-01\\r\\nSHPHSI261685-01\\r\\nSHPHAI262682-01\\r\\nSHPHAI262682-02\\r\\nSHPHAI262682-04\\r\\nSHPHAI262681-02\\r\\nSHPHAI262681-01\\r\\nSHPHSI261685-01\\r\\nSHPHSI261680-01\\r\\nAI262766-01\\r\\nSHPHSE261142-00\\r\\nSHPHAE262461-01\\r\\nSHPHSI261556-00",
     "date": "2026-04-15",
@@ -1086,8 +1086,8 @@
     "title": ""
   },
   {
-    "id": 1780291974308,
-    "createdAt": 1780291974138,
+    "id": 1780295816015,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHSI261714-01\\r\\nSHPHSI261711-01\\r\\nSHPHSI261723-02\\r\\nSHPHSI261723-01\\r\\nSHPHSI261725-02\\r\\nSHPHSI261725-01\\r\\nSHPHSI261408-00\\r\\nSHPHRT261650-00\\r\\nSHPHSI261330-00\\r\\nSHPHRT261628-00\\r\\nSHPHRT261613-00\\r\\nSHPHSE261019-00\\r\\nSHPHSE261003-00\\r\\nSHPHSE261051-00\\r\\nSHPHSE261050-00\\r\\nSHPHSE261049-00\\r\\nSHPHSE260997-00\\r\\nSHPHSE261068-00\\r\\nSHPHSE261070-00\\r\\nSHPHSE261066-00\\r\\nSHPHRT261520-00\\r\\nSHPHRT261521-00\\r\\nSHPHRT261503-00\\r\\nSHPHRT261522-00\\r\\nSHPHSI261605-00",
     "date": "2026-04-16",
@@ -1095,8 +1095,8 @@
     "title": ""
   },
   {
-    "id": 1780291974309,
-    "createdAt": 1780291974138,
+    "id": 1780295816016,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Sir Gyrld in installing his printer on his laptop.",
     "date": "2026-04-16",
@@ -1110,8 +1110,8 @@
     "resolution": "I installed the correct driver and assigned a new port so the printer could print."
   },
   {
-    "id": 1780291974310,
-    "createdAt": 1780291974138,
+    "id": 1780295816017,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "The UPS is beeping, indicating that the UPS battery is dead.",
     "date": "2026-04-16",
@@ -1125,8 +1125,8 @@
     "resolution": "I removed his UPS because its battery was dead, I just put in an extension cord so he could plug in his laptop charger and monitor."
   },
   {
-    "id": 1780291974311,
-    "createdAt": 1780291974138,
+    "id": 1780295816018,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "can\\'t scan on the copier",
     "date": "2026-04-16",
@@ -1140,8 +1140,8 @@
     "resolution": "I updated his network scanning tools and removed his previously registered address from the copier and created a new address so that his scanned documents could be sent in."
   },
   {
-    "id": 1780291974312,
-    "createdAt": 1780291974138,
+    "id": 1780295816019,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\n\\r\\nSHPHAI262932-01\\r\\nSHPHAI262982-07\\r\\nSHPHAI262982-08\\r\\nSHPHAI262982-09\\r\\nSHPHAI262982-12\\r\\nSHPHAI262982-16\\r\\nSHPHAI262977-06\\r\\nSHPHAI262932-03\\r\\nSHPHAI262926-01\\r\\nSHPHAI262982-15\\r\\nSHPHAI262982-05\\r\\nSHPHAI262982-02\\r\\nSHPHAI262985-02\\r\\nSHPHAI262982-04\\r\\nSHPHAI262977-02\\r\\nSHPHAI262977-03\\r\\nSHPHAI262982-01\\r\\nSHPHAI262977-04\\r\\nSHPHAI262985-01\\r\\nSHPHAI262977-05\\r\\nSHPHAI262926-02\\r\\nSHPHRT261557-00\\r\\nSHPHAI262982-03\\r\\nSHPHAI262923-04\\r\\nSHPHAI262931-01\\r\\nSHPHAE262620-01\\r\\nSHPHAE262632-01\\r\\nSHPHAI262978-01\\r\\nSHPHAI262633-00\\r\\nSHPHAI262673-01\\r\\nSHPHAI262699-00\\r\\nSHPHAI263007-00",
     "date": "2026-04-16",
@@ -1149,8 +1149,8 @@
     "title": ""
   },
   {
-    "id": 1780291974313,
-    "createdAt": 1780291974138,
+    "id": 1780295816020,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAI262949-01\\r\\nSHPHAI262955-01\\r\\nSHPHAI262954-01\\r\\nSHPHAI262951-01\\r\\nSHPHAI262952-01\\r\\nSHPHAI262950-01",
     "date": "2026-04-16",
@@ -1158,8 +1158,8 @@
     "title": ""
   },
   {
-    "id": 1780291974314,
-    "createdAt": 1780291974138,
+    "id": 1780295816021,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAI262876-01\\r\\nSHPHAI262904-01\\r\\nSHPHAI262905-00\\r\\nSHPHSI261741-01\\r\\nSHPHAI262949-01\\r\\nSHPHAE262458-01\\r\\nSHPHAE262458-01\\r\\nSHPHAE262459-01\\r\\nSHPHAE262460-01\\r\\nSHPHAE262480-01\\r\\nSHPHAE262485-01\\r\\nSHPHAE262486-01\\r\\nSHPHAE262487-01\\r\\nSHPHAE262499-01\\r\\nSHPHAE262500-01\\r\\nSHPHAE262501-01\\r\\nSHPHAE262502-01\\r\\nSHPHAE262503-01\\r\\nSHPHAE262564-01\\r\\nSHPHRT260957-00\\r\\nSHPHAE262448-01\\r\\nSHPHAE262449-01\\r\\nSHPHRT261216-00\\r\\nSHPHSI261664-00\\r\\nSHPHSI261204-00\\r\\nSHPHSE261055-00\\r\\nSHPHSE260813-00\\r\\nSHPHSI261672-01\\r\\nSHPHRT261500-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261494-00 \t\t\t\t\t\t\t\\r\\nSHPHRT261493-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261492-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261501-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261495-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261538-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261527-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261528-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261535-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261534-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261536-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261537-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261533-00 \t\t\t\t\\r\\nAE262091-03\\r\\nAE262091-04\\r\\nAE262344-01\\r\\nAE262090-01\\r\\nAE262090-02\\r\\nAE262454-01\\r\\nAE262091-01\\r\\nAE262091-02",
     "date": "2026-04-17",
@@ -1167,8 +1167,8 @@
     "title": ""
   },
   {
-    "id": 1780291974315,
-    "createdAt": 1780291974138,
+    "id": 1780295816022,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Miss Merchelle Balermino. Her email was inbox is full;",
     "date": "2026-04-17",
@@ -1182,8 +1182,8 @@
     "resolution": "created a new .PST file and just moved her old email to the new .PST file."
   },
   {
-    "id": 1780291974316,
-    "createdAt": 1780291974138,
+    "id": 1780295816023,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Paper jam issue",
     "date": "2026-04-17",
@@ -1197,8 +1197,8 @@
     "resolution": "Removed paper jam in the paper path"
   },
   {
-    "id": 1780291974317,
-    "createdAt": 1780291974138,
+    "id": 1780295816024,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Missfeeding and mis aligned printout",
     "date": "2026-04-20",
@@ -1212,8 +1212,8 @@
     "resolution": "Remove paper jam, fixed crampled ribbon cartridge."
   },
   {
-    "id": 1780291974318,
-    "createdAt": 1780291974138,
+    "id": 1780295816025,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE262637-01\\r\\nSHPHRT261559-00\\r\\nSHPHRT261459-00\\r\\nSHPHRT261558-00\\r\\nSHPHRT261556-00\\r\\nSHPHRT261539-00\\r\\nSHPHRT261345-00\\r\\nSHPHRT261597-00\\r\\nSHPHSI261597-01\\r\\nSHPHSI261742-01\\r\\nSHPHAI263051-01\\r\\nSHPHSI261598-01\\r\\nSHPHAI263059-01",
     "date": "2026-04-20",
@@ -1221,8 +1221,8 @@
     "title": ""
   },
   {
-    "id": 1780291974319,
-    "createdAt": 1780291974138,
+    "id": 1780295816026,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE262637-01\\r\\nSHPHRT261559-00\\r\\nSHPHRT261459-00\\r\\nSHPHRT261558-00\\r\\nSHPHRT261556-00\\r\\nSHPHRT261539-00\\r\\nSHPHRT261345-00\\r\\nSHPHRT261597-00\\r\\nSHPHSI261597-01\\r\\nSHPHSI261742-01\\r\\nSHPHAI263051-01\\r\\nSHPHSI261598-01\\r\\nSHPHAI263059-01",
     "date": "2026-04-20",
@@ -1230,8 +1230,8 @@
     "title": ""
   },
   {
-    "id": 1780291974320,
-    "createdAt": 1780291974138,
+    "id": 1780295816027,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE262489-00\\r\\nSHPHAI262660-01.\\r\\nSHPHAI262907-01\\r\\nSHPHAI262747-02.\\r\\nSHPHSI261754-01\\r\\nSHPHSI261678-01\\r\\nSHPHSI261796-01\\r\\nSHPHSI261690-01\\r\\nSHPHSI261822-01\\r\\nSHPHSI261425-01\\r\\nSHPHAI263150-01\\r\\nSHPHAI263124-03\\r\\nSHPHRT261662-00\\r\\nSHPHAI262624-05\\r\\nSHPHAI263115-01\\r\\nSHPHAI262569-00\\r\\nSHPHAI263050-00\\r\\nSHPHAI263053-00\\r\\nSHPHAI263057-00\\r\\nSHPHAI263049-00\\r\\nSHPHAI263056-00\\r\\nSI261661-00\\r\\nSI261849-00\\r\\nSI261570-00\\r\\nSI261426-01\\r\\nSHPHSI261793-01\\r\\nSHPHSI261806-01\\r\\nSHPHAE262489-00\\r\\nSHPHAI263072-00\\r\\nSHPHAI263065-00\\r\\nSHPHAI263013-00\\r\\nSHPHAI262919-00\\r\\nSHPHAE262727-01\\r\\nSHPHAE262841-00\\r\\nSHPHAE262840-00\\r\\nSHPHAE262839-00\\r\\nSHPHRT260420-00\\r\\nSHPHRT260115-00\\r\\nSHPHRT260117-00\\r\\nSHPHRT260420-00\\r\\nSHPHRT260419-00\\r\\nSHPHSE261196-01\\r\\nSHPHAE262816-01\\r\\nSHPHSI261838-00\\r\\nSHPHSI261858-00\\r\\nSHPHAI262343-01\\r\\nSHPHAI262658-01",
     "date": "2026-04-21",
@@ -1239,8 +1239,8 @@
     "title": ""
   },
   {
-    "id": 1780291974321,
-    "createdAt": 1780291974138,
+    "id": 1780295816028,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Miss Joan Oliva with her laptop which had a problem with the keyboard. The Number 6 key was pressing on its own.",
     "date": "2026-04-21",
@@ -1254,8 +1254,8 @@
     "resolution": "We did some basic troubleshooting and I remoted his laptop. But it still didn\\'t work, so I reported it to Levono to claim his laptop\\'s warranty."
   },
   {
-    "id": 1780291974322,
-    "createdAt": 1780291974138,
+    "id": 1780295816029,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAI262953-00\\r\\nSHPHAI263103-00\\r\\nSHPHAI262948-00\\r\\nSHPHAI262815-01\\r\\nSHPHAI262957-01\\r\\nSHPHAI262873-01\\r\\nSHPHAI263094-01\\r\\nSHPHRT261348-00  \\r\\nSHPHRT261342-00\\r\\nSHPHRT261343-00 \\r\\nSHPHRT261307-00 \\r\\nSHPHRT261700-00 \\r\\nSHPHRT261699-00 \\r\\nSHPHRT261703-00 \\r\\nSHPHRT261702-00 \\r\\nSHPHRT261577-00\\r\\nSHPHRT261579-00\\r\\nSHPHSI261761-01\\r\\nSHPHSI261572-01\\r\\nSHPHAE262494-01",
     "date": "2026-04-22",
@@ -1263,8 +1263,8 @@
     "title": ""
   },
   {
-    "id": 1780291974323,
-    "createdAt": 1780291974138,
+    "id": 1780295816030,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Black line during printing and photocoying",
     "date": "2026-04-22",
@@ -1278,8 +1278,8 @@
     "resolution": "The Supplier replace the maintenace kit of the sharp copier to remove the black line"
   },
   {
-    "id": 1780291974324,
-    "createdAt": 1780291974138,
+    "id": 1780295816031,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Sir Jerome Cadiang. His email was inbox is full;",
     "date": "2026-04-23",
@@ -1293,8 +1293,8 @@
     "resolution": "created a new .PST file and just moved her old email to the new .PST file."
   },
   {
-    "id": 1780291974325,
-    "createdAt": 1780291974138,
+    "id": 1780295816032,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmations:\\r\\nSHPHAE262773-01\\r\\nSHPHAE262772-01\\r\\nSHPHAE262771-01\\r\\nSHPHAE262770-01\\r\\nSHPHAE262769-01\\r\\nSHPHAE262768-01\\r\\nSHPHAE262767-01\\r\\nSHPHAE262750-01\\r\\nSHPHAE262749-01\\r\\nSHPHAE262748-01\\r\\nSHPHAE262747-01\\r\\nSHPHAE262746-01\\r\\nSHPHAE262745-01\\r\\nSHPHAE262744-01\\r\\nSHPHAE262743-01\\r\\nSHPHAE262742-01\\r\\nSHPHAE262741-01\\r\\nSHPHAE262740-01\\r\\nSHPHAE262739-01\\r\\nSHPHAE262738-01\\r\\nSHPHAE262737-01\\r\\nSHPHAE262861-01\\r\\nSHPHAE262862-01\\r\\nSHPHAE262863-01\\r\\nSHPHAE262864-01\\r\\nSHPHAE262865-01\\r\\nSHPHAE262866-01\\r\\nSHPHAE262868-01\\r\\nSHPHAE262869-01\\r\\nSHPHAE262870-01\\r\\nSHPHAE262871-01\\r\\nSHPHAE262872-01\\r\\nSHPHAE262873-01\\r\\nSHPHAE262877-01\\r\\nSHPHAE262878-01\\r\\nSHPHAE262879-01\\r\\nSHPHAE262880-01\\r\\nSHPHAE262881-01\\r\\nSHPHAE262885-01\\r\\nSHPHAE262867-01\\r\\nSHPHAE262725-01\\r\\nSHPHAE262722-01\\r\\nSHPHAE262709-01\\r\\nSHPHAE262708-01\\r\\nSHPHAE262658-01\\r\\nSHPHAE262657-01\\r\\nSHPHAE262660-01\\r\\nSHPHAE262832-01\\r\\nSHPHAE262831-01\\r\\nSHPHAE262763-01\\r\\nSHPHSE261172-00\\r\\nSHPHAE262830-01\\r\\nSHPHSI261936-00\\r\\nSHPHSI261615-00\\r\\nSHPHAI261877-00\\r\\nSHPHAE262715-01\\r\\nSHPHRT261679-00\\r\\nSHPHRT261683-00\\r\\nSHPHRT261688-00\\r\\nSHPHRT261684-00",
     "date": "2026-04-23",
@@ -1302,8 +1302,8 @@
     "title": ""
   },
   {
-    "id": 1780291974326,
-    "createdAt": 1780291974138,
+    "id": 1780295816033,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "The printer is stuck on the HP logo and will not turn on normally.",
     "date": "2026-04-23",
@@ -1317,8 +1317,8 @@
     "resolution": "I turned off the printer and performed a power cycle to get the printer back to normal operation. It worked and the printer is now printing."
   },
   {
-    "id": 1780291974327,
-    "createdAt": 1780291974138,
+    "id": 1780295816034,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Upload Billing Confirmation:\\r\\nSHPHSI261769-00\\r\\nSHPHSI261768-00\\r\\nSHPHSI261865-00\\r\\nSHPHSI261707-00\\r\\nSHPHAI262936-01\\r\\nSHPHAI262970-01\\r\\nSHPHAI262777-01",
     "date": "2026-04-24",
@@ -1326,8 +1326,8 @@
     "title": ""
   },
   {
-    "id": 1780291974328,
-    "createdAt": 1780291974138,
+    "id": 1780295816035,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Miss Giselle Nunag. Her email was inbox is full;",
     "date": "2026-04-24",
@@ -1341,8 +1341,8 @@
     "resolution": "created a new .PST file and just moved her old email to the new .PST file."
   },
   {
-    "id": 1780291974329,
-    "createdAt": 1780291974138,
+    "id": 1780295816036,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "There is a conflict with the printer\\'s IP address on the network so they cannot print.",
     "date": "2026-04-27",
@@ -1356,8 +1356,8 @@
     "resolution": "Reconnect the printer on the network. performed test print the printer is printing and tested good"
   },
   {
-    "id": 1780291974330,
-    "createdAt": 1780291974138,
+    "id": 1780295816037,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAI263082-00\\r\\nSHPHAI263104-00\\r\\nSHPHAI263175-01\\r\\nSHPHAI263278-01\\r\\nSHPHAI263276-00\\r\\nSHPHAI263176-01\\r\\nSHPHAI263282-00\\r\\nSHPHAI263278-01\\r\\nSHPHAE262822-01\\r\\nSHPHAE262849-01\\r\\nSHPHAE262824-01\\r\\nSHPHAE262536-01\\r\\nSHPHAE262629-01\\r\\nSHPHAE262565-01\\r\\nSHPHAE262568-01\\r\\nSHPHAI263280-01\\r\\nSHPHSI261717-01\\r\\nSHPHAI262490-01",
     "date": "2026-04-27",
@@ -1365,8 +1365,8 @@
     "title": ""
   },
   {
-    "id": 1780291974331,
-    "createdAt": 1780291974138,
+    "id": 1780295816038,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE262938-01\\r\\nSHPHAI262911-00\\r\\nSHPHAI263289-02\\r\\nSHPHAI263245-01\\r\\nSHPHAI263245-02\\r\\nSHPHAI263316-04\\r\\nSHPHAI263247-01\\r\\nSHPHAI263247-02\\r\\nSHPHAI263247-03\\r\\nSHPHAI263289-01\\r\\nSHPHAI263288-01\\r\\nSHPHAI263247-04\\r\\nSHPHAI263316-03\\r\\nSHPHAI263316-01\\r\\nSHPHAI263150-03",
     "date": "2026-04-27",
@@ -1374,8 +1374,8 @@
     "title": ""
   },
   {
-    "id": 1780291974332,
-    "createdAt": 1780291974138,
+    "id": 1780295816039,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAI263384-00\\r\\nSHPHAI263383-00\\r\\nSHPHSI261832-01\\r\\nSHPHSI261989-01\\r\\nSHPHAI263303-00\\r\\nSHPHAI263220-00\\r\\nSHPHAI263219-00\\r\\nSHPHAI263224-00\\r\\nSHPHAI263208-00",
     "date": "2026-04-27",
@@ -1383,8 +1383,8 @@
     "title": ""
   },
   {
-    "id": 1780291974333,
-    "createdAt": 1780291974138,
+    "id": 1780295816040,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Unable to print and scan",
     "date": "2026-04-28",
@@ -1398,8 +1398,8 @@
     "resolution": "Install printer and configure network scanner."
   },
   {
-    "id": 1780291974334,
-    "createdAt": 1780291974138,
+    "id": 1780295816041,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I can\\'t print or photocopy because the paper jams and the paper gets stuck inside the fusing unit.",
     "date": "2026-04-28",
@@ -1413,8 +1413,8 @@
     "resolution": "I removed the jammed paper inside the delivery and fusing unit. I realigned the separator fawl inside the fusing unit that was causing paper jams when printing and copying."
   },
   {
-    "id": 1780291974335,
-    "createdAt": 1780291974138,
+    "id": 1780295816042,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Uploading Billing Confirmation: \\r\\nSHPHAI263347-00\\r\\nSHPHAI263343-01\\r\\nSHPHAI263387-00\\r\\nSHPHAE262702-01\\r\\nSHPHSE261291-01\\r\\nSHPHSI261926-00\\r\\nSHPHSI261927-00\\r\\nSHPHSI261817-00",
     "date": "2026-04-28",
@@ -1422,8 +1422,8 @@
     "title": ""
   },
   {
-    "id": 1780291974336,
-    "createdAt": 1780291974138,
+    "id": 1780295816043,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Miss Cristine Bolario. Her email was inbox is full;",
     "date": "2026-04-29",
@@ -1437,8 +1437,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST file remotely"
   },
   {
-    "id": 1780291974337,
-    "createdAt": 1780291974138,
+    "id": 1780295816044,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "assisted Sir Neil Jann Arriesgado. His email was inbox is full;",
     "date": "2026-04-29",
@@ -1452,8 +1452,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST file remotely"
   },
   {
-    "id": 1780291974338,
-    "createdAt": 1780291974138,
+    "id": 1780295816045,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Paper jam and failed to print even if the printer is online and connected to the network",
     "date": "2026-04-29",
@@ -1467,8 +1467,8 @@
     "resolution": "Removed paper jam in the paper path and restart the printer spooler in the windows administrative services"
   },
   {
-    "id": 1780291974339,
-    "createdAt": 1780291974138,
+    "id": 1780295816046,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Unable to print on the HP printer",
     "date": "2026-04-29",
@@ -1482,8 +1482,8 @@
     "resolution": "Download and install the printer driver on the laptop of Sir Niel"
   },
   {
-    "id": 1780291974340,
-    "createdAt": 1780291974138,
+    "id": 1780295816047,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nAI262772-00\\r\\nRT261648-00\\r\\nRT261739-00\\r\\nAI262812-00\\r\\nAI263291-00\\r\\nAI262189-00\\r\\nAI260951-00\\r\\nAI262892-00\\r\\nSHPHSI261837-00\\r\\nSHPHAI263421-01\\r\\nSHPHAI263288-02\\r\\nSHPHAI263420-01\\r\\nSHPHAI263420-07\\r\\nSHPHAI263420-06\\r\\nSHPHSI261474-01\\r\\nSHPHAE262904-01\\r\\nSHPHSE261052-01\\r\\nSHPHSI261886-01\\r\\nSHPHSI261773-01\\r\\nSHPHRT261787-00\\r\\nSHPHSI261753-01\\r\\nSHPHSI261528-01\\r\\nSHPHSI261527-01\\r\\nSHPHSE261337-01\\r\\nSHPHSE261329-01\\r\\nSHPHAI262815-01\\r\\nSHPHAI262514-01\\r\\nSHPHAI262391-01\\r\\nSHPHAI263108-01\\r\\nSHPHAI263177-01\\r\\nSHPHAI262957-01\\r\\nSHPHAI263176-01\\r\\nSHPHAI263175-01\\r\\nSHPHAE262886-01\\r\\nSHPHAE262889-01\\r\\nSHPHAE262888-01\\r\\nSHPHAE262917-01\\r\\nSHPHAE262918-01\\r\\nSHPHAE262920-01\\r\\nSHPHAE262921-01\\r\\nSHPHAE262922-01\\r\\nSHPHAE262923-01\\r\\nSHPHAE262946-01\\r\\nSHPHAE262949-01\\r\\nSHPHAE262950-01\\r\\nSHPHAE262952-01\\r\\nSHPHAE262953-01\\r\\nSHPHAE262955-01\\r\\nSHPHAE262956-01",
     "date": "2026-04-29",
@@ -1491,8 +1491,8 @@
     "title": ""
   },
   {
-    "id": 1780291974341,
-    "createdAt": 1780291974138,
+    "id": 1780295816048,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE262957-01\\r\\nSHPHAE262958-01\\r\\nSHPHAE262959-01\\r\\nSHPHAE262962-01\\r\\nSHPHAE262965-01\\r\\nSHPHAE262966-01\\r\\nSHPHAE262988-01\\r\\nSHPHAE262989-01\\r\\nSHPHAE262991-01\\r\\nSHPHAE262992-01\\r\\nSHPHAE262993-01\\r\\nSHPHAE262994-01\\r\\nSHPHAE262995-01\\r\\nSHPHAE262996-01\\r\\nSHPHAE262997-01\\r\\nSHPHAE262999-01\\r\\nSHPHAE262998-01\\r\\nSHPHSI261905-01\\r\\nSHPHSI261831-01\\r\\nSHPHSI261857-01\\r\\nSHPHSI261966-01\\r\\nSHPHSI261988-01\\r\\nSHPHSI261956-01\\r\\nSHPHSI261960-01\\r\\nSHPHSI261959-01\\r\\nSHPHSI261957-01\\r\\nSHPHSI261854-01",
     "date": "2026-04-29",
@@ -1500,8 +1500,8 @@
     "title": ""
   },
   {
-    "id": 1780291974342,
-    "createdAt": 1780291974138,
+    "id": 1780295816049,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHSI261755-01\\r\\nSHPHAI263311-01\\r\\nSHPHAI263131-01\\r\\nSHPHSI261912-01\\r\\nSHPHSI261632-01\\r\\nSHPHSI261730-01\\r\\nSHPHAI263415-01\\r\\nSHPHSI262123-01\\r\\nSHPHSI262126-01\\r\\nSHPHAE262837-01\\r\\nSHPHAE262978-01\\r\\nSHPHAE262979-01\\r\\nSHPHAE262806-01\\r\\nSHPHAE262807-01\\r\\nSHPHAE262809-01\\r\\nSHPHAE262813-01\\r\\nSHPHAE262814-01\\r\\nSHPHAE262833-01\\r\\nSHPHAE262834-01\\r\\nSHPHAE262836-01\\r\\nSHPHAE262897-01\\r\\nSHPHAE262908-01\\r\\nSHPHAE262909-01\\r\\nSHPHAE262911-01\\r\\nSHPHAE262932-01\\r\\nSHPHAE262941-01\\r\\nSHPHAE262942-01\\r\\nSHPHAE262913-01\\r\\nSHPHSE261258-00\\r\\nSHPHSE261259-00\\r\\nSHPHSE261260-00\\r\\nSHPHSE261256-00\\r\\nSHPHSE261323-00\\r\\nSHPHSE261322-00\\r\\nSHPHSE261321-00",
     "date": "2026-04-29",
@@ -1509,8 +1509,8 @@
     "title": ""
   },
   {
-    "id": 1780291974343,
-    "createdAt": 1780291974138,
+    "id": 1780295816050,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "assisted Sir Alain Dingal. His email was inbox is full;",
     "date": "2026-04-30",
@@ -1524,8 +1524,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST files."
   },
   {
-    "id": 1780291974344,
-    "createdAt": 1780291974138,
+    "id": 1780295816051,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Assisted Miss Winnie Manalac. His email was inbox is full;",
     "date": "2026-04-30",
@@ -1539,8 +1539,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST file remotely"
   },
   {
-    "id": 1780291974345,
-    "createdAt": 1780291974138,
+    "id": 1780295816052,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Delay sending and receiving emails",
     "date": "2026-04-30",
@@ -1554,8 +1554,8 @@
     "resolution": "Adjust the define send/recieved group from 30 mins to 1 min."
   },
   {
-    "id": 1780291974346,
-    "createdAt": 1780291974138,
+    "id": 1780295816053,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation: \\r\\nSHPHAI260525-00\\r\\nSHPHAI260522-00\\r\\nSHPHAI260297-00\\r\\nSHPHAI261580-00\\r\\nSHPHAI261354-00\\r\\nSHPHAI260176-00\\r\\nSHPHAE263000-01\\r\\nSHPHSI261546-01\\r\\nSHPHSI261964-01\\r\\nSHPHSI261429-01\\r\\nSHPHSI261621-01\\r\\nSHPHSI261544-01 \\r\\nSHPHSI261622-01\\r\\nSHPHSI261405-01\\r\\nSHPHSI261495-01\\r\\nSHPHSI261433-01 \\r\\nSHPHSI261430-01\\r\\nSHPHSI261437-01 \\r\\nSHPHSI261624-01\\r\\nSHPHSI261685-01\\r\\nSHPHSI261676-01\\r\\nSHPHSI261679-01\\r\\nSHPHSI261678-01\\r\\nSHPHSI261246-01\\r\\nSHPHSI261987-01\\r\\nSHPHSI261798-01\\r\\nSHPHAI262933-00\\r\\nSHPHSI260936-00\\r\\nSHPHAI262031-01\\r\\nSHPHAI262191-00",
     "date": "2026-04-30",
@@ -1563,8 +1563,8 @@
     "title": ""
   },
   {
-    "id": 1780291974347,
-    "createdAt": 1780291974138,
+    "id": 1780295816054,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAI262064-01\\r\\nSHPHAI262174-01\\r\\nSHPHAE262182-00\\r\\nSHPHAE262052-00\\r\\nSHPHSE261253-00\\r\\nSHPHSE261252-00\\r\\nSHPHSE261251-00\\r\\nSHPHSE261270-00\\r\\nSHPHSE261265-00\\r\\nSHPHSE261263-00\\r\\nSHPHSE261267-00\\r\\nSHPHSE261268-00\\r\\nSHPHSE261127-00\\r\\nSHPHSE261269-00\\r\\nSHPHSI261514-00\\r\\nSHPHSI261530-00\\r\\nSHPHSI261787-00\\r\\nSHPHSI261788-00\\r\\nSHPHSI261789-00\\r\\nSHPHSI261727-00\\r\\nSHPHSI261934-00\\r\\nSHPHSE261032-00\\r\\nSHPHSE261031-00",
     "date": "2026-04-30",
@@ -1572,8 +1572,8 @@
     "title": ""
   },
   {
-    "id": 1780291974348,
-    "createdAt": 1780291974138,
+    "id": 1780295816055,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to activate microsoft office",
     "date": "2026-05-04",
@@ -1587,8 +1587,8 @@
     "resolution": "Activate Microsoft office using the microsoft product key. remotely"
   },
   {
-    "id": 1780291974349,
-    "createdAt": 1780291974138,
+    "id": 1780295816056,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "unable to print and scan on the sharp copier",
     "date": "2026-05-04",
@@ -1602,8 +1602,8 @@
     "resolution": "Setup and configure printer and scanner remotely the unit is working and tested good."
   },
   {
-    "id": 1780291974350,
-    "createdAt": 1780291974138,
+    "id": 1780295816057,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAI263420-03\\r\\nSHPHAI263421-02\\r\\nSHPHAI263421-04\\r\\nSHPHAI263464-01\\r\\nSHPHAI263464-03\\r\\nSHPHAI263464-07\\r\\nSHPHAI263478-02\\r\\nSHPHAI263479-01\\r\\nSHPHAI263479-02",
     "date": "2026-05-04",
@@ -1611,8 +1611,8 @@
     "title": ""
   },
   {
-    "id": 1780291974351,
-    "createdAt": 1780291974138,
+    "id": 1780295816058,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Data backup",
     "date": "2026-05-05",
@@ -1626,8 +1626,8 @@
     "resolution": "I backed up the .pst files from his old laptop to his new laptop."
   },
   {
-    "id": 1780291974352,
-    "createdAt": 1780291974138,
+    "id": 1780295816059,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Her Microsoft Teams app is having trouble signing in using his Microsoft Surface.",
     "date": "2026-05-05",
@@ -1641,8 +1641,8 @@
     "resolution": "I signed in to his teams on the web and transferred it to his Microsoft Surface."
   },
   {
-    "id": 1780291974353,
-    "createdAt": 1780291974138,
+    "id": 1780295816060,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "His synology account was automatically disconnected from synology so he couldn\\'t access his files.",
     "date": "2026-05-05",
@@ -1656,8 +1656,8 @@
     "resolution": "Reset his password on synology and restored the network drive map to his laptop"
   },
   {
-    "id": 1780291974354,
-    "createdAt": 1780291974138,
+    "id": 1780295816061,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHSE261391-00\\r\\nSHPHAE263133-01\\r\\nSHPHAE263138-01\\r\\nSHPHAE263141-01\\r\\nSHPHAE262982-01\\r\\nSHPHAE263180-01\\r\\nSHPHAE263165-01\\r\\nSHPHSI262015-01\\r\\nSHPHAE263131-00\\r\\nSHPHRT261740-00\\r\\nSHPHSI261528-01\\r\\nSHPHAE263001-00\\r\\nSHPHAE263178-00\\r\\nSHPHAE263189-00\\r\\nSHPHSE261311-01\\r\\nSHPHSE261140-01\\r\\nSHPHAE263100-01 \\r\\nSHPHAE263095-01\\r\\nSHPHAE263051-01",
     "date": "2026-05-05",
@@ -1665,8 +1665,8 @@
     "title": ""
   },
   {
-    "id": 1780291974355,
-    "createdAt": 1780291974138,
+    "id": 1780295816062,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Inkpad is full need to reset",
     "date": "2026-05-06",
@@ -1680,8 +1680,8 @@
     "resolution": "Performed inkpad reset using adjustment program tools. the printer is working and tested good"
   },
   {
-    "id": 1780291974356,
-    "createdAt": 1780291974138,
+    "id": 1780295816063,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed send messages on the microsoft teams to any of her contacts",
     "date": "2026-05-06",
@@ -1695,8 +1695,8 @@
     "resolution": "Remote the laptop using anydesk and log out and log in her microsoft teams. The microsoft teams is working and can now send message."
   },
   {
-    "id": 1780291974357,
-    "createdAt": 1780291974138,
+    "id": 1780295816064,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "cannot print even though they are both connected to the same network",
     "date": "2026-05-11",
@@ -1710,8 +1710,8 @@
     "resolution": "Reset printer spooler and reconfigure printer port."
   },
   {
-    "id": 1780291974358,
-    "createdAt": 1780291974138,
+    "id": 1780295816065,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "SHPHAE262822-01 \\r\\nSHPHAE263081-01\\r\\nSHPHAE263111-01\\r\\nSHPHAE263116-01\\r\\nSHPHAE263309-00\\r\\nSHPHAE263330-00\\r\\nSHPHAE263357-00\\r\\nSHPHAE263380-01\\r\\nSHPHAi263673-01\\r\\nSHPHSE260294-01\\r\\nSHPHSE261283-01\\r\\nSHPHSE261283-02\\r\\nSI256620-00 \\r\\nWH260032-00 \\r\\nSI255890-00\\r\\nWH260011-00\\r\\nSHPHSE261413-01\\r\\nSHPHSI262358-01",
     "date": "2026-05-11",
@@ -1719,8 +1719,8 @@
     "title": ""
   },
   {
-    "id": 1780291974359,
-    "createdAt": 1780291974138,
+    "id": 1780295816066,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "The printer is unable to connect on the Wifi and LAN.",
     "date": "2026-05-12",
@@ -1734,8 +1734,8 @@
     "resolution": "Checking  the print and found that the firmware is corrupted. I update and clone the firmware of the other printer so that it will fix the corrupted firmware. the printer is tested good and working"
   },
   {
-    "id": 1780291974360,
-    "createdAt": 1780291974138,
+    "id": 1780295816067,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Fix the outlook inbox of Ms. Jocelyn Serna from AGX Bataan",
     "date": "2026-05-13",
@@ -1749,8 +1749,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST files."
   },
   {
-    "id": 1780291974361,
-    "createdAt": 1780291974138,
+    "id": 1780295816068,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Slow internet connection due to the number of connected devices from outside the office",
     "date": "2026-05-13",
@@ -1764,8 +1764,8 @@
     "resolution": "We reset the router password to disconnect devices that are not AGX employees."
   },
   {
-    "id": 1780291974362,
-    "createdAt": 1780291974138,
+    "id": 1780295816069,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "cannot scan because scanning is not configured on his laptop",
     "date": "2026-05-13",
@@ -1779,8 +1779,8 @@
     "resolution": "I installed and configured the scanner on his laptop and tried it and it worked."
   },
   {
-    "id": 1780291974363,
-    "createdAt": 1780291974138,
+    "id": 1780295816070,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "created a new .PST file and moved her old email to the new .PST files.",
     "date": "2026-05-12",
@@ -1794,8 +1794,8 @@
     "resolution": "Fix the outlook inbox of Ms. Jodie from AGX Clark"
   },
   {
-    "id": 1780291974364,
-    "createdAt": 1780291974138,
+    "id": 1780295816071,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE263291-01 \\r\\nSHPHAE263298-01 \\r\\nSHPHAE263323-01\\r\\nSHPHAE263304-01 \\r\\nSHPHAE263317-01 \\r\\nSHPHAI263306-01\\r\\nSHPHAI263306-02\\r\\nSHPHAI263306-03\\r\\nSHPHAI263306-04\\r\\nSHPHAI263306-05\\r\\nSHPHAI263306-06\\r\\nSHPHAI263306-07\\r\\nSHPHAI263406-01\\r\\nSHPHAI263551-01\\r\\nSHPHAI263552-01 \\r\\nSHPHAI263597-00\\r\\nSHPHAI263601-01\\r\\nSHPHAI263750-00\\r\\nSHPHAI263774-01\\r\\nSHPHAI263790-00\\r\\nSHPHAI263826-00\\r\\nSHPHAI263827-00\\r\\nSHPHSE260532-00 \\r\\nSHPHSE260532-00\\r\\nSHPHSI261991-01\\r\\nSHPHSI262159-00\\r\\nSHPHSI262257-00\\r\\nSI262078-01\\r\\nSI262178-01\\r\\nSI262197-00",
     "date": "2026-05-12",
@@ -1803,8 +1803,8 @@
     "title": ""
   },
   {
-    "id": 1780291974365,
-    "createdAt": 1780291974138,
+    "id": 1780295816072,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nAI263477-01\\r\\nAI263620-01 \\r\\nRT261971-00 \\r\\nRT261973-00 \\r\\nRT261972-00\\r\\nAI263246-01\\r\\nAI263069-01\\r\\nAI263250-01\\r\\nAI263248-01\\r\\nRT261929-00 \\r\\nAI263145-01 \\r\\nAI263047-00\\r\\nRT261927-00 \\r\\nRT261928-00\\r\\nRT261889-00\\r\\nAI262674-01 \\r\\nSHPHAI263697-00\\r\\nSHPHAI263731-00\\r\\nSHPHAI263732-00\\r\\nSHPHAI263733-00\\r\\nSHPHAI263608-00\\r\\nSHPHAI263628-00\\r\\nSHPHAI263607-00\\r\\nSHPHAI263568-00\\r\\nSHPHSI262263-00\\r\\nSHPHSI262265-00\\r\\nSHPHSI262216-00\\r\\nSHPHSI262219-00\\r\\nSHPHSI262315-00\\r\\nSHPHSI262199-00\\r\\nSHPHSI262198-00",
     "date": "2026-05-13",
@@ -1812,8 +1812,8 @@
     "title": ""
   },
   {
-    "id": 1780291974366,
-    "createdAt": 1780291974138,
+    "id": 1780295816073,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "They couldn\\'t print and scan because the printer lost connection.",
     "date": "2026-05-14",
@@ -1827,8 +1827,8 @@
     "resolution": "I reset the printer and traced the network cable to fix the terminals of the patch cable from Switch Hub to the Copier/Printer. I tested printing and scanning and it was ok and the Issue was gone."
   },
   {
-    "id": 1780291974367,
-    "createdAt": 1780291974138,
+    "id": 1780295816074,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAE263244-01\\r\\nSHPHAE263243-01\\r\\nSHPHAE263242-01\\r\\nSHPHAE263240-01\\r\\nSHPHAE263239-01\\r\\nSHPHAE263238-01\\r\\nSHPHAE263237-01\\r\\nSHPHAE263236-01\\r\\nSHPHAE263235-01\\r\\nSHPHAE263233-01\\r\\nSHPHAE263232-01\\r\\nSHPHAE263231-01\\r\\nSHPHAE263229-01\\r\\nSHPHAE263228-01\\r\\nSHPHAE263224-01\\r\\nSHPHAE263220-01\\r\\nSHPHAE263219-01\\r\\nSHPHAE263217-01\\r\\nSHPHAE263216-01\\r\\nSHPHAE263214-01\\r\\nSHPHAE263213-01\\r\\nSHPHAE263212-01\\r\\nSHPHAE263211-01\\r\\nSHPHAE263215-01\\r\\nSI261916-01",
     "date": "2026-05-14",
@@ -1836,8 +1836,8 @@
     "title": ""
   },
   {
-    "id": 1780291974368,
-    "createdAt": 1780291974138,
+    "id": 1780295816075,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "The printer doesn\\'t work properly, sometimes it only presses halfway and sometimes it doesn\\'t want to print or scan at all.",
     "date": "2026-05-14",
@@ -1851,8 +1851,8 @@
     "resolution": "I reset the Printer spooler, updated the printer firmware, and installed and configured the printer on his laptop. It worked and printed fine."
   },
   {
-    "id": 1780291974369,
-    "createdAt": 1780291974138,
+    "id": 1780295816076,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "His laptop unexpectedly died on its own.",
     "date": "2026-05-14",
@@ -1866,8 +1866,8 @@
     "resolution": "I updated the bios firmware and ran a hardware diagnostic check. So far all devices have passed the hardware diagnostic. for monitoring if the problem returns."
   },
   {
-    "id": 1780291974370,
-    "createdAt": 1780291974138,
+    "id": 1780295816077,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nAE263425-01 \\r\\nAE263426-01\\r\\nAE263427-01\\r\\nAI262986-00\\r\\nAI263709-00 \\r\\nAI263710-00\\r\\nSE261386-00\\r\\nSE261387-00\\r\\nSE261421-00\\r\\nSE261422-00\\r\\nSE261423-00\\r\\nSE261427-00\\r\\nSE261451-00\\r\\nSE261476-00\\r\\nSE261478-00\\r\\nSE261480-00\\r\\nSE261481-00\\r\\nSE261491-00 \\r\\nSE261492-00\\r\\nSE261493-00\\r\\nSE261494-00\\r\\nSE261505-00\\r\\nSE261512-00\\r\\nSHPHAE262700-01\\r\\nSHPHAE263448-00\\r\\nSHPHAE263475-00\\r\\nSHPHAE263476-00\\r\\nSHPHAE263477-00\\r\\nSHPHAI263675-01\\r\\nSHPHAI263783-01\\r\\nSHPHAI263784-02\\r\\nSHPHAI263784-03\\r\\nSHPHAI263784-04\\r\\nSHPHAI263784-05\\r\\nSHPHAI263785-01",
     "date": "2026-05-14",
@@ -1875,8 +1875,8 @@
     "title": ""
   },
   {
-    "id": 1780291974371,
-    "createdAt": 1780291974138,
+    "id": 1780295816078,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHAI263785-02\\r\\nSHPHAI263785-03\\r\\nSHPHAI263785-04\\r\\nSHPHSI262127-01\\r\\nSHPHSI262128-01\\r\\nSHPHSI262130-01\\r\\nSHPHSI262131-01\\r\\nSHPHSI262132-01\\r\\nSHPHSI262154-01\\r\\nSHPHSI262155-01\\r\\nSHPHSI262265-00\\r\\nSHPHSI262329-00\\r\\nSHPHSI262386-00",
     "date": "2026-05-14",
@@ -1884,8 +1884,8 @@
     "title": ""
   },
   {
-    "id": 1780291974372,
-    "createdAt": 1780291974138,
+    "id": 1780295816079,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSE261431-00\\r\\nSE261428-00\\r\\nSE261430-00\\r\\nSE261466-00\\r\\nSE261429-00\\r\\nSE261429-00\\r\\nSE261475-01\\r\\nSE261474-00\\r\\nSE261482-00\\r\\nSHPHAE263505-00\\r\\nSHPHAE263287-00\\r\\nSHPHRT261975-00\\r\\nSHPHRT262093-00\\r\\nSHPHRT261976-00\\r\\nSHPHRT261977-00\\r\\nSHPHSI262093-01\\r\\nSHPHSI262213-00\\r\\nSHPHSI262222-00",
     "date": "2026-05-15",
@@ -1893,8 +1893,8 @@
     "title": ""
   },
   {
-    "id": 1780291974373,
-    "createdAt": 1780291974138,
+    "id": 1780295816080,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "I assisted Miss Jasmin Joye Galang. Her email was inbox is full;",
     "date": "2026-05-15",
@@ -1908,8 +1908,8 @@
     "resolution": "created a new .PST file and just moved her old email to the new .PST file."
   },
   {
-    "id": 1780291974374,
-    "createdAt": 1780291974138,
+    "id": 1780295816081,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmations:\\r\\nAE263076-01 - WAKLU\\r\\nAE263077-01 - WAKLU\\r\\nAE263113-01 - AMERTRON\\r\\nAE263351-01 BW 051826\\r\\nAI263427-00 - COMPOSITE\\r\\nAI263491-00 - COMPOSITE\\r\\nAI263527-00 - COMPOSITE\\r\\nAI263562-01 PAA SG EXW CRK\\r\\nAI263619-01 PAA L.A EXW CRK\\r\\nAI263625-01 PAA SG EXW CRK\\r\\nAI263681-00 - COMPOSITE\\r\\nAI263739-00 - COMPOSITE\\r\\nSHPHAE263171-01 \t\t\t\t\\r\\nSHPHAE263172-01 \t\t\t\t\\r\\nSHPHAE263173-01 \t\t\t\t\\r\\nSHPHAE263170-01 \t\t\t\t\t\t\t\\r\\nSHPHAE263169-01 \t\t\t\t\t\t\t\t\\r\\nSHPHAE263376-01 \t\t\t\t\t\t\t\t\\r\\nSHPHAE263360-01 \t\t\t\t\t\t\t\t\\r\\nSHPHAE263359-01 \t\t\t\t\t\t\t\t\\r\\nSHPHAE263374-01 \t\t\t\t\t\t\t\\r\\nSHPHAE263378-01 \t\t\t\t\\r\\nGLTEK SHPHSI261894-00\\r\\nSHPHAI263675-01 \t\t\t\t\\r\\nSHPHAI263673-01 \t\t\t\t\\r\\nSHPHRT261780-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261781-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261782-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261900-00 \t\t\t\t\t\t\t\\r\\nSHPHRT261901-00 \t\t\t\t\t\t\t\t\\r\\nSHPHRT261902-00 \t\t\t\t\\r\\nRT262071-00 PAA BRING IN 051826\\r\\nSE260858-00 - LA FORGE 1\\r\\nSE261399-00 - LCX PRECISION\\r\\nSE261426-00 - AMERTRON\\r\\nSHPHSI261622-01 DEMURRAGE",
     "date": "2026-05-18",
@@ -1917,8 +1917,8 @@
     "title": ""
   },
   {
-    "id": 1780291974375,
-    "createdAt": 1780291974138,
+    "id": 1780295816082,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Assisted Miss Rosal Lomud. Her email was inbox is full;",
     "date": "2026-05-18",
@@ -1932,8 +1932,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST file remotely"
   },
   {
-    "id": 1780291974376,
-    "createdAt": 1780291974138,
+    "id": 1780295816083,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Assisted Miss Winnie Manalac. Her email was inbox is full;",
     "date": "2026-05-18",
@@ -1947,8 +1947,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST file remotely"
   },
   {
-    "id": 1780291974377,
-    "createdAt": 1780291974138,
+    "id": 1780295816084,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "assisted Nicole Kate Macasaquit. Her email was inbox is full;",
     "date": "2026-05-18",
@@ -1962,8 +1962,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST file remotely"
   },
   {
-    "id": 1780291974378,
-    "createdAt": 1780291974138,
+    "id": 1780295816085,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "assisted Miss Ferlyn Solis. Her email was inbox is full;",
     "date": "2026-05-18",
@@ -1977,8 +1977,8 @@
     "resolution": "created a new .PST file and moved her old email to the new .PST file"
   },
   {
-    "id": 1780291974379,
-    "createdAt": 1780291974138,
+    "id": 1780295816086,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to scanned documents using epson L5290",
     "date": "2026-05-18",
@@ -1992,8 +1992,8 @@
     "resolution": "Setup and configure the scaning app of the epson printer and also setup the sharp copier printer to be use as backup scanner and printer"
   },
   {
-    "id": 1780291974380,
-    "createdAt": 1780291974138,
+    "id": 1780295816087,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to scan using the sharp copier",
     "date": "2026-05-18",
@@ -2007,8 +2007,8 @@
     "resolution": "Update scanner app and remove old scanner configurations."
   },
   {
-    "id": 1780291974381,
-    "createdAt": 1780291974138,
+    "id": 1780295816088,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "SHPHSI261622-01 DEMURRAGE.xlsx\\r\\nSHPHSI261623-01 FSC (1).xlsx\\r\\nSHPHSI261623-01 FSC.xlsx\\r\\nSHPHSI261676-01 DEMURRAGE.xlsx\\r\\nSHPHSI261680-01 FSC.xlsx\\r\\nSHPHSI261681-01 FSC.xlsx\\r\\nSHPHSI261684-01 FSC.xlsx\\r\\nSHPHSI261754-01 FSC..xlsx\\r\\nSHPHSI261757-01.xlsx\\r\\nSHPHSI261822-01 FSC.xlsx\\r\\nSHPHSI261997-01.xlsx\\r\\nSHPHSI262039-01.xls\\r\\nSHPHSI262064-01 (1).xlsx\\r\\nSHPHSI262064-01.xlsx\\r\\nSHPHSI262102-01.xlsx\\r\\nSHPHSI262106-01.xlsx\\r\\nSHPHSI262115-01.xlsx\\r\\nSHPHSI262224-01.xlsx\\r\\nSHPHSI262225-01 (1).xlsx\\r\\nSHPHSI262225-01.xlsx\\r\\nSHPHSI262226-01.xlsx\\r\\nSHPHSI262228-01 (1).xlsx\\r\\nSHPHSI262228-01.xlsx\\r\\nSHPHSI262232-01.xlsx\\r\\nSI261732-01 - MAX GLOBAL.xlsx\\r\\nSI262097-01 - MAX GLOBAL.xlsx\\r\\nSI262403-00 - COMPOSITE.xlsx\\r\\nSUTHERLAND SHPHRT262079-00.xlsx\\r\\nSUTHERLAND SHPHRT262097-00.xlsx\\r\\nSUTHERLAND SHPHRT262121-00.xlsx\\r\\nTROYCOR SHPHSE261271-00.xlsx\\r\\nTROYCOR SHPHSE261304-00.xlsx\\r\\nTROYCOR SHPHSE261319-00.xlsx",
     "date": "2026-05-18",
@@ -2016,8 +2016,8 @@
     "title": ""
   },
   {
-    "id": 1780291974382,
-    "createdAt": 1780291974138,
+    "id": 1780295816089,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to print on the Epson Printer",
     "date": "2026-05-18",
@@ -2031,8 +2031,8 @@
     "resolution": "Reinstall the software of the epson L5290 printer. after reinstalling the printer software the printer is working and printing"
   },
   {
-    "id": 1780291974383,
-    "createdAt": 1780291974138,
+    "id": 1780295816090,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Setup and Configure Sharp copier and Canon Printer",
     "date": "2026-05-18",
@@ -2046,8 +2046,8 @@
     "resolution": "Setup and Configure the printing and scanning of canon and sharp copier."
   },
   {
-    "id": 1780291974384,
-    "createdAt": 1780291974138,
+    "id": 1780295816091,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to print with error need to reset inkpad",
     "date": "2026-05-19",
@@ -2061,8 +2061,8 @@
     "resolution": "installing the printer driver and reset the inkpad using the epson adjustment tool progam remotely"
   },
   {
-    "id": 1780291974385,
-    "createdAt": 1780291974138,
+    "id": 1780295816092,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Upload Billing Confirmation:\\r\\nSHPHAE263337-01\\r\\nSHPHAE263493-01\\r\\nSHPHAE263488-01\\r\\nSHPHAE263443-01\\r\\nSHPHAE263444-01\\r\\nSHPHAE263445-01\\r\\nSHPHAE263446-01\\r\\nSHPHAE263447-01\\r\\nSHPHAE263449-01\\r\\nSHPHAE263434-01\\r\\nSHPHAE263435-01\\r\\nSHPHAE263438-01\\r\\nSHPHAE263440-01\\r\\nSHPHAE263441-01\\r\\nSHPHAE263442-01\\r\\nSHPHAE263428-01\\r\\nSHPHAE263429-01\\r\\nSHPHAE263430-01\\r\\nSHPHAE263431-01\\r\\nSHPHAE263432-01\\r\\nSHPHAE263338-01\\r\\nSHPHAE263395-01\\r\\nSHPHAE263332-01\\r\\nSHPHAE263333-01\\r\\nSHPHAE263494-01\\r\\nSHPHAE263495-01\\r\\nSHPHAE263496-01\\r\\nSHPHAE263497-01\\r\\nSHPHAE263498-01\\r\\nSHPHAE263499-01\\r\\nSHPHAE263500-01\\r\\nSHPHAE263501-01\\r\\nSHPHAE263502-01\\r\\nSHPHAE263436-01\\r\\nSHPHAE263437-01\\r\\nSHPHRT261912-00\\r\\nSHPHRT261913-00\\r\\nSHPHRT261913-00\\r\\nSHPHRT261913-00\\r\\nSHPHRT261913-00\\r\\n SHPHSI261997-01 \t\t\t\t\\r\\n SHPHSI262064-01",
     "date": "2026-05-19",
@@ -2070,8 +2070,8 @@
     "title": ""
   },
   {
-    "id": 1780291974386,
-    "createdAt": 1780291974138,
+    "id": 1780295816093,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "WFH: Upload Billing Confirmations:\\r\\nSHPHSE261414-01 - 1.xlsx\\r\\nSHPHSE261338-01 1.xlsx\\r\\nSHPHSE261554-01.xlsx\\r\\nSHPHSE261486-01.xlsx\\r\\nSHPHSE261547-01.xlsx\\r\\nSHPHSE261535-01.xlsx\\r\\nSHPHSE261484-01.xlsx\\r\\nSHPHSI262435-01 ( 20\\' ).xlsx\\r\\nSHPHSI262433-02 ( 40\\' ).xlsx\\r\\nSHPHSI262433-01 ( 40\\' ).xlsx\\r\\nSHPHAI263966-02.xlsx\\r\\nSHPHAI263969-03 (1).xlsx\\r\\nSHPHAI263969-03.xlsx\\r\\nSHPHAI263969-06.xlsx\\r\\nSHPHAI263969-05.xlsx\\r\\nSHPHAI263969-02.xlsx\\r\\nSHPHAI263966-04.xlsx\\r\\nSHPHAI263966-05.xlsx\\r\\nSHPHAI263969-04.xlsx\\r\\nSHPHAI263874-07.xlsx\\r\\nSHPHAI264006-03.xlsx\\r\\nSHPHAI263966-03.xlsx\\r\\nSHPHAI263966-01.xlsx\\r\\nSHPHAI263969-01.xlsx\\r\\nSHPHAI264006-02.xlsx\\r\\nSHPHAI263849-02.xlsx\\r\\nSHPHAI263845-03.xlsx\\r\\nSHPHAI263849-06.xlsx\\r\\nSHPHAI263874-05.xlsx\\r\\nSHPHAI263874-02.xlsx\\r\\nSHPHAI263874-06.xlsx\\r\\nSHPHAI263849-03.xlsx\\r\\nSHPHAI263874-04.xlsx\\r\\nSHPHAI263921-01.xlsx\\r\\nSHPHAI263849-01.xlsx\\r\\nSHPHAI263922-01.xlsx\\r\\nSHPHAI263874-03.xlsx\\r\\nSHPHAI263849-09.xlsx\\r\\nSHPHAI263874-08.xlsx\\r\\nSHPHAI263849-05.xlsx\\r\\nSHPHAI263849-04.xlsx\\r\\nSHPHAI263874-01.xlsx\\r\\nSHPHAI263751-00.xlsx\\r\\nSHPHAI263858-00.xlsx\\r\\nSHPHAI263855-00.xlsx\\r\\nSHPHAI263857-00.xlsx\\r\\nSHPHAI263887-00.xlsx\\r\\nSHPHAI263902-00.xlsx\\r\\nSHPHAI263900-00.xlsx\\r\\nSHPHAI263809-00.xlsx\\r\\nSHPHAI263797-00.xlsx\\r\\nSHPHAI263726-00.xlsx\\r\\nSI262333-00 - COLORSTEEL.xlsx\\r\\nSI262332-00 - COLORSTEEL.xlsx\\r\\nSI262335-00 - COLORSTEEL.xlsx\\r\\nAI263600-01 CNW 0519.xlsx\\r\\nSHPHAI263483-00 CNW HAND CARRY 05192026.xlsx\\r\\nAI263805-01 CNW 0518.xlsx\\r\\nSHPHRT262063-00 TOYOFLEX (8105 W OT) 1.xlsx\\r\\nSHPHAI264080-01 (AIR SUPREMACY).xlsx\\r\\nSHPHSI262212-00 (PHIL-UNION) releasing - LCL-CFR.xlsx\\r\\nSHPHSI262467-01 (YAMASHIN - CASTEM).xlsx\\r\\nSHPHSI262250-01 YAMASHIN FATEC (1).xlsx\\r\\nSHPHSI262250-01 YAMASHIN FATEC.xlsx\\r\\nSHPHAI263683-00 (AUTOLIV - BANGLADISH) WITH DOMESTIC JOB.xlsx\\r\\nSHPHAE263158-01 - INDONESIA (DAP).xlsx\\r\\nSHPHAI263907-01 (AUTOLIV - KOREA.xlsx\\r\\nSHPHAI263821-01 (AUTOLIV - IEE -AIR).xlsx\\r\\nTROYCOR SHPHSE261385-00.xlsx\\r\\nTROYCOR SHPHSE261318-00.xlsx",
     "date": "2026-05-19",
@@ -2079,8 +2079,8 @@
     "title": ""
   },
   {
-    "id": 1780291974387,
-    "createdAt": 1780291974138,
+    "id": 1780295816094,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "SI262220-00 - NP GLOBAL.xlsx\\r\\nRT261659-00 - FANATICS.xlsx\\r\\nSHPHSE261479-02 CPMI.xlsx\\r\\nSHPHAE263347-01.xlsx\\r\\nSHPHAI263626-01.xlsx\\r\\nSI262359-00 - COLORSTEEL.xlsx\\r\\nSI262202-00 - L&T.xlsx\\r\\nSI262176-00 - L&T.xlsx\\r\\nSI262401-00 - L&T.xlsx\\r\\nSHPHAI263585-01.xlsx\\r\\nSHPHAI263579-00.xlsx\\r\\nSHPHAI264042-01 ( NAGA ).xlsx\\r\\nSHPHAI263880-00 ( NAGA ).xlsx\\r\\nSHPHAE263079-01.xlsx\\r\\nSHPHAE263491-01 ( BR-NRT ).xlsx\\r\\nSHPHAE263272-01 ( BR-NRT ).xlsx\\r\\nSHPHAE263249-01 ( PE ).xlsx\\r\\nSHPHAE263492-01.xlsx\\r\\nSHPHAE263414-01.xlsx\\r\\nSHPHAE263515-01 ( 5J-HKG ).xlsx\\r\\nSHPHAE263307-02 ( 5J-HKG ).xlsx\\r\\nSHPHAE263307-01 ( 5J-HKG ).xlsx\\r\\nSHPHAE263389-01.xlsx\\r\\nSHPHAE263306-02.xlsx\\r\\nSHPHAE263306-01 (1).xlsx\\r\\nSeparate Item (Right Column)\\r\\nSHPHAE263306-01.xlsx",
     "date": "2026-05-20",
@@ -2088,8 +2088,8 @@
     "title": ""
   },
   {
-    "id": 1780291974388,
-    "createdAt": 1780291974138,
+    "id": 1780295816095,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "External Monitor is not displaying.",
     "date": "2026-05-21",
@@ -2103,8 +2103,8 @@
     "resolution": "Replace monitor ang HDMI cable unit is working and tested good"
   },
   {
-    "id": 1780291974389,
-    "createdAt": 1780291974138,
+    "id": 1780295816096,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "created a new .PST file and moved his old email to the new .PST file and update his Outlook app",
     "date": "2026-05-21",
@@ -2118,8 +2118,8 @@
     "resolution": "assisted Sir Nicole Kate Macasaquit. Hes email was inbox is full;"
   },
   {
-    "id": 1780291974390,
-    "createdAt": 1780291974138,
+    "id": 1780295816097,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Blurred printout during printing on sysfreight.",
     "date": "2026-05-21",
@@ -2133,8 +2133,8 @@
     "resolution": "Adjust printer settings on sysfrieght and install update printer driver"
   },
   {
-    "id": 1780291974391,
-    "createdAt": 1780291974138,
+    "id": 1780295816098,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Unable to print on the epson L5290 printer",
     "date": "2026-05-21",
@@ -2148,8 +2148,8 @@
     "resolution": "Update and install new driver of epson printer on Sir Jhomar laptop. unit is tested good"
   },
   {
-    "id": 1780291974392,
-    "createdAt": 1780291974138,
+    "id": 1780295816099,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to create scanning output directory",
     "date": "2026-05-21",
@@ -2163,8 +2163,8 @@
     "resolution": "Update scanner driver and change scanning output directory to find the scanned documents easily."
   },
   {
-    "id": 1780291974393,
-    "createdAt": 1780291974138,
+    "id": 1780295816100,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\n* AI262664-01 - HEWTECH (ORIGIN).xlsx\\r\\n* AI263787-00 - HEWTECH.xlsx\\r\\n* SI261930-00 - BAIN MEDICAL (ADDT\\'L).xlsx\\r\\n* SI261904-01 - NP GLOBAL.xlsx\\r\\n* SHPHAI263941-01.xlsx\\r\\n* SHPHSI262328-01.xlsx\\r\\n* SHPHAI264015-00.xlsx\\r\\n* SHPHAI263854-00.xlsx\\r\\n* SHPHAI263725-00.xlsx\\r\\n* SHPHAI264013-00.xlsx\\r\\n* SHPHAI264012-00.xlsx\\r\\n* SHPHAI264014-00.xlsx *(Selected file)*\\r\\n* SHPHSI262570-00.xlsx\\r\\n* SHPHSI262444-00.xlsx\\r\\n* SHPHSI262482-00.xlsx\\r\\n* C-QUIP SHPHSI253423-01 1.xlsx\\r\\n* C-QUIP SHPHSI254086-01 1.xlsx\\r\\n* SHPHSI262285-01 DW.xlsx\\r\\n* SI261671-00 - COMPOSITE.xlsx\\r\\n* SHPHSI262342-01 AJ.xlsx\\r\\n* SHPHSI262342-01 AJ (1).xlsx\\r\\n* SE260925-01 - MEDTEX.xlsx\\r\\n* SHPHSE261412-01.xlsx\\r\\n* SHPHAE263648-00.xlsx\\r\\n* TROYCOR SHPHSE261051-00 1.xlsx\\r\\n* TROYCOR SHPHSE261226-00 1.xlsx\\r\\n* TROYCOR SHPHSE261335-00 1.xlsx\\r\\n* TROYCOR SHPHSE261354-00 1.xlsx\\r\\n* TROYCOR SHPHSE261347-00 1.xlsx\\r\\n* TROYCOR SHPHSE261417-00 1.xlsx\\r\\n* TROYCOR SHPHSE261418-00 1.xlsx\\r\\n* TROYCOR SHPHSE261395-00 1.xlsx\\r\\n* TROYCOR SHPHSE261395-00 1 (1).xlsx\\r\\n* TROYCOR SHPHSE261420-00 1.xlsx\\r\\n* AI263844-01 PAA SG EXW CRK 1.xlsx\\r\\n* AI263877-01 PAA SG EXW CRK.xlsx\\r\\n* AI263714-01 PAA SG EXW CRK.xlsx\\r\\n* SHPHAI264045-01.xlsx\\r\\n* SE261483-01 - HEWTECH.xlsx\\r\\n* AE263486-01 - SATECO.xlsx\\r\\n SHPHRT261934-00 \t\t\t\t\t\t\t\\r\\n SHPHRT262084-00 \t\t\t\t\t\t\t\\r\\n SHPHRT262085-00 \t\t\t\t\t\t\\r\\n SHPHRT262087-00",
     "date": "2026-05-21",
@@ -2172,8 +2172,8 @@
     "title": ""
   },
   {
-    "id": 1780291974394,
-    "createdAt": 1780291974138,
+    "id": 1780295816101,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "assisted Sir Nicole Kate Macasaquit. His email was inbox is full;",
     "date": "2026-05-25",
@@ -2187,8 +2187,8 @@
     "resolution": "created a new .PST file and moved his old email to the new .PST file and update his Outlook app"
   },
   {
-    "id": 1780291974395,
-    "createdAt": 1780291974138,
+    "id": 1780295816102,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to attach documents on MS Teams",
     "date": "2026-05-25",
@@ -2202,8 +2202,8 @@
     "resolution": "Re-login the account on MS Teams at Join the insiders program in MS TEams"
   },
   {
-    "id": 1780291974396,
-    "createdAt": 1780291974138,
+    "id": 1780295816103,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to print on epson printer, due to conflict ip address",
     "date": "2026-05-25",
@@ -2217,8 +2217,8 @@
     "resolution": "Install and reconfigure epson printer, Unit is working and tested ok"
   },
   {
-    "id": 1780291974397,
-    "createdAt": 1780291974138,
+    "id": 1780295816104,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "The laptop cannot be opened properly because the hinges are broken.",
     "date": "2026-05-25",
@@ -2232,8 +2232,8 @@
     "resolution": "I fixed all the broken hinges, I also adjusted the hinges so that it wasn\\'t heavy when the laptop was opened, I also cleaned the heat sinks and CPU fans."
   },
   {
-    "id": 1780291974398,
-    "createdAt": 1780291974138,
+    "id": 1780295816105,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\n* `SE261514-01.xlsx`\\r\\n* `SE261517-00.xlsx`\\r\\n* `SE261523-00.xlsx`\\r\\n* `SE261524-00.xlsx`\\r\\n* `SE261550-00.xlsx`\\r\\n* `SE261557-00.xlsx`\\r\\n* `SE261558-00.xlsx`\\r\\n* `SE261561-00.xlsx`\\r\\n* `SE261562-00.xlsx`\\r\\n* `SE261563-00.xlsx`\\r\\n* `SHPHAE263155-01.xlsx`\\r\\n* `SHPHAE263259-01.xlsx`\\r\\n* `SHPHAE263261-01.xlsx`\\r\\n* `SHPHAE263262-01.xlsx`\\r\\n* `SHPHAE263263-01.xlsx`\\r\\n* `SHPHAE263264-01.xlsx`\\r\\n* `SHPHAE263265-01.xlsx`\\r\\n* `SHPHAE263266-01.xlsx`\\r\\n* `SHPHAE263401-01.xlsx`\\r\\n* `SHPHAE263540-01.xlsx`\\r\\n* `SHPHAE263556-01.xlsx`\\r\\n* `SHPHAE263557-01 ( 5J-HKG ).xlsx`\\r\\n* `SHPHAI264005-02.xlsx`\\r\\n* `SHPHAI264006-01.xlsx`\\r\\n* `SHPHAI264040-01.xlsx`\\r\\n* `SHPHAI264040-02.xlsx`\\r\\n* `SHPHAI264040-03.xlsx`\\r\\n* `SHPHAI264040-04.xlsx`\\r\\n* `SHPHAI264047-01.xlsx`\\r\\n* `SHPHAI264049-00.xlsx`\\r\\n* `SHPHAI264050-01.xlsx`\\r\\n* `SHPHAI264079-01.xlsx`\\r\\n* `SHPHAI264079-02 (1).xlsx`\\r\\n* `SHPHAI264079-02.xlsx`\\r\\n* `SHPHAI264079-03.xlsx`\\r\\n* `SHPHAI264079-04.xlsx`\\r\\n* `SHPHAI264081-01.xlsx`\\r\\n* `SHPHAI264081-03.xlsx`\\r\\n* `SHPHAI264082-05 (1).xlsx`\\r\\n* `SHPHAI264082-05.xlsx`\\r\\n* `SHPHAI264082-06.xlsx`\\r\\n* `SHPHAI264135-00 ( NAGA ).xlsx`\\r\\n* `SHPHAI264137-00.xlsx`\\r\\nSHPHAE263621-01\\r\\nSHPHAE263591-01\\r\\nSHPHAE263638-01\\r\\nSHPHAE263639-01\\r\\nSHPHAE263559-01\\r\\nSHPHAE263530-01",
     "date": "2026-05-25",
@@ -2241,8 +2241,8 @@
     "title": ""
   },
   {
-    "id": 1780291974399,
-    "createdAt": 1780291974138,
+    "id": 1780295816106,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\n* `SHPHAE262815-01.xlsx`\\r\\n* `SHPHAE262838-01.xlsx`\\r\\n* `SHPHAE262940-01.xlsx`\\r\\n* `SHPHAE262943-01.xlsx`\\r\\n* `SHPHAE262974-01.xlsx`\\r\\n* `SHPHAE262975-01.xlsx`\\r\\n* `SHPHAE262898-01.xlsx`\\r\\n* `SHPHAE262811-01.xlsx`\\r\\n* `SHPHAE262835-01.xlsx`\\r\\n* `SHPHAE262976-01 DN.xlsx`\\r\\n* `SHPHAE263022-01.xlsx`\\r\\n* `SHPHAE263023-01.xlsx`\\r\\n* `SHPHAE263025-01 (1).xlsx`\\r\\n* `SHPHAE263025-01.xlsx`\\r\\n* `SHPHAE263152-01.xlsx`\\r\\n* `SHPHAE263153-01.xlsx`\\r\\n* `SHPHAE263154-01.xlsx`\\r\\n* `SHPHAE263204-01.xlsx`\\r\\n* `SHPHAE263087-01.xlsx`\\r\\n* `SHPHAE263088-01.xlsx`\\r\\n* `SHPHAE263409-01.xlsx`\\r\\n* `SHPHAE263408-01.xlsx`\\r\\n* `SHPHAE263027-01 (1).xlsx`\\r\\n* `SHPHAE263026-01.xlsx`\\r\\n* `SHPHAE263027-01.\\r\\n* `SHPHAE263028-01.xlsx`\\r\\n* `SHPHAE263084-01.xlsx`\\r\\n* `SHPHAE263085-01.xlsx`\\r\\n* `SHPHAE263086-01.xlsx`\\r\\n* `SHPHAE263294-01.xlsx`\\r\\n* `SHPHAE263293-01.xlsx`\\r\\n* `SHPHAE263285-01.xlsx`\\r\\n* `SHPHAE263284-01.xlsx`\\r\\n* `SHPHAE263283-01.xlsx`\\r\\n* `SHPHAE263405-01.xlsx`\\r\\n* `SHPHAE263403-01.xlsx`\\r\\n* `SHPHAE263402-01.xlsx`\\r\\n* `SHPHAE263296-01.xlsx`\\r\\n* `SHPHAE263295-01.xlsx`\\r\\n* `SHPHAE263260-01.xlsx`\\r\\n* `SHPHAE263261-01 (1).xlsx`\\r\\n* `SHPHAI264081-01 (1).xlsx`",
     "date": "2026-05-26",
@@ -2250,8 +2250,8 @@
     "title": ""
   },
   {
-    "id": 1780291974400,
-    "createdAt": 1780291974138,
+    "id": 1780295816107,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Failed to attach documents in MS Teams",
     "date": "2026-05-28",
@@ -2265,8 +2265,8 @@
     "resolution": "Clear cache at delete temp docs on the system32 of MS Teams. unit is working tested good"
   },
   {
-    "id": 1780291974401,
-    "createdAt": 1780291974138,
+    "id": 1780295816108,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Assisted Copier technician from supplier to check the copier and isolate the issues.",
     "date": "2026-05-28",
@@ -2280,8 +2280,8 @@
     "resolution": "Replace the pickup roller, separate roller and paper feed roller. the unit is working and tested ok"
   },
   {
-    "id": 1780291974402,
-    "createdAt": 1780291974138,
+    "id": 1780295816109,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Email inbox is full unable to recieve emails",
     "date": "2026-05-28",
@@ -2295,8 +2295,8 @@
     "resolution": "Create a new pst file and transfer old emails on that new pst files."
   },
   {
-    "id": 1780291974403,
-    "createdAt": 1780291974138,
+    "id": 1780295816110,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload billing confirmation:\\r\\nAI263674-01 - BROWAVE.xlsx\\r\\nAI263787-00 - HEWTECH (PROCESSING).xlsx\\r\\nAI264113-00 - METROJET.xlsx\\r\\nAI264164-01 - WAKLU.xlsx\\r\\nGSTAR.SHPHAI262031-01 DN.xlsx\\r\\nRT261969-00 - BROWAVE.xlsx\\r\\nSE261230-00 - LA FORGE.xlsx\\r\\nSE261281-00 - LA FORGE.xlsx\\r\\nSHPHAE261774-00.xlsx\\r\\nSHPHAE263655-01.xlsx\\r\\nSHPHAE263658-01.xlsx\\r\\nSHPHAE263660-01.xlsx\\r\\nSHPHAE263700-01.xlsx\\r\\nSHPHAE263701-01.xlsx\\r\\nSHPHAE263702-01.xlsx\\r\\nSHPHAE263703-01.xlsx\\r\\nSHPHAE263704-01 (1).xlsx\\r\\nSHPHAE263704-01.xlsx\\r\\nSHPHAE263719-01.xlsx\\r\\nSHPHAE263736-01.xlsx\\r\\nSHPHAE263738-01.xlsx\\r\\nSHPHAE263791-00.xlsx\\r\\nSHPHAE263798-00.xlsx\\r\\nSHPHAE263760-01.xlsx\\r\\nSHPHAI264082-01.xlsx\\r\\nSHPHAI264082-02.xlsx\\r\\nSHPHAI264082-03.xlsx\\r\\nSHPHAI264082-04.xlsx\\r\\nSHPHAI264115-02.xlsx\\r\\nSHPHAI264116-02.xlsx\\r\\nSHPHAI264131-00.xlsx\\r\\nSHPHAI264162-00.xlsx\\r\\nSHPHAI264164-00.xlsx\\r\\nSHPHAI264165-00.xlsx\\r\\nSHPHAI264181-00.xlsx\\r\\nSHPHAI264185-01.xlsx\\r\\nSHPHAI264185-02.xlsx\\r\\nSHPHAI264185-03.xlsx\\r\\nSHPHAI264185-05.xlsx\\r\\nSHPHAI264188-01.xlsx\\r\\nSHPHAI264189-01.xlsx\\r\\nSHPHAI264197-00.xlsx\\r\\nSHPHAI264209-00.xlsx\\r\\nSHPHAI264212-00.xlsx\\r\\nSHPHAI264213-00.xlsx\\r\\nSHPHAI264216-00.xlsx\\r\\nSHPHAI264217-00 (1).xlsx\\r\\nSHPHAI264217-00.xlsx\\r\\nSHPHAI264279-00.xlsx\\r\\nSHPHAI264284-00.xlsx\\r\\nSHPHAI264305-00.xlsx\\r\\nSHPHAI264324-00.xlsx\\r\\nSHPHSE261406-01.xlsx\\r\\nSHPHSE261566-01.xlsx\\r\\nSHPHSE261590-01.xlsx\\r\\nSHPHSE261591-01.xlsx\\r\\nSHPHSI262094-01.xlsx\\r\\nSHPHSI262299-01 DW.xlsx\\r\\nSHPHSI262340-01 (1).xlsx\\r\\nSHPHSI262340-01.xlsx\\r\\nSHPHSI262378-01.xlsx\\r\\nSI261604-00 - FSP.xlsx\\r\\nSI262172-00 - GOLDEN STONE BILL ONBOARD.xlsx\\r\\nSI262318-00 - GOLDEN STONE BILL TO ONBOARD.xlsx\\r\\nSI262414-00 - GOLDEN STONE BILL TO ONBOARD.xlsx\\r\\nSI262417-00 - FSP.xlsx",
     "date": "2026-05-28",
@@ -2304,8 +2304,8 @@
     "title": ""
   },
   {
-    "id": 1780291974404,
-    "createdAt": 1780291974138,
+    "id": 1780295816111,
+    "createdAt": 1780295815844,
     "category": "Uploading/Encoding",
     "description": "Upload Billing Confirmation:\\r\\nSHPHSI262591-00 GREENSTONE) VIA MANILA.xlsx\\r\\nSHPHSE261515-01 VISAYAS WIN WIN TRADERS).xlsx\\r\\nSHPHAI264257-01 (AUTOLIV - OTM).xlsx\\r\\nSHPHAI264256-01 (AUTOLIV - OTM).xlsx\\r\\nSHPHAI263210-01 (HEAD SPORT-EXW) HONG KONG TO DVO.xlsx\\r\\nSHPHAI263598-01 (HEAD SPORT-EXW) CHINA TO DVO.xlsx\\r\\nSHPHAI262851-01 (HEAD SPORT-EXW) CHINA TO DVO.xlsx\\r\\nSHPHAI262850-01 HEAD SPORT-EXW) THAI TO DVO.xlsx\\r\\nSHPHSI262185-00 (HEAD SPORT - CIF).xlsx\\r\\nSHPHSI262360-00 (HEAD SPORT - CIF).xlsx\\r\\nSHPHSI262451-00 (HEAD SPORT - CIF).xlsx\\r\\nSHPHSI262530-00 (HEAD SPORT - CIF).xlsx\\r\\nSHPHSI262528-00 (HEAD SPORT - CIF).xlsx\\r\\nSHPHSI261521-00 (HEAD SPORT - CIF) (1).xlsx\\r\\nSHPHSI261521-00 (HEAD SPORT - CIF).xlsx\\r\\nSHPHAI264318-01 AUTOLIV - KOREA.xlsx\\r\\nSHPHAI264310-01 (AUTOLIV - LEAR + 500).xlsx\\r\\nSHPHRT262304-00 AUTOLIV - TRUCKING ONLY_EXPORT.xlsx\\r\\nSHPHRT262306-00 AUTOLIV - TRUCKING ONLY_EXPORT.xlsx\\r\\nSHPHRT262302-00 AUTOLIV - TRUCKING ONLY_EXPORT.xlsx\\r\\nSHPHRT262301-00 AUTOLIV - TRUCKING ONLY_EXPORT.xlsx\\r\\nSHPHRT262305-00 AUTOLIV - TRUCKING ONLY_EXPORT.xlsx\\r\\nSHPHRT262303-00 AUTOLIV - TRUCKING ONLY_EXPORT.xlsx\\r\\nRT261955-00 - LTX.xlsx\\r\\nRT261904-00 - LTX.xlsx\\r\\nSE261432-00 - BFD.xlsx\\r\\nSE261433-00 - BFD.xlsx\\r\\nSE261509-00 - BFD.xlsx\\r\\nSI262147-00 - BFD.xlsx\\r\\nSI262539-00 - BFD.xlsx\\r\\nSE261633-00 - TARGET.xlsx\\r\\nSE261612-00 - TARGET.xlsx\\r\\nBBI SHPHAI263206-00.xlsx\\r\\nBBI SHPHSI262029-00.xlsx\\r\\nSHERA SHPHSI262647-00.xlsx\\r\\nSIAEP SHPHAI264336-00.xlsx\\r\\nSMK SHPHSI261923-00.xlsx\\r\\nSMK SHPHSI262430-00.xlsx\\r\\nSI261593-01 - BAHRAIN (ADD\\'L TRFEE).xlsx\\r\\nSI261667-00 - BAHRAIN (ADD\\'L TRFEE).xlsx\\r\\nSI261672-01 - BAHRAIN (ADD\\'L TRFEE).xlsx\\r\\nRT262054-00 - TONG LUNG.xlsx\\r\\nAI262491-01 - PATIENT CARE.xlsx\\r\\nAI262520-01 - PATIENT CARE.xlsx\\r\\nAI263239-01 - PATIENT CARE.xlsx\\r\\nAI263497-01 - PATIENT CARE.xlsx\\r\\nAI263534-01 - PATIENT CARE.xlsx\\r\\nAI263554-01 - PATIENT CARE.xlsx\\r\\nAE262370-01 - AWOT.xlsx\\r\\nAE263091-01 - AWOT (1).xlsx\\r\\nAE263091-01 - AWOT.xlsx\\r\\nAI264055-01 - HEWTECH.xlsx\\r\\nAI264055-01 - HEWTECH (ORIGIN).xlsx\\r\\nSI262424-00 - OUTBACK.xlsx\\r\\nSI262493-01 - TARGET (1).xlsx\\r\\nSI262493-01 - TARGET.xlsx\\r\\nSE261617-00 - TARGET.xlsx\\r\\nAE263305-00 CNW 0528 (1).xlsx\\r\\nAE263305-00 CNW 0528.xlsx\\r\\nAE263290-00 CNW 0528.xlsx\\r\\nAE263355-00 CNW 0528.xlsx\\r\\nAE263543-00 CNW 0528.xlsx\\r\\nAE263513-00 CNW 0528.xlsx\\r\\nAE263406-00 CNW 0528.xlsx\\r\\nSHPHAE263547-01 \t\t\t\t\t\t\t\\r\\nSHPHAE263549-01 \t\t\t\t\t\t\t\t\\r\\nSHPHAE263548-01 \t\t\t\t\t\t\t\t\\r\\nSHPHAE263519-01",
     "date": "2026-05-29",
@@ -2313,8 +2313,8 @@
     "title": ""
   },
   {
-    "id": 1780291974405,
-    "createdAt": 1780291974138,
+    "id": 1780295816112,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "Outlook email is full unable to reacive and send emails",
     "date": "2026-05-29",
@@ -2328,8 +2328,8 @@
     "resolution": "Create a new pst file. and transfer all old emails on the"
   },
   {
-    "id": 1780291974406,
-    "createdAt": 1780291974138,
+    "id": 1780295816113,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "GM Meeting setup.",
     "date": "2026-05-28",
@@ -2343,8 +2343,8 @@
     "resolution": "Assisted Miss Hermie of her laptop and setup her watchap account from laptop to mobile device"
   },
   {
-    "id": 1780291974407,
-    "createdAt": 1780291974138,
+    "id": 1780295816114,
+    "createdAt": 1780295815844,
     "category": "Technical Support",
     "description": "failed to login on viber",
     "date": "2026-05-29",
