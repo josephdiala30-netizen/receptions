@@ -1,7 +1,7 @@
 [
   {
-    "id": 1780295816124,
-    "createdAt": 1780295815845,
+    "id": 1780296000034,
+    "createdAt": 1780295999758,
     "equipment": "Printer",
     "title": "Printer Maintenance",
     "inspectionDate": "2026-03-06",
@@ -25,8 +25,8 @@
     }
   },
   {
-    "id": 1780295816125,
-    "createdAt": 1780295815845,
+    "id": 1780296000035,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Maintenance",
     "inspectionDate": "2026-04-15",
@@ -50,8 +50,8 @@
     }
   },
   {
-    "id": 1780295816126,
-    "createdAt": 1780295815845,
+    "id": 1780296000036,
+    "createdAt": 1780295999758,
     "equipment": "Epson L6270",
     "title": "Epson L6270 Maintenance",
     "inspectionDate": "2026-04-20",
@@ -75,8 +75,8 @@
     }
   },
   {
-    "id": 1780295816127,
-    "createdAt": 1780295815845,
+    "id": 1780296000037,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier",
     "title": "Sharp Copier Maintenance",
     "inspectionDate": "2026-05-28",
@@ -100,8 +100,8 @@
     }
   },
   {
-    "id": 1780295816128,
-    "createdAt": 1780295815845,
+    "id": 1780296000038,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-04",
@@ -111,7 +111,7 @@
     "period": "Week 1",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501822100,
+    "serial": "4501822100",
     "description": "Unit is Working and no problem found",
     "inspectedBy": "Joseph Diala",
     "checkedBy": "IT",
@@ -125,8 +125,8 @@
     }
   },
   {
-    "id": 1780295816129,
-    "createdAt": 1780295815845,
+    "id": 1780296000039,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-04",
@@ -136,7 +136,7 @@
     "period": "Week 1",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 5592782100,
+    "serial": "5592782100",
     "description": "Unit is Working and no problem found",
     "inspectedBy": "Joseph Diala",
     "checkedBy": "IT",
@@ -150,8 +150,8 @@
     }
   },
   {
-    "id": 1780295816130,
-    "createdAt": 1780295815845,
+    "id": 1780296000040,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-04",
@@ -161,7 +161,7 @@
     "period": "Week 1",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501821100,
+    "serial": "4501821100",
     "description": "Unit is Working and no problem found",
     "inspectedBy": "Joseph Diala",
     "checkedBy": "IT",
@@ -175,8 +175,8 @@
     }
   },
   {
-    "id": 1780295816131,
-    "createdAt": 1780295815845,
+    "id": 1780296000041,
+    "createdAt": 1780295999758,
     "equipment": "Epson L6270",
     "title": "Epson L6270 Inspection",
     "inspectionDate": "2026-05-04",
@@ -200,8 +200,8 @@
     }
   },
   {
-    "id": 1780295816132,
-    "createdAt": 1780295815845,
+    "id": 1780296000042,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-05-04",
@@ -225,8 +225,8 @@
     }
   },
   {
-    "id": 1780295816133,
-    "createdAt": 1780295815845,
+    "id": 1780296000043,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-05-04",
@@ -250,8 +250,8 @@
     }
   },
   {
-    "id": 1780295816134,
-    "createdAt": 1780295815845,
+    "id": 1780296000044,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-11",
@@ -261,7 +261,7 @@
     "period": "Week 2",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501822100,
+    "serial": "4501822100",
     "description": "Unit is Working and no problem found",
     "inspectedBy": "Joseph Diala",
     "checkedBy": "IT",
@@ -275,8 +275,8 @@
     }
   },
   {
-    "id": 1780295816135,
-    "createdAt": 1780295815845,
+    "id": 1780296000045,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-11",
@@ -286,7 +286,7 @@
     "period": "Week 2",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 5592782100,
+    "serial": "5592782100",
     "description": "Unit is Working and no problem found",
     "inspectedBy": "Joseph Diala",
     "checkedBy": "IT",
@@ -300,8 +300,8 @@
     }
   },
   {
-    "id": 1780295816136,
-    "createdAt": 1780295815845,
+    "id": 1780296000046,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-11",
@@ -311,7 +311,7 @@
     "period": "Week 2",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501821100,
+    "serial": "4501821100",
     "description": "Unit is Working and no problem found",
     "inspectedBy": "Joseph Diala",
     "checkedBy": "IT",
@@ -325,8 +325,8 @@
     }
   },
   {
-    "id": 1780295816137,
-    "createdAt": 1780295815845,
+    "id": 1780296000047,
+    "createdAt": 1780295999758,
     "equipment": "Epson L6270",
     "title": "Epson L6270 Inspection",
     "inspectionDate": "2026-05-11",
@@ -350,8 +350,8 @@
     }
   },
   {
-    "id": 1780295816138,
-    "createdAt": 1780295815845,
+    "id": 1780296000048,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-05-11",
@@ -375,8 +375,8 @@
     }
   },
   {
-    "id": 1780295816139,
-    "createdAt": 1780295815845,
+    "id": 1780296000049,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-05-11",
@@ -400,8 +400,8 @@
     }
   },
   {
-    "id": 1780295816140,
-    "createdAt": 1780295815845,
+    "id": 1780296000050,
+    "createdAt": 1780295999758,
     "equipment": "HP Smart Tank 515",
     "title": "HP Smart Tank 515 Inspection",
     "inspectionDate": "2026-03-06",
@@ -425,8 +425,8 @@
     }
   },
   {
-    "id": 1780295816141,
-    "createdAt": 1780295815845,
+    "id": 1780296000051,
+    "createdAt": 1780295999758,
     "equipment": "Epson L805",
     "title": "Epson L805 Inspection",
     "inspectionDate": "2026-03-06",
@@ -450,8 +450,8 @@
     }
   },
   {
-    "id": 1780295816142,
-    "createdAt": 1780295815845,
+    "id": 1780296000052,
+    "createdAt": 1780295999758,
     "equipment": "Epson L8050",
     "title": "Epson L8050 Inspection",
     "inspectionDate": "2026-03-06",
@@ -475,8 +475,8 @@
     }
   },
   {
-    "id": 1780295816143,
-    "createdAt": 1780295815845,
+    "id": 1780296000053,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-03-06",
@@ -500,8 +500,8 @@
     }
   },
   {
-    "id": 1780295816144,
-    "createdAt": 1780295815845,
+    "id": 1780296000054,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-03-06",
@@ -525,8 +525,8 @@
     }
   },
   {
-    "id": 1780295816145,
-    "createdAt": 1780295815845,
+    "id": 1780296000055,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-03-06",
@@ -550,8 +550,8 @@
     }
   },
   {
-    "id": 1780295816146,
-    "createdAt": 1780295815845,
+    "id": 1780296000056,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-03-06",
@@ -575,8 +575,8 @@
     }
   },
   {
-    "id": 1780295816147,
-    "createdAt": 1780295815845,
+    "id": 1780296000057,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-03-06",
@@ -600,8 +600,8 @@
     }
   },
   {
-    "id": 1780295816148,
-    "createdAt": 1780295815845,
+    "id": 1780296000058,
+    "createdAt": 1780295999758,
     "equipment": "Brother DCP T-300",
     "title": "Brother DCP T-300 Inspection",
     "inspectionDate": "2026-03-06",
@@ -625,8 +625,8 @@
     }
   },
   {
-    "id": 1780295816149,
-    "createdAt": 1780295815845,
+    "id": 1780296000059,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-03-06",
@@ -650,8 +650,8 @@
     }
   },
   {
-    "id": 1780295816150,
-    "createdAt": 1780295815845,
+    "id": 1780296000060,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-03-06",
@@ -675,8 +675,8 @@
     }
   },
   {
-    "id": 1780295816151,
-    "createdAt": 1780295815845,
+    "id": 1780296000061,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-03-06",
@@ -686,7 +686,7 @@
     "period": "Q1 (Jan - Mar)",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501821100,
+    "serial": "4501821100",
     "description": "I checked the interior, operating condition, the wiring and the printer parts and consumables. So far the printer is still ok and working.",
     "inspectedBy": "Joseph Diala",
     "checkedBy": "IT",
@@ -700,8 +700,8 @@
     }
   },
   {
-    "id": 1780295816152,
-    "createdAt": 1780295815845,
+    "id": 1780296000062,
+    "createdAt": 1780295999758,
     "equipment": "Epson L3250",
     "title": "Epson L3250 Inspection",
     "inspectionDate": "2026-03-06",
@@ -725,8 +725,8 @@
     }
   },
   {
-    "id": 1780295816153,
-    "createdAt": 1780295815845,
+    "id": 1780296000063,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-03-06",
@@ -736,7 +736,7 @@
     "period": "Q1 (Jan - Mar)",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 5592782100,
+    "serial": "5592782100",
     "description": "I checked the interior, operating condition, the wiring and the printer parts and consumables. So far the printer is still ok and working.",
     "inspectedBy": "Joseph Diala",
     "checkedBy": "IT",
@@ -750,8 +750,8 @@
     }
   },
   {
-    "id": 1780295816154,
-    "createdAt": 1780295815845,
+    "id": 1780296000064,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-03-06",
@@ -775,8 +775,8 @@
     }
   },
   {
-    "id": 1780295816155,
-    "createdAt": 1780295815845,
+    "id": 1780296000065,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-03-06",
@@ -786,7 +786,7 @@
     "period": "Q1 (Jan - Mar)",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501822100,
+    "serial": "4501822100",
     "description": "I checked the interior, operating condition, the wiring and the printer parts and consumables. So far the printer is still ok and working.",
     "inspectedBy": "Joseph Diala",
     "checkedBy": "IT",
@@ -800,8 +800,8 @@
     }
   },
   {
-    "id": 1780295816156,
-    "createdAt": 1780295815845,
+    "id": 1780296000066,
+    "createdAt": 1780295999758,
     "equipment": "Epson LX-310",
     "title": "Epson LX-310 Inspection",
     "inspectionDate": "2026-03-09",
@@ -825,8 +825,8 @@
     }
   },
   {
-    "id": 1780295816157,
-    "createdAt": 1780295815845,
+    "id": 1780296000067,
+    "createdAt": 1780295999758,
     "equipment": "Epson LX-310",
     "title": "Epson LX-310 Inspection",
     "inspectionDate": "2026-03-09",
@@ -850,8 +850,8 @@
     }
   },
   {
-    "id": 1780295816158,
-    "createdAt": 1780295815845,
+    "id": 1780296000068,
+    "createdAt": 1780295999758,
     "equipment": "Epson LX-310",
     "title": "Epson LX-310 Inspection",
     "inspectionDate": "2026-03-09",
@@ -875,8 +875,8 @@
     }
   },
   {
-    "id": 1780295816159,
-    "createdAt": 1780295815845,
+    "id": 1780296000069,
+    "createdAt": 1780295999758,
     "equipment": "Epson LX-310",
     "title": "Epson LX-310 Inspection",
     "inspectionDate": "2026-03-09",
@@ -900,8 +900,8 @@
     }
   },
   {
-    "id": 1780295816160,
-    "createdAt": 1780295815845,
+    "id": 1780296000070,
+    "createdAt": 1780295999758,
     "equipment": "Epson LX-310",
     "title": "Epson LX-310 Inspection",
     "inspectionDate": "2026-03-09",
@@ -925,8 +925,8 @@
     }
   },
   {
-    "id": 1780295816161,
-    "createdAt": 1780295815845,
+    "id": 1780296000071,
+    "createdAt": 1780295999758,
     "equipment": "Epson LX-310",
     "title": "Epson LX-310 Inspection",
     "inspectionDate": "2026-03-09",
@@ -950,8 +950,8 @@
     }
   },
   {
-    "id": 1780295816162,
-    "createdAt": 1780295815845,
+    "id": 1780296000072,
+    "createdAt": 1780295999758,
     "equipment": "Epson LX-310",
     "title": "Epson LX-310 Inspection",
     "inspectionDate": "2026-03-09",
@@ -975,8 +975,8 @@
     }
   },
   {
-    "id": 1780295816163,
-    "createdAt": 1780295815845,
+    "id": 1780296000073,
+    "createdAt": 1780295999758,
     "equipment": "Epson LX-310",
     "title": "Epson LX-310 Inspection",
     "inspectionDate": "2026-03-09",
@@ -1000,8 +1000,8 @@
     }
   },
   {
-    "id": 1780295816164,
-    "createdAt": 1780295815845,
+    "id": 1780296000074,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-18",
@@ -1011,7 +1011,7 @@
     "period": "Week 3",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501822100,
+    "serial": "4501822100",
     "description": "There is no problem with the machine, it works as intended.",
     "inspectedBy": "Joseph S. Diala",
     "checkedBy": "IT",
@@ -1025,8 +1025,8 @@
     }
   },
   {
-    "id": 1780295816165,
-    "createdAt": 1780295815845,
+    "id": 1780296000075,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-18",
@@ -1036,7 +1036,7 @@
     "period": "Week 3",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 5592782100,
+    "serial": "5592782100",
     "description": "There is no problem with the machine, it works as intended.",
     "inspectedBy": "Joseph S. Diala",
     "checkedBy": "IT",
@@ -1050,8 +1050,8 @@
     }
   },
   {
-    "id": 1780295816166,
-    "createdAt": 1780295815845,
+    "id": 1780296000076,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-18",
@@ -1061,7 +1061,7 @@
     "period": "Week 3",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501821100,
+    "serial": "4501821100",
     "description": "There is no problem with the machine, it works as intended.",
     "inspectedBy": "Joseph S. Diala",
     "checkedBy": "IT",
@@ -1075,8 +1075,8 @@
     }
   },
   {
-    "id": 1780295816167,
-    "createdAt": 1780295815845,
+    "id": 1780296000077,
+    "createdAt": 1780295999758,
     "equipment": "Epson L6270",
     "title": "Epson L6270 Inspection",
     "inspectionDate": "2026-05-18",
@@ -1100,8 +1100,8 @@
     }
   },
   {
-    "id": 1780295816168,
-    "createdAt": 1780295815845,
+    "id": 1780296000078,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-05-18",
@@ -1125,8 +1125,8 @@
     }
   },
   {
-    "id": 1780295816169,
-    "createdAt": 1780295815845,
+    "id": 1780296000079,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-05-18",
@@ -1150,8 +1150,8 @@
     }
   },
   {
-    "id": 1780295816170,
-    "createdAt": 1780295815845,
+    "id": 1780296000080,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-25",
@@ -1161,7 +1161,7 @@
     "period": "Week 4",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 5592782100,
+    "serial": "5592782100",
     "description": "Based on my observations, the unit is working and I haven\\'t encountered any problems.",
     "inspectedBy": "Joseph S. Diala",
     "checkedBy": "IT",
@@ -1175,8 +1175,8 @@
     }
   },
   {
-    "id": 1780295816171,
-    "createdAt": 1780295815845,
+    "id": 1780296000081,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-25",
@@ -1186,7 +1186,7 @@
     "period": "Week 4",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501822100,
+    "serial": "4501822100",
     "description": "Based on my observations, the unit is working and I haven\\'t encountered any problems.",
     "inspectedBy": "Joseph S. Diala",
     "checkedBy": "IT",
@@ -1200,8 +1200,8 @@
     }
   },
   {
-    "id": 1780295816172,
-    "createdAt": 1780295815845,
+    "id": 1780296000082,
+    "createdAt": 1780295999758,
     "equipment": "Sharp Copier BP-30M28",
     "title": "Sharp Copier BP-30M28 Inspection",
     "inspectionDate": "2026-05-25",
@@ -1211,7 +1211,7 @@
     "period": "Week 4",
     "brand": "Sharp Copier",
     "model": "BP-30M28",
-    "serial": 4501821100,
+    "serial": "4501821100",
     "description": "Based on my observations, the unit is working and I haven\\'t encountered any problems.",
     "inspectedBy": "Joseph S. Diala",
     "checkedBy": "IT",
@@ -1225,8 +1225,8 @@
     }
   },
   {
-    "id": 1780295816173,
-    "createdAt": 1780295815845,
+    "id": 1780296000083,
+    "createdAt": 1780295999758,
     "equipment": "Epson L6270",
     "title": "Epson L6270 Inspection",
     "inspectionDate": "2026-05-25",
@@ -1250,8 +1250,8 @@
     }
   },
   {
-    "id": 1780295816174,
-    "createdAt": 1780295815845,
+    "id": 1780296000084,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-05-25",
@@ -1275,8 +1275,8 @@
     }
   },
   {
-    "id": 1780295816175,
-    "createdAt": 1780295815845,
+    "id": 1780296000085,
+    "createdAt": 1780295999758,
     "equipment": "Epson L5290",
     "title": "Epson L5290 Inspection",
     "inspectionDate": "2026-05-25",

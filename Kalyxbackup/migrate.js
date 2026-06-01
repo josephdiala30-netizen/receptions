@@ -262,7 +262,7 @@ ic.forEach(function(row) {
     title: displayName + ' Inspection',
     inspectionDate: row[3] || '', scheduledDate: row[3] || '',
     reference: row[2] || 'ITDF-01', frequency: row[5] || 'Quarterly', period: matchPeriod(row[35]) || '',
-    brand: equipName, model: modelStr, serial: row[8] || '',
+    brand: equipName, model: modelStr, serial: String(row[8] || ''),
     description: row[36] || '',
     inspectedBy: row[25] || '', checkedBy: row[26] || '',
     status: 'completed',
