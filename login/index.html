@@ -297,30 +297,49 @@
 
     (function seedAccounts() {
       var users = JSON.parse(localStorage.getItem('users') || '[]');
-      if (!users.some(function(u) { return u.username === 'superadmin'; })) {
-        users.push({ username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' });
+      var defaultAccounts = [
+        { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' },
+        { username: 'admin', name: 'Administrator', email: 'admin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'executive_path' },
+        { username: 'executive', name: 'Executive User', email: 'executive@kalyx.com', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: false, role: 'executive_task' },
+        { username: 'task_admin', name: 'Task Administrator', email: 'task_admin@kalyx.com', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: true, role: 'executive_task' }
+      ];
+      var dirty = false;
+      defaultAccounts.forEach(function(def) {
+        var idx = users.findIndex(function(u) { return u.username === def.username; });
+        if (idx === -1) {
+          users.push(def);
+          dirty = true;
+        } else {
+          var u = users[idx];
+          if (!u.role || u.isAdmin === undefined || u.isAdmin === null || !u.password || !u.email) {
+            users[idx] = def;
+            dirty = true;
+          }
+        }
+      });
+      if (dirty) {
+        localStorage.setItem('users', JSON.stringify(users));
       }
-      if (!users.some(function(u) { return u.username === 'admin'; })) {
-        users.push({ username: 'admin', name: 'Administrator', email: 'admin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'executive_path' });
-      }
-      if (!users.some(function(u) { return u.username === 'executive'; })) {
-        users.push({ username: 'executive', name: 'Executive User', email: 'executive@kalyx.com', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: false, role: 'executive_task' });
-      }
-      if (!users.some(function(u) { return u.username === 'task_admin'; })) {
-        users.push({ username: 'task_admin', name: 'Task Administrator', email: 'task_admin@kalyx.com', password: '67ca109ec8b0db7d75b90bbe4f0a8eafbd11663518d96362e48c1ed8c0c7afc6', isAdmin: true, role: 'executive_task' });
-      }
-      localStorage.setItem('users', JSON.stringify(users));
 
       var usersIt = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
       var itDirty = false;
-      if (!usersIt.some(function(u) { return u.username === 'it_executive'; })) {
-        usersIt.push({ username: 'it_executive', name: 'Executive IT', email: 'it_executive@kalyx.com', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: false, role: 'executive_it' });
-        itDirty = true;
-      }
-      if (!usersIt.some(function(u) { return u.username === 'it_admin'; })) {
-        usersIt.push({ username: 'it_admin', name: 'IT Administrator', email: 'it_admin@kalyx.com', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: true, role: 'executive_it' });
-        itDirty = true;
-      }
+      var itDefaults = [
+        { username: 'it_executive', name: 'Executive IT', email: 'it_executive@kalyx.com', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: false, role: 'executive_it' },
+        { username: 'it_admin', name: 'IT Administrator', email: 'it_admin@kalyx.com', password: '47131d546b8283f7f716eb6feed18c9a75e8d6ea2fd39a2915bbc7ff50e681d1', isAdmin: true, role: 'executive_it' }
+      ];
+      itDefaults.forEach(function(def) {
+        var idx = usersIt.findIndex(function(u) { return u.username === def.username; });
+        if (idx === -1) {
+          usersIt.push(def);
+          itDirty = true;
+        } else {
+          var u = usersIt[idx];
+          if (!u.role || u.isAdmin === undefined || u.isAdmin === null || !u.password || !u.email) {
+            usersIt[idx] = def;
+            itDirty = true;
+          }
+        }
+      });
       if (itDirty) {
         localStorage.setItem('users_executive_it', JSON.stringify(usersIt));
       }

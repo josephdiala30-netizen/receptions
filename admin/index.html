@@ -771,6 +771,10 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Username already exists.'; errEl.prepend(err); return;
     }
+    if (editId === 'superadmin' && role !== 'admin') {
+      var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
+      err.textContent = 'Super Administrator role cannot be changed.'; errEl.prepend(err); return;
+    }
     users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin;
     if (password) users[idx].password = await hashPass(password);
     saveUsers(users);
@@ -798,6 +802,7 @@ function editUser(username) {
 }
 
 function deleteUser(username) {
+  if (username === 'superadmin') return;
   if (!confirm('Delete user "' + username + '"? This will remove all their data.')) return;
   var users = getUsers().filter(function(u) { return u.username !== username; });
   saveUsers(users);
