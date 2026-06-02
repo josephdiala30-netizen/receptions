@@ -195,6 +195,10 @@ button, input, select, textarea { min-width: 0; }
       <span class="material-symbols-outlined">monitor_heart</span>
       <span class="font-label-md">System Monitor</span>
     </a>
+    <a id="navCalendar" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('calendar')">
+      <span class="material-symbols-outlined">calendar_month</span>
+      <span class="font-label-md">Calendar</span>
+    </a>
   </nav>
   <button class="mt-auto bg-emerald-500 hover:bg-emerald-400 text-white py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="openAddModal()">
     <span class="material-symbols-outlined">add</span> New Item
@@ -239,6 +243,9 @@ button, input, select, textarea { min-width: 0; }
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('systems');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">monitor_heart</span><span class="font-label-md">System Monitor</span>
+      </a>
+      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('calendar');document.getElementById('mobile-menu').classList.add('hidden')">
+        <span class="material-symbols-outlined">calendar_month</span><span class="font-label-md">Calendar</span>
       </a>
     </nav>
   </aside>
@@ -484,6 +491,51 @@ button, input, select, textarea { min-width: 0; }
     </button>
   </div>
   <div id="systemList" class="space-y-3"></div>
+</section>
+
+<!-- ============ CALENDAR VIEW ============ -->
+<section id="viewCalendar" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+      <h2 class="font-headline-lg text-headline-lg text-primary">Calendar</h2>
+      <p class="font-body-lg text-on-surface-variant">Upcoming tasks, maintenance inspections, and scheduled events</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors text-lg" onclick="calChangeMonth(-1)">chevron_left</button>
+      <span id="calMonthYear" class="font-label-md font-semibold text-on-surface min-w-[160px] text-center"></span>
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors text-lg" onclick="calChangeMonth(1)">chevron_right</button>
+      <button class="font-label-md text-indigo-600 hover:underline text-sm ml-2" onclick="calGoToToday()">Today</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr>
+            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sun</th>
+            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Mon</th>
+            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Tue</th>
+            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Wed</th>
+            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Thu</th>
+            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Fri</th>
+            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sat</th>
+          </tr>
+        </thead>
+        <tbody id="calBody"></tbody>
+      </table>
+      <div class="flex items-center gap-5 mt-5 pt-4 border-t border-outline-variant text-xs">
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span> Tasks</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block"></span> Maintenance</span>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
+      <h3 class="font-title-lg font-semibold text-primary mb-4" id="calDayTitle">Select a day</h3>
+      <div id="calDayList" class="space-y-3">
+        <p class="font-body-md text-on-surface-variant text-center py-8">Click a date on the calendar to view items due on that day.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
 </main>
@@ -898,15 +950,15 @@ var currentView = 'dashboard';
 
 function switchView(view) {
   currentView = view;
-  var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems'];
+  var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems', 'Calendar'];
   views.forEach(function(v) {
     var el = document.getElementById('view' + v);
     if (el) el.classList.toggle('hidden', v.toLowerCase() !== view);
   });
 
   // Update sidebar active state
-  var navIds = ['navDashboard', 'navServices', 'navMaintenance', 'navInventory', 'navTask', 'navPlanner', 'navAccomplishments', 'navTickets', 'navSystems'];
-  var viewMap = { dashboard: 'navDashboard', services: 'navServices', maintenance: 'navMaintenance', inventory: 'navInventory', task: 'navTask', planner: 'navPlanner', accomplishments: 'navAccomplishments', tickets: 'navTickets', systems: 'navSystems' };
+  var navIds = ['navDashboard', 'navServices', 'navMaintenance', 'navInventory', 'navTask', 'navPlanner', 'navAccomplishments', 'navTickets', 'navSystems', 'navCalendar'];
+  var viewMap = { dashboard: 'navDashboard', services: 'navServices', maintenance: 'navMaintenance', inventory: 'navInventory', task: 'navTask', planner: 'navPlanner', accomplishments: 'navAccomplishments', tickets: 'navTickets', systems: 'navSystems', calendar: 'navCalendar' };
   navIds.forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -927,6 +979,7 @@ function switchView(view) {
   else if (view === 'accomplishments') renderAccomplishments();
   else if (view === 'tickets') renderTickets();
   else if (view === 'systems') renderSystems();
+  else if (view === 'calendar') renderCalendar();
 }
 
 // ==================== DASHBOARD ====================
@@ -1065,6 +1118,144 @@ function checkDueTasks() {
 
 // Check for due tasks every 60 seconds
 setInterval(checkDueTasks, 60000);
+
+// ==================== CALENDAR ====================
+var calDate = new Date();
+
+function renderCalendar() {
+  var tasks = getData('task');
+  var maintenance = getData('maintenance');
+  var year = calDate.getFullYear();
+  var month = calDate.getMonth();
+
+  document.getElementById('calMonthYear').textContent = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  var firstDay = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  var dateMap = {};
+  tasks.forEach(function(t) {
+    if (t.dueDate && t.status !== 'done') {
+      if (!dateMap[t.dueDate]) dateMap[t.dueDate] = [];
+      dateMap[t.dueDate].push({ type: 'task', data: t });
+    }
+  });
+  maintenance.forEach(function(m) {
+    var d = m.inspectionDate || m.scheduledDate;
+    if (d) {
+      if (!dateMap[d]) dateMap[d] = [];
+      dateMap[d].push({ type: 'maintenance', data: m });
+    }
+  });
+
+  var html = '';
+  var date = 1;
+  var today = new Date();
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+  for (var row = 0; row < 6; row++) {
+    if (date > daysInMonth) break;
+    html += '<tr>';
+    for (var col = 0; col < 7; col++) {
+      if ((row === 0 && col < firstDay) || date > daysInMonth) {
+        html += '<td class="p-1"></td>';
+      } else {
+        var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(date).padStart(2, '0');
+        var dayItems = dateMap[dateStr] || [];
+        var isToday = dateStr === todayStr;
+        var cls = 'text-center p-1.5 rounded-xl cursor-pointer transition-colors hover:bg-surface-container-high relative';
+        if (isToday) cls += ' bg-indigo-100 text-indigo-700 font-semibold';
+        var taskCount = dayItems.filter(function(i) { return i.type === 'task'; }).length;
+        var maintCount = dayItems.filter(function(i) { return i.type === 'maintenance'; }).length;
+        html += '<td class="p-1"><div class="' + cls + '" onclick="calShowDay(\'' + dateStr + '\')"><span class="font-body-md">' + date + '</span>';
+        if (dayItems.length > 0) {
+          html += '<div class="flex items-center justify-center gap-0.5 mt-0.5">';
+          if (taskCount > 0) html += '<span class="w-1.5 h-1.5 rounded-full bg-purple-500 inline-block"></span>';
+          if (maintCount > 0) html += '<span class="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block"></span>';
+          html += '</div>';
+        }
+        html += '</div></td>';
+        date++;
+      }
+    }
+    html += '</tr>';
+  }
+
+  document.getElementById('calBody').innerHTML = html;
+  document.getElementById('calDayTitle').textContent = 'Select a day';
+  document.getElementById('calDayList').innerHTML = '<p class="font-body-md text-on-surface-variant text-center py-8">Click a date on the calendar to view items due on that day.</p>';
+}
+
+function calChangeMonth(delta) {
+  calDate.setMonth(calDate.getMonth() + delta);
+  renderCalendar();
+}
+
+function calGoToToday() {
+  calDate = new Date();
+  renderCalendar();
+}
+
+function calShowDay(dateStr) {
+  var tasks = getData('task');
+  var maintenance = getData('maintenance');
+  var dayItems = [];
+
+  tasks.forEach(function(t) {
+    if (t.dueDate === dateStr && t.status !== 'done') {
+      dayItems.push({ type: 'task', data: t });
+    }
+  });
+  maintenance.forEach(function(m) {
+    var d = m.inspectionDate || m.scheduledDate;
+    if (d === dateStr) {
+      dayItems.push({ type: 'maintenance', data: m });
+    }
+  });
+
+  var d = new Date(dateStr + 'T00:00:00');
+  var title = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  document.getElementById('calDayTitle').textContent = title + ' — ' + dayItems.length + ' item' + (dayItems.length !== 1 ? 's' : '');
+
+  if (dayItems.length === 0) {
+    document.getElementById('calDayList').innerHTML = '<p class="font-body-md text-on-surface-variant text-center py-8">No items scheduled on this day.</p>';
+    return;
+  }
+
+  var html = '';
+  dayItems.sort(function(a, b) { return a.type.localeCompare(b.type); });
+  dayItems.forEach(function(item) {
+    if (item.type === 'task') {
+      var t = item.data;
+      var statusColors = { todo: 'text-red-600', progress: 'text-amber-600', done: 'text-emerald-600' };
+      html += '<div class="p-4 bg-surface-container-low border border-outline-variant rounded-xl space-y-2">' +
+        '<div class="flex items-start gap-3">' +
+        '  <div class="p-2 rounded-lg bg-purple-100 text-purple-600"><span class="material-symbols-outlined text-sm">task</span></div>' +
+        '  <div class="flex-1 min-w-0">' +
+        '    <p class="font-body-md font-semibold text-primary">' + escapeHtml(t.title) + '</p>' +
+        '    <p class="font-label-md text-on-surface-variant mt-0.5">' + (t.priority || 'medium') + ' &middot; <span class="' + (statusColors[t.status] || 'text-gray-600') + '">' + escapeHtml(t.status || 'todo') + '</span></p>' +
+        '  </div>' +
+        '</div>' +
+        (t.description ? '<p class="text-xs text-on-surface-variant border-l-2 border-purple-400/40 pl-3">' + escapeHtml(t.description) + '</p>' : '') +
+        '</div>';
+    } else {
+      var m = item.data;
+      var mStatusColors = { scheduled: 'text-blue-600', 'in-progress': 'text-amber-600', completed: 'text-emerald-600' };
+      html += '<div class="p-4 bg-surface-container-low border border-outline-variant rounded-xl space-y-2">' +
+        '<div class="flex items-start gap-3">' +
+        '  <div class="p-2 rounded-lg bg-orange-100 text-orange-600"><span class="material-symbols-outlined text-sm">handyman</span></div>' +
+        '  <div class="flex-1 min-w-0">' +
+        '    <p class="font-body-md font-semibold text-primary">' + escapeHtml(m.equipment || m.asset || m.title || 'Maintenance') + '</p>' +
+        '    <p class="font-label-md text-on-surface-variant mt-0.5">' + escapeHtml(m.frequency || 'Once') + ' &middot; <span class="' + (mStatusColors[m.status] || 'text-blue-600') + '">' + escapeHtml(m.status || 'scheduled') + '</span></p>' +
+        '  </div>' +
+        '</div>' +
+        (m.description ? '<p class="text-xs text-on-surface-variant border-l-2 border-orange-400/40 pl-3">' + escapeHtml(m.description) + '</p>' : '') +
+        '</div>';
+    }
+  });
+
+  document.getElementById('calDayList').innerHTML = html;
+}
 
 // ==================== SERVICES ====================
 function renderServices() {
@@ -3366,6 +3557,7 @@ function initTutorial() {
     { icon: 'add', title: 'Add a New Item', desc: 'Click <strong>New Item</strong> to add IT assets, services, maintenance records, or inventory items.', selector: 'button[onclick*="openAddModal"]', padding: 12, pulse: true },
     { icon: 'devices', title: 'IT Sections', desc: 'Navigate through <strong>Services</strong>, <strong>Maintenance</strong>, <strong>Inventory</strong>, <strong>Assets</strong>, and more using the sidebar.', selector: 'a[onclick*="Services"]', padding: 8 },
     { icon: 'checklist', title: 'IT Tasks &amp; Planner', desc: 'Use <strong>IT Task</strong> and <strong>Planner</strong> to track IT projects, support tickets, and accomplishments.', selector: 'a[onclick*="IT Task"]', padding: 8 },
+    { icon: 'calendar_month', title: 'Calendar View', desc: 'The <strong>Calendar</strong> shows all your upcoming tasks and maintenance inspections in a monthly view. Click any date to see what\'s due.', selector: 'a[onclick*="calendar"]', padding: 8 },
     { icon: 'menu_book', title: 'You\'re All Set!', desc: 'Explore at your own pace. Visit the <a href="../guide/" class="text-primary underline font-bold">User Guide</a> for detailed tutorials. Happy managing!', selector: null, padding: 0 }
   ];
 
