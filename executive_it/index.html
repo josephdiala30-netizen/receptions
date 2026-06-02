@@ -402,10 +402,10 @@ button, input, select, textarea { min-width: 0; }
       <p class="font-body-lg text-on-surface-variant">Manage IT service offerings and requests</p>
     </div>
     <div class="flex gap-2">
-      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="printServicesReport()">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="showDateRangeModal('services', function(s, e) { printServicesReport(s, e); })">
         <span class="material-symbols-outlined text-sm">print</span> Print
       </button>
-      <button class="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-rose-600 hover:to-pink-700 transition-all active:scale-[0.97] shadow-sm" onclick="downloadServicesPDF()">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-rose-600 hover:to-pink-700 transition-all active:scale-[0.97] shadow-sm" onclick="showDateRangeModal('services', function(s, e) { downloadServicesPDF(s, e); })">
         <span class="material-symbols-outlined text-sm">picture_as_pdf</span> Download PDF
       </button>
       <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('service')">
@@ -424,10 +424,10 @@ button, input, select, textarea { min-width: 0; }
       <p class="font-body-lg text-on-surface-variant">Schedule and track maintenance activities</p>
     </div>
     <div class="flex gap-2">
-      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="printMaintenanceReport()">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="showDateRangeModal('maintenance', function(s, e) { printMaintenanceReport(s, e); })">
         <span class="material-symbols-outlined text-sm">print</span> Print
       </button>
-      <button class="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-rose-600 hover:to-pink-700 transition-all active:scale-[0.97] shadow-sm" onclick="downloadMaintenancePDF()">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-rose-600 hover:to-pink-700 transition-all active:scale-[0.97] shadow-sm" onclick="showDateRangeModal('maintenance', function(s, e) { downloadMaintenancePDF(s, e); })">
         <span class="material-symbols-outlined text-sm">picture_as_pdf</span> Download PDF
       </button>
       <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('maintenance')">
@@ -551,6 +551,29 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 <!-- Onboarding Tutorial Overlay -->
+<!-- Date Range Filter Modal -->
+<div id="dateRangeModal" class="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4">
+  <div class="glass-card bg-surface border border-outline-variant/30 rounded-3xl shadow-2xl max-w-sm w-full p-6 md:p-8 animate-fade-in">
+    <h2 class="text-xl font-extrabold text-primary mb-1">Select Date Range</h2>
+    <p class="text-sm text-on-surface-variant font-medium mb-5">Filter <span id="dateRangeTitle"></span> by date</p>
+    <div class="space-y-4">
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Start Date</label>
+        <input id="dateRangeStart" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all"/>
+      </div>
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">End Date</label>
+        <input id="dateRangeEnd" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all"/>
+      </div>
+      <div id="dateRangeError" class="text-xs font-semibold text-error hidden"></div>
+      <div class="flex gap-2">
+        <button onclick="closeDateRangeModal()" class="flex-1 px-4 py-2.5 border border-outline-variant rounded-xl font-bold text-sm text-on-surface-variant hover:bg-surface-container-high transition-all">Cancel</button>
+        <button onclick="submitDateRange()" class="flex-1 px-4 py-2.5 bg-primary text-on-primary rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-md">Generate Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="tutorialOverlay" class="fixed inset-0 z-[100] hidden">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="tutorialBackdrop"></div>
   <div class="absolute inset-0 pointer-events-none" id="tutorialSpotlight"></div>
@@ -1497,8 +1520,9 @@ function renderMaintenance() {
   el.innerHTML = html;
 }
 
-function buildServicesReportHTML() {
+function buildServicesReportHTML(startDate, endDate) {
   var data = getData('services');
+  data = filterDataByDate(data, 'incidentDate', startDate, endDate);
   if (data.length === 0) return '';
   var total = data.length;
   var open = data.filter(function(s) { return s.status === 'open' || s.status === 'in-progress'; }).length;
@@ -1587,44 +1611,45 @@ function buildServicesReportHTML() {
   return html;
 }
 
-function printServicesReport() {
-  var data = getData('services');
-  if (data.length === 0) { alert('No IT services to report.'); return; }
-  var html = buildServicesReportHTML();
+function printServicesReport(startDate, endDate) {
+  var html = buildServicesReportHTML(startDate, endDate);
+  if (!html) { alert('No IT services in the selected date range.'); return; }
   var w = window.open('', '_blank');
-  w.document.write('<html><head><title>IT Services Report</title>');
-  w.document.write(html);
-  w.document.write('</html>');
+  w.document.write('<html><head><title>IT Services Report</title></head><body>' + html + '</body></html>');
   w.document.close();
   setTimeout(function(){ w.print(); }, 400);
 }
 
-function downloadServicesPDF() {
-  var data = getData('services');
-  if (data.length === 0) { alert('No IT services to report.'); return; }
-  var html = buildServicesReportHTML();
-  var wrapper = document.createElement('div');
-  wrapper.innerHTML = html;
-  wrapper.style.position = 'fixed';
-  wrapper.style.left = '-9999px';
-  wrapper.style.top = '0';
-  wrapper.style.width = '800px';
-  wrapper.style.background = '#fff';
-  document.body.appendChild(wrapper);
+function downloadServicesPDF(startDate, endDate) {
+  var html = buildServicesReportHTML(startDate, endDate);
+  if (!html) { alert('No IT services in the selected date range.'); return; }
+  var fullHtml = '<!DOCTYPE html><html><head><title>IT Services Report</title></head><body>' + html + '</body></html>';
+  var iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.left = '-9999px';
+  iframe.style.top = '0';
+  iframe.style.width = '860px';
+  iframe.style.height = '1200px';
+  document.body.appendChild(iframe);
+  iframe.contentDocument.write(fullHtml);
+  iframe.contentDocument.close();
   var opt = {
-    margin: [0.5, 0.5, 0.5, 0.5],
+    margin: [0.4, 0.4, 0.4, 0.4],
     filename: 'IT_Services_Report_' + new Date().toISOString().split('T')[0] + '.pdf',
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, letterRendering: true, useCORS: true },
     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
-  html2pdf().set(opt).from(wrapper).save().then(function() {
-    document.body.removeChild(wrapper);
-  });
+  setTimeout(function() {
+    html2pdf().set(opt).from(iframe.contentDocument.body).save().then(function() {
+      document.body.removeChild(iframe);
+    });
+  }, 500);
 }
 
-function buildMaintenanceReportHTML() {
+function buildMaintenanceReportHTML(startDate, endDate) {
   var data = getData('maintenance');
+  data = filterDataByDate(data, 'inspectionDate', startDate, endDate);
   if (data.length === 0) return '';
   var total = data.length;
   var scheduled = data.filter(function(m) { return m.status === 'scheduled'; }).length;
@@ -1716,40 +1741,40 @@ function buildMaintenanceReportHTML() {
   return html;
 }
 
-function printMaintenanceReport() {
-  var data = getData('maintenance');
-  if (data.length === 0) { alert('No maintenance records to report.'); return; }
-  var html = buildMaintenanceReportHTML();
+function printMaintenanceReport(startDate, endDate) {
+  var html = buildMaintenanceReportHTML(startDate, endDate);
+  if (!html) { alert('No maintenance records in the selected date range.'); return; }
   var w = window.open('', '_blank');
-  w.document.write('<html><head><title>IT Maintenance Report</title>');
-  w.document.write(html);
-  w.document.write('</html>');
+  w.document.write('<html><head><title>IT Maintenance Report</title></head><body>' + html + '</body></html>');
   w.document.close();
   setTimeout(function(){ w.print(); }, 400);
 }
 
-function downloadMaintenancePDF() {
-  var data = getData('maintenance');
-  if (data.length === 0) { alert('No maintenance records to report.'); return; }
-  var html = buildMaintenanceReportHTML();
-  var wrapper = document.createElement('div');
-  wrapper.innerHTML = html;
-  wrapper.style.position = 'fixed';
-  wrapper.style.left = '-9999px';
-  wrapper.style.top = '0';
-  wrapper.style.width = '800px';
-  wrapper.style.background = '#fff';
-  document.body.appendChild(wrapper);
+function downloadMaintenancePDF(startDate, endDate) {
+  var html = buildMaintenanceReportHTML(startDate, endDate);
+  if (!html) { alert('No maintenance records in the selected date range.'); return; }
+  var fullHtml = '<!DOCTYPE html><html><head><title>IT Maintenance Report</title></head><body>' + html + '</body></html>';
+  var iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.left = '-9999px';
+  iframe.style.top = '0';
+  iframe.style.width = '1100px';
+  iframe.style.height = '900px';
+  document.body.appendChild(iframe);
+  iframe.contentDocument.write(fullHtml);
+  iframe.contentDocument.close();
   var opt = {
-    margin: [0.5, 0.5, 0.5, 0.5],
+    margin: [0.3, 0.3, 0.3, 0.3],
     filename: 'IT_Maintenance_Report_' + new Date().toISOString().split('T')[0] + '.pdf',
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, letterRendering: true, useCORS: true },
     jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
   };
-  html2pdf().set(opt).from(wrapper).save().then(function() {
-    document.body.removeChild(wrapper);
-  });
+  setTimeout(function() {
+    html2pdf().set(opt).from(iframe.contentDocument.body).save().then(function() {
+      document.body.removeChild(iframe);
+    });
+  }, 500);
 }
 
 function printMaintenanceForm() {
@@ -3655,6 +3680,52 @@ function toggleCategoryDetails(val) {
   if (el) {
     el.style.display = val === 'Technical Support' ? '' : 'none';
   }
+}
+
+// ==================== DATE RANGE MODAL ====================
+var dateRangeCallback = null;
+
+function showDateRangeModal(type, callback) {
+  dateRangeCallback = callback;
+  var title = type === 'services' ? 'IT Services' : 'IT Maintenance';
+  document.getElementById('dateRangeTitle').textContent = title + ' Report';
+  document.getElementById('dateRangeStart').value = '';
+  document.getElementById('dateRangeEnd').value = '';
+  document.getElementById('dateRangeError').classList.add('hidden');
+  document.getElementById('dateRangeModal').classList.remove('hidden');
+}
+
+function closeDateRangeModal() {
+  document.getElementById('dateRangeModal').classList.add('hidden');
+  dateRangeCallback = null;
+}
+
+function submitDateRange() {
+  var start = document.getElementById('dateRangeStart').value;
+  var end = document.getElementById('dateRangeEnd').value;
+  var errEl = document.getElementById('dateRangeError');
+  if (start && end && start > end) {
+    errEl.textContent = 'End date must be after start date.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  closeDateRangeModal();
+  if (dateRangeCallback) {
+    dateRangeCallback(start || null, end || null);
+    dateRangeCallback = null;
+  }
+}
+
+function filterDataByDate(data, dateField, startDate, endDate) {
+  if (!startDate && !endDate) return data;
+  return data.filter(function(item) {
+    var d = item[dateField] || (item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : '');
+    if (!d) return true;
+    var dateStr = typeof d === 'string' ? d.replace('T', ' ').split(' ')[0] : new Date(d).toISOString().split('T')[0];
+    if (startDate && dateStr < startDate) return false;
+    if (endDate && dateStr > endDate) return false;
+    return true;
+  });
 }
 
 // ==================== INIT ====================
