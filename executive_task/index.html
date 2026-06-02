@@ -1819,9 +1819,158 @@ function deleteLogEntry(id) {
   loadDailyLog();
 }
 
+function initTutorial() {
+  var session = getSession();
+  if (!session) return;
+  var key = 'kalyx_tutorial_' + session.username;
+  if (localStorage.getItem(key)) return;
+
+  var steps = [
+    { icon: 'explore', title: 'Welcome to Executive Task!', desc: 'This is your task management portal. Let\'s take a quick tour to help you get started.', selector: null, padding: 0 },
+    { icon: 'dashboard', title: 'Task Dashboard', desc: 'Your dashboard shows an overview of all your tasks — total count, status breakdown, priority distribution, and a calendar view.', selector: '#pageDashboard > div:first-child', padding: 16 },
+    { icon: 'add', title: 'Create a New Task', desc: 'Click the <strong>New Task</strong> button here or in the sidebar to create your first task. Add a title, description, priority, category, and due date.', selector: 'button[onclick="openCreateModal()"]', padding: 12, pulse: true },
+    { icon: 'checklist', title: 'All Tasks', desc: 'The <strong>All Tasks</strong> section lets you view, filter by status or priority, search, and manage every task you\'ve created.', selector: 'a[onclick="showAllTasks()"]', padding: 8 },
+    { icon: 'map', title: 'Planner &amp; Roadmap', desc: 'Use the <strong>Planner</strong> to create plans with milestones and track long-term project progress.', selector: 'a[onclick*="showPlanner"]', padding: 8 },
+    { icon: 'edit_note', title: 'Daily Log', desc: 'The <strong>Daily Log</strong> lets you record job accomplishments, track time spent, and even log IT support tickets.', selector: 'a[onclick*="showDailyLog"]', padding: 8 },
+    { icon: 'menu_book', title: 'You\'re All Set!', desc: 'Explore each section at your own pace. Visit the <a href="../guide/" class="text-primary underline font-bold">User Guide</a> for detailed tutorials and tips. Happy tasking!', selector: null, padding: 0 }
+  ];
+
+  var currentStep = 0;
+  var overlay = document.getElementById('tutorialOverlay');
+  var spotlight = document.getElementById('tutorialSpotlight');
+  var titleEl = document.getElementById('tutorialTitle');
+  var descEl = document.getElementById('tutorialDesc');
+  var iconEl = document.getElementById('tutorialIcon');
+  var nextBtn = document.getElementById('tutorialNextBtn');
+  var prevBtn = document.getElementById('tutorialPrevBtn');
+  var counter = document.getElementById('tutorialCounter');
+  var dots = document.getElementById('tutorialDots');
+
+  function renderDots() {
+    dots.innerHTML = steps.map(function(s, i) {
+      return '<span class="w-2 h-2 rounded-full transition-all duration-300 ' + (i === currentStep ? 'bg-primary w-4' : 'bg-outline-variant') + '"></span>';
+    }).join('');
+  }
+
+  function showStep(index) {
+    var step = steps[index];
+    currentStep = index;
+    iconEl.textContent = step.icon;
+    titleEl.innerHTML = step.title;
+    descEl.innerHTML = step.desc;
+    counter.textContent = (index + 1) + ' of ' + steps.length;
+    nextBtn.textContent = index === steps.length - 1 ? 'Done' : 'Next';
+    prevBtn.classList.toggle('hidden', index === 0);
+
+    var card = document.getElementById('tutorialCard');
+    card.querySelector('.glass-card').style.animation = 'none';
+    setTimeout(function() {
+      card.querySelector('.glass-card').style.animation = 'fadeInUp 0.4s ease forwards';
+    }, 10);
+
+    // Spotlight
+    if (step.selector) {
+      var el = document.querySelector(step.selector);
+      if (el) {
+        var rect = el.getBoundingClientRect();
+        spotlight.style.display = 'block';
+        spotlight.className = 'absolute inset-0 pointer-events-none';
+        if (step.pulse) spotlight.classList.add('tutorial-pulse');
+        spotlight.style.top = (rect.top - step.padding) + 'px';
+        spotlight.style.left = (rect.left - step.padding) + 'px';
+        spotlight.style.width = (rect.width + step.padding * 2) + 'px';
+        spotlight.style.height = (rect.height + step.padding * 2) + 'px';
+        spotlight.style.borderRadius = '16px';
+      } else {
+        spotlight.style.display = 'none';
+      }
+    } else {
+      spotlight.style.display = 'none';
+    }
+
+    renderDots();
+  }
+
+  window.nextTutorialStep = function() {
+    if (currentStep < steps.length - 1) {
+      showStep(currentStep + 1);
+    } else {
+      finishTutorial();
+    }
+  };
+
+  window.prevTutorialStep = function() {
+    if (currentStep > 0) {
+      showStep(currentStep - 1);
+    }
+  };
+
+  window.skipTutorial = function() {
+    finishTutorial();
+  };
+
+  function finishTutorial() {
+    overlay.classList.add('hidden');
+    localStorage.setItem(key, 'true');
+  }
+
+  overlay.classList.remove('hidden');
+  showStep(0);
+}
+
 initTheme();
 initAuth();
 loadDashboard();
+initTutorial();
 </script>
+
+<!-- Onboarding Tutorial Overlay -->
+<div id="tutorialOverlay" class="fixed inset-0 z-[100] hidden">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="tutorialBackdrop"></div>
+  <div class="absolute inset-0 pointer-events-none" id="tutorialSpotlight"></div>
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-lg px-4" id="tutorialCard">
+    <div class="glass-card bg-surface border border-outline-variant/30 rounded-2xl shadow-2xl p-6 pointer-events-auto animate-fade-in">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="flex gap-1" id="tutorialDots"></span>
+        <span class="text-xs font-semibold text-on-surface-variant ml-auto" id="tutorialCounter"></span>
+      </div>
+      <div id="tutorialContent">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="material-symbols-outlined text-2xl text-primary" id="tutorialIcon">explore</span>
+          <h3 class="font-title-lg text-title-lg text-primary" id="tutorialTitle"></h3>
+        </div>
+        <p class="text-sm text-on-surface-variant font-medium leading-relaxed" id="tutorialDesc"></p>
+      </div>
+      <div class="flex items-center justify-between mt-5 pt-4 border-t border-outline-variant/30">
+        <button class="text-sm font-semibold text-on-surface-variant hover:text-primary px-3 py-1.5 rounded-lg hover:bg-surface-container-high transition" onclick="skipTutorial()" id="tutorialSkipBtn">Skip</button>
+        <div class="flex gap-2">
+          <button class="px-4 py-2 text-sm font-semibold text-on-surface-variant rounded-xl hover:bg-surface-container-high transition hidden" id="tutorialPrevBtn" onclick="prevTutorialStep()">Back</button>
+          <button class="px-5 py-2 bg-primary text-on-primary rounded-xl text-sm font-bold hover:opacity-90 transition active:scale-95" id="tutorialNextBtn" onclick="nextTutorialStep()">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+#tutorialSpotlight {
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.7), 0 0 30px rgba(79,70,229,0.2);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
+}
+.tutorial-pulse {
+  animation: tutorialPulse 1.5s ease-in-out infinite;
+}
+@keyframes tutorialPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,0.3), 0 0 0 9999px rgba(0,0,0,0.7); }
+  50% { box-shadow: 0 0 0 4px rgba(79,70,229,0.1), 0 0 0 9999px rgba(0,0,0,0.7); }
+}
+@keyframes tutorialBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.tutorial-bounce {
+  animation: tutorialBounce 1s ease-in-out infinite;
+}
+</style>
 </body>
 </html>

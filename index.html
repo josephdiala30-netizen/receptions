@@ -267,6 +267,44 @@
     </div>
   </section>
 
+  <!-- Welcome Modal (first-time visitor) -->
+  <div id="welcomeModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4">
+    <div class="glass-card bg-surface border border-outline-variant/30 rounded-3xl shadow-2xl max-w-lg w-full p-8 md:p-10 animate-fade-in">
+      <div class="text-center mb-6">
+        <span class="material-symbols-outlined text-5xl text-primary mb-3">workspace_premium</span>
+        <h2 class="text-2xl font-extrabold text-on-background">Welcome to KALYX</h2>
+        <p class="text-on-surface-variant mt-2 font-medium">Your all-in-one executive management platform</p>
+      </div>
+      <div class="space-y-3 mb-6 text-sm text-on-surface-variant font-medium">
+        <div class="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+          <span class="material-symbols-outlined text-primary text-lg mt-0.5">flight_takeoff</span>
+          <span><strong class="text-on-surface">Plan trips</strong> — Create and manage executive travel itineraries with ease.</span>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+          <span class="material-symbols-outlined text-primary text-lg mt-0.5">checklist</span>
+          <span><strong class="text-on-surface">Track tasks</strong> — Organize, prioritize, and monitor daily accomplishments.</span>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+          <span class="material-symbols-outlined text-primary text-lg mt-0.5">support</span>
+          <span><strong class="text-on-surface">IT Service Desk</strong> — Manage tickets, inventory, and maintenance checklists.</span>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+          <span class="material-symbols-outlined text-primary text-lg mt-0.5">bar_chart</span>
+          <span><strong class="text-on-surface">Generate reports</strong> — View analytics, summaries, and downloadable data.</span>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center gap-3">
+        <a href="guide/" class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-surface-container-high border border-outline-variant text-on-surface rounded-xl font-bold hover:bg-surface-container-higher transition text-sm">
+          <span class="material-symbols-outlined text-base">menu_book</span>
+          View User Guide
+        </a>
+        <button onclick="dismissWelcome()" class="w-full sm:w-auto px-6 py-3 bg-primary text-on-primary rounded-xl font-bold hover:opacity-90 transition text-sm">
+          Get Started
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="border-t border-outline-variant/30 py-10 bg-surface">
     <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 gap-4">
@@ -298,6 +336,15 @@
       const btn = document.getElementById('themeToggle');
       const icon = btn.querySelector('.material-symbols-outlined');
       icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    }
+
+    function dismissWelcome() {
+      document.getElementById('welcomeModal').classList.add('hidden');
+      localStorage.setItem('kalyx_welcomed', 'true');
+    }
+
+    if (!localStorage.getItem('kalyx_welcomed')) {
+      document.getElementById('welcomeModal').classList.remove('hidden');
     }
 
     // Auto-redirect logged-in users to their respective subdirectories
