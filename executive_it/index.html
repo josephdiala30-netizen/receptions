@@ -1622,16 +1622,69 @@ function printServicesReport(startDate, endDate) {
   setTimeout(function(){ w.print(); }, 400);
 }
 
-function downloadExcel(data, filename, columns, rows) {
+function downloadExcel(data, filename, columns, rows, opts) {
   if (data.length === 0) { alert('No data to export.'); return; }
+  opts = opts || {};
+  var title = opts.title || 'KALYX Report';
+  var subtitle = opts.subtitle || '';
+  var stats = opts.stats || [];
+  var generatedDate = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  
   var excelHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
   excelHtml += '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Sheet1</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
-  excelHtml += '<style>td{mso-number-format:"\\@";padding:6px 10px;border:1px solid #ccc;font-size:11px}th{background:#4f46e5;color:#fff;padding:8px 10px;font-size:10px;font-weight:700;text-align:left;border:1px solid #4f46e5}</style></head><body>';
+  excelHtml += '<style>' +
+    'body{font-family:"Segoe UI",Arial,sans-serif;padding:20px;color:#1e293b}' +
+    '.header{text-align:center;padding:20px 0 10px;border-bottom:3px solid #4f46e5;margin-bottom:16px}' +
+    '.header h1{margin:0;font-size:22px;font-weight:800;color:#1e293b;letter-spacing:1px}' +
+    '.header .badge{display:inline-block;background:#4f46e5;color:#fff;font-size:9px;font-weight:700;padding:2px 10px;border-radius:3px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}' +
+    '.header .meta{font-size:10px;color:#64748b;margin-top:4px}' +
+    '.stats{display:flex;gap:8px;margin:12px 0 16px;flex-wrap:wrap}' +
+    '.stat-card{flex:1;min-width:100px;padding:10px 14px;border-radius:6px;text-align:center}' +
+    '.stat-card .num{font-size:20px;font-weight:800}' +
+    '.stat-card .lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}' +
+    'table{width:100%;border-collapse:collapse;font-size:10px}' +
+    'th{background:#1e293b;color:#fff;padding:8px 10px;font-weight:700;text-align:left;border:1px solid #334155;white-space:nowrap}' +
+    'td{padding:6px 10px;border:1px solid #e2e8f0;mso-number-format:"\\@"}' +
+    'tr:nth-child(even) td{background:#f8fafc}' +
+    'tr:hover td{background:#eef2ff}' +
+    '.tag-open{color:#b45309;font-weight:600}' +
+    '.tag-progress{color:#2563eb;font-weight:600}' +
+    '.tag-resolved,.tag-completed{color:#059669;font-weight:600}' +
+    '.tag-closed{color:#6b7280;font-weight:600}' +
+    '.tag-critical{color:#dc2626;font-weight:700}' +
+    '.tag-high{color:#ea580c;font-weight:600}' +
+    '.tag-medium{color:#ca8a04;font-weight:600}' +
+    '.tag-low{color:#6b7280;font-weight:600}' +
+    '.footer{text-align:center;font-size:9px;color:#94a3b8;margin-top:14px;padding-top:10px;border-top:1px solid #e2e8f0}' +
+    '</style></head><body>';
+
+  excelHtml += '<div class="header">';
+  excelHtml += '  <div class="badge">' + (opts.badge || 'OFFICIAL REPORT') + '</div>';
+  excelHtml += '  <h1>' + escapeHtml(title) + '</h1>';
+  excelHtml += '  <div class="meta">Generated: ' + generatedDate + '</div>';
+  if (subtitle) excelHtml += '  <div class="meta">' + escapeHtml(subtitle) + '</div>';
+  excelHtml += '</div>';
+
+  if (stats.length) {
+    excelHtml += '<div class="stats">';
+    stats.forEach(function(s) {
+      var bg = s.color || '#f1f5f9';
+      var txt = s.textColor || '#1e293b';
+      excelHtml += '<div class="stat-card" style="background:' + bg + ';color:' + txt + '">' +
+        '<div class="num">' + s.value + '</div>' +
+        '<div class="lbl">' + s.label + '</div></div>';
+    });
+    excelHtml += '</div>';
+  }
+
   excelHtml += '<table><thead><tr><th>' + columns.join('</th><th>') + '</th></tr></thead><tbody>';
   rows.forEach(function(cells) {
     excelHtml += '<tr><td>' + cells.join('</td><td>') + '</td></tr>';
   });
-  excelHtml += '</tbody></table></body></html>';
+  excelHtml += '</tbody></table>';
+  excelHtml += '<div class="footer">KALYX &mdash; Confidential &bull; For authorized recipients only &bull; Page 1 of 1</div>';
+  excelHtml += '</body></html>';
+
   var blob = new Blob([excelHtml], { type: 'application/vnd.ms-excel' });
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
@@ -1649,21 +1702,40 @@ function downloadServicesExcel(startDate, endDate) {
   if (data.length === 0) { alert('No IT services in the selected date range.'); return; }
   var columns = ['#', 'Service / Issue', 'Requestor', 'Department', 'Category', 'Severity', 'Status', 'Date Reported', 'Date Resolved', 'Cost', 'Resolution'];
   var rows = data.map(function(item, i) {
+    var statusClass = 'tag-' + (item.status === 'open' ? 'open' : item.status === 'in-progress' ? 'progress' : item.status === 'resolved' ? 'resolved' : item.status === 'completed' ? 'completed' : 'closed');
+    var sevClass = 'tag-' + (item.severity || 'medium').toLowerCase();
     return [
       i + 1,
       escapeHtml(item.name || ''),
       escapeHtml(item.requestorName || ''),
       escapeHtml(item.department || ''),
       escapeHtml(item.category || 'General'),
-      escapeHtml(item.severity || 'Medium'),
-      escapeHtml(item.status || 'open'),
+      '<span class="' + sevClass + '">' + escapeHtml(item.severity || 'Medium') + '</span>',
+      '<span class="' + statusClass + '">' + escapeHtml(item.status || 'open') + '</span>',
       escapeHtml((item.incidentDate || '').replace('T', ' ')),
       escapeHtml((item.resolvedDate || '').replace('T', ' ')),
       escapeHtml(item.cost || ''),
       escapeHtml(item.resolution || '')
     ];
   });
-  downloadExcel(data, 'IT_Services_Report_' + new Date().toISOString().split('T')[0] + '.xls', columns, rows);
+
+  var total = data.length;
+  var open = data.filter(function(s) { return s.status === 'open' || s.status === 'in-progress'; }).length;
+  var resolved = data.filter(function(s) { return s.status === 'resolved' || s.status === 'completed'; }).length;
+  var critical = data.filter(function(s) { return s.severity === 'Critical'; }).length;
+  var subtitle = startDate || endDate ? 'Date Range: ' + (startDate || '—') + ' to ' + (endDate || '—') : '';
+
+  downloadExcel(data, 'IT_Services_Report_' + new Date().toISOString().split('T')[0] + '.xls', columns, rows, {
+    title: 'IT Services Report',
+    subtitle: subtitle,
+    badge: 'KALYX',
+    stats: [
+      { label: 'Total Services', value: total, color: '#f1f5f9', textColor: '#1e293b' },
+      { label: 'Open / In Progress', value: open, color: '#fef3c7', textColor: '#b45309' },
+      { label: 'Resolved / Closed', value: resolved, color: '#d1fae5', textColor: '#059669' },
+      { label: 'Critical', value: critical, color: '#fee2e2', textColor: '#dc2626' }
+    ]
+  });
 }
 
 function buildMaintenanceReportHTML(startDate, endDate) {
@@ -1773,9 +1845,10 @@ function downloadMaintenanceExcel(startDate, endDate) {
   var data = getData('maintenance');
   data = filterDataByDate(data, 'inspectionDate', startDate, endDate);
   if (data.length === 0) { alert('No maintenance records in the selected date range.'); return; }
-  var columns = ['#', 'Equipment', 'Brand', 'Model', 'Serial No.', 'Frequency', 'Period', 'Date', 'Inspected By', 'Checked By', 'Status', 'Parts', 'Clean', 'Operating', 'Electrical', 'Notes'];
+  var columns = ['#', 'Equipment', 'Brand', 'Model', 'Serial No.', 'Frequency', 'Period', 'Date', 'Inspected By', 'Checked By', 'Status', 'Parts OK', 'Clean OK', 'Operating OK', 'Electrical OK', 'Notes'];
   var rows = data.map(function(item, i) {
     var checks = item.checks || {};
+    var statusClass = 'tag-' + (item.status === 'scheduled' ? 'open' : item.status === 'in-progress' ? 'progress' : 'completed');
     return [
       i + 1,
       escapeHtml(item.equipment || item.asset || item.title || ''),
@@ -1787,15 +1860,32 @@ function downloadMaintenanceExcel(startDate, endDate) {
       escapeHtml(item.inspectionDate || item.scheduledDate || ''),
       escapeHtml(item.inspectedBy || ''),
       escapeHtml(item.checkedBy || ''),
-      escapeHtml(item.status || 'scheduled'),
-      checks.checkParts ? 'OK' : '—',
-      checks.cleanInteriors ? 'OK' : '—',
-      checks.operatingCondition ? 'OK' : '—',
-      checks.electricalWires ? 'OK' : '—',
+      '<span class="' + statusClass + '">' + escapeHtml(item.status || 'scheduled') + '</span>',
+      checks.checkParts ? '✓' : '✗',
+      checks.cleanInteriors ? '✓' : '✗',
+      checks.operatingCondition ? '✓' : '✗',
+      checks.electricalWires ? '✓' : '✗',
       escapeHtml(item.description || '')
     ];
   });
-  downloadExcel(data, 'IT_Maintenance_Report_' + new Date().toISOString().split('T')[0] + '.xls', columns, rows);
+
+  var total = data.length;
+  var scheduled = data.filter(function(m) { return m.status === 'scheduled'; }).length;
+  var inProgress = data.filter(function(m) { return m.status === 'in-progress'; }).length;
+  var completed = data.filter(function(m) { return m.status === 'completed'; }).length;
+  var subtitle = startDate || endDate ? 'Date Range: ' + (startDate || '—') + ' to ' + (endDate || '—') : '';
+
+  downloadExcel(data, 'IT_Maintenance_Report_' + new Date().toISOString().split('T')[0] + '.xls', columns, rows, {
+    title: 'IT Maintenance Report',
+    subtitle: subtitle,
+    badge: 'KALYX',
+    stats: [
+      { label: 'Total Records', value: total, color: '#f1f5f9', textColor: '#1e293b' },
+      { label: 'Scheduled', value: scheduled, color: '#fef3c7', textColor: '#b45309' },
+      { label: 'In Progress', value: inProgress, color: '#dbeafe', textColor: '#2563eb' },
+      { label: 'Completed', value: completed, color: '#d1fae5', textColor: '#059669' }
+    ]
+  });
 }
 
 function printMaintenanceForm() {
