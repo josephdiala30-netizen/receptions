@@ -119,20 +119,6 @@
             <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Confirm Password</label>
             <input id="regPass2" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all" placeholder="Confirm password" type="password"/>
           </div>
-          <div>
-            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Assigned Portal</label>
-            <div class="flex gap-2">
-              <button id="portalPath" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-center font-label-md rounded-lg bg-primary text-on-primary transition-all text-xs" onclick="selectPortal('executive_path')">
-                <span class="material-symbols-outlined text-sm">flight_takeoff</span> Executive Path
-              </button>
-              <button id="portalTask" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary transition-all text-xs" onclick="selectPortal('executive_task')">
-                <span class="material-symbols-outlined text-sm">checklist</span> Executive Task
-              </button>
-              <button id="portalIT" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary transition-all text-xs" onclick="selectPortal('executive_it')">
-                <span class="material-symbols-outlined text-sm">precision_manufacturing</span> Executive IT
-              </button>
-            </div>
-          </div>
           <div id="regError" class="text-xs font-semibold text-error hidden"></div>
           <button class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md" onclick="doRegister()">Create Account</button>
         </div>
@@ -221,9 +207,22 @@
       document.getElementById('loginError').classList.add('hidden');
     }
 
-    function updateRegisterVisibility() {}
+    function updateRegisterVisibility() {
+      var tab = document.getElementById('tabRegister');
+      if (!tab) return;
+      if (selectedPortal === 'executive_it') {
+        tab.style.display = 'none';
+      } else {
+        tab.style.display = '';
+      }
+    }
 
     function switchTab(tab) {
+      if (tab === 'register' && selectedPortal === 'executive_it') {
+        document.getElementById('regError').textContent = 'Executive IT accounts cannot be self-registered.';
+        document.getElementById('regError').classList.remove('hidden');
+        return;
+      }
       document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
       document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
       document.getElementById('tabLogin').className = tab === 'login'
@@ -301,8 +300,8 @@
         return;
       }
 
-      if (selectedPortal === 'admin') {
-        errEl.textContent = 'Admin accounts cannot be self-registered. Contact an administrator.';
+      if (selectedPortal === 'executive_it') {
+        errEl.textContent = 'Executive IT accounts cannot be self-registered.';
         errEl.classList.remove('hidden');
         return;
       }
@@ -320,7 +319,8 @@
       }
 
       hashPass(pass).then(function(hash) {
-        users.push({ username: user, name: name, email: email, password: hash, isAdmin: false, role: selectedPortal });
+        var role = 'executive_task';
+        users.push({ username: user, name: name, email: email, password: hash, isAdmin: false, role: role });
         localStorage.setItem('users', JSON.stringify(users));
         
         // Clear inputs
