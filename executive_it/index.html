@@ -3727,11 +3727,10 @@ function submitDateRange() {
     errEl.classList.remove('hidden');
     return;
   }
-  var cb = dateRangeCallback;
-  dateRangeCallback = null;
-  document.getElementById('dateRangeModal').classList.add('hidden');
-  if (cb) {
-    setTimeout(function() { cb(start || null, end || null); }, 150);
+  closeDateRangeModal();
+  if (dateRangeCallback) {
+    dateRangeCallback(start || null, end || null);
+    dateRangeCallback = null;
   }
 }
 
