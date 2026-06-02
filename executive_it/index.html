@@ -499,9 +499,14 @@ button, input, select, textarea { min-width: 0; }
       <h2 class="font-headline-lg text-headline-lg text-primary">Daily Job Accomplishments</h2>
       <p class="font-body-lg text-on-surface-variant">Record and track your daily accomplishments</p>
     </div>
-    <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('accomplishment')">
-      <span class="material-symbols-outlined text-sm">add</span> New Accomplishment
-    </button>
+    <div class="flex items-center gap-3 flex-wrap">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="showDateRangeModal('accomplishments', function(s, e) { downloadAccomplishmentsExcel(s, e); })">
+        <span class="material-symbols-outlined text-sm">file_download</span> Download Excel
+      </button>
+      <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('accomplishment')">
+        <span class="material-symbols-outlined text-sm">add</span> New Accomplishment
+      </button>
+    </div>
   </div>
   <div id="accomplishmentList" class="space-y-3"></div>
 </section>
@@ -1884,6 +1889,60 @@ function downloadMaintenanceExcel(startDate, endDate) {
       { label: 'Scheduled', value: scheduled, color: '#fef3c7', textColor: '#b45309' },
       { label: 'In Progress', value: inProgress, color: '#dbeafe', textColor: '#2563eb' },
       { label: 'Completed', value: completed, color: '#d1fae5', textColor: '#059669' }
+    ]
+  });
+}
+
+function downloadAccomplishmentsExcel(startDate, endDate) {
+  var data = getData('accomplishments');
+  data = filterDataByDate(data, 'date', startDate, endDate);
+  if (data.length === 0) { alert('No accomplishments in the selected date range.'); return; }
+
+  var columns = ['#', 'Date', 'Category', 'Title', 'Description', 'Status', 'Report Title', 'Requestor', 'Severity', 'Department', 'Date Reported', 'Date Resolved', 'Resolution'];
+  var rows = data.map(function(item, i) {
+    var statusClass = 'tag-' + (item.status === 'completed' || item.status === 'done' ? 'completed' : item.status === 'in-progress' ? 'progress' : 'open');
+    var desc = item.description || '';
+    if (item.category === 'Uploading/Encoding') {
+      var parsed = parseTableRows(item.description);
+      if (parsed && parsed.length > 1) {
+        var headers = parsed[0].join(' | ');
+        desc = headers + ' (' + (parsed.length - 1) + ' rows)';
+      }
+    }
+    return [
+      i + 1,
+      escapeHtml(item.date || ''),
+      escapeHtml(item.category || 'Other'),
+      escapeHtml(item.title || ''),
+      escapeHtml(desc.substring(0, 200) + (desc.length > 200 ? '...' : '')),
+      '<span class="' + statusClass + '">' + escapeHtml(item.status === 'done' ? 'Completed' : item.status === 'in-progress' ? 'In Progress' : item.status === 'completed' ? 'Completed' : 'Pending') + '</span>',
+      item.category === 'Technical Support' ? escapeHtml(item.reportTitle || '') : '',
+      item.category === 'Technical Support' ? escapeHtml(item.requestorName || '') : '',
+      item.category === 'Technical Support' ? escapeHtml(item.severity || '') : '',
+      item.category === 'Technical Support' ? escapeHtml(item.department || '') : '',
+      item.category === 'Technical Support' ? escapeHtml((item.incidentDate || '').replace('T', ' ')) : '',
+      item.category === 'Technical Support' ? escapeHtml((item.resolvedDate || '').replace('T', ' ')) : '',
+      item.category === 'Technical Support' ? escapeHtml(item.resolution || '') : ''
+    ];
+  });
+
+  var total = data.length;
+  var pending = data.filter(function(a) { return a.status === 'pending' || !a.status; }).length;
+  var inProgress = data.filter(function(a) { return a.status === 'in-progress'; }).length;
+  var done = data.filter(function(a) { return a.status === 'completed' || a.status === 'done'; }).length;
+  var tsCount = data.filter(function(a) { return a.category === 'Technical Support'; }).length;
+  var subtitle = startDate || endDate ? 'Date Range: ' + (startDate || '—') + ' to ' + (endDate || '—') : '';
+
+  downloadExcel(data, 'Daily_Accomplishments_' + new Date().toISOString().split('T')[0] + '.xls', columns, rows, {
+    title: 'Daily Job Accomplishments',
+    subtitle: subtitle,
+    badge: 'KALYX',
+    stats: [
+      { label: 'Total Entries', value: total, color: '#f1f5f9', textColor: '#1e293b' },
+      { label: 'Pending', value: pending, color: '#fef3c7', textColor: '#b45309' },
+      { label: 'In Progress', value: inProgress, color: '#dbeafe', textColor: '#2563eb' },
+      { label: 'Completed', value: done, color: '#d1fae5', textColor: '#059669' },
+      { label: 'Technical Support', value: tsCount, color: '#e0e7ff', textColor: '#4338ca' }
     ]
   });
 }
@@ -3812,7 +3871,7 @@ var dateRangeCallback = null;
 
 function showDateRangeModal(type, callback) {
   dateRangeCallback = callback;
-  var title = type === 'services' ? 'IT Services' : 'IT Maintenance';
+  var title = type === 'services' ? 'IT Services' : type === 'accomplishments' ? 'Daily Accomplishments' : 'IT Maintenance';
   document.getElementById('dateRangeTitle').textContent = title + ' Report';
   document.getElementById('dateRangeStart').value = '';
   document.getElementById('dateRangeEnd').value = '';
