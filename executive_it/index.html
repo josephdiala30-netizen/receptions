@@ -8,6 +8,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 tailwind.config = {
   darkMode: "class",
@@ -402,7 +403,10 @@ button, input, select, textarea { min-width: 0; }
     </div>
     <div class="flex gap-2">
       <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="printServicesReport()">
-        <span class="material-symbols-outlined text-sm">assessment</span> Print Report
+        <span class="material-symbols-outlined text-sm">print</span> Print
+      </button>
+      <button class="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-rose-600 hover:to-pink-700 transition-all active:scale-[0.97] shadow-sm" onclick="downloadServicesPDF()">
+        <span class="material-symbols-outlined text-sm">picture_as_pdf</span> Download PDF
       </button>
       <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('service')">
         <span class="material-symbols-outlined text-sm">add</span> New Service
@@ -421,7 +425,10 @@ button, input, select, textarea { min-width: 0; }
     </div>
     <div class="flex gap-2">
       <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="printMaintenanceReport()">
-        <span class="material-symbols-outlined text-sm">assessment</span> Print Report
+        <span class="material-symbols-outlined text-sm">print</span> Print
+      </button>
+      <button class="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-rose-600 hover:to-pink-700 transition-all active:scale-[0.97] shadow-sm" onclick="downloadMaintenancePDF()">
+        <span class="material-symbols-outlined text-sm">picture_as_pdf</span> Download PDF
       </button>
       <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('maintenance')">
         <span class="material-symbols-outlined text-sm">add</span> Schedule Maintenance
@@ -1490,9 +1497,9 @@ function renderMaintenance() {
   el.innerHTML = html;
 }
 
-function printServicesReport() {
+function buildServicesReportHTML() {
   var data = getData('services');
-  if (data.length === 0) { alert('No IT services to report.'); return; }
+  if (data.length === 0) return '';
   var total = data.length;
   var open = data.filter(function(s) { return s.status === 'open' || s.status === 'in-progress'; }).length;
   var resolved = data.filter(function(s) { return s.status === 'resolved' || s.status === 'closed'; }).length;
@@ -1509,63 +1516,62 @@ function printServicesReport() {
     return '<tr><td>' + escapeHtml(d) + '</td><td><strong>' + departments[d] + '</strong></td></tr>';
   }).join('');
 
-  var w = window.open('', '_blank');
-  w.document.write('<html><head><title>IT Services Report</title>');
-  w.document.write('<style>');
-  w.document.write('body{font-family:Inter,Segoe UI,sans-serif;padding:35px;color:#1e1b4d}');
-  w.document.write('h2{margin:0 0 4px;font-size:24px;color:#1e1b4d;letter-spacing:-0.02em}');
-  w.document.write('h3{margin:24px 0 10px;font-size:14px;color:#4f46e5;border-bottom:2px solid #4f46e5;padding-bottom:5px;text-transform:uppercase;letter-spacing:.06em}');
-  w.document.write('p.sub{margin:0 0 24px;font-size:12px;color:#6b7280}');
-  w.document.write('.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}');
-  w.document.write('.summary-card{border:1px solid #e2e8f0;border-radius:8px;padding:10px 8px;text-align:center;background:#faf8f5}');
-  w.document.write('.summary-card .num{font-size:20px;font-weight:800;color:#1e1b4d;line-height:1.1}');
-  w.document.write('.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;font-weight:600;margin-top:2px}');
-  w.document.write('.summary-card.critical{border-color:#fecaca;background:#fef2f2}.summary-card.critical .num{color:#dc2626}');
-  w.document.write('.summary-card.open{border-color:#bfdbfe;background:#eff6ff}.summary-card.open .num{color:#2563eb}');
-  w.document.write('.summary-card.resolved{border-color:#a7f3d0;background:#ecfdf5}.summary-card.resolved .num{color:#059669}');
-  w.document.write('table{width:100%;border-collapse:collapse;font-size:10.5px;margin-bottom:16px}');
-  w.document.write('th{background:#4f46e5;color:#fff;padding:8px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}');
-  w.document.write('td{padding:7px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top}');
-  w.document.write('tr:nth-child(even){background:#f8fafc}');
-  w.document.write('tr:hover{background:#eef2ff}');
-  w.document.write('.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:9px;font-weight:600;letter-spacing:.02em}');
-  w.document.write('.tag-open{background:#dbeafe;color:#1d4ed8}');
-  w.document.write('.tag-progress{background:#fef3c7;color:#d97706}');
-  w.document.write('.tag-resolved{background:#d1fae5;color:#059669}');
-  w.document.write('.tag-closed{background:#e5e7eb;color:#4b5563}');
-  w.document.write('.tag-critical{background:#fecaca;color:#dc2626}');
-  w.document.write('.tag-high{background:#fed7aa;color:#ea580c}');
-  w.document.write('.tag-medium{background:#fde68a;color:#ca8a04}');
-  w.document.write('.tag-low{background:#d1fae5;color:#059669}');
-  w.document.write('.footer{margin-top:24px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:14px}');
-  w.document.write('.header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #4f46e5}');
-  w.document.write('.header-bar .logo{font-size:20px;font-weight:800;color:#4f46e5}');
-  w.document.write('.header-bar .date{font-size:10px;color:#6b7280}');
-  w.document.write('@media print{body{padding:15px}.summary-grid{gap:6px}.summary-card{padding:6px}.summary-card .num{font-size:16px}.summary-card .lbl{font-size:6px}}');
-  w.document.write('</style></head><body>');
-  w.document.write('<div class="header-bar"><div class="logo">KALYX &mdash; IT Services Report</div><div class="date">Generated: ' + new Date().toLocaleString() + '</div></div>');
-  w.document.write('<div class="summary-grid">' +
+  var html = '';
+  html += '<style>';
+  html += 'body{font-family:Inter,Segoe UI,sans-serif;padding:35px;color:#1e1b4d;margin:0}';
+  html += 'h2{margin:0 0 4px;font-size:24px;color:#1e1b4d;letter-spacing:-0.02em}';
+  html += 'h3{margin:24px 0 10px;font-size:14px;color:#4f46e5;border-bottom:2px solid #4f46e5;padding-bottom:5px;text-transform:uppercase;letter-spacing:.06em}';
+  html += 'p.sub{margin:0 0 24px;font-size:12px;color:#6b7280}';
+  html += '.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}';
+  html += '.summary-card{border:1px solid #e2e8f0;border-radius:8px;padding:10px 8px;text-align:center;background:#faf8f5}';
+  html += '.summary-card .num{font-size:20px;font-weight:800;color:#1e1b4d;line-height:1.1}';
+  html += '.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;font-weight:600;margin-top:2px}';
+  html += '.summary-card.critical{border-color:#fecaca;background:#fef2f2}.summary-card.critical .num{color:#dc2626}';
+  html += '.summary-card.open{border-color:#bfdbfe;background:#eff6ff}.summary-card.open .num{color:#2563eb}';
+  html += '.summary-card.resolved{border-color:#a7f3d0;background:#ecfdf5}.summary-card.resolved .num{color:#059669}';
+  html += 'table{width:100%;border-collapse:collapse;font-size:10.5px;margin-bottom:16px}';
+  html += 'th{background:#4f46e5;color:#fff;padding:8px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}';
+  html += 'td{padding:7px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top}';
+  html += 'tr:nth-child(even){background:#f8fafc}';
+  html += '.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:9px;font-weight:600;letter-spacing:.02em}';
+  html += '.tag-open{background:#dbeafe;color:#1d4ed8}';
+  html += '.tag-progress{background:#fef3c7;color:#d97706}';
+  html += '.tag-resolved{background:#d1fae5;color:#059669}';
+  html += '.tag-closed{background:#e5e7eb;color:#4b5563}';
+  html += '.tag-critical{background:#fecaca;color:#dc2626}';
+  html += '.tag-high{background:#fed7aa;color:#ea580c}';
+  html += '.tag-medium{background:#fde68a;color:#ca8a04}';
+  html += '.tag-low{background:#d1fae5;color:#059669}';
+  html += '.footer{margin-top:24px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:14px}';
+  html += '.header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #4f46e5}';
+  html += '.header-bar .logo{font-size:20px;font-weight:800;color:#4f46e5}';
+  html += '.header-bar .date{font-size:10px;color:#6b7280}';
+  html += '@media print{body{padding:15px}.summary-grid{gap:6px}.summary-card{padding:6px}.summary-card .num{font-size:16px}.summary-card .lbl{font-size:6px}}';
+  html += '</style>';
+
+  html += '<div class="header-bar"><div class="logo">KALYX &mdash; IT Services Report</div><div class="date">Generated: ' + new Date().toLocaleString() + '</div></div>';
+  html += '<div class="summary-grid">' +
     '<div class="summary-card"><div class="num">' + total + '</div><div class="lbl">Total Services</div></div>' +
     '<div class="summary-card open"><div class="num">' + open + '</div><div class="lbl">Open / In Progress</div></div>' +
     '<div class="summary-card resolved"><div class="num">' + resolved + '</div><div class="lbl">Resolved / Closed</div></div>' +
     '<div class="summary-card critical"><div class="num">' + critical + '</div><div class="lbl">Critical Severity</div></div>' +
-    '</div>');
-  w.document.write('<div class="summary-grid">' +
+    '</div>';
+  html += '<div class="summary-grid">' +
     '<div class="summary-card"><div class="num">' + high + '</div><div class="lbl">High Severity</div></div>' +
     '<div class="summary-card"><div class="num">' + medium + '</div><div class="lbl">Medium Severity</div></div>' +
     '<div class="summary-card"><div class="num">' + low + '</div><div class="lbl">Low Severity</div></div>' +
     '<div class="summary-card"><div class="num">' + Object.keys(departments).length + '</div><div class="lbl">Departments</div></div>' +
-    '</div>');
-  w.document.write('<h3>Department Breakdown</h3>');
-  w.document.write('<table><thead><tr><th>Department</th><th>Service Requests</th></tr></thead><tbody>' + deptHtml + '</tbody></table>');
-  w.document.write('<h3>Detailed Service List</h3>');
-  w.document.write('<table><thead><tr>' +
+    '</div>';
+  html += '<h3>Department Breakdown</h3>';
+  html += '<table><thead><tr><th>Department</th><th>Service Requests</th></tr></thead><tbody>' + deptHtml + '</tbody></table>';
+  html += '<h3>Detailed Service List</h3>';
+  html += '<table><thead><tr>' +
     '<th>#</th><th>Service / Issue</th><th>Requestor</th><th>Department</th><th>Severity</th><th>Status</th><th>Date Reported</th><th>Resolution</th>' +
-    '</tr></thead><tbody>');
+    '</tr></thead><tbody>';
   data.forEach(function(item, i) {
     var statusTag = 'tag-' + (item.status === 'open' ? 'open' : item.status === 'in-progress' ? 'progress' : item.status === 'resolved' ? 'resolved' : 'closed');
     var sevTag = 'tag-' + (item.severity || '').toLowerCase();
-    w.document.write('<tr>' +
+    html += '<tr>' +
       '<td>' + (i + 1) + '</td>' +
       '<td><strong>' + escapeHtml(item.name) + '</strong></td>' +
       '<td>' + escapeHtml(item.requestorName || '—') + '</td>' +
@@ -1574,18 +1580,52 @@ function printServicesReport() {
       '<td><span class="tag ' + statusTag + '">' + escapeHtml(item.status || 'open') + '</span></td>' +
       '<td>' + escapeHtml((item.incidentDate || '').replace('T', ' ')) + '</td>' +
       '<td>' + escapeHtml(item.resolution ? item.resolution.substring(0, 80) + (item.resolution.length > 80 ? '...' : '') : '—') + '</td>' +
-      '</tr>');
+      '</tr>';
   });
-  w.document.write('</tbody></table>');
-  w.document.write('<div class="footer">KALYX IT Services Report &middot; Page 1 &middot; Confidential</div>');
-  w.document.write('</body></html>');
+  html += '</tbody></table>';
+  html += '<div class="footer">KALYX IT Services Report &middot; Page 1 &middot; Confidential</div>';
+  return html;
+}
+
+function printServicesReport() {
+  var data = getData('services');
+  if (data.length === 0) { alert('No IT services to report.'); return; }
+  var html = buildServicesReportHTML();
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>IT Services Report</title>');
+  w.document.write(html);
+  w.document.write('</html>');
   w.document.close();
   setTimeout(function(){ w.print(); }, 400);
 }
 
-function printMaintenanceReport() {
+function downloadServicesPDF() {
+  var data = getData('services');
+  if (data.length === 0) { alert('No IT services to report.'); return; }
+  var html = buildServicesReportHTML();
+  var wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  wrapper.style.position = 'fixed';
+  wrapper.style.left = '-9999px';
+  wrapper.style.top = '0';
+  wrapper.style.width = '800px';
+  wrapper.style.background = '#fff';
+  document.body.appendChild(wrapper);
+  var opt = {
+    margin: [0.5, 0.5, 0.5, 0.5],
+    filename: 'IT_Services_Report_' + new Date().toISOString().split('T')[0] + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, letterRendering: true, useCORS: true },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(wrapper).save().then(function() {
+    document.body.removeChild(wrapper);
+  });
+}
+
+function buildMaintenanceReportHTML() {
   var data = getData('maintenance');
-  if (data.length === 0) { alert('No maintenance records to report.'); return; }
+  if (data.length === 0) return '';
   var total = data.length;
   var scheduled = data.filter(function(m) { return m.status === 'scheduled'; }).length;
   var inProgress = data.filter(function(m) { return m.status === 'in-progress'; }).length;
@@ -1602,48 +1642,48 @@ function printMaintenanceReport() {
     return '<tr><td>' + escapeHtml(f) + '</td><td><strong>' + freqCounts[f] + '</strong></td></tr>';
   }).join('');
 
-  var w = window.open('', '_blank');
-  w.document.write('<html><head><title>IT Maintenance Report</title>');
-  w.document.write('<style>');
-  w.document.write('body{font-family:Inter,Segoe UI,sans-serif;padding:35px;color:#1e1b4d}');
-  w.document.write('h2{margin:0 0 4px;font-size:24px;color:#1e1b4d;letter-spacing:-0.02em}');
-  w.document.write('h3{margin:24px 0 10px;font-size:14px;color:#4f46e5;border-bottom:2px solid #4f46e5;padding-bottom:5px;text-transform:uppercase;letter-spacing:.06em}');
-  w.document.write('p.sub{margin:0 0 24px;font-size:12px;color:#6b7280}');
-  w.document.write('.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}');
-  w.document.write('.summary-card{border:1px solid #e2e8f0;border-radius:8px;padding:10px 8px;text-align:center;background:#faf8f5}');
-  w.document.write('.summary-card .num{font-size:20px;font-weight:800;color:#1e1b4d;line-height:1.1}');
-  w.document.write('.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;font-weight:600;margin-top:2px}');
-  w.document.write('.summary-card.scheduled{border-color:#bfdbfe;background:#eff6ff}.summary-card.scheduled .num{color:#2563eb}');
-  w.document.write('.summary-card.progress{border-color:#fde68a;background:#fffbeb}.summary-card.progress .num{color:#d97706}');
-  w.document.write('.summary-card.done{border-color:#a7f3d0;background:#ecfdf5}.summary-card.done .num{color:#059669}');
-  w.document.write('table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px}');
-  w.document.write('th{background:#4f46e5;color:#fff;padding:7px 8px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}');
-  w.document.write('td{padding:6px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top}');
-  w.document.write('tr:nth-child(even){background:#f8fafc}');
-  w.document.write('.tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:8px;font-weight:600}');
-  w.document.write('.tag-scheduled{background:#dbeafe;color:#1d4ed8}');
-  w.document.write('.tag-progress{background:#fef3c7;color:#d97706}');
-  w.document.write('.tag-completed{background:#d1fae5;color:#059669}');
-  w.document.write('.check-ok{color:#059669;font-weight:700}.check-miss{color:#d1d5db}');
-  w.document.write('.footer{margin-top:24px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:14px}');
-  w.document.write('.header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #4f46e5}');
-  w.document.write('.header-bar .logo{font-size:20px;font-weight:800;color:#4f46e5}');
-  w.document.write('.header-bar .date{font-size:10px;color:#6b7280}');
-  w.document.write('@media print{body{padding:15px}.summary-grid{gap:6px}.summary-card{padding:6px}.summary-card .num{font-size:16px}.summary-card .lbl{font-size:6px}}');
-  w.document.write('</style></head><body>');
-  w.document.write('<div class="header-bar"><div class="logo">KALYX &mdash; IT Maintenance Report</div><div class="date">Generated: ' + new Date().toLocaleString() + '</div></div>');
-  w.document.write('<div class="summary-grid">' +
+  var html = '';
+  html += '<style>';
+  html += 'body{font-family:Inter,Segoe UI,sans-serif;padding:35px;color:#1e1b4d;margin:0}';
+  html += 'h2{margin:0 0 4px;font-size:24px;color:#1e1b4d;letter-spacing:-0.02em}';
+  html += 'h3{margin:24px 0 10px;font-size:14px;color:#4f46e5;border-bottom:2px solid #4f46e5;padding-bottom:5px;text-transform:uppercase;letter-spacing:.06em}';
+  html += 'p.sub{margin:0 0 24px;font-size:12px;color:#6b7280}';
+  html += '.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}';
+  html += '.summary-card{border:1px solid #e2e8f0;border-radius:8px;padding:10px 8px;text-align:center;background:#faf8f5}';
+  html += '.summary-card .num{font-size:20px;font-weight:800;color:#1e1b4d;line-height:1.1}';
+  html += '.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;font-weight:600;margin-top:2px}';
+  html += '.summary-card.scheduled{border-color:#bfdbfe;background:#eff6ff}.summary-card.scheduled .num{color:#2563eb}';
+  html += '.summary-card.progress{border-color:#fde68a;background:#fffbeb}.summary-card.progress .num{color:#d97706}';
+  html += '.summary-card.done{border-color:#a7f3d0;background:#ecfdf5}.summary-card.done .num{color:#059669}';
+  html += 'table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px}';
+  html += 'th{background:#4f46e5;color:#fff;padding:7px 8px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}';
+  html += 'td{padding:6px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top}';
+  html += 'tr:nth-child(even){background:#f8fafc}';
+  html += '.tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:8px;font-weight:600}';
+  html += '.tag-scheduled{background:#dbeafe;color:#1d4ed8}';
+  html += '.tag-progress{background:#fef3c7;color:#d97706}';
+  html += '.tag-completed{background:#d1fae5;color:#059669}';
+  html += '.check-ok{color:#059669;font-weight:700}.check-miss{color:#d1d5db}';
+  html += '.footer{margin-top:24px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:14px}';
+  html += '.header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #4f46e5}';
+  html += '.header-bar .logo{font-size:20px;font-weight:800;color:#4f46e5}';
+  html += '.header-bar .date{font-size:10px;color:#6b7280}';
+  html += '@media print{body{padding:15px}.summary-grid{gap:6px}.summary-card{padding:6px}.summary-card .num{font-size:16px}.summary-card .lbl{font-size:6px}}';
+  html += '</style>';
+
+  html += '<div class="header-bar"><div class="logo">KALYX &mdash; IT Maintenance Report</div><div class="date">Generated: ' + new Date().toLocaleString() + '</div></div>';
+  html += '<div class="summary-grid">' +
     '<div class="summary-card"><div class="num">' + total + '</div><div class="lbl">Total Records</div></div>' +
     '<div class="summary-card scheduled"><div class="num">' + scheduled + '</div><div class="lbl">Scheduled</div></div>' +
     '<div class="summary-card progress"><div class="num">' + inProgress + '</div><div class="lbl">In Progress</div></div>' +
     '<div class="summary-card done"><div class="num">' + completed + '</div><div class="lbl">Completed</div></div>' +
-    '</div>');
-  w.document.write('<h3>Maintenance Frequency Breakdown</h3>');
-  w.document.write('<table><thead><tr><th>Frequency</th><th>Count</th></tr></thead><tbody>' + freqHtml + '</tbody></table>');
-  w.document.write('<h3>Detailed Maintenance Records</h3>');
-  w.document.write('<table><thead><tr>' +
+    '</div>';
+  html += '<h3>Maintenance Frequency Breakdown</h3>';
+  html += '<table><thead><tr><th>Frequency</th><th>Count</th></tr></thead><tbody>' + freqHtml + '</tbody></table>';
+  html += '<h3>Detailed Maintenance Records</h3>';
+  html += '<table><thead><tr>' +
     '<th>#</th><th>Equipment</th><th>Brand / Model</th><th>Serial No.</th><th>Frequency</th><th>Date</th><th>Inspected By</th><th>Status</th><th>Parts</th><th>Clean</th><th>Oper.</th><th>Elec.</th>' +
-    '</tr></thead><tbody>');
+    '</tr></thead><tbody>';
   data.forEach(function(item, i) {
     var checks = item.checks || {};
     var statusTag = 'tag-' + (item.status === 'scheduled' ? 'scheduled' : item.status === 'in-progress' ? 'progress' : 'completed');
@@ -1656,7 +1696,7 @@ function printMaintenanceReport() {
     var cleanInt = checks.cleanInteriors ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
     var operCond = checks.operatingCondition ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
     var electWir = checks.electricalWires ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
-    w.document.write('<tr>' +
+    html += '<tr>' +
       '<td>' + (i + 1) + '</td>' +
       '<td><strong>' + escapeHtml(equipName) + '</strong></td>' +
       '<td>' + escapeHtml(bm) + '</td>' +
@@ -1669,13 +1709,47 @@ function printMaintenanceReport() {
       '<td style="text-align:center">' + cleanInt + '</td>' +
       '<td style="text-align:center">' + operCond + '</td>' +
       '<td style="text-align:center">' + electWir + '</td>' +
-      '</tr>');
+      '</tr>';
   });
-  w.document.write('</tbody></table>');
-  w.document.write('<div class="footer">KALYX IT Maintenance Report &middot; Page 1 &middot; Confidential</div>');
-  w.document.write('</body></html>');
+  html += '</tbody></table>';
+  html += '<div class="footer">KALYX IT Maintenance Report &middot; Page 1 &middot; Confidential</div>';
+  return html;
+}
+
+function printMaintenanceReport() {
+  var data = getData('maintenance');
+  if (data.length === 0) { alert('No maintenance records to report.'); return; }
+  var html = buildMaintenanceReportHTML();
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>IT Maintenance Report</title>');
+  w.document.write(html);
+  w.document.write('</html>');
   w.document.close();
   setTimeout(function(){ w.print(); }, 400);
+}
+
+function downloadMaintenancePDF() {
+  var data = getData('maintenance');
+  if (data.length === 0) { alert('No maintenance records to report.'); return; }
+  var html = buildMaintenanceReportHTML();
+  var wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  wrapper.style.position = 'fixed';
+  wrapper.style.left = '-9999px';
+  wrapper.style.top = '0';
+  wrapper.style.width = '800px';
+  wrapper.style.background = '#fff';
+  document.body.appendChild(wrapper);
+  var opt = {
+    margin: [0.5, 0.5, 0.5, 0.5],
+    filename: 'IT_Maintenance_Report_' + new Date().toISOString().split('T')[0] + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, letterRendering: true, useCORS: true },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+  };
+  html2pdf().set(opt).from(wrapper).save().then(function() {
+    document.body.removeChild(wrapper);
+  });
 }
 
 function printMaintenanceForm() {
