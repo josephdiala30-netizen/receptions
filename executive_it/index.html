@@ -195,10 +195,6 @@ button, input, select, textarea { min-width: 0; }
       <span class="material-symbols-outlined">monitor_heart</span>
       <span class="font-label-md">System Monitor</span>
     </a>
-    <a id="navCalendar" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('calendar')">
-      <span class="material-symbols-outlined">calendar_month</span>
-      <span class="font-label-md">Calendar</span>
-    </a>
   </nav>
   <button class="mt-auto bg-emerald-500 hover:bg-emerald-400 text-white py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="openAddModal()">
     <span class="material-symbols-outlined">add</span> New Item
@@ -243,9 +239,6 @@ button, input, select, textarea { min-width: 0; }
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('systems');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">monitor_heart</span><span class="font-label-md">System Monitor</span>
-      </a>
-      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('calendar');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">calendar_month</span><span class="font-label-md">Calendar</span>
       </a>
     </nav>
   </aside>
@@ -354,6 +347,47 @@ button, input, select, textarea { min-width: 0; }
         <button class="group w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-500 hover:to-purple-600 text-on-surface hover:text-white font-label-md transition-all border border-purple-200 hover:border-transparent" onclick="openAddModal('task')">
           <span class="material-symbols-outlined text-purple-600 group-hover:text-white">task</span> New Task
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+    <div class="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-title-lg font-semibold text-primary flex items-center gap-2">
+          <span class="w-1.5 h-5 rounded-full bg-indigo-500 inline-block"></span> Calendar
+        </h3>
+        <div class="flex items-center gap-1">
+          <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors text-lg" onclick="calChangeMonth(-1)">chevron_left</button>
+          <span id="calMonthYear" class="font-label-md font-semibold text-on-surface min-w-[140px] text-center"></span>
+          <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors text-lg" onclick="calChangeMonth(1)">chevron_right</button>
+          <button class="font-label-md text-indigo-600 hover:underline text-xs ml-1" onclick="calGoToToday()">Today</button>
+        </div>
+      </div>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr>
+            <th class="font-label-md text-on-surface-variant pb-2 text-center text-xs w-[14.28%]">Sun</th>
+            <th class="font-label-md text-on-surface-variant pb-2 text-center text-xs w-[14.28%]">Mon</th>
+            <th class="font-label-md text-on-surface-variant pb-2 text-center text-xs w-[14.28%]">Tue</th>
+            <th class="font-label-md text-on-surface-variant pb-2 text-center text-xs w-[14.28%]">Wed</th>
+            <th class="font-label-md text-on-surface-variant pb-2 text-center text-xs w-[14.28%]">Thu</th>
+            <th class="font-label-md text-on-surface-variant pb-2 text-center text-xs w-[14.28%]">Fri</th>
+            <th class="font-label-md text-on-surface-variant pb-2 text-center text-xs w-[14.28%]">Sat</th>
+          </tr>
+        </thead>
+        <tbody id="calBody"></tbody>
+      </table>
+      <div class="flex items-center gap-4 mt-4 pt-3 border-t border-outline-variant text-xs">
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span> Tasks</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block"></span> Maintenance</span>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
+      <h3 class="font-title-lg font-semibold text-primary mb-4" id="calDayTitle">Select a day</h3>
+      <div id="calDayList" class="space-y-3 max-h-80 overflow-y-auto">
+        <p class="font-body-md text-on-surface-variant text-center py-8">Click a date to view items due.</p>
       </div>
     </div>
   </div>
@@ -491,51 +525,6 @@ button, input, select, textarea { min-width: 0; }
     </button>
   </div>
   <div id="systemList" class="space-y-3"></div>
-</section>
-
-<!-- ============ CALENDAR VIEW ============ -->
-<section id="viewCalendar" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
-  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-    <div>
-      <h2 class="font-headline-lg text-headline-lg text-primary">Calendar</h2>
-      <p class="font-body-lg text-on-surface-variant">Upcoming tasks, maintenance inspections, and scheduled events</p>
-    </div>
-    <div class="flex items-center gap-2">
-      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors text-lg" onclick="calChangeMonth(-1)">chevron_left</button>
-      <span id="calMonthYear" class="font-label-md font-semibold text-on-surface min-w-[160px] text-center"></span>
-      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors text-lg" onclick="calChangeMonth(1)">chevron_right</button>
-      <button class="font-label-md text-indigo-600 hover:underline text-sm ml-2" onclick="calGoToToday()">Today</button>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr>
-            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sun</th>
-            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Mon</th>
-            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Tue</th>
-            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Wed</th>
-            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Thu</th>
-            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Fri</th>
-            <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sat</th>
-          </tr>
-        </thead>
-        <tbody id="calBody"></tbody>
-      </table>
-      <div class="flex items-center gap-5 mt-5 pt-4 border-t border-outline-variant text-xs">
-        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span> Tasks</span>
-        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block"></span> Maintenance</span>
-      </div>
-    </div>
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6">
-      <h3 class="font-title-lg font-semibold text-primary mb-4" id="calDayTitle">Select a day</h3>
-      <div id="calDayList" class="space-y-3">
-        <p class="font-body-md text-on-surface-variant text-center py-8">Click a date on the calendar to view items due on that day.</p>
-      </div>
-    </div>
-  </div>
 </section>
 
 </main>
@@ -999,15 +988,15 @@ var currentView = 'dashboard';
 
 function switchView(view) {
   currentView = view;
-  var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems', 'Calendar'];
+  var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems'];
   views.forEach(function(v) {
     var el = document.getElementById('view' + v);
     if (el) el.classList.toggle('hidden', v.toLowerCase() !== view);
   });
 
   // Update sidebar active state
-  var navIds = ['navDashboard', 'navServices', 'navMaintenance', 'navInventory', 'navTask', 'navPlanner', 'navAccomplishments', 'navTickets', 'navSystems', 'navCalendar'];
-  var viewMap = { dashboard: 'navDashboard', services: 'navServices', maintenance: 'navMaintenance', inventory: 'navInventory', task: 'navTask', planner: 'navPlanner', accomplishments: 'navAccomplishments', tickets: 'navTickets', systems: 'navSystems', calendar: 'navCalendar' };
+  var navIds = ['navDashboard', 'navServices', 'navMaintenance', 'navInventory', 'navTask', 'navPlanner', 'navAccomplishments', 'navTickets', 'navSystems'];
+  var viewMap = { dashboard: 'navDashboard', services: 'navServices', maintenance: 'navMaintenance', inventory: 'navInventory', task: 'navTask', planner: 'navPlanner', accomplishments: 'navAccomplishments', tickets: 'navTickets', systems: 'navSystems' };
   navIds.forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -1028,7 +1017,6 @@ function switchView(view) {
   else if (view === 'accomplishments') renderAccomplishments();
   else if (view === 'tickets') renderTickets();
   else if (view === 'systems') renderSystems();
-  else if (view === 'calendar') renderCalendar();
 }
 
 // ==================== DASHBOARD ====================
@@ -1069,6 +1057,8 @@ function loadDashboard() {
       '<div class="flex-1"><p class="font-body-md font-medium text-primary">' + escapeHtml(item.name) + '</p>' +
       '<p class="font-label-md text-on-surface-variant">' + escapeHtml(item.detail) + ' &middot; ' + timeAgo + '</p></div></div>';
   }).join('');
+
+  renderCalendar();
 }
 
 function getTimeAgo(ts) {
@@ -3606,7 +3596,7 @@ function initTutorial() {
     { icon: 'add', title: 'Add a New Item', desc: 'Click <strong>New Item</strong> to add IT assets, services, maintenance records, or inventory items.', selector: 'button[onclick*="openAddModal"]', padding: 12, pulse: true },
     { icon: 'devices', title: 'IT Sections', desc: 'Navigate through <strong>Services</strong>, <strong>Maintenance</strong>, <strong>Inventory</strong>, <strong>Assets</strong>, and more using the sidebar.', selector: 'a[onclick*="Services"]', padding: 8 },
     { icon: 'checklist', title: 'IT Tasks &amp; Planner', desc: 'Use <strong>IT Task</strong> and <strong>Planner</strong> to track IT projects, support tickets, and accomplishments.', selector: 'a[onclick*="IT Task"]', padding: 8 },
-    { icon: 'calendar_month', title: 'Calendar View', desc: 'The <strong>Calendar</strong> shows all your upcoming tasks and maintenance inspections in a monthly view. Click any date to see what\'s due.', selector: 'a[onclick*="calendar"]', padding: 8 },
+    { icon: 'calendar_month', title: 'Calendar View', desc: 'The <strong>Calendar</strong> on the dashboard shows all your upcoming tasks and maintenance inspections. Click any date to see what\'s due.', selector: null, padding: 0 },
     { icon: 'menu_book', title: 'You\'re All Set!', desc: 'Explore at your own pace. Visit the <a href="../guide/" class="text-primary underline font-bold">User Guide</a> for detailed tutorials. Happy managing!', selector: null, padding: 0 }
   ];
 
