@@ -1388,8 +1388,7 @@ function renderServices() {
         '<div class="flex items-center gap-4 text-xs text-on-surface-variant flex-wrap">' +
           '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">category</span> ' + escapeHtml(item.category || 'General') + '</span>' +
           (item.cost ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">attach_money</span> ' + escapeHtml(item.cost) + '</span>' : '') +
-          (item.incidentDate ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> <span class="font-medium">Reported:</span> ' + escapeHtml(item.incidentDate.replace('T', ' ')) + '</span>' : '') +
-          (item.resolvedDate ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">check_circle</span> <span class="font-medium">Resolved:</span> ' + escapeHtml(item.resolvedDate.replace('T', ' ')) + '</span>' : '') +
+          (item.incidentDate ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(item.incidentDate.replace('T', ' ')) + '</span>' : '') +
         '</div>' +
         (item.resolution ? '<div class="text-xs border-l-2 border-teal-400/40 pl-3 py-1"><span class="text-on-surface-variant font-medium block mb-0.5">Resolution</span><p class="text-primary">' + escapeHtml(item.resolution) + '</p></div>' : '') +
       '</div>';
@@ -1591,7 +1590,7 @@ function buildServicesReportHTML(startDate, endDate) {
   html += '<table><thead><tr><th>Department</th><th>Service Requests</th></tr></thead><tbody>' + deptHtml + '</tbody></table>';
   html += '<h3>Detailed Service List</h3>';
   html += '<table><thead><tr>' +
-    '<th>#</th><th>Service / Issue</th><th>Requestor</th><th>Department</th><th>Severity</th><th>Status</th><th>Date Reported</th><th>Date Resolved</th><th>Resolution</th>' +
+    '<th>#</th><th>Service / Issue</th><th>Requestor</th><th>Department</th><th>Severity</th><th>Status</th><th>Date Reported</th><th>Resolution</th>' +
     '</tr></thead><tbody>';
   data.forEach(function(item, i) {
     var statusTag = 'tag-' + (item.status === 'open' ? 'open' : item.status === 'in-progress' ? 'progress' : item.status === 'resolved' ? 'resolved' : 'closed');
@@ -1604,7 +1603,6 @@ function buildServicesReportHTML(startDate, endDate) {
       '<td><span class="tag ' + sevTag + '">' + escapeHtml(item.severity || 'Medium') + '</span></td>' +
       '<td><span class="tag ' + statusTag + '">' + escapeHtml(item.status || 'open') + '</span></td>' +
       '<td>' + escapeHtml((item.incidentDate || '').replace('T', ' ')) + '</td>' +
-      '<td>' + escapeHtml((item.resolvedDate || '').replace('T', ' ')) + '</td>' +
       '<td>' + escapeHtml(item.resolution ? item.resolution.substring(0, 80) + (item.resolution.length > 80 ? '...' : '') : '—') + '</td>' +
       '</tr>';
   });
@@ -1647,7 +1645,7 @@ function downloadServicesExcel(startDate, endDate) {
   var data = getData('services');
   data = filterDataByDate(data, 'incidentDate', startDate, endDate);
   if (data.length === 0) { alert('No IT services in the selected date range.'); return; }
-  var columns = ['#', 'Service / Issue', 'Requestor', 'Department', 'Category', 'Severity', 'Status', 'Date Reported', 'Date Resolved', 'Cost', 'Resolution'];
+  var columns = ['#', 'Service / Issue', 'Requestor', 'Department', 'Category', 'Severity', 'Status', 'Date Reported', 'Cost', 'Resolution'];
   var rows = data.map(function(item, i) {
     return [
       i + 1,
@@ -1658,7 +1656,6 @@ function downloadServicesExcel(startDate, endDate) {
       escapeHtml(item.severity || 'Medium'),
       escapeHtml(item.status || 'open'),
       escapeHtml((item.incidentDate || '').replace('T', ' ')),
-      escapeHtml((item.resolvedDate || '').replace('T', ' ')),
       escapeHtml(item.cost || ''),
       escapeHtml(item.resolution || '')
     ];
@@ -2473,8 +2470,7 @@ function renderAccomplishments() {
             '    <div><span class="font-medium">Requestor:</span> <span class="text-primary font-semibold">' + escapeHtml(item.requestorName || 'N/A') + '</span></div>' +
             '    <div><span class="font-medium">Severity:</span> <span class="text-primary font-semibold">' + escapeHtml(item.severity || 'Medium') + '</span></div>' +
             '    <div><span class="font-medium">Department:</span> <span class="text-primary font-semibold">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
-            '    <div><span class="font-medium">Date Reported:</span> <span class="text-primary font-semibold">' + escapeHtml(item.incidentDate ? item.incidentDate.replace('T', ' ') : 'N/A') + '</span></div>' +
-            '    <div><span class="font-medium">Date Resolved:</span> <span class="text-primary font-semibold">' + escapeHtml(item.resolvedDate ? item.resolvedDate.replace('T', ' ') : 'N/A') + '</span></div>' +
+            '    <div class="col-span-2"><span class="font-medium">Incident Date:</span> <span class="text-primary font-semibold">' + escapeHtml(item.incidentDate ? item.incidentDate.replace('T', ' ') : 'N/A') + '</span></div>' +
             '  </div>' +
             (item.resolution ? '  <div class="border-t border-outline-variant/60 pt-2"><span class="font-medium text-on-surface-variant">Resolution:</span> <p class="text-primary mt-0.5">' + escapeHtml(item.resolution) + '</p></div>' : '') +
             '</div>';
@@ -2749,27 +2745,21 @@ function getFormHtml(type, item) {
       '    </div>' +
       '    <div class="grid grid-cols-2 gap-4">' +
       '      <div>' +
-      '        <label class="font-label-md text-on-surface-variant block mb-1">Date Reported</label>' +
+      '        <label class="font-label-md text-on-surface-variant block mb-1">Incident Date</label>' +
       '        <input id="fIncidentDate" type="datetime-local" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.incidentDate || defaultIncidentDate) + '"/>' +
       '      </div>' +
       '      <div>' +
-      '        <label class="font-label-md text-on-surface-variant block mb-1">Date Resolved</label>' +
-      '        <input id="fResolvedDate" type="datetime-local" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.resolvedDate || '') + '"/>' +
-      '      </div>' +
-      '    </div>' +
-      '    <div class="grid grid-cols-2 gap-4">' +
-      '      <div>' +
       '        <label class="font-label-md text-on-surface-variant block mb-1">Cost</label>' +
       '        <input id="fCost" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. PHP 5000" value="' + escapeHtml(item.cost || '') + '"/>' +
-      '      </div>' +
-      '      <div>' +
-      '        <label class="font-label-md text-on-surface-variant block mb-1">Resolution (Optional)</label>' +
-      '        <textarea id="fResolution" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-16 resize-none" placeholder="How was this resolved? (If already completed)">' + escapeHtml(item.resolution || '') + '</textarea>' +
       '      </div>' +
       '    </div>' +
       '    <div>' +
       '      <label class="font-label-md text-on-surface-variant block mb-1">Description</label>' +
       '      <textarea id="fDescription" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 resize-none" placeholder="Describe the service details...">' + escapeHtml(item.description || '') + '</textarea>' +
+      '    </div>' +
+      '    <div>' +
+      '      <label class="font-label-md text-on-surface-variant block mb-1">Resolution (Optional)</label>' +
+      '      <textarea id="fResolution" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-16 resize-none" placeholder="How was this resolved? (If already completed)">' + escapeHtml(item.resolution || '') + '</textarea>' +
       '    </div>' +
       '  </div>' +
       '  <div>' +
@@ -3202,12 +3192,8 @@ function getFormHtml(type, item) {
       '        </select>' +
       '      </div>' +
       '      <div>' +
-      '        <label class="font-label-md text-on-surface-variant block mb-1">Date Reported</label>' +
+      '        <label class="font-label-md text-on-surface-variant block mb-1">Incident Date</label>' +
       '        <input id="fIncidentDate" type="datetime-local" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.incidentDate || defaultIncidentDate) + '"/>' +
-      '      </div>' +
-      '      <div>' +
-      '        <label class="font-label-md text-on-surface-variant block mb-1">Date Resolved</label>' +
-      '        <input id="fResolvedDate" type="datetime-local" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.resolvedDate || '') + '"/>' +
       '      </div>' +
       '    </div>' +
       '    <div>' +
@@ -3267,7 +3253,6 @@ function saveItem() {
     item.category = document.getElementById('fCategory').value;
     item.department = document.getElementById('fDepartment').value;
     item.incidentDate = document.getElementById('fIncidentDate').value;
-    item.resolvedDate = document.getElementById('fResolvedDate').value || item.resolvedDate || '';
     item.cost = document.getElementById('fCost').value.trim();
     item.description = document.getElementById('fDescription').value.trim();
     item.resolution = document.getElementById('fResolution').value.trim();
@@ -3374,7 +3359,6 @@ function saveItem() {
       item.severity = document.getElementById('fSeverity').value;
       item.department = document.getElementById('fDepartment').value;
       item.incidentDate = document.getElementById('fIncidentDate').value;
-      item.resolvedDate = document.getElementById('fResolvedDate').value || '';
       item.resolution = document.getElementById('fResolution').value.trim();
       item.title = reportTitle;
       
@@ -3414,7 +3398,6 @@ function saveItem() {
       svc.category = 'General';
       svc.department = item.department;
       svc.incidentDate = item.incidentDate;
-      svc.resolvedDate = item.resolvedDate || '';
       svc.resolution = item.resolution;
       svc.cost = '';
       svc.status = item.status === 'completed' ? 'resolved' : item.status === 'in-progress' ? 'in-progress' : 'open';
