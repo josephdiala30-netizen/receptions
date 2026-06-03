@@ -2482,41 +2482,51 @@ function downloadAccomplishmentsExcel() {
   var data = getData('accomplishments');
   if (data.length === 0) { alert('No accomplishments to export.'); return; }
 
+  // Sort by date ascending
+  data.sort(function(a, b) { return (a.date || '').localeCompare(b.date || ''); });
+
   var total = data.length;
   var pending = data.filter(function(a) { return a.status === 'pending'; }).length;
   var inProgress = data.filter(function(a) { return a.status === 'in-progress'; }).length;
   var completed = data.filter(function(a) { return a.status === 'completed' || a.status === 'done'; }).length;
 
-  var categories = {};
-  data.forEach(function(a) {
-    var c = a.category || 'Other';
-    categories[c] = (categories[c] || 0) + 1;
-  });
-  var catRows = Object.keys(categories).sort().map(function(c) {
-    return '<tr><td style="padding:4px 8px;border:1px solid #d1d5db;font-size:11px">' + escapeHtml(c) + '</td><td style="padding:4px 8px;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">' + categories[c] + '</td></tr>';
-  }).join('');
+  // Split by category
+  var techSupport = data.filter(function(a) { return a.category === 'Technical Support'; });
+  var uploadEncoding = data.filter(function(a) { return a.category === 'Uploading/Encoding'; });
+  var other = data.filter(function(a) { return a.category !== 'Technical Support' && a.category !== 'Uploading/Encoding'; });
+
+  function makeRows(arr, includeDetails) {
+    return arr.map(function(item, i) {
+      var stat = item.status || 'pending';
+      var statColor = stat === 'pending' ? '#d97706' : stat === 'in-progress' ? '#2563eb' : '#059669';
+      var desc = item.description || '';
+      if (desc.length > 100) desc = desc.substring(0, 100) + '...';
+      var cols =
+        '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center;color:#6b7280">' + (i + 1) + '</td>' +
+        '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.date || '\u2014') + '</td>' +
+        '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:#1e1b4d">' + escapeHtml(item.title || item.reportTitle || '\u2014') + '</td>' +
+        '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:' + statColor + ';text-align:center">' + escapeHtml(stat) + '</td>' +
+        '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;max-width:250px;word-wrap:break-word">' + escapeHtml(desc) + '</td>';
+      if (includeDetails) {
+        cols +=
+          (item.requestorName ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.requestorName) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+          (item.severity ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.severity) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+          (item.department ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.department) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+          (item.incidentDate ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.incidentDate.replace('T', ' ')) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+          (item.dateResolve ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.dateResolve.replace('T', ' ')) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+          (item.resolution ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.resolution) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>');
+      }
+      return '<tr>' + cols + '</tr>';
+    }).join('');
+  }
 
   var now = new Date();
   var dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   var timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-  var rows = data.map(function(item, i) {
-    var stat = item.status || 'pending';
-    var statColor = stat === 'pending' ? '#d97706' : stat === 'in-progress' ? '#2563eb' : '#059669';
-    var desc = item.description || '';
-    if (desc.length > 100) desc = desc.substring(0, 100) + '...';
-    return '<tr>' +
-      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center;color:#6b7280">' + (i + 1) + '</td>' +
-      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.date || '\u2014') + '</td>' +
-      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:#1e1b4d">' + escapeHtml(item.title || '\u2014') + '</td>' +
-      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.category || 'Other') + '</td>' +
-      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:' + statColor + ';text-align:center">' + escapeHtml(stat) + '</td>' +
-      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;max-width:250px;word-wrap:break-word">' + escapeHtml(desc) + '</td>' +
-      (item.reportTitle ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.reportTitle) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
-      (item.requestorName ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.requestorName) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
-      (item.severity ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.severity) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
-      '</tr>';
-  }).join('');
+  var techRows = makeRows(techSupport, true);
+  var uploadRows = makeRows(uploadEncoding, false);
+  var otherRows = makeRows(other, false);
 
   var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
   '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Daily Accomplishments</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->' +
@@ -2535,6 +2545,7 @@ function downloadAccomplishmentsExcel() {
   'td{padding:4px 8px;border:1px solid #d1d5db}' +
   'tr:nth-child(even){background:#f8fafc}' +
   '.footer{text-align:center;font-size:9px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:10px;margin-top:20px}' +
+  '.sub-header{font-size:10px;font-weight:700;color:#4f46e5;padding:6px 0 2px}' +
   '</style></head><body>' +
   '<div class="header"><div class="logo">KALYX &mdash; Daily Accomplishments Report</div><div class="date">Generated: ' + dateStr + ' at ' + timeStr + '</div></div>' +
 
@@ -2545,20 +2556,23 @@ function downloadAccomplishmentsExcel() {
     '<div class="summary-card" style="border-color:#a7f3d0;background:#ecfdf5"><div class="num" style="color:#059669">' + completed + '</div><div class="lbl">Completed</div></div>' +
   '</div>' +
 
-  '<div class="summary-row">' +
-    '<div class="summary-card"><div class="num">' + Object.keys(categories).length + '</div><div class="lbl">Categories</div></div>' +
-    '<div class="summary-card"><div class="num">' + data.filter(function(a) { return a.category === 'Technical Support'; }).length + '</div><div class="lbl">Tech Support Jobs</div></div>' +
-    '<div class="summary-card"><div class="num">' + data.filter(function(a) { return a.category === 'Uploading/Encoding'; }).length + '</div><div class="lbl">Upload/Encoding Jobs</div></div>' +
-    '<div class="summary-card"><div class="num">' + data.filter(function(a) { return a.category === 'Other' || !a.category; }).length + '</div><div class="lbl">Other Jobs</div></div>' +
-  '</div>' +
+  // Technical Support section
+  '<div class="section-title">Technical Support (' + techSupport.length + ' entries)</div>' +
+  (techSupport.length > 0
+    ? '<table><thead><tr><th style="width:30px">#</th><th>Date</th><th>Title</th><th>Status</th><th>Description</th><th>Requestor</th><th>Severity</th><th>Department</th><th>Incident Date</th><th>Date Resolve</th><th>Resolution</th></tr></thead><tbody>' + techRows + '</tbody></table>'
+    : '<div class="sub-header">No Technical Support entries.</div>') +
 
-  '<div class="section-title">Category Breakdown</div>' +
-  '<table><thead><tr><th style="width:70%">Category</th><th style="width:30%">Count</th></tr></thead><tbody>' + catRows + '</tbody></table>' +
+  // Uploading/Encoding section
+  '<div class="section-title">Uploading/Encoding (' + uploadEncoding.length + ' entries)</div>' +
+  (uploadEncoding.length > 0
+    ? '<table><thead><tr><th style="width:30px">#</th><th>Date</th><th>Title</th><th>Status</th><th>Description</th></tr></thead><tbody>' + uploadRows + '</tbody></table>'
+    : '<div class="sub-header">No Uploading/Encoding entries.</div>') +
 
-  '<div class="section-title">Detailed Accomplishments</div>' +
-  '<table><thead><tr>' +
-    '<th style="width:30px">#</th><th>Date</th><th>Title</th><th>Category</th><th>Status</th><th>Description</th><th>Report Title</th><th>Requestor</th><th>Severity</th>' +
-  '</tr></thead><tbody>' + rows + '</tbody></table>' +
+  // Other section
+  (other.length > 0
+    ? '<div class="section-title">Other (' + other.length + ' entries)</div>' +
+      '<table><thead><tr><th style="width:30px">#</th><th>Date</th><th>Title</th><th>Status</th><th>Description</th></tr></thead><tbody>' + otherRows + '</tbody></table>'
+    : '') +
 
   '<div class="footer">KALYX Daily Accomplishments Report &middot; Generated on ' + dateStr + ' &middot; Confidential</div>' +
   '</body></html>';
