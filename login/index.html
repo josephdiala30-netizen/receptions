@@ -134,6 +134,18 @@
     </div>
   </div>
 
+  <div id="regSuccessModal" class="hidden fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
+      <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400" style="font-size:36px;">check_circle</span>
+      </div>
+      <h2 class="text-2xl font-bold text-on-surface mb-2">Welcome to KALYX!</h2>
+      <p class="text-on-surface-variant text-sm leading-relaxed mb-1">Account created successfully, <span id="regSuccessName" class="font-semibold text-primary"></span>!</p>
+      <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Please log in with your credentials to get started.</p>
+      <button onclick="closeRegSuccess()" class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md">Continue to Login</button>
+    </div>
+  </div>
+
   <script>
     function initTheme() {
       var theme = localStorage.getItem('theme') || 'light';
@@ -253,6 +265,10 @@
         errEl.classList.remove('hidden');
       });
     }
+    function closeRegSuccess() {
+      document.getElementById('regSuccessModal').classList.add('hidden');
+      switchTab('login');
+    }
     function doRegister() {
       var name = document.getElementById('regName').value.trim();
       var user = document.getElementById('regUser').value.trim();
@@ -309,13 +325,9 @@
         document.getElementById('regPass').value = '';
         document.getElementById('regPass2').value = '';
 
-        // Show Success Alert and Redirect
-        var successEl = document.getElementById('loginSuccess');
-        if (successEl) {
-          successEl.textContent = 'Account created successfully! Please log in below.';
-          successEl.classList.remove('hidden');
-        }
-        switchTab('login');
+        // Show Welcome Modal
+        document.getElementById('regSuccessName').textContent = name;
+        document.getElementById('regSuccessModal').classList.remove('hidden');
       });
     }
 
