@@ -1449,6 +1449,13 @@ function downloadServicesExcel() {
   var data = getData('services');
   if (data.length === 0) { alert('No IT services to export.'); return; }
 
+  // Sort by incidentDate descending (most recent first)
+  data.sort(function(a, b) {
+    var da = a.incidentDate || a.createdAt || '';
+    var db = b.incidentDate || b.createdAt || '';
+    return db.localeCompare(da);
+  });
+
   var total = data.length;
   var open = data.filter(function(s) { return s.status === 'open' || s.status === 'in-progress'; }).length;
   var resolved = data.filter(function(s) { return s.status === 'resolved' || s.status === 'closed'; }).length;
