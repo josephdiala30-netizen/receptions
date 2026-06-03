@@ -119,6 +119,13 @@
             <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Confirm Password</label>
             <input id="regPass2" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all" placeholder="Confirm password" type="password"/>
           </div>
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Portal / Role</label>
+            <select id="regRole" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all">
+              <option value="executive_task">Executive Task</option>
+              <option value="executive_path">Executive Path (Travel)</option>
+            </select>
+          </div>
           <div id="regError" class="text-xs font-semibold text-error hidden"></div>
           <button class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md" onclick="doRegister()">Create Account</button>
         </div>
@@ -288,7 +295,7 @@
       }
 
       hashPass(pass).then(function(hash) {
-        var role = 'executive_task';
+        var role = document.getElementById('regRole').value;
         users.push({ username: user, name: name, email: email, password: hash, isAdmin: false, role: role });
         localStorage.setItem('users', JSON.stringify(users));
         localStorage.setItem('welcome_' + user, 'true');
