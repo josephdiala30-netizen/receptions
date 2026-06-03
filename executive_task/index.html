@@ -785,9 +785,46 @@ button, input, select, textarea { min-width: 0; }
     <h2 class="text-2xl font-bold text-on-surface mb-2">Welcome to KALYX!</h2>
     <p class="text-on-surface-variant text-sm leading-relaxed mb-1">We're excited to have you on board, <span id="welcomeName" class="font-semibold text-primary"></span>!</p>
     <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Start managing your tasks, trips, and accomplishments — all in one place.</p>
-    <button onclick="document.getElementById('welcomeModal').classList.add('hidden')" class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md">Get Started</button>
+    <button onclick="startTutorial()" class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md">Take a Tour</button>
+    <button onclick="skipTutorial()" class="w-full text-on-surface-variant py-2 mt-2 text-sm font-semibold hover:text-primary transition-all">Skip Tour</button>
   </div>
 </div>
+
+<div id="tutorialOverlay" class="hidden fixed inset-0 z-[1000]">
+  <div class="absolute inset-0 bg-black/60"></div>
+  <div id="tutorialHighlight" class="absolute rounded-xl border-2 border-indigo-400 shadow-[0_0_0_4px_rgba(99,102,241,0.3)] transition-all duration-500 ease-out"></div>
+  <div id="tutorialTooltip" class="absolute bg-surface-container-lowest dark:bg-surface-container-low rounded-2xl shadow-2xl border border-outline-variant p-6 max-w-sm transition-all duration-500 ease-out">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="flex gap-1" id="tutorialDots"></span>
+    </div>
+    <h3 id="tutorialTitle" class="text-lg font-bold text-on-surface mb-2"></h3>
+    <p id="tutorialDesc" class="text-sm text-on-surface-variant leading-relaxed mb-5"></p>
+    <div class="flex items-center justify-between">
+      <button onclick="tutorialPrev()" id="tutorialPrevBtn" class="flex items-center gap-1 text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined text-base">chevron_left</span> Back
+      </button>
+      <button onclick="tutorialNext()" id="tutorialNextBtn" class="bg-primary text-on-primary px-5 py-2 rounded-xl font-bold text-sm hover:opacity-90 transition-all active:scale-[0.98] shadow-md flex items-center gap-1">
+        Next <span class="material-symbols-outlined text-base">chevron_right</span>
+      </button>
+      <button onclick="skipTutorial()" id="tutorialFinishBtn" class="hidden bg-emerald-600 text-white px-5 py-2 rounded-xl font-bold text-sm hover:opacity-90 transition-all active:scale-[0.98] shadow-md">Got It!</button>
+    </div>
+  </div>
+</div>
+
+<style>
+#tutorialOverlay:not(.hidden) #tutorialTooltip { animation: tutorialSlideUp 0.4s ease-out; }
+@keyframes tutorialSlideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+#tutorialHighlight { animation: tutorialPulse 2s ease-in-out infinite; }
+@keyframes tutorialPulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(99,102,241,0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(99,102,241,0.15); }
+}
+.tutorial-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--outline-variant); transition: all 0.3s; }
+.tutorial-dot.active { background: var(--primary); width: 24px; border-radius: 4px; }
+</style>
 
 <script>
 function getSession() {
@@ -1829,6 +1866,106 @@ function deleteLogEntry(id) {
   entries = entries.filter(function(x) { return x.id !== id; });
   saveLogEntries(entries);
   loadDailyLog();
+}
+
+var tutorialSteps = [
+  { selector: null, title: 'Welcome to KALYX!', desc: 'Let\'s take a quick tour so you can get the most out of your dashboard.', pos: 'center' },
+  { selector: 'nav.sidebar-desktop', title: 'Navigation', desc: 'Use the sidebar to switch between Dashboard, All Tasks, Planner, and Daily Log.', pos: 'right' },
+  { selector: '#globalSearch', title: 'Search', desc: 'Quickly find any task by typing a keyword here.', pos: 'bottom' },
+  { selector: '#userBtn', title: 'Your Profile', desc: 'Click here to view your profile, check your role, or sign out.', pos: 'bottom' },
+  { selector: 'aside button:last-child', title: 'New Task', desc: 'Click here to create a new task anytime.', pos: 'left' },
+  { selector: null, title: 'You\'re All Set!', desc: 'Start exploring your dashboard. Create tasks, plan your roadmap, and log your daily accomplishments!', pos: 'center' }
+];
+var tutorialStep = 0;
+
+function startTutorial() {
+  document.getElementById('welcomeModal').classList.add('hidden');
+  var session = JSON.parse(localStorage.getItem('session') || '{}');
+  if (session.username) localStorage.setItem('tutorial_' + session.username, 'true');
+  tutorialStep = 0;
+  document.getElementById('tutorialOverlay').classList.remove('hidden');
+  renderTutorialStep();
+}
+
+function skipTutorial() {
+  document.getElementById('welcomeModal').classList.add('hidden');
+  document.getElementById('tutorialOverlay').classList.add('hidden');
+}
+
+function renderTutorialStep() {
+  var step = tutorialSteps[tutorialStep];
+  var overlay = document.getElementById('tutorialOverlay');
+  var highlight = document.getElementById('tutorialHighlight');
+  var tooltip = document.getElementById('tutorialTooltip');
+  var title = document.getElementById('tutorialTitle');
+  var desc = document.getElementById('tutorialDesc');
+  var prevBtn = document.getElementById('tutorialPrevBtn');
+  var nextBtn = document.getElementById('tutorialNextBtn');
+  var finishBtn = document.getElementById('tutorialFinishBtn');
+  var dots = document.getElementById('tutorialDots');
+
+  dots.innerHTML = tutorialSteps.map(function(_, i) {
+    return '<span class="tutorial-dot' + (i === tutorialStep ? ' active' : '') + '"></span>';
+  }).join('');
+
+  title.textContent = step.title;
+  desc.textContent = step.desc;
+  prevBtn.classList.toggle('invisible', tutorialStep === 0);
+  var isLast = tutorialStep === tutorialSteps.length - 1;
+  nextBtn.classList.toggle('hidden', isLast);
+  finishBtn.classList.toggle('hidden', !isLast);
+
+  highlight.classList.toggle('hidden', !step.selector);
+
+  if (step.selector) {
+    var target = document.querySelector(step.selector);
+    if (target) {
+      var rect = target.getBoundingClientRect();
+      highlight.style.top = (rect.top - 6) + 'px';
+      highlight.style.left = (rect.left - 6) + 'px';
+      highlight.style.width = (rect.width + 12) + 'px';
+      highlight.style.height = (rect.height + 12) + 'px';
+
+      var tipRect = tooltip.getBoundingClientRect();
+      var tipW = 320;
+      var tipH = 200;
+
+      if (step.pos === 'right') {
+        tooltip.style.top = Math.max(16, Math.min(window.innerHeight - tipH - 16, rect.top + rect.height / 2 - tipH / 2)) + 'px';
+        tooltip.style.left = (rect.right + 24) + 'px';
+        tooltip.style.transform = 'none';
+      } else if (step.pos === 'bottom') {
+        tooltip.style.top = (rect.bottom + 16) + 'px';
+        tooltip.style.left = Math.max(16, Math.min(window.innerWidth - tipW - 16, rect.left + rect.width / 2 - tipW / 2)) + 'px';
+        tooltip.style.transform = 'none';
+      } else if (step.pos === 'left') {
+        tooltip.style.top = Math.max(16, Math.min(window.innerHeight - tipH - 16, rect.top + rect.height / 2 - tipH / 2)) + 'px';
+        tooltip.style.left = (rect.left - tipW - 24) + 'px';
+        tooltip.style.transform = 'none';
+      }
+      tooltip.style.width = tipW + 'px';
+    }
+  } else {
+    highlight.style.top = '0'; highlight.style.left = '0';
+    highlight.style.width = '0'; highlight.style.height = '0';
+    tooltip.style.top = '50%'; tooltip.style.left = '50%';
+    tooltip.style.transform = 'translate(-50%, -50%)';
+    tooltip.style.width = tipW + 'px';
+  }
+}
+
+function tutorialNext() {
+  if (tutorialStep < tutorialSteps.length - 1) {
+    tutorialStep++;
+    renderTutorialStep();
+  }
+}
+
+function tutorialPrev() {
+  if (tutorialStep > 0) {
+    tutorialStep--;
+    renderTutorialStep();
+  }
 }
 
 function checkWelcome() {
