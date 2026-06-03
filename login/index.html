@@ -292,24 +292,32 @@
 
     // Background migration of legacy user to Firebase Auth + Firestore
     function migrateLegacyUser(found, pass) {
-      firebase.auth().createUserWithEmailAndPassword(found.email, pass)
+      var s = JSON.parse(localStorage.getItem('session') || '{}');
+      // Sign in if existing Firebase user, otherwise create
+      firebase.auth().signInWithEmailAndPassword(found.email, pass)
+        .catch(function(err) {
+          if (err.code === 'auth/user-not-found') {
+            return firebase.auth().createUserWithEmailAndPassword(found.email, pass);
+          }
+          throw err;
+        })
         .then(function(result) {
           var uid = result.user.uid;
+          s.firebaseUid = uid;
+          localStorage.setItem('session', JSON.stringify(s));
           var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
           var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
           prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
           var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
           itTypes.forEach(function(t) { try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {} });
-          firebase.firestore().collection('userdata').doc(uid).set(userData, { merge: true })
-            .then(function() {
-              var s = JSON.parse(localStorage.getItem('session') || '{}');
-              s.firebaseUid = uid;
-              localStorage.setItem('session', JSON.stringify(s));
-              // Sign out so portal uses localStorage session; next login uses Firebase
-              firebase.auth().signOut();
-            });
+          return firebase.firestore().collection('userdata').doc(uid).set(userData, { merge: true });
         })
-        .catch(function() {});
+        .then(function() {
+          console.log('Migration complete');
+        })
+        .catch(function(err) {
+          console.error('Migration error:', err);
+        });
     }
 
     function closeRegSuccess() {
