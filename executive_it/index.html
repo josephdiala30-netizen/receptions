@@ -3313,26 +3313,30 @@ function getFormHtml(type, item) {
       '        </select>' +
       '      </div>' +
       '    </div>' +
-      '    <div class="grid grid-cols-2 gap-4">' +
-      '      <div>' +
-      '        <label class="font-label-md text-on-surface-variant block mb-1">Department</label>' +
-      '        <select id="fDepartment" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
-      '          <option value="">Select Department</option>' +
-      '          <option value="IT"' + (item.department === 'IT' ? ' selected' : '') + '>IT</option>' +
-      '          <option value="HR"' + (item.department === 'HR' ? ' selected' : '') + '>HR</option>' +
-      '          <option value="Finance"' + (item.department === 'Finance' ? ' selected' : '') + '>Finance</option>' +
-      '          <option value="Operations"' + (item.department === 'Operations' ? ' selected' : '') + '>Operations</option>' +
-      '          <option value="Sales"' + (item.department === 'Sales' ? ' selected' : '') + '>Sales</option>' +
-      '          <option value="Marketing"' + (item.department === 'Marketing' ? ' selected' : '') + '>Marketing</option>' +
-      '          <option value="Executive"' + (item.department === 'Executive' ? ' selected' : '') + '>Executive</option>' +
-      '          <option value="Other"' + (item.department === 'Other' ? ' selected' : '') + '>Other</option>' +
-      '        </select>' +
-      '      </div>' +
-      '      <div>' +
-      '        <label class="font-label-md text-on-surface-variant block mb-1">Incident Date</label>' +
-      '        <input id="fIncidentDate" type="datetime-local" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.incidentDate || defaultIncidentDate) + '"/>' +
-      '      </div>' +
-      '    </div>' +
+    '    <div class="grid grid-cols-3 gap-4">' +
+    '      <div>' +
+    '        <label class="font-label-md text-on-surface-variant block mb-1">Department</label>' +
+    '        <select id="fDepartment" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+    '          <option value="">Select Department</option>' +
+    '          <option value="IT"' + (item.department === 'IT' ? ' selected' : '') + '>IT</option>' +
+    '          <option value="HR"' + (item.department === 'HR' ? ' selected' : '') + '>HR</option>' +
+    '          <option value="Finance"' + (item.department === 'Finance' ? ' selected' : '') + '>Finance</option>' +
+    '          <option value="Operations"' + (item.department === 'Operations' ? ' selected' : '') + '>Operations</option>' +
+    '          <option value="Sales"' + (item.department === 'Sales' ? ' selected' : '') + '>Sales</option>' +
+    '          <option value="Marketing"' + (item.department === 'Marketing' ? ' selected' : '') + '>Marketing</option>' +
+    '          <option value="Executive"' + (item.department === 'Executive' ? ' selected' : '') + '>Executive</option>' +
+    '          <option value="Other"' + (item.department === 'Other' ? ' selected' : '') + '>Other</option>' +
+    '        </select>' +
+    '      </div>' +
+    '      <div>' +
+    '        <label class="font-label-md text-on-surface-variant block mb-1">Incident Date</label>' +
+    '        <input id="fIncidentDate" type="datetime-local" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.incidentDate || defaultIncidentDate) + '"/>' +
+    '      </div>' +
+    '      <div>' +
+    '        <label class="font-label-md text-on-surface-variant block mb-1">Date Resolve</label>' +
+    '        <input id="fDateResolve" type="datetime-local" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.dateResolve || '') + '"/>' +
+    '      </div>' +
+    '    </div>' +
       '    <div>' +
       '      <label class="font-label-md text-on-surface-variant block mb-1">Report Resolution (Optional)</label>' +
       '      <textarea id="fResolution" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-16 resize-none" placeholder="How was this fixed? (If already resolved)">' + escapeHtml(item.resolution || '') + '</textarea>' +
@@ -3496,6 +3500,7 @@ function saveItem() {
       item.severity = document.getElementById('fSeverity').value;
       item.department = document.getElementById('fDepartment').value;
       item.incidentDate = document.getElementById('fIncidentDate').value;
+      item.dateResolve = document.getElementById('fDateResolve').value;
       item.resolution = document.getElementById('fResolution').value.trim();
       item.title = reportTitle;
       
@@ -3511,7 +3516,8 @@ function saveItem() {
         tickets.push(ticket);
       }
       ticket.title = reportTitle;
-      ticket.description = 'Incident Date: ' + item.incidentDate.replace('T', ' ') + '\nDepartment: ' + item.department + '\nRequestor: ' + requestorName + '\nSeverity: ' + item.severity + '\n\nDetails:\n' + description;
+      ticket.dateResolve = item.dateResolve;
+      ticket.description = 'Incident Date: ' + item.incidentDate.replace('T', ' ') + (item.dateResolve ? '\nDate Resolve: ' + item.dateResolve.replace('T', ' ') : '') + '\nDepartment: ' + item.department + '\nRequestor: ' + requestorName + '\nSeverity: ' + item.severity + '\n\nDetails:\n' + description;
       ticket.priority = item.severity === 'Critical' || item.severity === 'High' ? 'high' : item.severity === 'Medium' ? 'medium' : 'low';
       ticket.status = item.status === 'completed' ? 'resolved' : item.status === 'in-progress' ? 'in-progress' : 'open';
       ticket.assignedTo = getSession().name || getSession().username;
@@ -3535,6 +3541,7 @@ function saveItem() {
       svc.category = 'General';
       svc.department = item.department;
       svc.incidentDate = item.incidentDate;
+      svc.dateResolve = item.dateResolve;
       svc.resolution = item.resolution;
       svc.cost = '';
       svc.status = item.status === 'completed' ? 'resolved' : item.status === 'in-progress' ? 'in-progress' : 'open';
