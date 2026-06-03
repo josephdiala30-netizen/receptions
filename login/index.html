@@ -267,7 +267,7 @@
       });
     }
 
-    // localStorage fallback login
+    // localStorage fallback login + auto-migration to Firebase
     function doLocalLogin(user, pass) {
       var errEl = document.getElementById('loginError');
       var users = JSON.parse(localStorage.getItem('users') || '[]');
@@ -279,9 +279,50 @@
           return (u.username === user || u.email === user) && (u.password === hash || u.password === pass);
         });
         if (found) {
+          var email = found.email;
           var role = found.role || 'executive_path';
+          // Save session first (for downstream reads)
           localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
-          window.location.href = getBaseUrl() + role + '/';
+
+          // Auto-migrate to Firebase Auth + Firestore
+          if (email && email.indexOf('@') > 0) {
+            firebase.auth().createUserWithEmailAndPassword(email, pass)
+              .then(function(result) {
+                var uid = result.user.uid;
+                // Gather all localStorage data for this user
+                var userData = {
+                  profile: { username: found.username, name: found.name, email: email, isAdmin: found.isAdmin || false, role: role }
+                };
+                var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
+                prefixes.forEach(function(p) {
+                  try {
+                    var val = JSON.parse(localStorage.getItem(p + found.username));
+                    if (Array.isArray(val)) userData[p.replace('_','')] = val;
+                  } catch(e) {}
+                });
+                var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
+                itTypes.forEach(function(t) {
+                  try {
+                    var val = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username));
+                    if (Array.isArray(val)) userData['it_' + t] = val;
+                  } catch(e) {}
+                });
+                firebase.firestore().collection('userdata').doc(uid).set(userData, { merge: true })
+                  .then(function() {
+                    // Update session with firebaseUid and redirect
+                    var session = JSON.parse(localStorage.getItem('session') || '{}');
+                    session.firebaseUid = uid;
+                    localStorage.setItem('session', JSON.stringify(session));
+                    window.location.href = getBaseUrl() + role + '/';
+                  });
+              })
+              .catch(function() {
+                // Firebase account may already exist — just proceed
+                window.location.href = getBaseUrl() + role + '/';
+              });
+          } else {
+            window.location.href = getBaseUrl() + role + '/';
+          }
         } else {
           errEl.textContent = 'Invalid username/email or password.';
           errEl.classList.remove('hidden');
