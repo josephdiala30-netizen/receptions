@@ -1873,7 +1873,7 @@ var tutorialSteps = [
   { selector: 'nav.sidebar-desktop', title: 'Navigation', desc: 'Use the sidebar to switch between Dashboard, All Tasks, Planner, and Daily Log.', pos: 'right' },
   { selector: '#globalSearch', title: 'Search', desc: 'Quickly find any task by typing a keyword here.', pos: 'bottom' },
   { selector: '#userBtn', title: 'Your Profile', desc: 'Click here to view your profile, check your role, or sign out.', pos: 'bottom' },
-  { selector: 'aside button:last-child', title: 'New Task', desc: 'Click here to create a new task anytime.', pos: 'left' },
+  { selector: 'aside button:last-child', title: 'New Task', desc: 'Click here to create a new task anytime.', pos: 'right' },
   { selector: null, title: 'You\'re All Set!', desc: 'Start exploring your dashboard. Create tasks, plan your roadmap, and log your daily accomplishments!', pos: 'center' }
 ];
 var tutorialStep = 0;
@@ -1917,6 +1917,9 @@ function renderTutorialStep() {
 
   highlight.classList.toggle('hidden', !step.selector);
 
+  var tipW = 320;
+  var pad = 16;
+
   if (step.selector) {
     var target = document.querySelector(step.selector);
     if (target) {
@@ -1926,21 +1929,25 @@ function renderTutorialStep() {
       highlight.style.width = (rect.width + 12) + 'px';
       highlight.style.height = (rect.height + 12) + 'px';
 
-      var tipRect = tooltip.getBoundingClientRect();
-      var tipW = 320;
-      var tipH = 200;
+      var tipH = 240;
 
       if (step.pos === 'right') {
-        tooltip.style.top = Math.max(16, Math.min(window.innerHeight - tipH - 16, rect.top + rect.height / 2 - tipH / 2)) + 'px';
-        tooltip.style.left = (rect.right + 24) + 'px';
+        var l = rect.right + 24;
+        if (l + tipW > window.innerWidth - pad) l = window.innerWidth - tipW - pad;
+        if (l < pad) l = pad;
+        tooltip.style.top = Math.max(pad, Math.min(window.innerHeight - tipH - pad, rect.top + rect.height / 2 - tipH / 2)) + 'px';
+        tooltip.style.left = l + 'px';
         tooltip.style.transform = 'none';
       } else if (step.pos === 'bottom') {
         tooltip.style.top = (rect.bottom + 16) + 'px';
-        tooltip.style.left = Math.max(16, Math.min(window.innerWidth - tipW - 16, rect.left + rect.width / 2 - tipW / 2)) + 'px';
+        tooltip.style.left = Math.max(pad, Math.min(window.innerWidth - tipW - pad, rect.left + rect.width / 2 - tipW / 2)) + 'px';
         tooltip.style.transform = 'none';
       } else if (step.pos === 'left') {
-        tooltip.style.top = Math.max(16, Math.min(window.innerHeight - tipH - 16, rect.top + rect.height / 2 - tipH / 2)) + 'px';
-        tooltip.style.left = (rect.left - tipW - 24) + 'px';
+        var l = rect.left - tipW - 24;
+        if (l < pad) l = pad;
+        if (l + tipW > window.innerWidth - pad) l = window.innerWidth - tipW - pad;
+        tooltip.style.top = Math.max(pad, Math.min(window.innerHeight - tipH - pad, rect.top + rect.height / 2 - tipH / 2)) + 'px';
+        tooltip.style.left = l + 'px';
         tooltip.style.transform = 'none';
       }
       tooltip.style.width = tipW + 'px';
