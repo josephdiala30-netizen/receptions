@@ -3,54 +3,91 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Seed Firebase Accounts</title>
+  <title>Seed & Restore Firebase</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
 </head>
-<body class="bg-gray-50 min-h-screen p-8">
-  <div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-lg p-8">
-      <h1 class="text-2xl font-bold text-gray-800 mb-2">Seed Default Accounts to Firebase</h1>
-      <p class="text-sm text-gray-500 mb-6">Gagawa ito ng Firebase Auth accounts + Firestore profiles para sa lahat ng default users. <strong>Isang beses lang gawin.</strong></p>
+<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+  <div class="max-w-3xl mx-auto space-y-6">
 
-      <div id="accountList" class="space-y-3 mb-6"></div>
+    <!-- STEP 1: Seed Accounts -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h1 class="text-2xl font-bold text-gray-800 mb-1">Step 1: Seed Default Accounts</h1>
+      <p class="text-sm text-gray-500 mb-6">Gagawa ng Firebase Auth accounts + Firestore profiles para sa lahat ng default users. <strong>Isang beses lang</strong> gawin ito.</p>
 
-      <div class="flex gap-3">
-        <button id="seedBtn" onclick="seedAll()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition">Seed All Accounts</button>
-        <button onclick="window.location.href='login/'" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition">Go to Login</button>
+      <div id="accountList" class="space-y-2 mb-6"></div>
+
+      <button id="seedBtn" onclick="seedAll()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition">Seed All Accounts</button>
+
+      <div id="seedLog" class="mt-4 text-sm font-mono bg-gray-900 text-green-400 rounded-xl p-4 h-48 overflow-y-auto hidden"></div>
+    </div>
+
+    <!-- STEP 2: Restore Backup -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h1 class="text-2xl font-bold text-gray-800 mb-1">Step 2: Restore Data from Backup</h1>
+      <p class="text-sm text-gray-500 mb-4">I-upload ang backup JSON file para ma-restore ang data sa Firestore.</p>
+
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition cursor-pointer" onclick="document.getElementById('fileInput').click()">
+        <input id="fileInput" type="file" accept=".json" class="hidden" onchange="handleFile(event)"/>
+        <span class="material-symbols-outlined text-4xl text-gray-400 block mb-2">upload_file</span>
+        <p class="text-sm text-gray-500">Click to select <strong>scheduler-backup-2026-06-03.json</strong></p>
       </div>
 
-      <div id="log" class="mt-6 text-sm font-mono bg-gray-900 text-green-400 rounded-xl p-4 h-64 overflow-y-auto hidden"></div>
+      <div id="restorePreview" class="hidden mt-4"></div>
+
+      <button id="restoreBtn" onclick="restoreBackup()" class="hidden mt-4 bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition">Restore to Firestore</button>
+
+      <div id="restoreLog" class="mt-4 text-sm font-mono bg-gray-900 text-green-400 rounded-xl p-4 h-48 overflow-y-auto hidden"></div>
+    </div>
+
+    <div class="text-center">
+      <a href="login/" class="text-blue-600 hover:underline text-sm font-semibold">Go to Login →</a>
     </div>
   </div>
 
   <script>
+    // ==================== DEFAULT ACCOUNTS ====================
     var defaultAccounts = [
       { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: 'password', isAdmin: true, role: 'admin' },
       { username: 'admin', name: 'Administrator', email: 'admin@kalyx.com', password: 'password', isAdmin: true, role: 'executive_path' },
       { username: 'executive', name: 'Executive User', email: 'executive@kalyx.com', password: 'executive', isAdmin: false, role: 'executive_task' },
       { username: 'task_admin', name: 'Task Administrator', email: 'task_admin@kalyx.com', password: 'executive', isAdmin: true, role: 'executive_task' },
+      { username: 'joseph_diala', name: 'Joseph Diala', email: 'joseph@kalyx.com', password: 'password', isAdmin: false, role: 'executive_it' },
       { username: 'it_executive', name: 'Executive IT', email: 'it_executive@kalyx.com', password: 'itadmin', isAdmin: false, role: 'executive_it' },
       { username: 'it_admin', name: 'IT Administrator', email: 'it_admin@kalyx.com', password: 'itadmin', isAdmin: true, role: 'executive_it' }
     ];
 
-    function log(msg) {
-      var el = document.getElementById('log');
+    // Known plaintext passwords for backup users
+    var knownPasswords = {
+      'superadmin': 'password',
+      'admin': 'password',
+      'executive': 'executive',
+      'task_admin': 'executive',
+      'joseph_diala': 'password',
+      'it_executive': 'itadmin',
+      'it_admin': 'itadmin'
+    };
+
+    var backupData = null;
+
+    function log(elId, msg) {
+      var el = document.getElementById(elId);
       el.classList.remove('hidden');
       el.innerHTML += '> ' + msg + '<br>';
       el.scrollTop = el.scrollHeight;
     }
 
+    // ==================== STEP 1: SEED ACCOUNTS ====================
     function renderAccounts() {
       var list = document.getElementById('accountList');
       list.innerHTML = defaultAccounts.map(function(a) {
-        return '<div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-200">' +
+        return '<div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5 border border-gray-200">' +
           '<div><span class="font-semibold text-gray-800">' + a.username + '</span>' +
-          '<span class="text-gray-400 text-sm ml-2">(' + a.email + ')</span></div>' +
-          '<span id="status-' + a.username + '" class="text-sm text-gray-400">Pending</span></div>';
+          '<span class="text-gray-400 text-xs ml-2">' + a.email + '</span></div>' +
+          '<span id="status-' + a.username + '" class="text-xs text-gray-400">Pending</span></div>';
       }).join('');
     }
 
@@ -58,7 +95,7 @@
       var el = document.getElementById('status-' + username);
       if (el) {
         el.textContent = status;
-        el.className = 'text-sm ' + (ok ? 'text-green-600 font-semibold' : 'text-red-500');
+        el.className = 'text-xs ' + (ok ? 'text-green-600 font-semibold' : 'text-red-500');
       }
     }
 
@@ -68,17 +105,17 @@
       btn.textContent = 'Seeding...';
       btn.className = 'bg-blue-400 text-white px-6 py-3 rounded-xl font-bold cursor-not-allowed';
 
-      log('Starting Firebase seed...');
+      log('seedLog', 'Starting Firebase seed...');
 
       for (var i = 0; i < defaultAccounts.length; i++) {
         var acct = defaultAccounts[i];
         setStatus(acct.username, 'Creating...', false);
-        log('Creating ' + acct.email + '...');
+        log('seedLog', 'Creating ' + acct.email + '...');
 
         try {
           var userCred = await firebase.auth().createUserWithEmailAndPassword(acct.email, acct.password);
           var uid = userCred.user.uid;
-          log('  Auth account created: ' + uid);
+          log('seedLog', '  Auth created: ' + uid);
 
           var profileData = {
             profile: {
@@ -91,43 +128,159 @@
           };
 
           await firebase.firestore().collection('userdata').doc(uid).set(profileData, { merge: true });
-          log('  Firestore profile saved');
+          log('seedLog', '  Profile saved');
           setStatus(acct.username, 'Done', true);
 
           await firebase.auth().signOut();
-          log('  Signed out\n');
         } catch (err) {
           if (err.code === 'auth/email-already-in-use') {
-            log('  Already exists in Firebase Auth (skipped)');
-            setStatus(acct.username, 'Already exists', true);
-            // Try to save profile anyway
+            log('seedLog', '  Already exists');
+            setStatus(acct.username, 'Exists', true);
+            // Ensure profile exists
             try {
               var cred = await firebase.auth().signInWithEmailAndPassword(acct.email, acct.password);
-              var profileData = {
-                profile: {
-                  username: acct.username,
-                  name: acct.name,
-                  email: acct.email,
-                  isAdmin: acct.isAdmin,
-                  role: acct.role
-                }
-              };
-              await firebase.firestore().collection('userdata').doc(cred.user.uid).set(profileData, { merge: true });
-              log('  Firestore profile updated');
+              var pd = { profile: { username: acct.username, name: acct.name, email: acct.email, isAdmin: acct.isAdmin, role: acct.role } };
+              await firebase.firestore().collection('userdata').doc(cred.user.uid).set(pd, { merge: true });
               await firebase.auth().signOut();
-            } catch(e) {
-              log('  Could not update profile: ' + e.message);
-            }
+            } catch(e) { log('seedLog', '  Profile update failed: ' + e.message); }
           } else {
-            log('  ERROR: ' + err.message);
-            setStatus(acct.username, 'Error: ' + err.message, false);
+            log('seedLog', '  ERROR: ' + err.message);
+            setStatus(acct.username, 'Error', false);
           }
         }
       }
 
-      log('Seed complete!');
-      btn.disabled = false;
+      log('seedLog', 'Seed complete!');
       btn.textContent = 'Seed Complete';
+      btn.className = 'bg-green-600 text-white px-6 py-3 rounded-xl font-bold';
+    }
+
+    // ==================== STEP 2: RESTORE BACKUP ====================
+    function handleFile(event) {
+      var file = event.target.files[0];
+      if (!file) return;
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          backupData = JSON.parse(e.target.result);
+          showRestorePreview();
+        } catch(err) {
+          alert('Invalid JSON file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function showRestorePreview() {
+      if (!backupData || !backupData.users) return;
+
+      var users = backupData.users;
+      var dataKeys = Object.keys(backupData).filter(function(k) { return k !== 'exportedAt' && k !== 'users'; });
+
+      var html = '<div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">';
+      html += '<p class="text-sm font-semibold text-blue-800">Found ' + users.length + ' users, ' + dataKeys.length + ' data keys</p>';
+      html += '<ul class="text-xs text-blue-600 mt-2 space-y-1">';
+      dataKeys.forEach(function(k) {
+        var arr = backupData[k];
+        var count = Array.isArray(arr) ? arr.length : 0;
+        html += '<li>' + k + ' — ' + count + ' records</li>';
+      });
+      html += '</ul></div>';
+
+      // Password inputs for users with data
+      html += '<div class="space-y-3">';
+      html += '<p class="text-sm font-semibold text-gray-700">Enter passwords to sign in and upload:</p>';
+      users.forEach(function(u) {
+        var hasData = dataKeys.some(function(k) { return k.indexOf('_' + u.username) > 0; });
+        if (hasData) {
+          html += '<div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-2.5 border border-gray-200">';
+          html += '<span class="font-semibold text-sm text-gray-700 w-32">' + u.username + '</span>';
+          html += '<span class="text-xs text-gray-400 flex-1">' + u.email + '</span>';
+          html += '<input id="pw-' + u.username + '" type="password" value="' + (knownPasswords[u.username] || '') + '" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-28" placeholder="Password"/>';
+          html += '<span id="rst-' + u.username + '" class="text-xs text-gray-400 w-16 text-right">Pending</span>';
+          html += '</div>';
+        }
+      });
+      html += '</div>';
+
+      document.getElementById('restorePreview').innerHTML = html;
+      document.getElementById('restorePreview').classList.remove('hidden');
+      document.getElementById('restoreBtn').classList.remove('hidden');
+    }
+
+    function rstStatus(username, msg, ok) {
+      var el = document.getElementById('rst-' + username);
+      if (el) {
+        el.textContent = msg;
+        el.className = 'text-xs w-16 text-right ' + (ok ? 'text-green-600 font-semibold' : 'text-red-500');
+      }
+    }
+
+    async function restoreBackup() {
+      if (!backupData) return;
+
+      var btn = document.getElementById('restoreBtn');
+      btn.disabled = true;
+      btn.textContent = 'Restoring...';
+      btn.className = 'hidden';
+
+      var logEl = document.getElementById('restoreLog');
+      logEl.classList.remove('hidden');
+      logEl.innerHTML = '';
+
+      var users = backupData.users;
+      var dataKeys = Object.keys(backupData).filter(function(k) { return k !== 'exportedAt' && k !== 'users'; });
+
+      for (var i = 0; i < users.length; i++) {
+        var u = users[i];
+        var userDataKeys = dataKeys.filter(function(k) { return k.indexOf('_' + u.username) > 0; });
+        if (userDataKeys.length === 0) continue;
+
+        var pw = document.getElementById('pw-' + u.username);
+        var password = pw ? pw.value : '';
+
+        if (!password) {
+          rstStatus(u.username, 'No pwd', false);
+          log('restoreLog', 'Skipping ' + u.username + ': no password');
+          continue;
+        }
+
+        rstStatus(u.username, 'Signing in...', false);
+        log('restoreLog', 'Signing in as ' + u.email + '...');
+
+        try {
+          var cred = await firebase.auth().signInWithEmailAndPassword(u.email, password);
+          var uid = cred.user.uid;
+          log('restoreLog', '  Signed in. UID: ' + uid);
+
+          // Build Firestore data from backup
+          var firestoreData = { profile: { username: u.username, name: u.name, email: u.email, isAdmin: u.isAdmin, role: u.role } };
+
+          userDataKeys.forEach(function(k) {
+            var val = backupData[k];
+            if (Array.isArray(val) && val.length > 0) {
+              // Convert key: tasks_superadmin -> tasks, it_services_superadmin -> it_services
+              var suffix = '_' + u.username;
+              var fbKey = k.endsWith(suffix) ? k.slice(0, -suffix.length) : k;
+              firestoreData[fbKey] = val;
+              log('restoreLog', '  Key: ' + k + ' (' + val.length + ' records) → ' + fbKey);
+            }
+          });
+
+          await firebase.firestore().collection('userdata').doc(uid).set(firestoreData, { merge: true });
+          log('restoreLog', '  Data uploaded to Firestore!');
+          rstStatus(u.username, 'Done!', true);
+
+          await firebase.auth().signOut();
+        } catch (err) {
+          log('restoreLog', '  ERROR: ' + err.message);
+          rstStatus(u.username, 'Error', false);
+        }
+      }
+
+      log('restoreLog', 'Restore complete!');
+      btn.textContent = 'Restore Complete';
       btn.className = 'bg-green-600 text-white px-6 py-3 rounded-xl font-bold';
     }
 
