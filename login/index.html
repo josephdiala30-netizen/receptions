@@ -249,25 +249,27 @@
         return;
       }
 
-      // Try Firebase Auth first
-      fbLookupEmail(loginInput, function(lookupErr, email) {
-        if (lookupErr) {
-          // Fallback to localStorage auth
-          doLocalLogin(loginInput, pass);
-          return;
-        }
-        fbLogin(email, pass, function(loginErr, session) {
-          if (loginErr) {
-            // Fallback to localStorage auth
+      // Try Firebase Auth first (only if Firebase loaded)
+      if (typeof firebase !== 'undefined') {
+        fbLookupEmail(loginInput, function(lookupErr, email) {
+          if (lookupErr) {
             doLocalLogin(loginInput, pass);
             return;
           }
-          window.location.href = getBaseUrl() + session.role + '/';
+          fbLogin(email, pass, function(loginErr, session) {
+            if (loginErr) {
+              doLocalLogin(loginInput, pass);
+              return;
+            }
+            window.location.href = getBaseUrl() + session.role + '/';
+          });
         });
-      });
+      } else {
+        doLocalLogin(loginInput, pass);
+      }
     }
 
-    // localStorage fallback login + auto-migration to Firebase
+    // localStorage fallback login
     function doLocalLogin(user, pass) {
       var errEl = document.getElementById('loginError');
       var users = JSON.parse(localStorage.getItem('users') || '[]');
@@ -279,55 +281,42 @@
           return (u.username === user || u.email === user) && (u.password === hash || u.password === pass);
         });
         if (found) {
-          var email = found.email;
           var role = found.role || 'executive_path';
-          // Save session first (for downstream reads)
           localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
 
-          // Auto-migrate to Firebase Auth + Firestore
-          if (email && email.indexOf('@') > 0) {
-            firebase.auth().createUserWithEmailAndPassword(email, pass)
-              .then(function(result) {
-                var uid = result.user.uid;
-                // Gather all localStorage data for this user
-                var userData = {
-                  profile: { username: found.username, name: found.name, email: email, isAdmin: found.isAdmin || false, role: role }
-                };
-                var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
-                prefixes.forEach(function(p) {
-                  try {
-                    var val = JSON.parse(localStorage.getItem(p + found.username));
-                    if (Array.isArray(val)) userData[p.replace('_','')] = val;
-                  } catch(e) {}
-                });
-                var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
-                itTypes.forEach(function(t) {
-                  try {
-                    var val = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username));
-                    if (Array.isArray(val)) userData['it_' + t] = val;
-                  } catch(e) {}
-                });
-                firebase.firestore().collection('userdata').doc(uid).set(userData, { merge: true })
-                  .then(function() {
-                    // Update session with firebaseUid and redirect
-                    var session = JSON.parse(localStorage.getItem('session') || '{}');
-                    session.firebaseUid = uid;
-                    localStorage.setItem('session', JSON.stringify(session));
-                    window.location.href = getBaseUrl() + role + '/';
-                  });
-              })
-              .catch(function() {
-                // Firebase account may already exist — just proceed
-                window.location.href = getBaseUrl() + role + '/';
-              });
-          } else {
-            window.location.href = getBaseUrl() + role + '/';
+          // Auto-migrate to Firebase in background (don't wait)
+          if (typeof firebase !== 'undefined' && found.email && found.email.indexOf('@') > 0) {
+            migrateLegacyUser(found, pass);
           }
+
+          window.location.href = getBaseUrl() + role + '/';
         } else {
           errEl.textContent = 'Invalid username/email or password.';
           errEl.classList.remove('hidden');
         }
       });
+    }
+
+    // Background migration of legacy user to Firebase Auth + Firestore
+    function migrateLegacyUser(found, pass) {
+      firebase.auth().createUserWithEmailAndPassword(found.email, pass)
+        .then(function(result) {
+          var uid = result.user.uid;
+          var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
+          var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
+          prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
+          var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
+          itTypes.forEach(function(t) { try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {} });
+          firebase.firestore().collection('userdata').doc(uid).set(userData, { merge: true })
+            .then(function() {
+              var s = JSON.parse(localStorage.getItem('session') || '{}');
+              s.firebaseUid = uid;
+              localStorage.setItem('session', JSON.stringify(s));
+              // Sign out so portal uses localStorage session; next login uses Firebase
+              firebase.auth().signOut();
+            });
+        })
+        .catch(function() {});
     }
 
     function closeRegSuccess() {
@@ -441,34 +430,35 @@
 
     updateRegisterVisibility();
 
-    // Check Firebase Auth state and auto-redirect
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        loadFBData(user.uid, function(err) {
-          var profile = getFB('profile') || {};
-          if (profile.email) {
-            var sessionData = {
-              username: profile.username || user.email.split('@')[0],
-              name: profile.name || profile.username || user.email.split('@')[0],
-              email: user.email,
-              isAdmin: profile.isAdmin || false,
-              role: profile.role || 'executive_path',
-              firebaseUid: user.uid,
-              loggedIn: true,
-              timestamp: Date.now()
-            };
-            fbSaveSession(sessionData);
-            window.location.href = getBaseUrl() + sessionData.role + '/';
-          }
-        });
-      } else {
-        // Fallback: check localStorage session
-        var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
-        if (existingSession && existingSession.loggedIn) {
-          window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
+    // Auto-redirect if already logged in
+    if (typeof firebase !== 'undefined') {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          loadFBData(user.uid, function(err) {
+            var profile = getFB('profile') || {};
+            if (profile.email) {
+              var sessionData = {
+                username: profile.username || user.email.split('@')[0],
+                name: profile.name || profile.username || user.email.split('@')[0],
+                email: user.email,
+                isAdmin: profile.isAdmin || false,
+                role: profile.role || 'executive_path',
+                firebaseUid: user.uid,
+                loggedIn: true,
+                timestamp: Date.now()
+              };
+              fbSaveSession(sessionData);
+              window.location.href = getBaseUrl() + sessionData.role + '/';
+            }
+          });
         }
-      }
-    });
+      });
+    }
+    // Fallback: check localStorage session (always works)
+    var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
+    if (existingSession && existingSession.loggedIn) {
+      window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
+    }
   </script>
 </body>
 </html>
