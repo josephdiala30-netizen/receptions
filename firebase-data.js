@@ -26,7 +26,6 @@ function initFirebase(callback) {
       window.__fbUser = null;
       window.__fbCache = {};
       window.__fbLoaded = false;
-      localStorage.removeItem('session');
       if (callback) callback(null, null);
     }
   });
