@@ -460,6 +460,9 @@ button, input, select, textarea { min-width: 0; }
     <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="downloadAccomplishmentsExcel()">
       <span class="material-symbols-outlined text-sm">download</span> Download Excel
     </button>
+    <button class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all active:scale-[0.97] shadow-sm" onclick="printAccomplishmentReport()">
+      <span class="material-symbols-outlined text-sm">assessment</span> Print Report
+    </button>
     <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('accomplishment')">
       <span class="material-symbols-outlined text-sm">add</span> New Accomplishment
     </button>
@@ -2526,6 +2529,90 @@ function downloadAccomplishmentsExcel() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+function printAccomplishmentReport() {
+  var data = getData('accomplishments');
+  if (data.length === 0) { alert('No accomplishments to report.'); return; }
+  var total = data.length;
+  var pending = data.filter(function(a) { return a.status === 'pending'; }).length;
+  var inProgress = data.filter(function(a) { return a.status === 'in-progress'; }).length;
+  var completed = data.filter(function(a) { return a.status === 'completed' || a.status === 'done'; }).length;
+  var categories = {};
+  data.forEach(function(a) {
+    var c = a.category || 'Other';
+    categories[c] = (categories[c] || 0) + 1;
+  });
+  var catHtml = Object.keys(categories).sort().map(function(c) {
+    return '<tr><td>' + escapeHtml(c) + '</td><td><strong>' + categories[c] + '</strong></td></tr>';
+  }).join('');
+
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>Daily Accomplishments Report</title>');
+  w.document.write('<style>');
+  w.document.write('body{font-family:Inter,Segoe UI,sans-serif;padding:35px;color:#1e1b4d}');
+  w.document.write('h2{margin:0 0 4px;font-size:24px;color:#1e1b4d;letter-spacing:-0.02em}');
+  w.document.write('h3{margin:24px 0 10px;font-size:14px;color:#4f46e5;border-bottom:2px solid #4f46e5;padding-bottom:5px;text-transform:uppercase;letter-spacing:.06em}');
+  w.document.write('p.sub{margin:0 0 24px;font-size:12px;color:#6b7280}');
+  w.document.write('.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}');
+  w.document.write('.summary-card{border:1px solid #e2e8f0;border-radius:8px;padding:10px 8px;text-align:center;background:#faf8f5}');
+  w.document.write('.summary-card .num{font-size:20px;font-weight:800;color:#1e1b4d;line-height:1.1}');
+  w.document.write('.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;font-weight:600;margin-top:2px}');
+  w.document.write('.summary-card.pending{border-color:#fde68a;background:#fffbeb}.summary-card.pending .num{color:#d97706}');
+  w.document.write('.summary-card.progress{border-color:#bfdbfe;background:#eff6ff}.summary-card.progress .num{color:#2563eb}');
+  w.document.write('.summary-card.done{border-color:#a7f3d0;background:#ecfdf5}.summary-card.done .num{color:#059669}');
+  w.document.write('table{width:100%;border-collapse:collapse;font-size:10.5px;margin-bottom:16px}');
+  w.document.write('th{background:#4f46e5;color:#fff;padding:8px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}');
+  w.document.write('td{padding:7px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top}');
+  w.document.write('tr:nth-child(even){background:#f8fafc}');
+  w.document.write('tr:hover{background:#eef2ff}');
+  w.document.write('.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:9px;font-weight:600;letter-spacing:.02em}');
+  w.document.write('.tag-pending{background:#fef3c7;color:#d97706}');
+  w.document.write('.tag-progress{background:#dbeafe;color:#1d4ed8}');
+  w.document.write('.tag-completed{background:#d1fae5;color:#059669}');
+  w.document.write('.footer{margin-top:24px;font-size:10px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:14px}');
+  w.document.write('.header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #4f46e5}');
+  w.document.write('.header-bar .logo{font-size:20px;font-weight:800;color:#4f46e5}');
+  w.document.write('.header-bar .date{font-size:10px;color:#6b7280}');
+  w.document.write('@media print{body{padding:15px}.summary-grid{gap:6px}.summary-card{padding:6px}.summary-card .num{font-size:16px}.summary-card .lbl{font-size:6px}}');
+  w.document.write('</style></head><body>');
+  w.document.write('<div class="header-bar"><div class="logo">KALYX &mdash; Daily Accomplishments Report</div><div class="date">Generated: ' + new Date().toLocaleString() + '</div></div>');
+  w.document.write('<div class="summary-grid">' +
+    '<div class="summary-card"><div class="num">' + total + '</div><div class="lbl">Total Entries</div></div>' +
+    '<div class="summary-card pending"><div class="num">' + pending + '</div><div class="lbl">Pending</div></div>' +
+    '<div class="summary-card progress"><div class="num">' + inProgress + '</div><div class="lbl">In Progress</div></div>' +
+    '<div class="summary-card done"><div class="num">' + completed + '</div><div class="lbl">Completed</div></div>' +
+    '</div>');
+  w.document.write('<div class="summary-grid">' +
+    '<div class="summary-card"><div class="num">' + Object.keys(categories).length + '</div><div class="lbl">Categories</div></div>' +
+    '<div class="summary-card"><div class="num">' + (categories['Technical Support'] || 0) + '</div><div class="lbl">Tech Support</div></div>' +
+    '<div class="summary-card"><div class="num">' + (categories['Uploading/Encoding'] || 0) + '</div><div class="lbl">Upload/Encoding</div></div>' +
+    '<div class="summary-card"><div class="num">' + (categories['Other'] || 0) + '</div><div class="lbl">Other</div></div>' +
+    '</div>');
+  w.document.write('<h3>Category Breakdown</h3>');
+  w.document.write('<table><thead><tr><th>Category</th><th>Count</th></tr></thead><tbody>' + catHtml + '</tbody></table>');
+  w.document.write('<h3>Detailed Accomplishments</h3>');
+  w.document.write('<table><thead><tr>' +
+    '<th>#</th><th>Date</th><th>Title</th><th>Category</th><th>Status</th><th>Description</th>' +
+    '</tr></thead><tbody>');
+  data.forEach(function(item, i) {
+    var statusTag = item.status === 'pending' ? 'tag-pending' : item.status === 'in-progress' ? 'tag-progress' : 'tag-completed';
+    var desc = item.description || '';
+    if (desc.length > 120) desc = desc.substring(0, 120) + '...';
+    w.document.write('<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + escapeHtml(item.date || '\u2014') + '</td>' +
+      '<td><strong>' + escapeHtml(item.title || '\u2014') + '</strong></td>' +
+      '<td>' + escapeHtml(item.category || 'Other') + '</td>' +
+      '<td><span class="tag ' + statusTag + '">' + escapeHtml(item.status || 'pending') + '</span></td>' +
+      '<td>' + escapeHtml(desc) + '</td>' +
+      '</tr>');
+  });
+  w.document.write('</tbody></table>');
+  w.document.write('<div class="footer">KALYX Daily Accomplishments Report &middot; Page 1 &middot; Confidential</div>');
+  w.document.write('</body></html>');
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 400);
 }
 
 // ==================== TICKETS ====================
