@@ -291,6 +291,7 @@
         var role = 'executive_task';
         users.push({ username: user, name: name, email: email, password: hash, isAdmin: false, role: role });
         localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('welcome_' + user, 'true');
         
         // Clear inputs
         document.getElementById('regName').value = '';

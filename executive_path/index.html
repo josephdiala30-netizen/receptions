@@ -670,10 +670,34 @@ function showTripNotifications() {
   }).join('\n'));
 }
 
+function checkWelcome() {
+  var s = JSON.parse(localStorage.getItem('session') || '{}');
+  if (!s.username) return;
+  var key = 'welcome_' + s.username;
+  if (localStorage.getItem(key)) {
+    localStorage.removeItem(key);
+    document.getElementById('welcomeName').textContent = s.name || s.username;
+    document.getElementById('welcomeModal').classList.remove('hidden');
+  }
+}
+
 initTheme();
 initAuth();
+checkWelcome();
 loadDashboard();
 initTripNotifications();
 </script>
+
+<div id="welcomeModal" class="hidden fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
+    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+      <span class="material-symbols-outlined text-primary" style="font-size:32px;">celebration</span>
+    </div>
+    <h2 class="text-2xl font-bold text-on-surface mb-2">Welcome to KALYX!</h2>
+    <p class="text-on-surface-variant text-sm leading-relaxed mb-1">We're excited to have you on board, <span id="welcomeName" class="font-semibold text-primary"></span>!</p>
+    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Start managing your tasks, trips, and accomplishments — all in one place.</p>
+    <button onclick="document.getElementById('welcomeModal').classList.add('hidden')" class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md">Get Started</button>
+  </div>
+</div>
 </body>
 </html>
