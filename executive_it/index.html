@@ -382,7 +382,10 @@ button, input, select, textarea { min-width: 0; }
       <p class="font-body-lg text-on-surface-variant">Schedule and track maintenance activities</p>
     </div>
     <div class="flex gap-2">
-      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="printMaintenanceReport()">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="downloadMaintenanceExcel()">
+        <span class="material-symbols-outlined text-sm">download</span> Download Excel
+      </button>
+      <button class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all active:scale-[0.97] shadow-sm" onclick="printMaintenanceReport()">
         <span class="material-symbols-outlined text-sm">assessment</span> Print Report
       </button>
       <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('maintenance')">
@@ -454,6 +457,9 @@ button, input, select, textarea { min-width: 0; }
       <h2 class="font-headline-lg text-headline-lg text-primary">Daily Job Accomplishments</h2>
       <p class="font-body-lg text-on-surface-variant">Record and track your daily accomplishments</p>
     </div>
+    <button class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2.5 rounded-xl font-label-md font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-[0.97] shadow-sm" onclick="downloadAccomplishmentsExcel()">
+      <span class="material-symbols-outlined text-sm">download</span> Download Excel
+    </button>
     <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('accomplishment')">
       <span class="material-symbols-outlined text-sm">add</span> New Accomplishment
     </button>
@@ -1589,6 +1595,117 @@ function printMaintenanceReport() {
   setTimeout(function(){ w.print(); }, 400);
 }
 
+function downloadMaintenanceExcel() {
+  var data = getData('maintenance');
+  if (data.length === 0) { alert('No maintenance records to export.'); return; }
+
+  var total = data.length;
+  var scheduled = data.filter(function(m) { return m.status === 'scheduled'; }).length;
+  var inProgress = data.filter(function(m) { return m.status === 'in-progress'; }).length;
+  var completed = data.filter(function(m) { return m.status === 'completed'; }).length;
+  var cancelled = data.filter(function(m) { return m.status === 'cancelled'; }).length;
+
+  var freqCounts = {};
+  data.forEach(function(m) {
+    var f = m.frequency || 'Quarterly';
+    freqCounts[f] = (freqCounts[f] || 0) + 1;
+  });
+  var freqRows = Object.keys(freqCounts).sort(function(a, b) {
+    var order = { Weekly: 0, Monthly: 1, Quarterly: 2, Annually: 3 };
+    return (order[a] || 99) - (order[b] || 99);
+  }).map(function(f) {
+    return '<tr><td style="padding:4px 8px;border:1px solid #d1d5db;font-size:11px">' + escapeHtml(f) + '</td><td style="padding:4px 8px;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">' + freqCounts[f] + '</td></tr>';
+  }).join('');
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  var timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+  var rows = data.map(function(item, i) {
+    var checks = item.checks || {};
+    var equipName = item.equipment || item.asset || item.title || '\u2014';
+    var equipInfo = [item.brand, item.model].filter(Boolean).join(' / ') || '\u2014';
+    var dateVal = item.inspectionDate || item.scheduledDate || '\u2014';
+    var stat = item.status || 'scheduled';
+    var statColor = stat === 'scheduled' ? '#2563eb' : stat === 'in-progress' ? '#d97706' : stat === 'completed' ? '#059669' : '#6b7280';
+    var checkParts = checks.checkParts ? '\u2713' : '\u2014';
+    var cleanInt = checks.cleanInteriors ? '\u2713' : '\u2014';
+    var operCond = checks.operatingCondition ? '\u2713' : '\u2014';
+    var electWir = checks.electricalWires ? '\u2713' : '\u2014';
+    return '<tr>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center;color:#6b7280">' + (i + 1) + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:11px;font-weight:600;color:#1e1b4d">' + escapeHtml(equipName) + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(equipInfo) + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.serial || '\u2014') + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.frequency || 'Quarterly') + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.period || '\u2014') + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(dateVal) + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.inspectedBy || '\u2014') + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:' + statColor + ';text-align:center">' + escapeHtml(stat) + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center">' + checkParts + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center">' + cleanInt + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center">' + operCond + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center">' + electWir + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;max-width:200px;word-wrap:break-word">' + escapeHtml(item.description || '\u2014') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
+  '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>IT Maintenance</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->' +
+  '<style>' +
+  'body{font-family:Calibri,Segoe UI,Arial,sans-serif;padding:20px;color:#1e1b4d}' +
+  '.header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #4f46e5;padding-bottom:12px;margin-bottom:20px}' +
+  '.header .logo{font-size:22px;font-weight:800;color:#4f46e5;letter-spacing:-0.03em}' +
+  '.header .date{font-size:10px;color:#6b7280}' +
+  '.summary-row{display:flex;gap:6px;margin-bottom:12px}' +
+  '.summary-card{border:1px solid #e2e8f0;border-radius:6px;padding:8px 6px;text-align:center;flex:1;background:#faf8f5}' +
+  '.summary-card .num{font-size:16px;font-weight:800;color:#1e1b4d}' +
+  '.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;font-weight:600;margin-top:2px}' +
+  '.section-title{font-size:12px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid #4f46e5;padding-bottom:4px;margin:20px 0 8px}' +
+  'table{border-collapse:collapse;width:100%;font-size:10px}' +
+  'th{background:#4f46e5;color:#fff;padding:7px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;border:1px solid #3730a3}' +
+  'td{padding:4px 8px;border:1px solid #d1d5db}' +
+  'tr:nth-child(even){background:#f8fafc}' +
+  '.footer{text-align:center;font-size:9px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:10px;margin-top:20px}' +
+  '</style></head><body>' +
+  '<div class="header"><div class="logo">KALYX &mdash; IT Maintenance Report</div><div class="date">Generated: ' + dateStr + ' at ' + timeStr + '</div></div>' +
+
+  '<div class="summary-row">' +
+    '<div class="summary-card"><div class="num">' + total + '</div><div class="lbl">Total Records</div></div>' +
+    '<div class="summary-card" style="border-color:#bfdbfe;background:#eff6ff"><div class="num" style="color:#2563eb">' + scheduled + '</div><div class="lbl">Scheduled</div></div>' +
+    '<div class="summary-card" style="border-color:#fde68a;background:#fffbeb"><div class="num" style="color:#d97706">' + inProgress + '</div><div class="lbl">In Progress</div></div>' +
+    '<div class="summary-card" style="border-color:#a7f3d0;background:#ecfdf5"><div class="num" style="color:#059669">' + completed + '</div><div class="lbl">Completed</div></div>' +
+  '</div>' +
+
+  '<div class="summary-row">' +
+    '<div class="summary-card"><div class="num">' + cancelled + '</div><div class="lbl">Cancelled</div></div>' +
+    '<div class="summary-card"><div class="num">' + Object.keys(freqCounts).length + '</div><div class="lbl">Frequencies</div></div>' +
+    '<div class="summary-card"><div class="num">' + data.filter(function(m) { return m.checks && (m.checks.checkParts || m.checks.cleanInteriors || m.checks.operatingCondition || m.checks.electricalWires); }).length + '</div><div class="lbl">Inspections Done</div></div>' +
+    '<div class="summary-card"><div class="num">' + data.filter(function(m) { return m.description && m.description.length > 0; }).length + '</div><div class="lbl">With Recommendations</div></div>' +
+  '</div>' +
+
+  '<div class="section-title">Maintenance Frequency Breakdown</div>' +
+  '<table><thead><tr><th style="width:70%">Frequency</th><th style="width:30%">Count</th></tr></thead><tbody>' + freqRows + '</tbody></table>' +
+
+  '<div class="section-title">Detailed Maintenance Records</div>' +
+  '<table><thead><tr>' +
+    '<th style="width:30px">#</th><th>Equipment</th><th>Brand / Model</th><th>Serial No.</th><th>Frequency</th><th>Period</th><th>Date</th><th>Inspected By</th><th>Status</th><th>Parts</th><th>Clean</th><th>Oper.</th><th>Elec.</th><th>Recommendations</th>' +
+  '</tr></thead><tbody>' + rows + '</tbody></table>' +
+
+  '<div class="footer">KALYX IT Maintenance Report &middot; Generated on ' + dateStr + ' &middot; Confidential</div>' +
+  '</body></html>';
+
+  var blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'IT_Maintenance_Report_' + now.toISOString().split('T')[0] + '.xls';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function printMaintenanceForm() {
   // Trigger print on the modal content
   var modalContent = document.getElementById('modalBody');
@@ -2313,6 +2430,102 @@ function toggleAccomplishment(id) {
   var data = getData('accomplishments');
   var item = data.find(function(x) { return x.id === id; });
   if (item) { item.status = item.status === 'done' ? 'pending' : 'done'; saveData('accomplishments', data); renderAccomplishments(); }
+}
+
+function downloadAccomplishmentsExcel() {
+  var data = getData('accomplishments');
+  if (data.length === 0) { alert('No accomplishments to export.'); return; }
+
+  var total = data.length;
+  var pending = data.filter(function(a) { return a.status === 'pending'; }).length;
+  var inProgress = data.filter(function(a) { return a.status === 'in-progress'; }).length;
+  var completed = data.filter(function(a) { return a.status === 'completed' || a.status === 'done'; }).length;
+
+  var categories = {};
+  data.forEach(function(a) {
+    var c = a.category || 'Other';
+    categories[c] = (categories[c] || 0) + 1;
+  });
+  var catRows = Object.keys(categories).sort().map(function(c) {
+    return '<tr><td style="padding:4px 8px;border:1px solid #d1d5db;font-size:11px">' + escapeHtml(c) + '</td><td style="padding:4px 8px;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">' + categories[c] + '</td></tr>';
+  }).join('');
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  var timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+  var rows = data.map(function(item, i) {
+    var stat = item.status || 'pending';
+    var statColor = stat === 'pending' ? '#d97706' : stat === 'in-progress' ? '#2563eb' : '#059669';
+    var desc = item.description || '';
+    if (desc.length > 100) desc = desc.substring(0, 100) + '...';
+    return '<tr>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center;color:#6b7280">' + (i + 1) + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.date || '\u2014') + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:#1e1b4d">' + escapeHtml(item.title || '\u2014') + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.category || 'Other') + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:' + statColor + ';text-align:center">' + escapeHtml(stat) + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;max-width:250px;word-wrap:break-word">' + escapeHtml(desc) + '</td>' +
+      (item.reportTitle ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.reportTitle) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+      (item.requestorName ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.requestorName) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+      (item.severity ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.severity) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+      '</tr>';
+  }).join('');
+
+  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
+  '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Daily Accomplishments</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->' +
+  '<style>' +
+  'body{font-family:Calibri,Segoe UI,Arial,sans-serif;padding:20px;color:#1e1b4d}' +
+  '.header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #4f46e5;padding-bottom:12px;margin-bottom:20px}' +
+  '.header .logo{font-size:22px;font-weight:800;color:#4f46e5;letter-spacing:-0.03em}' +
+  '.header .date{font-size:10px;color:#6b7280}' +
+  '.summary-row{display:flex;gap:6px;margin-bottom:12px}' +
+  '.summary-card{border:1px solid #e2e8f0;border-radius:6px;padding:8px 6px;text-align:center;flex:1;background:#faf8f5}' +
+  '.summary-card .num{font-size:16px;font-weight:800;color:#1e1b4d}' +
+  '.summary-card .lbl{font-size:7px;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;font-weight:600;margin-top:2px}' +
+  '.section-title{font-size:12px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid #4f46e5;padding-bottom:4px;margin:20px 0 8px}' +
+  'table{border-collapse:collapse;width:100%;font-size:10px}' +
+  'th{background:#4f46e5;color:#fff;padding:7px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;border:1px solid #3730a3}' +
+  'td{padding:4px 8px;border:1px solid #d1d5db}' +
+  'tr:nth-child(even){background:#f8fafc}' +
+  '.footer{text-align:center;font-size:9px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:10px;margin-top:20px}' +
+  '</style></head><body>' +
+  '<div class="header"><div class="logo">KALYX &mdash; Daily Accomplishments Report</div><div class="date">Generated: ' + dateStr + ' at ' + timeStr + '</div></div>' +
+
+  '<div class="summary-row">' +
+    '<div class="summary-card"><div class="num">' + total + '</div><div class="lbl">Total Entries</div></div>' +
+    '<div class="summary-card" style="border-color:#fde68a;background:#fffbeb"><div class="num" style="color:#d97706">' + pending + '</div><div class="lbl">Pending</div></div>' +
+    '<div class="summary-card" style="border-color:#bfdbfe;background:#eff6ff"><div class="num" style="color:#2563eb">' + inProgress + '</div><div class="lbl">In Progress</div></div>' +
+    '<div class="summary-card" style="border-color:#a7f3d0;background:#ecfdf5"><div class="num" style="color:#059669">' + completed + '</div><div class="lbl">Completed</div></div>' +
+  '</div>' +
+
+  '<div class="summary-row">' +
+    '<div class="summary-card"><div class="num">' + Object.keys(categories).length + '</div><div class="lbl">Categories</div></div>' +
+    '<div class="summary-card"><div class="num">' + data.filter(function(a) { return a.category === 'Technical Support'; }).length + '</div><div class="lbl">Tech Support Jobs</div></div>' +
+    '<div class="summary-card"><div class="num">' + data.filter(function(a) { return a.category === 'Uploading/Encoding'; }).length + '</div><div class="lbl">Upload/Encoding Jobs</div></div>' +
+    '<div class="summary-card"><div class="num">' + data.filter(function(a) { return a.category === 'Other' || !a.category; }).length + '</div><div class="lbl">Other Jobs</div></div>' +
+  '</div>' +
+
+  '<div class="section-title">Category Breakdown</div>' +
+  '<table><thead><tr><th style="width:70%">Category</th><th style="width:30%">Count</th></tr></thead><tbody>' + catRows + '</tbody></table>' +
+
+  '<div class="section-title">Detailed Accomplishments</div>' +
+  '<table><thead><tr>' +
+    '<th style="width:30px">#</th><th>Date</th><th>Title</th><th>Category</th><th>Status</th><th>Description</th><th>Report Title</th><th>Requestor</th><th>Severity</th>' +
+  '</tr></thead><tbody>' + rows + '</tbody></table>' +
+
+  '<div class="footer">KALYX Daily Accomplishments Report &middot; Generated on ' + dateStr + ' &middot; Confidential</div>' +
+  '</body></html>';
+
+  var blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'Daily_Accomplishments_' + now.toISOString().split('T')[0] + '.xls';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ==================== TICKETS ====================
