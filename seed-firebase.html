@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Seed Firebase Accounts</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-8">
+  <div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+      <h1 class="text-2xl font-bold text-gray-800 mb-2">Seed Default Accounts to Firebase</h1>
+      <p class="text-sm text-gray-500 mb-6">Gagawa ito ng Firebase Auth accounts + Firestore profiles para sa lahat ng default users. <strong>Isang beses lang gawin.</strong></p>
+
+      <div id="accountList" class="space-y-3 mb-6"></div>
+
+      <div class="flex gap-3">
+        <button id="seedBtn" onclick="seedAll()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition">Seed All Accounts</button>
+        <button onclick="window.location.href='login/'" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition">Go to Login</button>
+      </div>
+
+      <div id="log" class="mt-6 text-sm font-mono bg-gray-900 text-green-400 rounded-xl p-4 h-64 overflow-y-auto hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    var defaultAccounts = [
+      { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: 'password', isAdmin: true, role: 'admin' },
+      { username: 'admin', name: 'Administrator', email: 'admin@kalyx.com', password: 'password', isAdmin: true, role: 'executive_path' },
+      { username: 'executive', name: 'Executive User', email: 'executive@kalyx.com', password: 'executive', isAdmin: false, role: 'executive_task' },
+      { username: 'task_admin', name: 'Task Administrator', email: 'task_admin@kalyx.com', password: 'executive', isAdmin: true, role: 'executive_task' },
+      { username: 'it_executive', name: 'Executive IT', email: 'it_executive@kalyx.com', password: 'itadmin', isAdmin: false, role: 'executive_it' },
+      { username: 'it_admin', name: 'IT Administrator', email: 'it_admin@kalyx.com', password: 'itadmin', isAdmin: true, role: 'executive_it' }
+    ];
+
+    function log(msg) {
+      var el = document.getElementById('log');
+      el.classList.remove('hidden');
+      el.innerHTML += '> ' + msg + '<br>';
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function renderAccounts() {
+      var list = document.getElementById('accountList');
+      list.innerHTML = defaultAccounts.map(function(a) {
+        return '<div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-200">' +
+          '<div><span class="font-semibold text-gray-800">' + a.username + '</span>' +
+          '<span class="text-gray-400 text-sm ml-2">(' + a.email + ')</span></div>' +
+          '<span id="status-' + a.username + '" class="text-sm text-gray-400">Pending</span></div>';
+      }).join('');
+    }
+
+    function setStatus(username, status, ok) {
+      var el = document.getElementById('status-' + username);
+      if (el) {
+        el.textContent = status;
+        el.className = 'text-sm ' + (ok ? 'text-green-600 font-semibold' : 'text-red-500');
+      }
+    }
+
+    async function seedAll() {
+      var btn = document.getElementById('seedBtn');
+      btn.disabled = true;
+      btn.textContent = 'Seeding...';
+      btn.className = 'bg-blue-400 text-white px-6 py-3 rounded-xl font-bold cursor-not-allowed';
+
+      log('Starting Firebase seed...');
+
+      for (var i = 0; i < defaultAccounts.length; i++) {
+        var acct = defaultAccounts[i];
+        setStatus(acct.username, 'Creating...', false);
+        log('Creating ' + acct.email + '...');
+
+        try {
+          var userCred = await firebase.auth().createUserWithEmailAndPassword(acct.email, acct.password);
+          var uid = userCred.user.uid;
+          log('  Auth account created: ' + uid);
+
+          var profileData = {
+            profile: {
+              username: acct.username,
+              name: acct.name,
+              email: acct.email,
+              isAdmin: acct.isAdmin,
+              role: acct.role
+            }
+          };
+
+          await firebase.firestore().collection('userdata').doc(uid).set(profileData, { merge: true });
+          log('  Firestore profile saved');
+          setStatus(acct.username, 'Done', true);
+
+          await firebase.auth().signOut();
+          log('  Signed out\n');
+        } catch (err) {
+          if (err.code === 'auth/email-already-in-use') {
+            log('  Already exists in Firebase Auth (skipped)');
+            setStatus(acct.username, 'Already exists', true);
+            // Try to save profile anyway
+            try {
+              var cred = await firebase.auth().signInWithEmailAndPassword(acct.email, acct.password);
+              var profileData = {
+                profile: {
+                  username: acct.username,
+                  name: acct.name,
+                  email: acct.email,
+                  isAdmin: acct.isAdmin,
+                  role: acct.role
+                }
+              };
+              await firebase.firestore().collection('userdata').doc(cred.user.uid).set(profileData, { merge: true });
+              log('  Firestore profile updated');
+              await firebase.auth().signOut();
+            } catch(e) {
+              log('  Could not update profile: ' + e.message);
+            }
+          } else {
+            log('  ERROR: ' + err.message);
+            setStatus(acct.username, 'Error: ' + err.message, false);
+          }
+        }
+      }
+
+      log('Seed complete!');
+      btn.disabled = false;
+      btn.textContent = 'Seed Complete';
+      btn.className = 'bg-green-600 text-white px-6 py-3 rounded-xl font-bold';
+    }
+
+    renderAccounts();
+  </script>
+</body>
+</html>
