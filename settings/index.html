@@ -166,6 +166,11 @@ button, input, select, textarea { min-width: 0; }
 }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -351,18 +356,37 @@ function toggleTheme() {
   var btn = document.getElementById('themeToggle');
   if (btn) btn.textContent = isDark ? 'light_mode' : 'dark_mode';
 }
-function initAuth() {
-  var session = JSON.parse(localStorage.getItem('session') || 'null');
-  if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
-  if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
-  if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
-  if (session.role === 'executive_it') { window.location.href = getBaseUrl() + 'executive_it/'; return; }
-  var btn = document.getElementById('userBtn');
-  if (btn) {
-    btn.textContent = (session.name || session.username).charAt(0).toUpperCase();
-    document.getElementById('userNameDisplay').textContent = session.name || session.username;
-    document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
-  }
+function initAuth(callback) {
+  initFirebase(function(err, user) {
+    if (!err && user && window.__fbLoaded) {
+      var profile = getFB('profile') || {};
+      if (profile.username) {
+        var fbSession = {
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: user.email,
+          isAdmin: profile.isAdmin || false,
+          role: profile.role || 'executive_path',
+          firebaseUid: user.uid,
+          loggedIn: true,
+          timestamp: Date.now()
+        };
+        fbSaveSession(fbSession);
+        finishAuth(fbSession, callback);
+        return;
+      }
+    }
+    var session = getSession();
+    if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
+    finishAuth(session, callback);
+  });
+}
+
+function finishAuth(session, callback) {
+  var initial = (session.name || session.username).charAt(0).toUpperCase();
+  document.getElementById('userBtn').textContent = initial;
+  document.getElementById('userNameDisplay').textContent = session.name || session.username;
+  document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
   var badge = document.getElementById('adminBadge');
   if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
   var info = document.getElementById('accountInfo');
@@ -370,9 +394,14 @@ function initAuth() {
     info.innerHTML = '<div><span class="font-label-md opacity-70">Name</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(session.name || '—') + '</p></div>' +
       '<div><span class="font-label-md opacity-70">Username</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(session.username) + '</p></div>';
   }
+  if (callback) callback(session);
 }
 function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
-function doLogout() { localStorage.removeItem('session'); window.location.href = getBaseUrl() + 'login/'; }
+function doLogout() {
+  fbLogout(function() {
+    window.location.href = getBaseUrl() + 'login/';
+  });
+}
 document.addEventListener('click', function(e) {
   var menu = document.getElementById('userMenu');
   if (menu && !menu.classList.contains('hidden') && !e.target.closest('#userBtn') && !e.target.closest('#userMenu')) {
@@ -466,8 +495,9 @@ function escapeHtml(str) {
 }
 
 initTheme();
-initAuth();
-initTripNotifications();
+initAuth(function() {
+  initTripNotifications();
+});
 </script>
 </body>
 </html>

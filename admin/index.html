@@ -141,6 +141,11 @@ button, input, select, textarea { min-width: 0; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -567,9 +572,33 @@ function toggleTheme() {
   if (btn) btn.textContent = isDark ? 'light_mode' : 'dark_mode';
 }
 
-function initAuth() {
-  var session = getSession();
-  if (!session || !session.loggedIn) { goTo('login/'); return; }
+function initAuth(callback) {
+  initFirebase(function(err, user) {
+    if (!err && user && window.__fbLoaded) {
+      var profile = getFB('profile') || {};
+      if (profile.isAdmin) {
+        var fbSession = {
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: user.email,
+          isAdmin: true,
+          role: 'admin',
+          firebaseUid: user.uid,
+          loggedIn: true,
+          timestamp: Date.now()
+        };
+        fbSaveSession(fbSession);
+        finishAuth(fbSession, callback);
+        return;
+      }
+    }
+    var session = getSession();
+    if (!session || !session.loggedIn) { goTo('login/'); return; }
+    finishAuth(session, callback);
+  });
+}
+
+function finishAuth(session, callback) {
   if (session.role !== 'admin') {
     if (session.role === 'executive_task') { goTo('executive_task/'); return; }
     if (session.role === 'executive_it') { goTo('executive_it/'); return; }
@@ -579,6 +608,7 @@ function initAuth() {
   document.getElementById('userBtn').textContent = initial;
   document.getElementById('userNameDisplay').textContent = session.name || session.username;
   document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
+  if (callback) callback(session);
 }
 
 function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
@@ -594,7 +624,7 @@ function checkWelcome() {
   }
 }
 
-function doLogout() { localStorage.removeItem('session'); goTo('login/'); }
+function doLogout() { fbLogout(function() { goTo('login/'); }); }
 
 document.addEventListener('click', function(e) {
   var menu = document.getElementById('userMenu');
@@ -1178,18 +1208,12 @@ function performGlobalSearch() {
     }).join('') + (allResults.length > 50 ? '<p class="font-label-md text-on-surface-variant text-center mt-2">Showing 50 of ' + allResults.length + ' results. Refine your search.</p>' : '') + '</div>';
 }
 
-var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
-if (existingSession && existingSession.loggedIn && existingSession.role === 'admin') {
-  initTheme();
-  initAuth();
+initTheme();
+initAuth(function() {
   checkWelcome();
   loadDashboard();
   populateUserFilters();
-} else {
-  initTheme();
-  initAuth();
-  checkWelcome();
-}
+});
 </script>
 </body>
 </html>

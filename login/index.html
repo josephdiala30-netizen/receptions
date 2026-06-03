@@ -7,6 +7,11 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../firebase-config.js"></script>
+  <script src="../firebase-data.js"></script>
   <script>
     tailwind.config = {
       darkMode: "class",
@@ -233,21 +238,42 @@
     }
 
     function doLogin() {
-      var user = document.getElementById('loginUser').value.trim();
+      var loginInput = document.getElementById('loginUser').value.trim();
       var pass = document.getElementById('loginPass').value;
       var errEl = document.getElementById('loginError');
+      errEl.classList.add('hidden');
 
-      if (!user || !pass) {
+      if (!loginInput || !pass) {
         errEl.textContent = 'Please enter username/email and password.';
         errEl.classList.remove('hidden');
         return;
       }
 
+      // Try Firebase Auth first
+      fbLookupEmail(loginInput, function(lookupErr, email) {
+        if (lookupErr) {
+          // Fallback to localStorage auth
+          doLocalLogin(loginInput, pass);
+          return;
+        }
+        fbLogin(email, pass, function(loginErr, session) {
+          if (loginErr) {
+            // Fallback to localStorage auth
+            doLocalLogin(loginInput, pass);
+            return;
+          }
+          window.location.href = getBaseUrl() + session.role + '/';
+        });
+      });
+    }
+
+    // localStorage fallback login
+    function doLocalLogin(user, pass) {
+      var errEl = document.getElementById('loginError');
       var users = JSON.parse(localStorage.getItem('users') || '[]');
       var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
       users = users.concat(itUsers);
 
-      // Hash the entered password and check both hashed and plaintext stored passwords
       hashPass(pass).then(function(hash) {
         var found = users.find(function(u) {
           return (u.username === user || u.email === user) && (u.password === hash || u.password === pass);
@@ -260,15 +286,14 @@
           errEl.textContent = 'Invalid username/email or password.';
           errEl.classList.remove('hidden');
         }
-      }).catch(function() {
-        errEl.textContent = 'Login unavailable. Please try again or use a supported browser.';
-        errEl.classList.remove('hidden');
       });
     }
+
     function closeRegSuccess() {
       document.getElementById('regSuccessModal').classList.add('hidden');
       switchTab('login');
     }
+
     function doRegister() {
       var name = document.getElementById('regName').value.trim();
       var user = document.getElementById('regUser').value.trim();
@@ -276,6 +301,7 @@
       var pass = document.getElementById('regPass').value;
       var pass2 = document.getElementById('regPass2').value;
       var errEl = document.getElementById('regError');
+      errEl.classList.add('hidden');
 
       if (!name || !user || !email || !pass) {
         errEl.textContent = 'Please fill in all fields.';
@@ -293,31 +319,20 @@
         return;
       }
 
-      var users = JSON.parse(localStorage.getItem('users') || '[]');
-      if (users.find(function(u) { return u.username === user; })) {
-        errEl.textContent = 'Username already exists.';
-        errEl.classList.remove('hidden');
-        return;
-      }
-      if (email && users.find(function(u) { return u.email && u.email === email; })) {
-        errEl.textContent = 'Email already in use.';
-        errEl.classList.remove('hidden');
-        return;
-      }
+      var role = document.getElementById('regRole').value;
 
-      hashPass(pass).then(function(hash) {
-        var role = document.getElementById('regRole').value;
-        var newUser = { username: user, name: name, email: email, password: hash, isAdmin: false, role: role };
-        if (role === 'executive_it') {
-          var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
-          itUsers.push(newUser);
-          localStorage.setItem('users_executive_it', JSON.stringify(itUsers));
-        } else {
-          users.push(newUser);
-          localStorage.setItem('users', JSON.stringify(users));
+      // Register via Firebase Auth
+      fbRegister(email, pass, { username: user, name: name, role: role, isAdmin: false }, function(regErr, session) {
+        if (regErr) {
+          var msg = regErr.message || regErr;
+          if (msg.indexOf('email-already') > -1) msg = 'Email already in use.';
+          else if (msg.indexOf('username') > -1) msg = 'Username already exists.';
+          else if (msg.indexOf('weak-password') > -1) msg = 'Password too weak (min 6 characters).';
+          errEl.textContent = msg;
+          errEl.classList.remove('hidden');
+          return;
         }
-        localStorage.setItem('welcome_' + user, 'true');
-        
+
         // Clear inputs
         document.getElementById('regName').value = '';
         document.getElementById('regUser').value = '';
@@ -383,13 +398,36 @@
       }
     })();
 
-    var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
-    if (existingSession && existingSession.loggedIn) {
-      var role = existingSession.role || 'executive_path';
-      window.location.href = getBaseUrl() + role + '/';
-    }
-
     updateRegisterVisibility();
+
+    // Check Firebase Auth state and auto-redirect
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        loadFBData(user.uid, function(err) {
+          var profile = getFB('profile') || {};
+          if (profile.email) {
+            var sessionData = {
+              username: profile.username || user.email.split('@')[0],
+              name: profile.name || profile.username || user.email.split('@')[0],
+              email: user.email,
+              isAdmin: profile.isAdmin || false,
+              role: profile.role || 'executive_path',
+              firebaseUid: user.uid,
+              loggedIn: true,
+              timestamp: Date.now()
+            };
+            fbSaveSession(sessionData);
+            window.location.href = getBaseUrl() + sessionData.role + '/';
+          }
+        });
+      } else {
+        // Fallback: check localStorage session
+        var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
+        if (existingSession && existingSession.loggedIn) {
+          window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
+        }
+      }
+    });
   </script>
 </body>
 </html>

@@ -149,6 +149,11 @@ button, input, select, textarea { min-width: 0; }
 }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -591,12 +596,38 @@ function toggleTheme() {
 }
 
 // ==================== AUTH ====================
-function initAuth() {
-  var session = getSession();
-  if (!session || !session.loggedIn) {
-    window.location.href = getBaseUrl() + 'login/';
-    return;
-  }
+function initAuth(callback) {
+  // Check Firebase Auth first, fallback to localStorage session
+  initFirebase(function(err, user) {
+    if (!err && user && window.__fbLoaded) {
+      var profile = getFB('profile') || {};
+      if (profile.username) {
+        var fbSession = {
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: user.email,
+          isAdmin: profile.isAdmin || false,
+          role: profile.role || 'executive_it',
+          firebaseUid: user.uid,
+          loggedIn: true,
+          timestamp: Date.now()
+        };
+        fbSaveSession(fbSession);
+        finishAuth(fbSession, callback);
+        return;
+      }
+    }
+    // Fallback: localStorage session
+    var session = getSession();
+    if (!session || !session.loggedIn) {
+      window.location.href = getBaseUrl() + 'login/';
+      return;
+    }
+    finishAuth(session, callback);
+  });
+}
+
+function finishAuth(session, callback) {
   // Redirect non-IT users to their correct portal
   if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
   if (session.role === 'executive_path') { window.location.href = getBaseUrl() + 'executive_path/'; return; }
@@ -608,6 +639,7 @@ function initAuth() {
   document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
   var badge = document.getElementById('adminBadge');
   if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
+  if (callback) callback(session);
 }
 
 function toggleUserMenu() {
@@ -615,8 +647,9 @@ function toggleUserMenu() {
 }
 
 function doLogout() {
-  localStorage.removeItem('session');
-  window.location.href = getBaseUrl() + 'login/';
+  fbLogout(function() {
+    window.location.href = getBaseUrl() + 'login/';
+  });
 }
 
 document.addEventListener('click', function(e) {
@@ -903,43 +936,53 @@ function getInitialServiceReports() {
 }
 
 function getData(type) {
+  // Try Firestore cache first
+  var fbKey = 'it_' + type;
+  var cached = getFB(fbKey);
+  if (cached && Array.isArray(cached)) return cached;
+
+  // Fallback to localStorage
+  var key = getDataKey(type);
   if (type === 'planner') {
-    var key = getDataKey(type);
     if (!localStorage.getItem(key)) {
       localStorage.setItem(key, JSON.stringify(getInitialRoadmaps()));
     }
   }
   if (type === 'task') {
-    var key = getDataKey(type);
     if (!localStorage.getItem(key)) {
       localStorage.setItem(key, JSON.stringify(getInitialTasks()));
     }
   }
   if (type === 'services') {
-    var key = getDataKey(type);
     if (!localStorage.getItem(key)) {
       localStorage.setItem(key, JSON.stringify(getInitialServiceReports()));
     }
   }
-  var key2 = getDataKey(type);
-  var data = JSON.parse(localStorage.getItem(key2) || '[]');
+  var data = JSON.parse(localStorage.getItem(key) || '[]');
   if (data.length === 0 && (type === 'maintenance' || type === 'services' || type === 'accomplishments' || type === 'inventory')) {
     for (var i = 0; i < localStorage.length; i++) {
       var k = localStorage.key(i);
-      if (k && k.indexOf('it_' + type + '_') === 0 && k !== key2) {
+      if (k && k.indexOf('it_' + type + '_') === 0 && k !== key) {
         data = JSON.parse(localStorage.getItem(k) || '[]');
         if (data.length > 0) {
-          localStorage.setItem(key2, JSON.stringify(data));
+          localStorage.setItem(key, JSON.stringify(data));
           break;
         }
       }
     }
   }
+  // Also migrate to cache
+  if (data.length > 0) {
+    window.__fbCache[fbKey] = data;
+  }
   return data;
 }
 
 function saveData(type, data) {
-  localStorage.setItem(getDataKey(type), JSON.stringify(data));
+  var key = getDataKey(type);
+  localStorage.setItem(key, JSON.stringify(data));
+  // Also save to Firestore
+  saveFB('it_' + type, data);
 }
 
 // ==================== VIEW SWITCHING ====================
@@ -3875,10 +3918,11 @@ function checkWelcome() {
 }
 
 initTheme();
-initAuth();
-checkWelcome();
-loadDashboard();
-checkDueTasks();
+initAuth(function() {
+  checkWelcome();
+  loadDashboard();
+  checkDueTasks();
+});
 </script>
 </body>
 </html>
