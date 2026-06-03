@@ -249,47 +249,42 @@
         return;
       }
 
-      // Try Firebase Auth first (only if Firebase loaded)
-      if (typeof firebase !== 'undefined') {
-        fbLookupEmail(loginInput, function(lookupErr, email) {
-          if (lookupErr) {
-            doLocalLogin(loginInput, pass);
-            return;
-          }
-          fbLogin(email, pass, function(loginErr, session) {
-            if (loginErr) {
-              doLocalLogin(loginInput, pass);
-              return;
-            }
-            window.location.href = getBaseUrl() + session.role + '/';
-          });
-        });
-      } else {
-        doLocalLogin(loginInput, pass);
-      }
-    }
-
-    // localStorage fallback login
-    function doLocalLogin(user, pass) {
-      var errEl = document.getElementById('loginError');
-      var users = JSON.parse(localStorage.getItem('users') || '[]');
-      var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
-      users = users.concat(itUsers);
-
+      // Try localStorage FIRST (instant) — hashPass is fast (<10ms)
       hashPass(pass).then(function(hash) {
-        var found = users.find(function(u) {
-          return (u.username === user || u.email === user) && (u.password === hash || u.password === pass);
+        var users = JSON.parse(localStorage.getItem('users') || '[]');
+        var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+        var found = users.concat(itUsers).find(function(u) {
+          return (u.username === loginInput || u.email === loginInput) && (u.password === hash || u.password === pass);
         });
+
         if (found) {
           var role = found.role || 'executive_path';
           localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
-
-          // Auto-migrate to Firebase in background (don't wait)
+          // Migrate in background if Firebase available
           if (typeof firebase !== 'undefined' && found.email && found.email.indexOf('@') > 0) {
             migrateLegacyUser(found, pass);
           }
-
           window.location.href = getBaseUrl() + role + '/';
+          return;
+        }
+
+        // Fallback: try Firebase Auth
+        if (typeof firebase !== 'undefined') {
+          fbLookupEmail(loginInput, function(lookupErr, email) {
+            if (lookupErr) {
+              errEl.textContent = 'Invalid username/email or password.';
+              errEl.classList.remove('hidden');
+              return;
+            }
+            fbLogin(email, pass, function(loginErr, session) {
+              if (loginErr) {
+                errEl.textContent = 'Invalid username/email or password.';
+                errEl.classList.remove('hidden');
+                return;
+              }
+              window.location.href = getBaseUrl() + session.role + '/';
+            });
+          });
         } else {
           errEl.textContent = 'Invalid username/email or password.';
           errEl.classList.remove('hidden');
