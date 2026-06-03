@@ -238,27 +238,3 @@ function fbLogout(callback) {
     .catch(function(err) { if (callback) callback(err); });
 }
 
-// Lookup email by username from Firestore
-function fbLookupEmail(loginStr, callback) {
-  if (loginStr.indexOf('@') > 0) {
-    callback(null, loginStr);
-    return;
-  }
-  // Search in user profiles
-  firebase.firestore().collection('userdata')
-    .where('profile.username', '==', loginStr)
-    .limit(1)
-    .get()
-    .then(function(snapshot) {
-      if (!snapshot.empty) {
-        var doc = snapshot.docs[0];
-        var profile = doc.data().profile || {};
-        callback(null, profile.email || loginStr + '@kalyx.com');
-      } else {
-        callback('User not found');
-      }
-    })
-    .catch(function() {
-      callback('Lookup failed');
-    });
-}

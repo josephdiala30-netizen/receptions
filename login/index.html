@@ -72,8 +72,8 @@
         <div class="space-y-4">
           <h2 class="text-lg font-bold text-primary text-center">KALYX TASK LOGIN</h2>
           <div>
-            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Username / Email</label>
-            <input id="loginUser" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all" placeholder="Enter username or email" type="text" autocomplete="username"/>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Email</label>
+            <input id="loginUser" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-sm focus:outline-none transition-all" placeholder="Enter your email" type="email" autocomplete="email"/>
           </div>
           <div>
             <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Password</label>
@@ -244,7 +244,7 @@
       errEl.classList.add('hidden');
 
       if (!loginInput || !pass) {
-        errEl.textContent = 'Please enter username/email and password.';
+        errEl.textContent = 'Please enter email and password.';
         errEl.classList.remove('hidden');
         return;
       }
@@ -268,25 +268,23 @@
           return;
         }
 
-        // Fallback: try Firebase Auth
+        // Fallback: try Firebase Auth (email required)
         if (typeof firebase !== 'undefined') {
-          fbLookupEmail(loginInput, function(lookupErr, email) {
-            if (lookupErr) {
-              errEl.textContent = 'Invalid username/email or password.';
+          if (loginInput.indexOf('@') < 0) {
+            errEl.textContent = 'Please enter your full email address for cross-browser login.';
+            errEl.classList.remove('hidden');
+            return;
+          }
+          fbLogin(loginInput, pass, function(loginErr, session) {
+            if (loginErr) {
+              errEl.textContent = 'Invalid email or password.';
               errEl.classList.remove('hidden');
               return;
             }
-            fbLogin(email, pass, function(loginErr, session) {
-              if (loginErr) {
-                errEl.textContent = 'Invalid username/email or password.';
-                errEl.classList.remove('hidden');
-                return;
-              }
-              window.location.href = getBaseUrl() + session.role + '/';
-            });
+            window.location.href = getBaseUrl() + session.role + '/';
           });
         } else {
-          errEl.textContent = 'Invalid username/email or password.';
+          errEl.textContent = 'Invalid email or password.';
           errEl.classList.remove('hidden');
         }
       });
