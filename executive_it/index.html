@@ -1023,6 +1023,7 @@ function saveData(type, data) {
 
 // ==================== VIEW SWITCHING ====================
 var currentView = 'dashboard';
+var searchQuery = '';
 
 function switchView(view) {
   currentView = view;
@@ -1328,9 +1329,23 @@ function calToday() {
 // ==================== SERVICES ====================
 function renderServices() {
   var data = getData('services');
+  if (searchQuery) {
+    data = data.filter(function(item) {
+      return (item.name || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.requestorName || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.department || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.description || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.category || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.severity || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.status || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.resolution || '').toLowerCase().indexOf(searchQuery) !== -1;
+    });
+  }
   var el = document.getElementById('serviceList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">support</span><p class="font-body-md text-on-surface-variant mt-4">No IT services yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'service\')">Add First Service</button></div>';
+    el.innerHTML = searchQuery
+      ? '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results found for "<strong>' + escapeHtml(searchQuery) + '</strong>"</p><p class="font-label-md text-on-surface-variant mt-1">Try a different search term</p></div>'
+      : '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">support</span><p class="font-body-md text-on-surface-variant mt-4">No IT services yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'service\')">Add First Service</button></div>';
     return;
   }
 
@@ -1401,9 +1416,22 @@ function renderServices() {
 // ==================== MAINTENANCE ====================
 function renderMaintenance() {
   var data = getData('maintenance');
+  if (searchQuery) {
+    data = data.filter(function(item) {
+      return (item.equipmentName || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.category || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.frequency || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.period || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.location || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.status || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.description || '').toLowerCase().indexOf(searchQuery) !== -1;
+    });
+  }
   var el = document.getElementById('maintenanceList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">handyman</span><p class="font-body-md text-on-surface-variant mt-4">No maintenance schedules</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'maintenance\')">Schedule First</button></div>';
+    el.innerHTML = searchQuery
+      ? '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results found for "<strong>' + escapeHtml(searchQuery) + '</strong>"</p><p class="font-label-md text-on-surface-variant mt-1">Try a different search term</p></div>'
+      : '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">handyman</span><p class="font-body-md text-on-surface-variant mt-4">No maintenance schedules</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'maintenance\')">Schedule First</button></div>';
     return;
   }
 
@@ -2044,9 +2072,22 @@ function printMaintenanceEntry(id) {
 // ==================== INVENTORY ====================
 function renderInventory() {
   var data = getData('inventory');
+  if (searchQuery) {
+    data = data.filter(function(item) {
+      return (item.name || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.category || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.brand || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.model || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.serialNumber || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.location || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.status || '').toLowerCase().indexOf(searchQuery) !== -1;
+    });
+  }
   var el = document.getElementById('inventoryList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">inventory</span><p class="font-body-md text-on-surface-variant mt-4">No inventory items</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'inventory\')">Add First Item</button></div>';
+    el.innerHTML = searchQuery
+      ? '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results found for "<strong>' + escapeHtml(searchQuery) + '</strong>"</p><p class="font-label-md text-on-surface-variant mt-1">Try a different search term</p></div>'
+      : '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">inventory</span><p class="font-body-md text-on-surface-variant mt-4">No inventory items</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'inventory\')">Add First Item</button></div>';
     return;
   }
   el.innerHTML = data.map(function(item) {
@@ -2111,9 +2152,21 @@ function renderInventory() {
 // ==================== TASK ====================
 function renderTask() {
   var data = getData('task');
+  if (searchQuery) {
+    data = data.filter(function(item) {
+      return (item.title || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.description || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.category || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.assignedTo || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.status || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.priority || '').toLowerCase().indexOf(searchQuery) !== -1;
+    });
+  }
   var el = document.getElementById('taskList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="md:col-span-3 flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">task</span><p class="font-body-md text-on-surface-variant mt-4">No tasks yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'task\')">Create First Task</button></div>';
+    el.innerHTML = searchQuery
+      ? '<div class="md:col-span-3 flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results found for "<strong>' + escapeHtml(searchQuery) + '</strong>"</p><p class="font-label-md text-on-surface-variant mt-1">Try a different search term</p></div>'
+      : '<div class="md:col-span-3 flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">task</span><p class="font-body-md text-on-surface-variant mt-4">No tasks yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'task\')">Create First Task</button></div>';
     return;
   }
 
@@ -2210,9 +2263,21 @@ function moveTask(id, newStatus) {
 // ==================== PLANNER (timeline) ====================
 function renderPlanner() {
   var data = getData('planner');
+  if (searchQuery) {
+    data = data.filter(function(item) {
+      return (item.title || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.description || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.category || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.status || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.startDate || '').indexOf(searchQuery) !== -1 ||
+             (item.endDate || '').indexOf(searchQuery) !== -1;
+    });
+  }
   var el = document.getElementById('plannerList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">map</span><p class="font-body-md text-on-surface-variant mt-4">No plans yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'planner\')">Create First Plan</button></div>';
+    el.innerHTML = searchQuery
+      ? '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results found for "<strong>' + escapeHtml(searchQuery) + '</strong>"</p><p class="font-label-md text-on-surface-variant mt-1">Try a different search term</p></div>'
+      : '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">map</span><p class="font-body-md text-on-surface-variant mt-4">No plans yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'planner\')">Create First Plan</button></div>';
     return;
   }
   
@@ -2493,6 +2558,52 @@ function viewAccomplishmentTable(id) {
   modal.classList.remove('hidden');
 }
 
+function viewAccomplishment(id) {
+  var data = getData('accomplishments');
+  var item = data.find(function(x) { return x.id === id; });
+  if (!item) return;
+  var modal = document.getElementById('modal');
+  document.getElementById('modalTitle').textContent = 'Job Entry Details';
+
+  var statusClass = item.status === 'completed' || item.status === 'done' ? 'bg-emerald-100 text-emerald-700' :
+                    item.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                    'bg-amber-100 text-amber-700';
+  var statusLabel = item.status === 'completed' || item.status === 'done' ? 'Completed' :
+                    item.status === 'in-progress' ? 'In Progress' : 'Pending';
+
+  var html = '<div class="space-y-4">' +
+    '<div class="flex items-center gap-3 pb-3 border-b border-outline-variant">' +
+      '<span class="material-symbols-outlined text-primary">assignment_turned_in</span>' +
+      '<div><h4 class="font-title-lg font-bold text-primary">' + escapeHtml(item.title) + '</h4>' +
+      '<span class="font-label-md ' + statusClass + ' px-2 py-0.5 rounded-full text-xs">' + escapeHtml(statusLabel) + '</span></div>' +
+    '</div>' +
+    '<div class="grid grid-cols-2 gap-3 text-sm">' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Date</span><span class="font-semibold text-primary">' + escapeHtml(item.date || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Category</span><span class="font-semibold text-primary">' + escapeHtml(item.category || 'N/A') + '</span></div>';
+
+  if (item.category === 'Technical Support') {
+    html +=
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Report Title</span><span class="font-semibold text-primary">' + escapeHtml(item.reportTitle || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Requestor Name</span><span class="font-semibold text-primary">' + escapeHtml(item.requestorName || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Severity</span><span class="font-semibold text-primary">' + escapeHtml(item.severity || 'Medium') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Department</span><span class="font-semibold text-primary">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl col-span-2"><span class="font-label-md text-on-surface-variant block">Incident Date</span><span class="font-semibold text-primary">' + escapeHtml(item.incidentDate ? item.incidentDate.replace('T', ' ') : 'N/A') + '</span></div>' +
+      (item.dateResolve ? '<div class="p-3 bg-surface-container-low rounded-xl col-span-2"><span class="font-label-md text-on-surface-variant block">Date Resolved</span><span class="font-semibold text-primary">' + escapeHtml(item.dateResolve.replace('T', ' ')) + '</span></div>' : '') +
+      (item.resolution ? '<div class="p-3 bg-surface-container-low rounded-xl col-span-2"><span class="font-label-md text-on-surface-variant block">Resolution</span><span class="font-semibold text-primary whitespace-pre-wrap">' + escapeHtml(item.resolution) + '</span></div>' : '');
+  }
+
+  html +=
+    '</div>' +
+    (item.description ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1">Description</span><p class="font-body-md text-primary whitespace-pre-wrap">' + escapeHtml(item.description) + '</p></div>' : '') +
+    '<div class="flex gap-3 pt-2">' +
+      '<button class="flex-1 border border-outline-variant text-on-surface-variant py-2.5 rounded-xl font-label-md font-semibold hover:bg-surface-container transition-all" onclick="closeModal()">✕ Close</button>' +
+    '</div>' +
+  '</div>';
+
+  document.getElementById('modalBody').innerHTML = html;
+  modal.classList.remove('hidden');
+}
+
 // ==================== DAILY ACCOMPLISHMENTS ====================
 function getMonthLabel(dateStr) {
   if (!dateStr) return { label: 'No Date', key: '0000-00' };
@@ -2514,9 +2625,24 @@ function getCatConfig(cat) { return categoryConfig[cat] || categoryConfig['Other
 
 function renderAccomplishments() {
   var data = getData('accomplishments');
+  if (searchQuery) {
+    data = data.filter(function(item) {
+      return (item.title || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.requestorName || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.date || '').indexOf(searchQuery) !== -1 ||
+             (item.category || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.description || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.reportTitle || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.department || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.resolution || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.status || '').toLowerCase().indexOf(searchQuery) !== -1;
+    });
+  }
   var el = document.getElementById('accomplishmentList');
   if (data.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">assignment_turned_in</span><p class="font-body-md text-on-surface-variant mt-4">No accomplishments yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'accomplishment\')">Record First Accomplishment</button></div>';
+    el.innerHTML = searchQuery
+      ? '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results found for "<strong>' + escapeHtml(searchQuery) + '</strong>"</p><p class="font-label-md text-on-surface-variant mt-1">Try a different search term</p></div>'
+      : '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">assignment_turned_in</span><p class="font-body-md text-on-surface-variant mt-4">No accomplishments yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'accomplishment\')">Record First Accomplishment</button></div>';
     return;
   }
 
@@ -2619,6 +2745,7 @@ function renderAccomplishments() {
           '    ' + itDetailsHtml +
           '  </div>' +
           '  <div class="flex items-start gap-1 flex-shrink-0">' +
+          '    <button class="p-1.5 rounded-lg hover:bg-blue-100 text-blue-600 transition-colors" title="View" onclick="viewAccomplishment(' + item.id + ')"><span class="material-symbols-outlined text-sm">visibility</span></button>' +
           '    <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'accomplishment\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
           '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'accomplishment\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
           '  </div>' +
@@ -2849,9 +2976,20 @@ function printAccomplishmentReport() {
 // ==================== TICKETS ====================
 function renderTickets() {
   var tickets = getData('tickets');
+  if (searchQuery) {
+    tickets = tickets.filter(function(item) {
+      return (item.title || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.description || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.assignedTo || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.status || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.priority || '').toLowerCase().indexOf(searchQuery) !== -1;
+    });
+  }
   var el = document.getElementById('ticketList');
   if (tickets.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">confirmation_number</span><p class="font-body-md text-on-surface-variant mt-4">No support tickets</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'ticket\')">Create First Ticket</button></div>';
+    el.innerHTML = searchQuery
+      ? '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results found for "<strong>' + escapeHtml(searchQuery) + '</strong>"</p><p class="font-label-md text-on-surface-variant mt-1">Try a different search term</p></div>'
+      : '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">confirmation_number</span><p class="font-body-md text-on-surface-variant mt-4">No support tickets</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'ticket\')">Create First Ticket</button></div>';
     return;
   }
   el.innerHTML = tickets.map(function(t) {
@@ -2880,9 +3018,19 @@ function resolveTicket(id) {
 // ==================== SYSTEMS ====================
 function renderSystems() {
   var systems = getData('systems');
+  if (searchQuery) {
+    systems = systems.filter(function(item) {
+      return (item.name || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.type || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.ip || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.status || '').toLowerCase().indexOf(searchQuery) !== -1;
+    });
+  }
   var el = document.getElementById('systemList');
   if (systems.length === 0) {
-    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">monitor_heart</span><p class="font-body-md text-on-surface-variant mt-4">No systems being monitored</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'system\')">Add First System</button></div>';
+    el.innerHTML = searchQuery
+      ? '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results found for "<strong>' + escapeHtml(searchQuery) + '</strong>"</p><p class="font-label-md text-on-surface-variant mt-1">Try a different search term</p></div>'
+      : '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">monitor_heart</span><p class="font-body-md text-on-surface-variant mt-4">No systems being monitored</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="openAddModal(\'system\')">Add First System</button></div>';
     return;
   }
   el.innerHTML = systems.map(function(s) {
@@ -4020,9 +4168,17 @@ function printInventoryReport() {
 
 // ==================== SEARCH ====================
 function handleSearch(query) {
-  // Simple: just switch to the first matching view
-  if (!query) return;
-  query = query.toLowerCase();
+  searchQuery = (query || '').toLowerCase().trim();
+  var view = currentView;
+  if (view === 'dashboard') loadDashboard();
+  else if (view === 'services') renderServices();
+  else if (view === 'maintenance') renderMaintenance();
+  else if (view === 'inventory') renderInventory();
+  else if (view === 'task') renderTask();
+  else if (view === 'planner') renderPlanner();
+  else if (view === 'accomplishments') renderAccomplishments();
+  else if (view === 'tickets') renderTickets();
+  else if (view === 'systems') renderSystems();
 }
 
 function toggleCategoryDetails(val) {
