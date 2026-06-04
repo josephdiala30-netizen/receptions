@@ -741,6 +741,22 @@ function loadDashboard() {
   }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No activity</p>';
 }
 
+function updateFirebaseProfile(email, profile) {
+  firebase.firestore().collection('userdata')
+    .where('profile.email', '==', email)
+    .get()
+    .then(function(snap) {
+      if (!snap.empty) {
+        var uid = snap.docs[0].id;
+        return firebase.firestore().collection('userdata').doc(uid)
+          .set({ profile: { username: profile.username, name: profile.name, email: email, role: profile.role, isAdmin: profile.isAdmin } }, { merge: true });
+      }
+    })
+    .catch(function(err) {
+      console.error('Firebase profile update error:', err);
+    });
+}
+
 async function hashPass(pass) {
   var enc = new TextEncoder().encode(pass);
   var buf = await crypto.subtle.digest('SHA-256', enc);
@@ -831,6 +847,10 @@ async function saveUser() {
     users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin;
     if (password) users[idx].password = await hashPass(password);
     saveUsers(users);
+    // Sync changes to Firebase Firestore profile for cross-browser login
+    if (email && typeof firebase !== 'undefined') {
+      updateFirebaseProfile(email, { username: username, name: name, role: role, isAdmin: isAdmin });
+    }
   } else {
     if (users.some(function(u) { return u.username === username; })) {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';

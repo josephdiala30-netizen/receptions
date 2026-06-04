@@ -221,22 +221,50 @@ function fbLogin(email, password, callback) {
   firebase.auth().signInWithEmailAndPassword(email, password)
     .then(function(result) {
       var user = result.user;
-      // After login, wait for data to load, then set session
-      loadFBData(user.uid, function() {
-        var profile = getFB('profile') || {};
-        var session = {
-          username: profile.username || user.email.split('@')[0],
-          name: profile.name || user.displayName || profile.username || user.email.split('@')[0],
-          email: user.email,
-          isAdmin: profile.isAdmin || false,
-          role: profile.role || 'executive_path',
-          firebaseUid: user.uid,
-          loggedIn: true,
-          timestamp: Date.now()
-        };
-        fbSaveSession(session);
-        if (callback) callback(null, session);
-      });
+      window.__fbUser = user;
+      // Lightweight login: read only the profile, redirect immediately
+      // Full data loads asynchronously on the target page via initAuth
+      firebase.firestore().collection('userdata').doc(user.uid).get()
+        .then(function(doc) {
+          var profile = {};
+          if (doc.exists) {
+            var data = doc.data() || {};
+            window.__fbCache = data;
+            window.__fbLoaded = true;
+            profile = data.profile || {};
+          } else {
+            window.__fbCache = {};
+            window.__fbLoaded = true;
+          }
+          var session = {
+            username: profile.username || user.email.split('@')[0],
+            name: profile.name || user.displayName || profile.username || user.email.split('@')[0],
+            email: user.email,
+            isAdmin: profile.isAdmin || false,
+            role: profile.role || 'executive_path',
+            firebaseUid: user.uid,
+            loggedIn: true,
+            timestamp: Date.now()
+          };
+          fbSaveSession(session);
+          if (callback) callback(null, session);
+        })
+        .catch(function(err) {
+          console.error('Profile read error:', err);
+          // Fallback session even if Firestore read fails
+          var session = {
+            username: user.email.split('@')[0],
+            name: user.email.split('@')[0],
+            email: user.email,
+            isAdmin: false,
+            role: 'executive_path',
+            firebaseUid: user.uid,
+            loggedIn: true,
+            timestamp: Date.now()
+          };
+          fbSaveSession(session);
+          if (callback) callback(null, session);
+        });
     })
     .catch(function(err) {
       if (callback) callback(err);

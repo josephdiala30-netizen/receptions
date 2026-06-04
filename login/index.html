@@ -81,7 +81,7 @@
           </div>
           <div id="loginError" class="text-xs font-semibold text-error hidden"></div>
           <div id="loginSuccess" class="text-xs font-semibold text-emerald-600 hidden bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-xl"></div>
-          <button class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md" onclick="doLogin()">Sign In</button>
+          <button id="loginBtn" class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2" onclick="doLogin()"><span id="loginBtnText">Sign In</span><span id="loginSpinner" class="hidden"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg></span></button>
 
           <div class="relative my-6">
             <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-outline-variant/60"></div></div>
@@ -227,15 +227,27 @@
       return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
     }
 
+    function setLoading(loading) {
+      var btn = document.getElementById('loginBtn');
+      var text = document.getElementById('loginBtnText');
+      var spinner = document.getElementById('loginSpinner');
+      btn.disabled = loading;
+      btn.className = loading ? 'w-full bg-primary/60 text-on-primary py-3 rounded-xl font-bold cursor-not-allowed flex items-center justify-center gap-2 shadow-md' : 'w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2';
+      if (loading) { spinner.classList.remove('hidden'); text.textContent = 'Signing in...'; }
+      else { spinner.classList.add('hidden'); text.textContent = 'Sign In'; }
+    }
+
     function doLogin() {
       var loginInput = document.getElementById('loginUser').value.trim();
       var pass = document.getElementById('loginPass').value;
       var errEl = document.getElementById('loginError');
       errEl.classList.add('hidden');
+      setLoading(true);
 
       if (!loginInput || !pass) {
         errEl.textContent = 'Please enter email and password.';
         errEl.classList.remove('hidden');
+        setLoading(false);
         return;
       }
 
@@ -258,6 +270,7 @@
                 }
                 window.location.href = getBaseUrl() + role + '/';
               } else {
+                setLoading(false);
                 errEl.textContent = 'Invalid email or password.';
                 errEl.classList.remove('hidden');
               }
@@ -278,6 +291,7 @@
             localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
             window.location.href = getBaseUrl() + role + '/';
           } else {
+            setLoading(false);
             errEl.textContent = 'Invalid email or password.';
             errEl.classList.remove('hidden');
           }
@@ -432,34 +446,38 @@
 
     updateRegisterVisibility();
 
-    // Auto-redirect if already logged in (skip during registration)
-    if (typeof firebase !== 'undefined') {
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user && !window.__fbRegistering) {
-          loadFBData(user.uid, function(err) {
-            var profile = getFB('profile') || {};
-            if (profile.email) {
-              var sessionData = {
-                username: profile.username || user.email.split('@')[0],
-                name: profile.name || profile.username || user.email.split('@')[0],
-                email: user.email,
-                isAdmin: profile.isAdmin || false,
-                role: profile.role || 'executive_path',
-                firebaseUid: user.uid,
-                loggedIn: true,
-                timestamp: Date.now()
-              };
-              fbSaveSession(sessionData);
-              window.location.href = getBaseUrl() + sessionData.role + '/';
-            }
-          });
-        }
-      });
-    }
-    // Fallback: check localStorage session (always works)
+    // Check cached session FIRST (fast path — no network needed)
     var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
     if (existingSession && existingSession.loggedIn) {
       window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
+    } else if (typeof firebase !== 'undefined') {
+      // No cached session — check Firebase Auth (lightweight profile read only)
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user && !window.__fbRegistering) {
+          window.__fbUser = user;
+          firebase.firestore().collection('userdata').doc(user.uid).get()
+            .then(function(doc) {
+              var profile = doc.exists ? (doc.data().profile || {}) : {};
+              if (profile.email) {
+                var sessionData = {
+                  username: profile.username || user.email.split('@')[0],
+                  name: profile.name || profile.username || user.email.split('@')[0],
+                  email: user.email,
+                  isAdmin: profile.isAdmin || false,
+                  role: profile.role || 'executive_path',
+                  firebaseUid: user.uid,
+                  loggedIn: true,
+                  timestamp: Date.now()
+                };
+                fbSaveSession(sessionData);
+                window.location.href = getBaseUrl() + sessionData.role + '/';
+              }
+            })
+            .catch(function(err) {
+              console.error('Auto-redirect profile read error:', err);
+            });
+        }
+      });
     }
   </script>
 </body>
