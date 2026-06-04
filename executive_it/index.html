@@ -1394,6 +1394,7 @@ function renderServices() {
             (item.department ? '<p class="font-label-md text-on-surface-variant"><span class="material-symbols-outlined text-sm align-middle">business</span> ' + escapeHtml(item.department) + '</p>' : '') +
           '</div>' +
           '<div class="flex items-start gap-1 shrink-0">' +
+            '<button class="p-1.5 rounded-lg hover:bg-blue-100 text-blue-600 transition-colors" title="View" onclick="viewService(' + item.id + ')"><span class="material-symbols-outlined text-sm">visibility</span></button>' +
             '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'service\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
             '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'service\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
           '</div>' +
@@ -1418,13 +1419,16 @@ function renderMaintenance() {
   var data = getData('maintenance');
   if (searchQuery) {
     data = data.filter(function(item) {
-      return (item.equipmentName || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+      return (item.equipment || item.asset || item.title || item.equipmentName || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.category || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.frequency || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.period || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.location || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.status || '').toLowerCase().indexOf(searchQuery) !== -1 ||
-             (item.description || '').toLowerCase().indexOf(searchQuery) !== -1;
+             (item.description || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.serial || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.inspectedBy || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.checkedBy || '').toLowerCase().indexOf(searchQuery) !== -1;
     });
   }
   var el = document.getElementById('maintenanceList');
@@ -1519,6 +1523,7 @@ function renderMaintenance() {
           '    </div>' +
           '  </div>' +
           '  <div class="flex items-center gap-1">' +
+          '    <button class="p-1.5 rounded-lg hover:bg-blue-100 text-blue-600 transition-colors" title="View" onclick="viewMaintenance(' + item.id + ')"><span class="material-symbols-outlined text-sm">visibility</span></button>' +
           '    <button class="p-1.5 rounded-lg hover:bg-teal-100 text-teal-600 transition-colors" title="Print" onclick="printMaintenanceEntry(' + item.id + ')"><span class="material-symbols-outlined text-sm">print</span></button>' +
           '    <button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
           '    <button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'maintenance\',' + item.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
@@ -2595,6 +2600,94 @@ function viewAccomplishment(id) {
   html +=
     '</div>' +
     (item.description ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1">Description</span><p class="font-body-md text-primary whitespace-pre-wrap">' + escapeHtml(item.description) + '</p></div>' : '') +
+    '<div class="flex gap-3 pt-2">' +
+      '<button class="flex-1 border border-outline-variant text-on-surface-variant py-2.5 rounded-xl font-label-md font-semibold hover:bg-surface-container transition-all" onclick="closeModal()">✕ Close</button>' +
+    '</div>' +
+  '</div>';
+
+  document.getElementById('modalBody').innerHTML = html;
+  modal.classList.remove('hidden');
+}
+
+function viewService(id) {
+  var data = getData('services');
+  var item = data.find(function(x) { return x.id === id; });
+  if (!item) return;
+  var modal = document.getElementById('modal');
+  document.getElementById('modalTitle').textContent = 'IT Service Details';
+
+  var statusColor = item.status === 'open' ? 'bg-blue-100 text-blue-700' : item.status === 'in-progress' ? 'bg-amber-100 text-amber-700' : item.status === 'resolved' || item.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600';
+  var severityColor = item.severity === 'Critical' ? 'bg-red-100 text-red-700' : item.severity === 'High' ? 'bg-orange-100 text-orange-700' : item.severity === 'Low' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700';
+
+  var html = '<div class="space-y-4">' +
+    '<div class="flex items-center gap-3 pb-3 border-b border-outline-variant">' +
+      '<span class="material-symbols-outlined text-primary">support</span>' +
+      '<div><h4 class="font-title-lg font-bold text-primary">' + escapeHtml(item.name) + '</h4>' +
+      '<span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full text-xs">' + escapeHtml(item.status || 'open') + '</span>' +
+      '<span class="font-label-md ' + severityColor + ' px-2 py-0.5 rounded-full text-xs ml-1">' + escapeHtml(item.severity || 'Medium') + '</span></div>' +
+    '</div>' +
+    '<div class="grid grid-cols-2 gap-3 text-sm">' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Requestor Name</span><span class="font-semibold text-primary">' + escapeHtml(item.requestorName || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Department</span><span class="font-semibold text-primary">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Category</span><span class="font-semibold text-primary">' + escapeHtml(item.category || 'General') + '</span></div>' +
+      (item.cost ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Cost</span><span class="font-semibold text-primary">' + escapeHtml(item.cost) + '</span></div>' : '') +
+      (item.incidentDate ? '<div class="p-3 bg-surface-container-low rounded-xl col-span-2"><span class="font-label-md text-on-surface-variant block">Incident Date</span><span class="font-semibold text-primary">' + escapeHtml(item.incidentDate.replace('T', ' ')) + '</span></div>' : '') +
+    '</div>' +
+    (item.description ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1">Description</span><p class="font-body-md text-primary whitespace-pre-wrap">' + escapeHtml(item.description) + '</p></div>' : '') +
+    (item.resolution ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1">Resolution</span><p class="font-body-md text-primary whitespace-pre-wrap">' + escapeHtml(item.resolution) + '</p></div>' : '') +
+    '<div class="flex gap-3 pt-2">' +
+      '<button class="flex-1 border border-outline-variant text-on-surface-variant py-2.5 rounded-xl font-label-md font-semibold hover:bg-surface-container transition-all" onclick="closeModal()">✕ Close</button>' +
+    '</div>' +
+  '</div>';
+
+  document.getElementById('modalBody').innerHTML = html;
+  modal.classList.remove('hidden');
+}
+
+function viewMaintenance(id) {
+  var data = getData('maintenance');
+  var item = data.find(function(x) { return x.id === id; });
+  if (!item) return;
+  var modal = document.getElementById('modal');
+  document.getElementById('modalTitle').textContent = 'Maintenance Details';
+
+  var statusColor = item.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
+                    item.status === 'in-progress' ? 'bg-amber-100 text-amber-700' :
+                    item.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                    'bg-red-100 text-red-700';
+  var checks = item.checks || {};
+  var activities = [
+    { key: 'checkParts', label: 'Check Parts' },
+    { key: 'cleanInteriors', label: 'Clean Interiors' },
+    { key: 'operatingCondition', label: 'Check Operating Condition' },
+    { key: 'electricalWires', label: 'Check Electrical Wires' }
+  ];
+  var checklistHtml = activities.map(function(a) {
+    var ok = checks[a.key];
+    return '<span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ' + (ok ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500') + '">' +
+      '<span class="material-symbols-outlined text-[14px]">' + (ok ? 'check_circle' : 'radio_button_unchecked') + '</span>' + escapeHtml(a.label) + '</span>';
+  }).join('');
+
+  var equipInfo = [(item.brand || ''), (item.model || '')].filter(Boolean).join(' — ') || 'N/A';
+
+  var html = '<div class="space-y-4">' +
+    '<div class="flex items-center gap-3 pb-3 border-b border-outline-variant">' +
+      '<span class="material-symbols-outlined text-primary">handyman</span>' +
+      '<div><h4 class="font-title-lg font-bold text-primary">' + escapeHtml(item.equipment || item.asset || item.title) + '</h4>' +
+      '<span class="font-label-md ' + statusColor + ' px-2 py-0.5 rounded-full text-xs">' + escapeHtml(item.status || 'scheduled') + '</span></div>' +
+    '</div>' +
+    '<div class="grid grid-cols-2 gap-3 text-sm">' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Reference No.</span><span class="font-semibold text-primary">' + escapeHtml(item.reference || 'ITDF-01') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Date</span><span class="font-semibold text-primary">' + escapeHtml(item.inspectionDate || item.scheduledDate || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Equipment Info</span><span class="font-semibold text-primary">' + escapeHtml(equipInfo) + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Serial Number</span><span class="font-semibold text-primary">' + escapeHtml(item.serial || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Frequency</span><span class="font-semibold text-primary">' + escapeHtml(item.frequency || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Period</span><span class="font-semibold text-primary">' + escapeHtml(item.period || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Inspected By</span><span class="font-semibold text-primary">' + escapeHtml(item.inspectedBy || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Checked By</span><span class="font-semibold text-primary">' + escapeHtml(item.checkedBy || 'N/A') + '</span></div>' +
+    '</div>' +
+    '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1.5">Maintenance Activities</span><div class="flex flex-wrap gap-1.5">' + checklistHtml + '</div></div>' +
+    (item.description ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1">Recommendations</span><p class="font-body-md text-primary whitespace-pre-wrap">' + escapeHtml(item.description) + '</p></div>' : '') +
     '<div class="flex gap-3 pt-2">' +
       '<button class="flex-1 border border-outline-variant text-on-surface-variant py-2.5 rounded-xl font-label-md font-semibold hover:bg-surface-container transition-all" onclick="closeModal()">✕ Close</button>' +
     '</div>' +
