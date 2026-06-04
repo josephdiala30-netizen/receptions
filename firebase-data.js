@@ -10,12 +10,14 @@ window.__fbUnsubscribe = null;
 // Initialize Firebase Auth state listener
 function initFirebase(callback) {
   firebase.auth().onAuthStateChanged(function(user) {
-    // Unsubscribe previous listener
+    // Unsubscribe previous real-time listener
     if (window.__fbUnsubscribe) { window.__fbUnsubscribe(); window.__fbUnsubscribe = null; }
     if (user) {
       window.__fbUser = user;
-      // Use real-time snapshot listener for cross-browser sync
-      listenFBData(user.uid, function(err) {
+      // Load data from Firestore (one-time read)
+      loadFBData(user.uid, function(err) {
+        // Set up real-time listener for cross-browser sync
+        fbSubscribe(user.uid);
         if (callback) callback(err, user);
       });
     } else {
@@ -27,55 +29,59 @@ function initFirebase(callback) {
   });
 }
 
-// Listen for real-time updates from Firestore (cross-browser sync)
-function listenFBData(uid, callback) {
-  window.__fbUnsubscribe = firebase.firestore().collection('userdata').doc(uid)
-    .onSnapshot(function(doc) {
+// Load all user data from Firestore into cache (one-time read)
+function loadFBData(uid, callback) {
+  firebase.firestore().collection('userdata').doc(uid).get()
+    .then(function(doc) {
       if (doc.exists) {
         var data = doc.data() || {};
         window.__fbCache = data;
         window.__fbLoaded = true;
 
         var username = data.profile ? data.profile.username : null;
-        if (username) {
-          syncCacheToLocalStorage(username);
-        }
+        if (username) syncCacheToLocalStorage(username);
 
-        // Trigger re-render if UI callback is set
-        if (window.__fbOnUpdate) window.__fbOnUpdate(data);
-
-        // If the document has profile but no other data keys (seeded but empty),
-        // we run migration to upload any existing local data.
+        // If profile exists but no data keys, migrate from localStorage
         var dataKeys = Object.keys(data).filter(function(k) { return k !== 'profile'; });
-        if (dataKeys.length === 0 && !window.__fbMigrated) {
-          window.__fbMigrated = true;
+        if (dataKeys.length === 0) {
           migrateLocalStorage(uid, function() {
             if (callback) callback();
           });
           return;
         }
       } else {
-        // First login — try migrating from localStorage
         window.__fbCache = {};
         window.__fbLoaded = true;
-        if (!window.__fbMigrated) {
-          window.__fbMigrated = true;
-          migrateLocalStorage(uid, function() {
-            if (callback) callback();
-          });
-          return;
-        }
+        migrateLocalStorage(uid, function() {
+          if (callback) callback();
+        });
+        return;
       }
-      if (callback) { var cb = callback; callback = null; cb(); }
-    }, function(err) {
-      console.error('Firestore listener error:', err);
-      if (callback) { var cb = callback; callback = null; cb(err); }
+      if (callback) callback();
+    })
+    .catch(function(err) {
+      console.error('Firestore load error:', err);
+      if (callback) callback(err);
     });
 }
 
-// Keep loadFBData for backward compatibility (now delegates to listenFBData)
-function loadFBData(uid, callback) {
-  listenFBData(uid, callback);
+// Set up real-time listener for cross-browser sync (optional, called after init)
+function fbSubscribe(uid, onUpdate) {
+  if (window.__fbUnsubscribe) { window.__fbUnsubscribe(); }
+  window.__fbUnsubscribe = firebase.firestore().collection('userdata').doc(uid)
+    .onSnapshot(function(doc) {
+      if (doc.exists) {
+        var data = doc.data() || {};
+        window.__fbCache = data;
+        window.__fbLoaded = true;
+        var username = data.profile ? data.profile.username : null;
+        if (username) syncCacheToLocalStorage(username);
+        if (onUpdate) onUpdate(data);
+        if (window.__fbOnUpdate) window.__fbOnUpdate(data);
+      }
+    }, function(err) {
+      console.error('Firestore listener error:', err);
+    });
 }
 
 // Sync cached Firestore data back to localStorage for offline support and UI compatibility
@@ -238,7 +244,7 @@ function fbLogin(email, password, callback) {
 }
 
 function fbRegister(email, password, profile, callback) {
-  // Flag to prevent auto-redirect during registration
+  // Set flag to prevent onAuthStateChanged auto-redirect
   window.__fbRegistering = true;
   firebase.auth().createUserWithEmailAndPassword(email, password)
     .then(function(result) {
@@ -255,9 +261,7 @@ function fbRegister(email, password, profile, callback) {
       return firebase.firestore().collection('userdata').doc(user.uid)
         .set(userData, { merge: true })
         .then(function() {
-          // Set welcome flag for the portal to pick up on first login
           localStorage.setItem('welcome_' + profile.username, 'true');
-          // Sign out so user must manually log in
           return firebase.auth().signOut();
         });
     })
