@@ -382,7 +382,7 @@
     (function seedAccounts() {
       var users = JSON.parse(localStorage.getItem('users') || '[]');
       var defaultAccounts = [
-        { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'executive_it' }
+        { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' }
       ];
       var dirty = false;
       defaultAccounts.forEach(function(def) {
