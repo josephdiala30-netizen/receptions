@@ -268,13 +268,8 @@
           return;
         }
 
-        // Fallback: try Firebase Auth (email required)
+        // Fallback: try Firebase Auth
         if (typeof firebase !== 'undefined') {
-          if (loginInput.indexOf('@') < 0) {
-            errEl.textContent = 'Please enter your full email address for cross-browser login.';
-            errEl.classList.remove('hidden');
-            return;
-          }
           fbLogin(loginInput, pass, function(loginErr, session) {
             if (loginErr) {
               errEl.textContent = 'Invalid email or password.';
