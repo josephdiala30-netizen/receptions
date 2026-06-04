@@ -843,6 +843,10 @@ async function saveUser() {
     users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin });
     localStorage.setItem('welcome_' + username, 'true');
     saveUsers(users);
+    // Also create Firebase Auth account + Firestore profile for cross-browser login
+    if (email && typeof firebase !== 'undefined') {
+      fbRegister(email, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function() {});
+    }
   }
   closeUserModal();
   renderUsers();

@@ -359,6 +359,15 @@
           return;
         }
 
+        // Save to localStorage users list so Admin portal can see this account
+        hashPass(pass).then(function(hash) {
+          var users = JSON.parse(localStorage.getItem('users') || '[]');
+          if (!users.some(function(u) { return u.username === user; })) {
+            users.push({ username: user, name: name, email: email, password: hash, role: role, isAdmin: false });
+            localStorage.setItem('users', JSON.stringify(users));
+          }
+        });
+
         // Clear inputs
         document.getElementById('regName').value = '';
         document.getElementById('regUser').value = '';
