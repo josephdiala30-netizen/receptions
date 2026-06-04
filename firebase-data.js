@@ -238,21 +238,11 @@ function fbLogin(email, password, callback) {
 }
 
 function fbRegister(email, password, profile, callback) {
+  // Flag to prevent auto-redirect during registration
+  window.__fbRegistering = true;
   firebase.auth().createUserWithEmailAndPassword(email, password)
     .then(function(result) {
       var user = result.user;
-      var session = {
-        username: profile.username,
-        name: profile.name,
-        email: email,
-        isAdmin: profile.isAdmin || false,
-        role: profile.role || 'executive_path',
-        firebaseUid: user.uid,
-        loggedIn: true,
-        timestamp: Date.now()
-      };
-      fbSaveSession(session);
-      // Save profile and initial data to Firestore
       var userData = {
         profile: {
           username: profile.username,
@@ -262,17 +252,25 @@ function fbRegister(email, password, profile, callback) {
           role: profile.role || 'executive_path'
         }
       };
-      firebase.firestore().collection('userdata').doc(user.uid)
+      return firebase.firestore().collection('userdata').doc(user.uid)
         .set(userData, { merge: true })
         .then(function() {
-          window.__fbCache = userData;
-          window.__fbLoaded = true;
-          // Set welcome flag for the portal to pick up
+          // Set welcome flag for the portal to pick up on first login
           localStorage.setItem('welcome_' + profile.username, 'true');
-          if (callback) callback(null, session);
+          // Sign out so user must manually log in
+          return firebase.auth().signOut();
         });
     })
+    .then(function() {
+      window.__fbRegistering = false;
+      fbClearSession();
+      window.__fbCache = {};
+      window.__fbLoaded = false;
+      window.__fbUser = null;
+      if (callback) callback(null, { username: profile.username, name: profile.name, role: profile.role });
+    })
     .catch(function(err) {
+      window.__fbRegistering = false;
       if (callback) callback(err);
     });
 }

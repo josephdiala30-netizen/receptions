@@ -4361,16 +4361,15 @@ function checkWelcome() {
   }
 }
 
-// Clean up stale localStorage data from removed accounts
+// Clean up stale localStorage data from old removed accounts only
 (function() {
-  var session = JSON.parse(localStorage.getItem('session') || '{}');
-  var current = session ? session.username : null;
+  var removedAccounts = ['joseph_diala', 'admin', 'executive', 'task_admin', 'it_executive', 'it_admin'];
   var keysToRemove = [];
   for (var i = 0; i < localStorage.length; i++) {
     var k = localStorage.key(i);
     if (!k) continue;
     var match = k.match(/^(.+)_(.+)$/);
-    if (match && match[2] !== current) {
+    if (match && removedAccounts.indexOf(match[2]) >= 0) {
       keysToRemove.push(k);
     }
   }
