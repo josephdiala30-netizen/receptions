@@ -55,24 +55,12 @@
   <script>
     // ==================== DEFAULT ACCOUNTS ====================
     var defaultAccounts = [
-      { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: 'password', isAdmin: true, role: 'admin' },
-      { username: 'admin', name: 'Administrator', email: 'admin@kalyx.com', password: 'password', isAdmin: true, role: 'executive_path' },
-      { username: 'executive', name: 'Executive User', email: 'executive@kalyx.com', password: 'executive', isAdmin: false, role: 'executive_task' },
-      { username: 'task_admin', name: 'Task Administrator', email: 'task_admin@kalyx.com', password: 'executive', isAdmin: true, role: 'executive_task' },
-      { username: 'joseph_diala', name: 'Joseph Diala', email: 'joseph@kalyx.com', password: 'password', isAdmin: false, role: 'executive_it' },
-      { username: 'it_executive', name: 'Executive IT', email: 'it_executive@kalyx.com', password: 'itadmin', isAdmin: false, role: 'executive_it' },
-      { username: 'it_admin', name: 'IT Administrator', email: 'it_admin@kalyx.com', password: 'itadmin', isAdmin: true, role: 'executive_it' }
+      { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: 'password', isAdmin: true, role: 'admin' }
     ];
 
     // Known plaintext passwords for backup users
     var knownPasswords = {
-      'superadmin': 'password',
-      'admin': 'password',
-      'executive': 'executive',
-      'task_admin': 'executive',
-      'joseph_diala': 'password',
-      'it_executive': 'itadmin',
-      'it_admin': 'itadmin'
+      'superadmin': 'password'
     };
 
     var backupData = null;
