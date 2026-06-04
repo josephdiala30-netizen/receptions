@@ -8,7 +8,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="/firebase-config.js"></script>
+  <script src="firebase-config.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 md:p-8">
   <div class="max-w-3xl mx-auto space-y-6">
@@ -113,25 +113,49 @@
         log('seedLog', 'Creating ' + acct.email + '...');
 
         try {
-          var userCred = await firebase.auth().createUserWithEmailAndPassword(acct.email, acct.password);
-          var uid = userCred.user.uid;
-          log('seedLog', '  Auth created: ' + uid);
-
-          var profileData = {
-            profile: {
-              username: acct.username,
-              name: acct.name,
-              email: acct.email,
-              isAdmin: acct.isAdmin,
-              role: acct.role
+          var methods = [];
+          var exists = false;
+          try {
+            methods = await firebase.auth().fetchSignInMethodsForEmail(acct.email);
+            if (methods && methods.length > 0) {
+              exists = true;
             }
-          };
+          } catch (e) {
+            // If fetchSignInMethodsForEmail fails (e.g. invalid key or network issue), we let the normal flow handle it
+          }
 
-          await firebase.firestore().collection('userdata').doc(uid).set(profileData, { merge: true });
-          log('seedLog', '  Profile saved');
-          setStatus(acct.username, 'Done', true);
+          if (exists) {
+            log('seedLog', '  Already exists');
+            setStatus(acct.username, 'Exists', true);
+            // Ensure profile exists
+            try {
+              var cred = await firebase.auth().signInWithEmailAndPassword(acct.email, acct.password);
+              var pd = { profile: { username: acct.username, name: acct.name, email: acct.email, isAdmin: acct.isAdmin, role: acct.role } };
+              await firebase.firestore().collection('userdata').doc(cred.user.uid).set(pd, { merge: true });
+              log('seedLog', '  Profile updated');
+              await firebase.auth().signOut();
+            } catch(e) { log('seedLog', '  Profile update failed: ' + e.message); }
+          } else {
+            var userCred = await firebase.auth().createUserWithEmailAndPassword(acct.email, acct.password);
+            var uid = userCred.user.uid;
+            log('seedLog', '  Auth created: ' + uid);
 
-          await firebase.auth().signOut();
+            var profileData = {
+              profile: {
+                username: acct.username,
+                name: acct.name,
+                email: acct.email,
+                isAdmin: acct.isAdmin,
+                role: acct.role
+              }
+            };
+
+            await firebase.firestore().collection('userdata').doc(uid).set(profileData, { merge: true });
+            log('seedLog', '  Profile saved');
+            setStatus(acct.username, 'Done', true);
+
+            await firebase.auth().signOut();
+          }
         } catch (err) {
           if (err.code === 'auth/email-already-in-use') {
             log('seedLog', '  Already exists');
@@ -144,6 +168,8 @@
               await firebase.auth().signOut();
             } catch(e) { log('seedLog', '  Profile update failed: ' + e.message); }
           } else {
+            console.error("====== REAL ERROR ======", err.code, err.message);
+            alert("Firebase Error: " + err.message + "\n\nError Code: " + err.code);
             log('seedLog', '  ERROR: ' + err.message);
             setStatus(acct.username, 'Error', false);
           }

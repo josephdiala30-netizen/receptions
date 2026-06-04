@@ -11,14 +11,7 @@ function initFirebase(callback) {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       window.__fbUser = user;
-      // Try to restore session from localStorage first
-      var localSession = JSON.parse(localStorage.getItem('session') || 'null');
-      if (localSession && localSession.loggedIn && localSession.firebaseUid === user.uid) {
-        window.__fbLoaded = true;
-        if (callback) callback(null, user);
-        return;
-      }
-      // Load data from Firestore
+      // Always load latest data from Firestore to ensure synchronization across browsers
       loadFBData(user.uid, function(err) {
         if (callback) callback(err, user);
       });
@@ -36,8 +29,24 @@ function loadFBData(uid, callback) {
   firebase.firestore().collection('userdata').doc(uid).get()
     .then(function(doc) {
       if (doc.exists) {
-        window.__fbCache = doc.data() || {};
+        var data = doc.data() || {};
+        window.__fbCache = data;
         window.__fbLoaded = true;
+
+        var username = data.profile ? data.profile.username : null;
+        if (username) {
+          syncCacheToLocalStorage(username);
+        }
+
+        // If the document has profile but no other data keys (seeded but empty),
+        // we run migration to upload any existing local data.
+        var dataKeys = Object.keys(data).filter(function(k) { return k !== 'profile'; });
+        if (dataKeys.length === 0) {
+          migrateLocalStorage(uid, function() {
+            if (callback) callback();
+          });
+          return;
+        }
       } else {
         // First login — try migrating from localStorage
         window.__fbCache = {};
@@ -53,6 +62,24 @@ function loadFBData(uid, callback) {
       console.error('Firestore load error:', err);
       if (callback) callback(err);
     });
+}
+
+// Sync cached Firestore data back to localStorage for offline support and UI compatibility
+function syncCacheToLocalStorage(username) {
+  if (!username) return;
+  var cache = window.__fbCache || {};
+  
+  if (cache.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(cache.tasks));
+  if (cache.plans) localStorage.setItem('plans_' + username, JSON.stringify(cache.plans));
+  if (cache.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(cache.dailylog));
+  if (cache.trips) localStorage.setItem('trips_' + username, JSON.stringify(cache.trips));
+  if (cache.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(cache.milestones));
+  
+  Object.keys(cache).forEach(function(k) {
+    if (k.indexOf('it_') === 0) {
+      localStorage.setItem(k + '_' + username, JSON.stringify(cache[k]));
+    }
+  });
 }
 
 // Save data to Firestore (merge into user doc)
@@ -132,7 +159,10 @@ function migrateLocalStorage(uid, callback) {
     try {
       var val = JSON.parse(localStorage.getItem(k));
       if (Array.isArray(val) && val.length > 0) {
-        migrated[k] = val;
+        // Strip the '_username' suffix to match the Firestore keys that the app uses
+        var suffix = '_' + username;
+        var fbKey = k.endsWith(suffix) ? k.slice(0, -suffix.length) : k;
+        migrated[fbKey] = val;
         count++;
       }
     } catch(e) {}
