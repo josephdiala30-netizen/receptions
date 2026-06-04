@@ -5,14 +5,17 @@
 window.__fbCache = {};
 window.__fbLoaded = false;
 window.__fbUser = null;
+window.__fbUnsubscribe = null;
 
 // Initialize Firebase Auth state listener
 function initFirebase(callback) {
   firebase.auth().onAuthStateChanged(function(user) {
+    // Unsubscribe previous listener
+    if (window.__fbUnsubscribe) { window.__fbUnsubscribe(); window.__fbUnsubscribe = null; }
     if (user) {
       window.__fbUser = user;
-      // Always load latest data from Firestore to ensure synchronization across browsers
-      loadFBData(user.uid, function(err) {
+      // Use real-time snapshot listener for cross-browser sync
+      listenFBData(user.uid, function(err) {
         if (callback) callback(err, user);
       });
     } else {
@@ -24,10 +27,10 @@ function initFirebase(callback) {
   });
 }
 
-// Load all user data from Firestore into cache
-function loadFBData(uid, callback) {
-  firebase.firestore().collection('userdata').doc(uid).get()
-    .then(function(doc) {
+// Listen for real-time updates from Firestore (cross-browser sync)
+function listenFBData(uid, callback) {
+  window.__fbUnsubscribe = firebase.firestore().collection('userdata').doc(uid)
+    .onSnapshot(function(doc) {
       if (doc.exists) {
         var data = doc.data() || {};
         window.__fbCache = data;
@@ -38,10 +41,14 @@ function loadFBData(uid, callback) {
           syncCacheToLocalStorage(username);
         }
 
+        // Trigger re-render if UI callback is set
+        if (window.__fbOnUpdate) window.__fbOnUpdate(data);
+
         // If the document has profile but no other data keys (seeded but empty),
         // we run migration to upload any existing local data.
         var dataKeys = Object.keys(data).filter(function(k) { return k !== 'profile'; });
-        if (dataKeys.length === 0) {
+        if (dataKeys.length === 0 && !window.__fbMigrated) {
+          window.__fbMigrated = true;
           migrateLocalStorage(uid, function() {
             if (callback) callback();
           });
@@ -51,17 +58,24 @@ function loadFBData(uid, callback) {
         // First login — try migrating from localStorage
         window.__fbCache = {};
         window.__fbLoaded = true;
-        migrateLocalStorage(uid, function() {
-          if (callback) callback();
-        });
-        return;
+        if (!window.__fbMigrated) {
+          window.__fbMigrated = true;
+          migrateLocalStorage(uid, function() {
+            if (callback) callback();
+          });
+          return;
+        }
       }
-      if (callback) callback();
-    })
-    .catch(function(err) {
-      console.error('Firestore load error:', err);
-      if (callback) callback(err);
+      if (callback) { var cb = callback; callback = null; cb(); }
+    }, function(err) {
+      console.error('Firestore listener error:', err);
+      if (callback) { var cb = callback; callback = null; cb(err); }
     });
+}
+
+// Keep loadFBData for backward compatibility (now delegates to listenFBData)
+function loadFBData(uid, callback) {
+  listenFBData(uid, callback);
 }
 
 // Sync cached Firestore data back to localStorage for offline support and UI compatibility
@@ -93,6 +107,11 @@ function saveFB(key, data, callback) {
     .set({ [key]: data }, { merge: true })
     .then(function() { if (callback) callback(); })
     .catch(function(err) { console.error('Firestore save error:', err); if (callback) callback(err); });
+}
+
+// Set callback for real-time data changes (re-render UI)
+function fbOnUpdate(callback) {
+  window.__fbOnUpdate = callback;
 }
 
 // Read from cache

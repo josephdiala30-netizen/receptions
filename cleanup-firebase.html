@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Cleanup Firebase</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="/firebase-config.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+  <div class="max-w-3xl mx-auto space-y-6">
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h1 class="text-2xl font-bold text-gray-800 mb-1">Cleanup Firebase</h1>
+      <p class="text-sm text-gray-500 mb-6">Remove all accounts except <strong>superadmin</strong> and clear all task data.</p>
+
+      <!-- Step 1: Clear superadmin's data -->
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+        <h2 class="font-bold text-blue-800">Step 1: Clear all tasks &amp; data (keeps profile)</h2>
+        <p class="text-xs text-blue-600 mt-1">Signs in as superadmin and removes all tasks, services, etc. from Firestore.</p>
+        <button id="step1Btn" onclick="step1ClearData()" class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-xl font-bold text-sm hover:bg-blue-700 transition">Run Step 1</button>
+        <span id="status1" class="text-xs text-gray-400 ml-3">Pending</span>
+      </div>
+
+      <!-- Step 2: Delete other users' Firestore data & Auth accounts -->
+      <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+        <h2 class="font-bold text-red-800">Step 2: Remove other user accounts</h2>
+        <p class="text-xs text-red-600 mt-1">Deletes Firestore data and Firebase Auth accounts for: admin, executive, task_admin, joseph_diala, it_executive, it_admin.</p>
+        <button id="step2Btn" onclick="step2RemoveUsers()" class="mt-3 bg-red-600 text-white px-5 py-2 rounded-xl font-bold text-sm hover:bg-red-700 transition">Run Step 2</button>
+        <span id="status2" class="text-xs text-gray-400 ml-3">Pending</span>
+      </div>
+
+      <!-- Login info -->
+      <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+        <h2 class="font-bold text-green-800">After cleanup</h2>
+        <p class="text-xs text-green-700 mt-1">
+          Only <strong>superadmin</strong> / <strong>superadmin@kalyx.com</strong> with password <strong>password</strong> will remain.<br/>
+          Login at: <a href="login/" class="underline">login page</a>
+        </p>
+      </div>
+
+      <!-- Log -->
+      <div id="log" class="mt-4 text-sm font-mono bg-gray-900 text-green-400 rounded-xl p-4 h-64 overflow-y-auto hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    var accounts = [
+      { username: 'admin', email: 'admin@kalyx.com', password: 'password' },
+      { username: 'executive', email: 'executive@kalyx.com', password: 'executive' },
+      { username: 'task_admin', email: 'task_admin@kalyx.com', password: 'executive' },
+      { username: 'joseph_diala', email: 'joseph@kalyx.com', password: 'password' },
+      { username: 'it_executive', email: 'it_executive@kalyx.com', password: 'itadmin' },
+      { username: 'it_admin', email: 'it_admin@kalyx.com', password: 'itadmin' }
+    ];
+
+    function logMsg(msg) {
+      var el = document.getElementById('log');
+      el.classList.remove('hidden');
+      el.innerHTML += '> ' + msg + '<br>';
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function setStatus(id, msg, ok) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = msg; el.className = 'text-xs ml-3 ' + (ok ? 'text-green-600 font-semibold' : msg === 'Pending' ? 'text-gray-400' : 'text-red-500'); }
+    }
+
+    // Step 1: Sign in as superadmin and clear all data keys
+    async function step1ClearData() {
+      var btn = document.getElementById('step1Btn');
+      btn.disabled = true; btn.textContent = 'Running...';
+      setStatus('status1', 'Signing in...', false);
+      logMsg('=== Step 1: Clear superadmin data ===');
+
+      try {
+        var cred = await firebase.auth().signInWithEmailAndPassword('superadmin@kalyx.com', 'password');
+        var uid = cred.user.uid;
+        logMsg('Signed in as superadmin. UID: ' + uid);
+
+        // Clear all data keys but keep profile
+        var docRef = firebase.firestore().collection('userdata').doc(uid);
+        var doc = await docRef.get();
+        if (doc.exists) {
+          var data = doc.data();
+          var profile = data.profile || {};
+          // Save only profile back
+          await docRef.set({ profile: profile }, { merge: false });
+          logMsg('All data cleared. Profile kept: ' + (profile.username || 'superadmin'));
+        } else {
+          logMsg('No Firestore doc found — nothing to clear.');
+        }
+
+        await firebase.auth().signOut();
+        logMsg('Signed out.');
+        setStatus('status1', 'Done!', true);
+        btn.textContent = 'Completed';
+        btn.className = 'mt-3 bg-green-600 text-white px-5 py-2 rounded-xl font-bold text-sm';
+      } catch (err) {
+        logMsg('ERROR: ' + err.message);
+        setStatus('status1', 'Error', false);
+        btn.disabled = false; btn.textContent = 'Run Step 1';
+      }
+    }
+
+    // Step 2: Delete other users' Firestore data + Auth accounts
+    async function step2RemoveUsers() {
+      var btn = document.getElementById('step2Btn');
+      btn.disabled = true; btn.textContent = 'Running...';
+      setStatus('status2', 'Starting...', false);
+      logMsg('=== Step 2: Remove other users ===');
+      logMsg('Note: Will sign in as each user, delete their data, then delete their Auth account.');
+      logMsg('');
+
+      for (var i = 0; i < accounts.length; i++) {
+        var acct = accounts[i];
+        logMsg('--- Processing: ' + acct.username + ' (' + acct.email + ') ---');
+
+        try {
+          // Sign in
+          var cred = await firebase.auth().signInWithEmailAndPassword(acct.email, acct.password);
+          var uid = cred.user.uid;
+          logMsg('Signed in. UID: ' + uid);
+
+          // Delete Firestore data
+          try {
+            await firebase.firestore().collection('userdata').doc(uid).delete();
+            logMsg('Firestore data deleted.');
+          } catch (fsErr) {
+            logMsg('Firestore delete skipped: ' + fsErr.message);
+          }
+
+          // Delete Auth account
+          await cred.user.delete();
+          logMsg('Auth account deleted successfully.');
+        } catch (err) {
+          if (err.code === 'auth/user-not-found') {
+            logMsg('User not found in Auth — already deleted.');
+          } else {
+            logMsg('ERROR for ' + acct.email + ': ' + err.message);
+          }
+        }
+      }
+
+      logMsg('');
+      logMsg('=== Step 2 Complete ===');
+      logMsg('Remaining accounts: superadmin only.');
+      logMsg('NOTE: If some accounts could not be deleted automatically,');
+      logMsg('visit Firebase Console → Authentication → delete manually.');
+      setStatus('status2', 'Done!', true);
+      btn.textContent = 'Completed';
+      btn.className = 'mt-3 bg-green-600 text-white px-5 py-2 rounded-xl font-bold text-sm';
+    }
+  </script>
+</body>
+</html>
