@@ -236,6 +236,17 @@ function fbLogin(email, password, callback) {
             window.__fbCache = {};
             window.__fbLoaded = true;
           }
+          // Merge local user data into profile — localStorage is authoritative for role/isAdmin
+          var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+          var localUser = localUsers.find(function(u) {
+            return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
+          });
+          if (localUser) {
+            if (localUser.isAdmin !== undefined && localUser.isAdmin !== null) profile.isAdmin = localUser.isAdmin;
+            if (localUser.role) profile.role = localUser.role;
+            if (!profile.username) profile.username = localUser.username;
+            if (!profile.name) profile.name = localUser.name;
+          }
           var session = {
             username: profile.username || user.email.split('@')[0],
             name: profile.name || user.displayName || profile.username || user.email.split('@')[0],
@@ -247,17 +258,22 @@ function fbLogin(email, password, callback) {
             timestamp: Date.now()
           };
           fbSaveSession(session);
+          // Sync Firestore profile with correct admin data if it was mismatched
+          var updatedProfile = { username: session.username, name: session.name, email: session.email, isAdmin: session.isAdmin, role: session.role };
+          firebase.firestore().collection('userdata').doc(user.uid).set({ profile: updatedProfile }, { merge: true }).catch(function(e) {});
           if (callback) callback(null, session);
         })
         .catch(function(err) {
           console.error('Profile read error:', err);
           // Fallback session even if Firestore read fails
+          var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+          var localUser = localUsers.find(function(u) { return u.email === user.email; });
           var session = {
             username: user.email.split('@')[0],
             name: user.email.split('@')[0],
             email: user.email,
-            isAdmin: false,
-            role: 'executive_path',
+            isAdmin: localUser ? localUser.isAdmin || false : false,
+            role: localUser ? (localUser.role || 'executive_path') : 'executive_path',
             firebaseUid: user.uid,
             loggedIn: true,
             timestamp: Date.now()
