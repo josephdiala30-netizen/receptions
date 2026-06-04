@@ -251,52 +251,48 @@
         return;
       }
 
-      // Try Firebase Auth FIRST (cross-browser sync)
-      if (typeof firebase !== 'undefined') {
-        fbLogin(loginInput, pass, function(loginErr, session) {
-          if (loginErr) {
-            // Firebase failed — try localStorage as fallback
-            hashPass(pass).then(function(hash) {
-              var users = JSON.parse(localStorage.getItem('users') || '[]');
-              var found = users.find(function(u) {
-                return (u.username === loginInput || u.email === loginInput) && (u.password === hash || u.password === pass);
-              });
-              if (found) {
-                var role = found.role || 'executive_path';
-                localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
-                // Create Firebase account in background for future cross-browser login
-                if (found.email && found.email.indexOf('@') > 0) {
-                  migrateLegacyUser(found, pass);
-                }
-                window.location.href = getBaseUrl() + role + '/';
-              } else {
+      // Check LocalStorage FIRST for instant login (solves 30-40s delay)
+      hashPass(pass).then(function(hash) {
+        var users = JSON.parse(localStorage.getItem('users') || '[]');
+        var found = users.find(function(u) {
+          return (u.username === loginInput || u.email === loginInput) && (u.password === hash || u.password === pass);
+        });
+
+        if (found) {
+          var role = found.role || 'executive_path';
+          localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
+          // Create Firebase account in background for future cross-browser login
+          if (typeof firebase !== 'undefined' && found.email && found.email.indexOf('@') > 0) {
+            migrateLegacyUser(found, pass);
+          }
+          window.location.href = getBaseUrl() + role + '/';
+        } else {
+          // Fallback to Firebase if not found locally
+          if (typeof firebase !== 'undefined') {
+            // Add a timeout so it doesn't hang forever on slow networks
+            var fbTimeout = setTimeout(function() {
+              setLoading(false);
+              errEl.textContent = 'Login timeout. Please check your connection.';
+              errEl.classList.remove('hidden');
+            }, 10000); // 10s max wait
+
+            fbLogin(loginInput, pass, function(loginErr, session) {
+              clearTimeout(fbTimeout);
+              if (loginErr) {
                 setLoading(false);
                 errEl.textContent = 'Invalid email or password.';
                 errEl.classList.remove('hidden');
+              } else {
+                window.location.href = getBaseUrl() + session.role + '/';
               }
             });
-          } else {
-            window.location.href = getBaseUrl() + session.role + '/';
-          }
-        });
-      } else {
-        // No Firebase — localStorage only (try Firebase later when available)
-        hashPass(pass).then(function(hash) {
-          var users = JSON.parse(localStorage.getItem('users') || '[]');
-          var found = users.find(function(u) {
-            return (u.username === loginInput || u.email === loginInput) && (u.password === hash || u.password === pass);
-          });
-          if (found) {
-            var role = found.role || 'executive_path';
-            localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
-            window.location.href = getBaseUrl() + role + '/';
           } else {
             setLoading(false);
             errEl.textContent = 'Invalid email or password.';
             errEl.classList.remove('hidden');
           }
-        });
-      }
+        }
+      });
     }
 
     // Background migration of legacy user to Firebase Auth + Firestore
@@ -446,54 +442,48 @@
 
     updateRegisterVisibility();
 
-    // Check Firebase Auth FIRST — if authenticated, use Firestore profile
-    if (typeof firebase !== 'undefined') {
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user && !window.__fbRegistering) {
-          window.__fbUser = user;
-          firebase.firestore().collection('userdata').doc(user.uid).get()
-            .then(function(doc) {
-              var profile = doc.exists ? (doc.data().profile || {}) : {};
-              // Merge local user data into profile — localStorage is authoritative for role/isAdmin
-              var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-              var localUser = localUsers.find(function(u) {
-                return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
-              });
-              if (localUser) {
-                if (localUser.isAdmin !== undefined && localUser.isAdmin !== null) profile.isAdmin = localUser.isAdmin;
-                if (localUser.role) profile.role = localUser.role;
-                if (!profile.username) profile.username = localUser.username;
-                if (!profile.name) profile.name = localUser.name;
-              }
-              var sessionData = {
-                username: profile.username || user.email.split('@')[0],
-                name: profile.name || profile.username || user.email.split('@')[0],
-                email: user.email,
-                isAdmin: profile.isAdmin || false,
-                role: profile.role || 'executive_path',
-                firebaseUid: user.uid,
-                loggedIn: true,
-                timestamp: Date.now()
-              };
-              fbSaveSession(sessionData);
-              window.location.href = getBaseUrl() + sessionData.role + '/';
-            })
-            .catch(function(err) {
-              console.error('Auto-redirect profile read error:', err);
-            });
-        } else if (!user) {
-          // No Firebase user — check cached localStorage session
-          var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
-          if (existingSession && existingSession.loggedIn) {
-            window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
-          }
-        }
-      });
+    // Fast path: Check localStorage session immediately for instant redirect
+    var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
+    if (existingSession && existingSession.loggedIn) {
+      window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
     } else {
-      // Firebase not available — check localStorage session
-      var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
-      if (existingSession && existingSession.loggedIn) {
-        window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
+      // Check Firebase Auth if no local session exists
+      if (typeof firebase !== 'undefined') {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user && !window.__fbRegistering) {
+            window.__fbUser = user;
+            firebase.firestore().collection('userdata').doc(user.uid).get()
+              .then(function(doc) {
+                var profile = doc.exists ? (doc.data().profile || {}) : {};
+                // Merge local user data into profile
+                var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+                var localUser = localUsers.find(function(u) {
+                  return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
+                });
+                if (localUser) {
+                  if (localUser.isAdmin !== undefined && localUser.isAdmin !== null) profile.isAdmin = localUser.isAdmin;
+                  if (localUser.role) profile.role = localUser.role;
+                  if (!profile.username) profile.username = localUser.username;
+                  if (!profile.name) profile.name = localUser.name;
+                }
+                var sessionData = {
+                  username: profile.username || user.email.split('@')[0],
+                  name: profile.name || profile.username || user.email.split('@')[0],
+                  email: user.email,
+                  isAdmin: profile.isAdmin || false,
+                  role: profile.role || 'executive_path',
+                  firebaseUid: user.uid,
+                  loggedIn: true,
+                  timestamp: Date.now()
+                };
+                fbSaveSession(sessionData);
+                window.location.href = getBaseUrl() + sessionData.role + '/';
+              })
+              .catch(function(err) {
+                console.error('Auto-redirect profile read error:', err);
+              });
+          }
+        });
       }
     }
   </script>
