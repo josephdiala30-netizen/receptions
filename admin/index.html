@@ -663,19 +663,48 @@ function escapeHtml(str) {
 }
 
 function getUsers() {
-  var regular = JSON.parse(localStorage.getItem('users') || '[]');
+  var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
   // Merge legacy users_executive_it into single source
   var legacy = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
   if (legacy.length > 0) {
     legacy.forEach(function(u) {
-      if (!regular.some(function(r) { return r.username === u.username; })) {
-        regular.push(u);
+      if (!localUsers.some(function(r) { return r.username === u.username; })) {
+        localUsers.push(u);
       }
     });
-    localStorage.setItem('users', JSON.stringify(regular));
+    localStorage.setItem('users', JSON.stringify(localUsers));
     localStorage.removeItem('users_executive_it');
   }
-  return regular;
+
+  // Subukang kunin ang users mula sa Supabase (mas accurate)
+  // Gamit ang RPC para hindi ma-RLS block
+  if (typeof supabaseClient !== 'undefined') {
+    try {
+      supabaseClient.rpc('get_all_profiles').then(function(result) {
+        if (result.error) return;
+        var sbUsers = result.data || [];
+        var merged = localUsers.slice();
+        sbUsers.forEach(function(sb) {
+          var existing = merged.find(function(m) { return m.username === sb.username || m.email === sb.email; });
+          if (existing) {
+            // I-merge ang Supabase data (mas bago/mas accurate)
+            existing.role = sb.role || existing.role;
+            existing.name = sb.name || sb.username || existing.name;
+            existing.email = sb.email || existing.email;
+            existing.isAdmin = sb.is_admin || (sb.role === 'admin');
+          } else {
+            merged.push({ username: sb.username, name: sb.name || sb.username, email: sb.email || '', role: sb.role || 'executive_task', isAdmin: sb.is_admin || false });
+          }
+        });
+        // I-save ang merged sa localStorage para sa instant load next time
+        localStorage.setItem('users', JSON.stringify(merged));
+        renderUsers();
+        loadDashboard();
+      });
+    } catch(e) {}
+  }
+
+  return localUsers;
 }
 function saveUsers(users) {
   localStorage.setItem('users', JSON.stringify(users));
@@ -749,24 +778,20 @@ function loadDashboard() {
 function updateSupabaseProfile(email, profile) {
   var client = supabaseClient;
   if (!client) return;
-  client.from('profiles').select('id').eq('email', email).single()
-    .then(function(result) {
-      if (!result.error && result.data) {
-        client.from('profiles').update({
-          username: profile.username, name: profile.name, role: profile.role, is_admin: profile.isAdmin
-        }).eq('id', result.data.id).then(function() {
-          client.from('userdata').select('data').eq('id', result.data.id).single()
-            .then(function(uResult) {
-              var data = (!uResult.error && uResult.data) ? uResult.data.data : {};
-              data.profile = { username: profile.username, name: profile.name, email: email, role: profile.role, isAdmin: profile.isAdmin };
-              client.from('userdata').update({ data: data }).eq('id', result.data.id).catch(function(e) {});
-            });
-        });
-      }
-    })
-    .catch(function(err) {
-      console.error('Supabase profile update error:', err);
-    });
+  // Gamit ang RPC para hindi ma-RLS block
+  client.rpc('get_all_profiles').then(function(result) {
+    if (result.error || !result.data) return;
+    var found = result.data.find(function(p) { return p.email === email; });
+    if (!found) return;
+    client.rpc('admin_update_profile', {
+      p_user_id: found.id,
+      p_username: profile.username,
+      p_name: profile.name || profile.username,
+      p_email: email,
+      p_role: profile.role || 'executive_task',
+      p_is_admin: profile.isAdmin || false
+    }).catch(function(e) { console.error('Supabase profile update error:', e); });
+  });
 }
 
 async function hashPass(pass) {
@@ -898,6 +923,24 @@ function deleteUser(username) {
   saveUsers(users);
   ['tasks','plans','milestones','dailylog','trips'].forEach(function(k) { localStorage.removeItem(k + '_' + username); });
   ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(k) { localStorage.removeItem('it_' + k + '_' + username); });
+  localStorage.removeItem('welcome_' + username);
+  localStorage.removeItem('tutorial_' + username);
+
+  // Delete from Supabase din gamit ang RPC
+  var client = supabaseClient;
+  if (client) {
+    try {
+      // Hanapin ang user ID mula sa profiles
+      client.rpc('get_all_profiles').then(function(result) {
+        if (result.error || !result.data) return;
+        var found = result.data.find(function(p) { return p.username === username; });
+        if (found) {
+          client.rpc('admin_delete_user', { p_user_id: found.id }).catch(function(e) { console.error('Supabase delete error:', e); });
+        }
+      });
+    } catch(e) {}
+  }
+
   renderUsers();
   loadDashboard();
 }

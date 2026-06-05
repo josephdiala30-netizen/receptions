@@ -66,3 +66,105 @@ WHERE (raw_user_meta_data ->> 'role') IS NULL;
 
 -- 7. TANGGALIN ang is_admin() function (opsyonal, pero para malinis)
 DROP FUNCTION IF EXISTS public.is_admin();
+
+-- 8. RPC para makuha ang lahat ng users (admin lang, bypass RLS)
+CREATE OR REPLACE FUNCTION public.get_all_profiles()
+RETURNS SETOF public.profiles
+LANGUAGE plpgsql
+SECURITY DEFINER
+STABLE
+AS $$
+BEGIN
+  -- Admin lang ang pwedeng tumingin ng lahat ng profiles
+  IF EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = auth.uid()
+    AND raw_user_meta_data ->> 'role' = 'admin'
+  ) THEN
+    RETURN QUERY SELECT * FROM public.profiles ORDER BY username;
+  ELSE
+    RETURN QUERY SELECT * FROM public.profiles WHERE id = auth.uid();
+  END IF;
+END;
+$$;
+
+-- 9. RPC para i-update ang profile ng user (admin lang, bypass RLS)
+CREATE OR REPLACE FUNCTION public.admin_update_profile(
+  p_user_id UUID,
+  p_username TEXT,
+  p_name TEXT,
+  p_email TEXT,
+  p_role TEXT,
+  p_is_admin BOOLEAN
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Siguraduhing admin ang gumagawa
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = auth.uid()
+    AND raw_user_meta_data ->> 'role' = 'admin'
+  ) THEN
+    RETURN FALSE;
+  END IF;
+
+  -- Update sa profiles table
+  UPDATE public.profiles SET
+    username = p_username,
+    name = p_name,
+    email = p_email,
+    role = p_role,
+    is_admin = p_is_admin
+  WHERE id = p_user_id;
+
+  -- Update din sa auth.users para mag-reflect sa JWT
+  UPDATE auth.users SET raw_user_meta_data =
+    COALESCE(raw_user_meta_data, '{}'::jsonb) ||
+    jsonb_build_object(
+      'role', p_role,
+      'username', p_username,
+      'name', p_name,
+      'is_admin', p_is_admin
+    )
+  WHERE id = p_user_id;
+
+  -- Update sa userdata.profile para sa app
+  UPDATE public.userdata SET data = data || jsonb_build_object(
+    'profile', jsonb_build_object(
+      'username', p_username,
+      'name', p_name,
+      'email', p_email,
+      'role', p_role,
+      'isAdmin', p_is_admin
+    )
+  ) WHERE id = p_user_id;
+
+  RETURN TRUE;
+END;
+$$;
+
+-- 10. RPC para mag-delete ng user (admin lang)
+CREATE OR REPLACE FUNCTION public.admin_delete_user(p_user_id UUID)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = auth.uid()
+    AND raw_user_meta_data ->> 'role' = 'admin'
+  ) THEN
+    RETURN FALSE;
+  END IF;
+
+  DELETE FROM public.userdata WHERE id = p_user_id;
+  DELETE FROM public.profiles WHERE id = p_user_id;
+  -- Note: hindi pwedeng i-delete ang auth.users sa SQL dahil kailangan ng service_role
+  -- Pero pwede sa admin panel UI gamit ang supabase admin API
+  RETURN TRUE;
+END;
+$$;
