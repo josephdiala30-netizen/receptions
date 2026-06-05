@@ -274,7 +274,7 @@
               setLoading(false);
               errEl.textContent = 'Login timeout. Please check your connection.';
               errEl.classList.remove('hidden');
-            }, 10000); // 10s max wait
+            }, 30000); // 30s max wait
 
             fbLogin(loginInput, pass, function(loginErr, session) {
               clearTimeout(fbTimeout);
@@ -283,6 +283,19 @@
                 errEl.textContent = 'Invalid email or password.';
                 errEl.classList.remove('hidden');
               } else {
+                // Save user to localStorage for instant login next time
+                var users = JSON.parse(localStorage.getItem('users') || '[]');
+                if (!users.some(function(u) { return u.email === session.email || u.username === session.username; })) {
+                  users.push({
+                    username: session.username,
+                    name: session.name,
+                    email: session.email,
+                    password: hash,
+                    role: session.role,
+                    isAdmin: session.isAdmin
+                  });
+                  localStorage.setItem('users', JSON.stringify(users));
+                }
                 window.location.href = getBaseUrl() + session.role + '/';
               }
             });
