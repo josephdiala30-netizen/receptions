@@ -243,6 +243,8 @@
       var errEl = document.getElementById('loginError');
       errEl.classList.add('hidden');
       setLoading(true);
+      // Flag to prevent onAuthStateChanged from interfering
+      window.__fbLoggingIn = true;
 
       if (!loginInput || !pass) {
         errEl.textContent = 'Please enter email and password.';
@@ -271,6 +273,7 @@
           if (typeof firebase !== 'undefined') {
             // Add a timeout so it doesn't hang forever on slow networks
             var fbTimeout = setTimeout(function() {
+              window.__fbLoggingIn = false;
               setLoading(false);
               errEl.textContent = 'Login timeout. Please check your connection.';
               errEl.classList.remove('hidden');
@@ -278,6 +281,7 @@
 
             fbLogin(loginInput, pass, function(loginErr, session) {
               clearTimeout(fbTimeout);
+              window.__fbLoggingIn = false;
               if (loginErr) {
                 setLoading(false);
                 errEl.textContent = 'Invalid email or password.';
@@ -300,6 +304,7 @@
               }
             });
           } else {
+            window.__fbLoggingIn = false;
             setLoading(false);
             errEl.textContent = 'Invalid email or password.';
             errEl.classList.remove('hidden');
@@ -382,14 +387,18 @@
           return;
         }
 
-        // Save to localStorage users list so Admin portal can see this account
-        hashPass(pass).then(function(hash) {
-          var users = JSON.parse(localStorage.getItem('users') || '[]');
-          if (!users.some(function(u) { return u.username === user; })) {
-            users.push({ username: user, name: name, email: email, password: hash, role: role, isAdmin: false });
-            localStorage.setItem('users', JSON.stringify(users));
-          }
-        });
+        // Save to localStorage users list immediately (Admin portal uses this)
+        var users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (!users.some(function(u) { return u.username === user; })) {
+          users.push({ username: user, name: name, email: email, password: pass, role: role, isAdmin: false });
+          localStorage.setItem('users', JSON.stringify(users));
+          // Hash password in background for next login
+          hashPass(pass).then(function(hash) {
+            var users = JSON.parse(localStorage.getItem('users') || '[]');
+            var u = users.find(function(u) { return u.username === user; });
+            if (u) { u.password = hash; localStorage.setItem('users', JSON.stringify(users)); }
+          });
+        }
 
         // Clear inputs
         document.getElementById('regName').value = '';
@@ -443,13 +452,14 @@
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
         if (!k) continue;
+        // Skip users key — admin uses it as single source
+        if (k === 'users') continue;
         var match = k.match(/^(.+)_(.+)$/);
         if (match && removedAccounts.indexOf(match[2]) >= 0) {
           keysToRemove.push(k);
         }
       }
       keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
-      localStorage.removeItem('users_executive_it');
       if (keysToRemove.length > 0) console.log('Cleaned ' + keysToRemove.length + ' stale localStorage entries from removed accounts');
     })();
 
@@ -463,7 +473,7 @@
       // Check Firebase Auth if no local session exists
       if (typeof firebase !== 'undefined') {
         firebase.auth().onAuthStateChanged(function(user) {
-          if (user && !window.__fbRegistering) {
+          if (user && !window.__fbRegistering && !window.__fbLoggingIn) {
             window.__fbUser = user;
             firebase.firestore().collection('userdata').doc(user.uid).get()
               .then(function(doc) {

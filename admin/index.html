@@ -666,14 +666,21 @@ function escapeHtml(str) {
 
 function getUsers() {
   var regular = JSON.parse(localStorage.getItem('users') || '[]');
-  var it = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
-  return regular.concat(it);
+  // Merge legacy users_executive_it into single source
+  var legacy = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+  if (legacy.length > 0) {
+    legacy.forEach(function(u) {
+      if (!regular.some(function(r) { return r.username === u.username; })) {
+        regular.push(u);
+      }
+    });
+    localStorage.setItem('users', JSON.stringify(regular));
+    localStorage.removeItem('users_executive_it');
+  }
+  return regular;
 }
 function saveUsers(users) {
-  var regular = users.filter(function(u) { return u.role !== 'executive_it'; });
-  var it = users.filter(function(u) { return u.role === 'executive_it'; });
-  localStorage.setItem('users', JSON.stringify(regular));
-  localStorage.setItem('users_executive_it', JSON.stringify(it));
+  localStorage.setItem('users', JSON.stringify(users));
 }
 
 function collectUserData(username) {
