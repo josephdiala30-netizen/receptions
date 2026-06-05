@@ -7,9 +7,7 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../firebase-config.js"></script>
   <script src="../firebase-data.js"></script>
   <script>
@@ -263,14 +261,14 @@
         if (found) {
           var role = found.role || 'executive_path';
           localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
-          // Create Firebase account in background for future cross-browser login
-          if (typeof firebase !== 'undefined' && found.email && found.email.indexOf('@') > 0) {
+          // Create Supabase account in background for future cross-browser login
+          if (typeof supabaseClient !== 'undefined' && found.email && found.email.indexOf('@') > 0) {
             migrateLegacyUser(found, pass);
           }
           window.location.href = getBaseUrl() + role + '/';
         } else {
-          // Fallback to Firebase if not found locally
-          if (typeof firebase !== 'undefined') {
+          // Fallback to Supabase if not found locally
+          if (typeof supabaseClient !== 'undefined') {
             // Non-blocking indicator after 15s — just updates button text, never errors
             var slowNotice = setTimeout(function() {
               document.getElementById('loginBtnText').textContent = 'Still connecting…';
@@ -310,34 +308,37 @@
       });
     }
 
-    // Background migration of legacy user to Firebase Auth + Firestore
+    // Background migration of legacy user to Supabase Auth
     function migrateLegacyUser(found, pass) {
       var s = JSON.parse(localStorage.getItem('session') || '{}');
-      // Sign in if existing Firebase user, otherwise create
-      firebase.auth().signInWithEmailAndPassword(found.email, pass)
-        .catch(function(err) {
-          if (err.code === 'auth/user-not-found') {
-            return firebase.auth().createUserWithEmailAndPassword(found.email, pass);
-          }
-          throw err;
-        })
-        .then(function(result) {
-          var uid = result.user.uid;
-          s.firebaseUid = uid;
-          localStorage.setItem('session', JSON.stringify(s));
-          var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
-          var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
-          prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
-          var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
-          itTypes.forEach(function(t) { try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {} });
-          return firebase.firestore().collection('userdata').doc(uid).set(userData, { merge: true });
-        })
-        .then(function() {
-          console.log('Migration complete');
-        })
-        .catch(function(err) {
-          console.error('Migration error:', err);
+      var client = supabaseClient;
+      if (!client) return;
+      client.auth.signUp({
+        email: found.email,
+        password: pass,
+        options: { data: { username: found.username, name: found.name, role: found.role || 'executive_path', is_admin: found.isAdmin || false } }
+      }).then(function(result) {
+        if (result.error && result.error.message.indexOf('already') < 0) return;
+        var uid = result.data ? result.data.user.id : null;
+        if (!uid) return;
+        s.supabaseUid = uid;
+        localStorage.setItem('session', JSON.stringify(s));
+        var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
+        var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
+        prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
+        var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
+        itTypes.forEach(function(t) { try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {} });
+        client.from('profiles').upsert({
+          id: uid, username: found.username, name: found.name, email: found.email,
+          role: found.role || 'executive_path', is_admin: found.isAdmin || false
+        }, { onConflict: 'id' }).then(function() {
+          client.from('userdata').upsert({ id: uid, data: userData }, { onConflict: 'id' }).then(function() {
+            console.log('Migration to Supabase complete');
+          });
         });
+      }).catch(function(err) {
+        console.error('Migration error:', err);
+      });
     }
 
     function closeRegSuccess() {
@@ -372,7 +373,7 @@
 
       var role = document.getElementById('regRole').value;
 
-      // Register via Firebase Auth
+      // Register via Supabase Auth
       fbRegister(email, pass, { username: user, name: name, role: role, isAdmin: false }, function(regErr, session) {
         if (regErr) {
           var msg = regErr.message || regErr;
@@ -436,7 +437,7 @@
       }
 
       var usersIt = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
-      // No default IT accounts — users register via Firebase
+      // No default IT accounts — users register via Supabase
       if (usersIt.length > 0) {
         localStorage.setItem('users_executive_it', JSON.stringify(usersIt));
       }
@@ -467,14 +468,19 @@
     if (existingSession && existingSession.loggedIn) {
       window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
     } else {
-      // Check Firebase Auth if no local session exists
-      if (typeof firebase !== 'undefined') {
-        firebase.auth().onAuthStateChanged(function(user) {
-          if (user && !window.__fbRegistering && !window.__fbLoggingIn) {
-            window.__fbUser = user;
-            firebase.firestore().collection('userdata').doc(user.uid).get()
-              .then(function(doc) {
-                var profile = doc.exists ? (doc.data().profile || {}) : {};
+      // Check Supabase Auth if no local session exists
+      if (typeof supabaseClient !== 'undefined') {
+        supabaseClient.auth.getSession().then(function(result) {
+          var session = result.data.session;
+          if (session && !window.__fbRegistering && !window.__fbLoggingIn) {
+            var user = session.user;
+            window.__fbUser = { uid: user.id, email: user.email };
+            supabaseClient.from('profiles').select('*').eq('id', user.id).single()
+              .then(function(pResult) {
+                var profile = {};
+                if (!pResult.error && pResult.data) {
+                  profile = { username: pResult.data.username, name: pResult.data.name, email: pResult.data.email, isAdmin: pResult.data.is_admin, role: pResult.data.role };
+                }
                 // Merge local user data into profile
                 var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
                 var localUser = localUsers.find(function(u) {
@@ -492,7 +498,7 @@
                   email: user.email,
                   isAdmin: profile.isAdmin || false,
                   role: profile.role || 'executive_path',
-                  firebaseUid: user.uid,
+                  supabaseUid: user.id,
                   loggedIn: true,
                   timestamp: Date.now()
                 };

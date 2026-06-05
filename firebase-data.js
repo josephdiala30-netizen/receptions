@@ -1,24 +1,43 @@
-// ==================== FIREBASE DATA LAYER ====================
-// Handles Firestore reads/writes with a synchronous cache
-// so existing code (getData/saveData) continues to work.
+// ==================== SUPABASE DATA LAYER (replaces Firebase) ====================
+// Maintains same function signatures as before so all pages work without changes.
+// Firestore → Supabase PostgreSQL + Realtime
+// Auth → Supabase Auth
 
 window.__fbCache = {};
 window.__fbLoaded = false;
 window.__fbUser = null;
 window.__fbUnsubscribe = null;
+window.__fbAuthListener = null;
 
-// Initialize Firebase Auth state listener
+// Get the Supabase client
+function getClient() {
+  if (typeof supabaseClient !== 'undefined') return supabaseClient;
+  if (typeof supabase !== 'undefined') {
+    return supabase.createClient(
+      SUPABASE_URL || 'https://xhweqrlyppvtksqbqrne.supabase.co',
+      SUPABASE_ANON_KEY || 'sb_publishable_UMaXwhml3R_i0HFxYDuzXg_LtFmx96A',
+      { auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false } }
+    );
+  }
+  return null;
+}
+
+// Initialize Supabase Auth state listener
 function initFirebase(callback) {
-  firebase.auth().onAuthStateChanged(function(user) {
-    // Unsubscribe previous real-time listener
-    if (window.__fbUnsubscribe) { window.__fbUnsubscribe(); window.__fbUnsubscribe = null; }
-    if (user) {
-      window.__fbUser = user;
-      // Load data from Firestore (one-time read)
-      loadFBData(user.uid, function(err) {
-        // Set up real-time listener for cross-browser sync
-        fbSubscribe(user.uid);
-        if (callback) callback(err, user);
+  var client = getClient();
+  if (!client) {
+    if (callback) callback('Supabase not loaded');
+    return;
+  }
+
+  // Check existing session first
+  client.auth.getSession().then(function(result) {
+    var session = result.data.session;
+    if (session) {
+      window.__fbUser = { uid: session.user.id, email: session.user.email };
+      loadFBData(session.user.id, function(err) {
+        fbSubscribe(session.user.id);
+        if (callback) callback(err, window.__fbUser);
       });
     } else {
       window.__fbUser = null;
@@ -26,75 +45,123 @@ function initFirebase(callback) {
       window.__fbLoaded = false;
       if (callback) callback(null, null);
     }
+  }).catch(function(err) {
+    console.error('Supabase session check error:', err);
+    if (callback) callback(err);
   });
+
+  // Remove previous listener if any
+  if (window.__fbAuthListener) {
+    try { window.__fbAuthListener.subscription.unsubscribe(); } catch(e) {}
+    window.__fbAuthListener = null;
+  }
+
+  // Listen for auth changes
+  var authResult = client.auth.onAuthStateChange(function(event, session) {
+    if (window.__fbRegistering) return;
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+      window.__fbUser = { uid: session.user.id, email: session.user.email };
+      loadFBData(session.user.id, function() {
+        fbSubscribe(session.user.id);
+      });
+    } else if (event === 'SIGNED_OUT') {
+      window.__fbUser = null;
+      window.__fbCache = {};
+      window.__fbLoaded = false;
+      if (window.__fbUnsubscribe) {
+        window.__fbUnsubscribe();
+        window.__fbUnsubscribe = null;
+      }
+    }
+  });
+  window.__fbAuthListener = authResult.data ? authResult.data : authResult;
 }
 
-// Load all user data from Firestore into cache (one-time read)
+// Load all user data from Supabase into cache (one-time read)
 function loadFBData(uid, callback) {
-  firebase.firestore().collection('userdata').doc(uid).get()
-    .then(function(doc) {
-      if (doc.exists) {
-        var data = doc.data() || {};
-        window.__fbCache = data;
-        window.__fbLoaded = true;
+  var client = getClient();
+  if (!client) {
+    if (callback) callback('Supabase not loaded');
+    return;
+  }
 
-        var username = data.profile ? data.profile.username : null;
-        if (username) syncCacheToLocalStorage(username);
-
-        // If profile exists but no data keys, migrate from localStorage
-        var dataKeys = Object.keys(data).filter(function(k) { return k !== 'profile'; });
-        if (dataKeys.length === 0) {
-          migrateLocalStorage(uid, function() {
+  client.from('userdata').select('data').eq('id', uid).single()
+    .then(function(result) {
+      if (result.error) {
+        if (result.error.code === 'PGRST116') {
+          // No row yet - create one
+          window.__fbCache = {};
+          window.__fbLoaded = true;
+          client.from('userdata').insert({ id: uid, data: {} }).then(function() {
             if (callback) callback();
+          }).catch(function(err) {
+            console.error('Supabase userdata insert error:', err);
+            if (callback) callback(err);
           });
           return;
         }
-      } else {
-        window.__fbCache = {};
-        window.__fbLoaded = true;
-        migrateLocalStorage(uid, function() {
-          if (callback) callback();
-        });
+        console.error('Supabase load error:', result.error);
+        if (callback) callback(result.error);
         return;
       }
+      var data = result.data.data || {};
+      window.__fbCache = data;
+      window.__fbLoaded = true;
+
+      var username = data.profile ? data.profile.username : null;
+      if (username) syncCacheToLocalStorage(username);
+
       if (callback) callback();
     })
     .catch(function(err) {
-      console.error('Firestore load error:', err);
+      console.error('Supabase load error:', err);
       if (callback) callback(err);
     });
 }
 
-// Set up real-time listener for cross-browser sync (optional, called after init)
+// Set up real-time listener for cross-browser sync
 function fbSubscribe(uid, onUpdate) {
-  if (window.__fbUnsubscribe) { window.__fbUnsubscribe(); }
-  window.__fbUnsubscribe = firebase.firestore().collection('userdata').doc(uid)
-    .onSnapshot(function(doc) {
-      if (doc.exists) {
-        var data = doc.data() || {};
-        window.__fbCache = data;
-        window.__fbLoaded = true;
-        var username = data.profile ? data.profile.username : null;
-        if (username) syncCacheToLocalStorage(username);
-        if (onUpdate) onUpdate(data);
-        if (window.__fbOnUpdate) window.__fbOnUpdate(data);
+  var client = getClient();
+  if (!client) return;
+
+  if (window.__fbUnsubscribe) {
+    window.__fbUnsubscribe();
+    window.__fbUnsubscribe = null;
+  }
+
+  // Use Supabase Realtime
+  var channel = client.channel('userdata-' + uid)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'userdata', filter: 'id=eq.' + uid },
+      function(payload) {
+        if (payload.new && payload.new.data) {
+          window.__fbCache = payload.new.data;
+          window.__fbLoaded = true;
+          var username = payload.new.data.profile ? payload.new.data.profile.username : null;
+          if (username) syncCacheToLocalStorage(username);
+          if (onUpdate) onUpdate(payload.new.data);
+          if (window.__fbOnUpdate) window.__fbOnUpdate(payload.new.data);
+        }
       }
-    }, function(err) {
-      console.error('Firestore listener error:', err);
-    });
+    )
+    .subscribe();
+
+  window.__fbUnsubscribe = function() {
+    client.removeChannel(channel);
+  };
 }
 
-// Sync cached Firestore data back to localStorage for offline support and UI compatibility
+// Sync cached data back to localStorage for offline support
 function syncCacheToLocalStorage(username) {
   if (!username) return;
   var cache = window.__fbCache || {};
-  
+
   if (cache.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(cache.tasks));
   if (cache.plans) localStorage.setItem('plans_' + username, JSON.stringify(cache.plans));
   if (cache.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(cache.dailylog));
   if (cache.trips) localStorage.setItem('trips_' + username, JSON.stringify(cache.trips));
   if (cache.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(cache.milestones));
-  
+
   Object.keys(cache).forEach(function(k) {
     if (k.indexOf('it_') === 0) {
       localStorage.setItem(k + '_' + username, JSON.stringify(cache[k]));
@@ -102,20 +169,41 @@ function syncCacheToLocalStorage(username) {
   });
 }
 
-// Save data to Firestore (merge into user doc)
+// Save data to Supabase (upsert into JSONB data column)
 function saveFB(key, data, callback) {
   window.__fbCache[key] = data;
+  saveFBFull(callback);
+}
+
+function saveFBFull(callback) {
+  var client = getClient();
+  if (!client) {
+    if (callback) callback('Supabase not loaded');
+    return;
+  }
   if (!window.__fbUser) {
     if (callback) callback('Not authenticated');
     return;
   }
-  firebase.firestore().collection('userdata').doc(window.__fbUser.uid)
-    .set({ [key]: data }, { merge: true })
-    .then(function() { if (callback) callback(); })
-    .catch(function(err) { console.error('Firestore save error:', err); if (callback) callback(err); });
+  client.from('userdata').upsert(
+    { id: window.__fbUser.uid, data: window.__fbCache, updated_at: new Date().toISOString() },
+    { onConflict: 'id' }
+  )
+  .then(function(result) {
+    if (result.error) {
+      console.error('Supabase save error:', result.error);
+      if (callback) callback(result.error);
+    } else {
+      if (callback) callback();
+    }
+  })
+  .catch(function(err) {
+    console.error('Supabase save error:', err);
+    if (callback) callback(err);
+  });
 }
 
-// Set callback for real-time data changes (re-render UI)
+// Set callback for real-time data changes
 function fbOnUpdate(callback) {
   window.__fbOnUpdate = callback;
 }
@@ -127,8 +215,6 @@ function getFB(key) {
 }
 
 // ==================== SESSION HELPERS ====================
-// Keep localStorage session for backward compatibility with existing UI code.
-// Firebase Auth is the source of truth; session is updated on auth changes.
 
 function fbGetSession() {
   return JSON.parse(localStorage.getItem('session') || 'null');
@@ -143,20 +229,17 @@ function fbClearSession() {
 }
 
 // ==================== MIGRATION ====================
-// One-time migration from localStorage to Firestore.
-// Called automatically on first login with Firebase.
+// One-time migration from localStorage to Supabase
 
 function migrateLocalStorage(uid, callback) {
   var migrated = {};
   var count = 0;
 
-  // Collect all localStorage keys
   var keys = [];
   for (var i = 0; i < localStorage.length; i++) {
     keys.push(localStorage.key(i));
   }
 
-  // Filter keys that belong to this user (session username)
   var session = JSON.parse(localStorage.getItem('session') || 'null');
   var username = session ? session.username : null;
 
@@ -165,7 +248,6 @@ function migrateLocalStorage(uid, callback) {
     return;
   }
 
-  // Find user-specific keys
   var userKeys = keys.filter(function(k) {
     return k.indexOf('tasks_' + username) === 0 ||
            k.indexOf('plans_' + username) === 0 ||
@@ -175,7 +257,6 @@ function migrateLocalStorage(uid, callback) {
            k.indexOf('it_') === 0 && k.indexOf('_' + username) > 0;
   });
 
-  // Also migrate welcome_ and tutorial_ flags
   var flags = keys.filter(function(k) {
     return k === 'welcome_' + username || k === 'tutorial_' + username;
   });
@@ -184,7 +265,6 @@ function migrateLocalStorage(uid, callback) {
     try {
       var val = JSON.parse(localStorage.getItem(k));
       if (Array.isArray(val) && val.length > 0) {
-        // Strip the '_username' suffix to match the Firestore keys that the app uses
         var suffix = '_' + username;
         var fbKey = k.endsWith(suffix) ? k.slice(0, -suffix.length) : k;
         migrated[fbKey] = val;
@@ -199,73 +279,127 @@ function migrateLocalStorage(uid, callback) {
   });
 
   if (count > 0) {
-    firebase.firestore().collection('userdata').doc(uid)
-      .set(migrated, { merge: true })
-      .then(function() {
-        console.log('Migrated ' + count + ' localStorage keys to Firestore.');
-        // Reload cache
-        loadFBData(uid, callback);
-      })
-      .catch(function(err) {
-        console.error('Migration error:', err);
-        if (callback) callback(err);
-      });
+    var client = getClient();
+    if (!client) {
+      if (callback) callback('Supabase not loaded');
+      return;
+    }
+    client.from('userdata').upsert(
+      { id: uid, data: migrated, updated_at: new Date().toISOString() },
+      { onConflict: 'id' }
+    )
+    .then(function() {
+      console.log('Migrated ' + count + ' localStorage keys to Supabase.');
+      loadFBData(uid, callback);
+    })
+    .catch(function(err) {
+      console.error('Migration error:', err);
+      if (callback) callback(err);
+    });
   } else {
     if (callback) callback();
   }
 }
 
-// ==================== FIREBASE AUTH WRAPPERS ====================
+// ==================== SUPABASE AUTH WRAPPERS ====================
 
 function fbLogin(email, password, callback) {
-  firebase.auth().signInWithEmailAndPassword(email, password)
+  var client = getClient();
+  if (!client) {
+    if (callback) callback({ message: 'Supabase not loaded' });
+    return;
+  }
+
+  client.auth.signInWithPassword({ email: email, password: password })
     .then(function(result) {
-      var user = result.user;
-      window.__fbUser = user;
-      // Lightweight login: read only the profile, redirect immediately
-      // Full data loads asynchronously on the target page via initAuth
-      firebase.firestore().collection('userdata').doc(user.uid).get()
-        .then(function(doc) {
+      if (result.error) {
+        if (callback) callback(result.error);
+        return;
+      }
+      var user = result.data.user;
+      window.__fbUser = { uid: user.id, email: user.email };
+
+      // Read profile from Supabase
+      client.from('profiles').select('*').eq('id', user.id).single()
+        .then(function(pResult) {
           var profile = {};
-          if (doc.exists) {
-            var data = doc.data() || {};
-            window.__fbCache = data;
-            window.__fbLoaded = true;
-            profile = data.profile || {};
-          } else {
-            window.__fbCache = {};
-            window.__fbLoaded = true;
+          if (!pResult.error && pResult.data) {
+            profile = {
+              username: pResult.data.username,
+              name: pResult.data.name,
+              email: pResult.data.email,
+              isAdmin: pResult.data.is_admin,
+              role: pResult.data.role
+            };
           }
-          // Merge local user data into profile — localStorage is authoritative for role/isAdmin
-          var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-          var localUser = localUsers.find(function(u) {
-            return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
-          });
-          if (localUser) {
-            if (localUser.isAdmin !== undefined && localUser.isAdmin !== null) profile.isAdmin = localUser.isAdmin;
-            if (localUser.role) profile.role = localUser.role;
-            if (!profile.username) profile.username = localUser.username;
-            if (!profile.name) profile.name = localUser.name;
-          }
-          var session = {
-            username: profile.username || user.email.split('@')[0],
-            name: profile.name || user.displayName || profile.username || user.email.split('@')[0],
-            email: user.email,
-            isAdmin: profile.isAdmin || false,
-            role: profile.role || 'executive_path',
-            firebaseUid: user.uid,
-            loggedIn: true,
-            timestamp: Date.now()
-          };
-          fbSaveSession(session);
-          // Sync Firestore profile with correct admin data if it was mismatched
-          var updatedProfile = { username: session.username, name: session.name, email: session.email, isAdmin: session.isAdmin, role: session.role };
-          firebase.firestore().collection('userdata').doc(user.uid).set({ profile: updatedProfile }, { merge: true }).catch(function(e) {});
-          if (callback) callback(null, session);
+
+          // Load userdata into cache
+          client.from('userdata').select('data').eq('id', user.id).single()
+            .then(function(uResult) {
+              if (!uResult.error && uResult.data) {
+                window.__fbCache = uResult.data.data || {};
+                window.__fbLoaded = true;
+              } else {
+                window.__fbCache = {};
+                window.__fbLoaded = true;
+              }
+
+              // Merge local user data
+              var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+              var localUser = localUsers.find(function(u) {
+                return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
+              });
+              if (localUser) {
+                if (localUser.isAdmin !== undefined && localUser.isAdmin !== null) profile.isAdmin = localUser.isAdmin;
+                if (localUser.role) profile.role = localUser.role;
+                if (!profile.username) profile.username = localUser.username;
+                if (!profile.name) profile.name = localUser.name;
+              }
+
+              var session = {
+                username: profile.username || user.email.split('@')[0],
+                name: profile.name || profile.username || user.email.split('@')[0],
+                email: user.email,
+                isAdmin: profile.isAdmin || false,
+                role: profile.role || 'executive_path',
+                supabaseUid: user.id,
+                loggedIn: true,
+                timestamp: Date.now()
+              };
+              fbSaveSession(session);
+
+              // Sync profile back to Supabase if mismatch
+              var updatedProfile = { username: session.username, name: session.name, email: session.email, isAdmin: session.isAdmin, role: session.role };
+              client.from('profiles').upsert({
+                id: user.id,
+                username: updatedProfile.username,
+                name: updatedProfile.name,
+                email: updatedProfile.email,
+                role: updatedProfile.role,
+                is_admin: updatedProfile.isAdmin
+              }).catch(function(e) { console.error('Profile sync error:', e); });
+
+              if (callback) callback(null, session);
+            })
+            .catch(function(err) {
+              console.error('Userdata read error:', err);
+              var session = {
+                username: user.email.split('@')[0],
+                name: user.email.split('@')[0],
+                email: user.email,
+                isAdmin: false,
+                role: 'executive_path',
+                supabaseUid: user.id,
+                loggedIn: true,
+                timestamp: Date.now()
+              };
+              fbSaveSession(session);
+              if (callback) callback(null, session);
+            });
         })
         .catch(function(err) {
           console.error('Profile read error:', err);
-          // Fallback session even if Firestore read fails
+          // Fallback session
           var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
           var localUser = localUsers.find(function(u) { return u.email === user.email; });
           var session = {
@@ -274,7 +408,7 @@ function fbLogin(email, password, callback) {
             email: user.email,
             isAdmin: localUser ? localUser.isAdmin || false : false,
             role: localUser ? (localUser.role || 'executive_path') : 'executive_path',
-            firebaseUid: user.uid,
+            supabaseUid: user.id,
             loggedIn: true,
             timestamp: Date.now()
           };
@@ -288,39 +422,64 @@ function fbLogin(email, password, callback) {
 }
 
 function fbRegister(email, password, profile, callback) {
-  // Set flag to prevent onAuthStateChanged auto-redirect
   window.__fbRegistering = true;
-  firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then(function(result) {
-      var user = result.user;
-      var userData = {
-        profile: {
-          username: profile.username,
-          name: profile.name,
-          email: email,
-          isAdmin: profile.isAdmin || false,
-          role: profile.role || 'executive_path'
-        }
-      };
-      return firebase.firestore().collection('userdata').doc(user.uid)
-        .set(userData, { merge: true })
-        .then(function() {
-          localStorage.setItem('welcome_' + profile.username, 'true');
-          return firebase.auth().signOut();
+  var client = getClient();
+  if (!client) {
+    window.__fbRegistering = false;
+    if (callback) callback({ message: 'Supabase not loaded' });
+    return;
+  }
+
+  client.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
+        username: profile.username,
+        name: profile.name,
+        role: profile.role || 'executive_task',
+        is_admin: profile.isAdmin || false
+      }
+    }
+  })
+  .then(function(result) {
+    if (result.error) {
+      window.__fbRegistering = false;
+      if (callback) callback(result.error);
+      return;
+    }
+
+    // The trigger handle_new_user() creates profiles + userdata rows automatically.
+    // But we also write directly to ensure it's there.
+    var uid = result.data.user.id;
+    var p = {
+      id: uid,
+      username: profile.username,
+      name: profile.name,
+      email: email,
+      role: profile.role || 'executive_task',
+      is_admin: profile.isAdmin || false
+    };
+    client.from('profiles').upsert(p, { onConflict: 'id' }).then(function() {
+      client.from('userdata').upsert({ id: uid, data: {} }, { onConflict: 'id' }).then(function() {
+        localStorage.setItem('welcome_' + profile.username, 'true');
+
+        // Sign out so user must log in
+        client.auth.signOut().then(function() {
+          window.__fbRegistering = false;
+          fbClearSession();
+          window.__fbCache = {};
+          window.__fbLoaded = false;
+          window.__fbUser = null;
+          if (callback) callback(null, { username: profile.username, name: profile.name, role: profile.role });
         });
-    })
-    .then(function() {
-      window.__fbRegistering = false;
-      fbClearSession();
-      window.__fbCache = {};
-      window.__fbLoaded = false;
-      window.__fbUser = null;
-      if (callback) callback(null, { username: profile.username, name: profile.name, role: profile.role });
-    })
-    .catch(function(err) {
-      window.__fbRegistering = false;
-      if (callback) callback(err);
+      });
     });
+  })
+  .catch(function(err) {
+    window.__fbRegistering = false;
+    if (callback) callback(err);
+  });
 }
 
 function fbLogout(callback) {
@@ -328,8 +487,20 @@ function fbLogout(callback) {
   window.__fbCache = {};
   window.__fbLoaded = false;
   window.__fbUser = null;
-  firebase.auth().signOut()
-    .then(function() { if (callback) callback(); })
-    .catch(function(err) { if (callback) callback(err); });
+  var client = getClient();
+  if (!client) {
+    if (callback) callback();
+    return;
+  }
+  client.auth.signOut()
+    .then(function() {
+      if (window.__fbAuthListener) {
+        try { window.__fbAuthListener.subscription.unsubscribe(); } catch(e) {}
+        window.__fbAuthListener = null;
+      }
+      if (callback) callback();
+    })
+    .catch(function(err) {
+      if (callback) callback(err);
+    });
 }
-

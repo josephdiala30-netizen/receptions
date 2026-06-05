@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -186,11 +186,9 @@ button, input, select, textarea { min-width: 0; }
 .dark .bg-status-done { background: #064e3b; color: #6ee7b7; }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="../firebase-config.js"></script>
-<script src="../firebase-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../firebase-config.js"></script>
+  <script src="../firebase-data.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -789,7 +787,7 @@ button, input, select, textarea { min-width: 0; }
     </div>
     <h2 class="text-2xl font-bold text-on-surface mb-2">Welcome to KALYX!</h2>
     <p class="text-on-surface-variant text-sm leading-relaxed mb-1">We're excited to have you on board, <span id="welcomeName" class="font-semibold text-primary"></span>!</p>
-    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Start managing your tasks, trips, and accomplishments — all in one place.</p>
+    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Start managing your tasks, trips, and accomplishments â€” all in one place.</p>
     <button onclick="startTutorial()" class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md">Take a Tour</button>
     <button onclick="skipTutorial()" class="w-full text-on-surface-variant py-2 mt-2 text-sm font-semibold hover:text-primary transition-all">Skip Tour</button>
   </div>
@@ -903,7 +901,7 @@ function initAuth(callback) {
           email: user.email,
           isAdmin: profile.isAdmin || false,
           role: profile.role || 'executive_task',
-          firebaseUid: user.uid,
+          supabaseUid: user.uid,
           loggedIn: true,
           timestamp: Date.now()
         };
@@ -1129,7 +1127,7 @@ function showDayTasks(dateStr) {
     el.innerHTML = '<p class="font-label-md text-on-surface-variant text-center py-4">No tasks for ' + new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + '</p>';
   } else {
     var d = new Date(dateStr + 'T00:00:00');
-    el.innerHTML = '<div class="flex items-center justify-between mb-3"><span class="font-label-md font-semibold text-primary">' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + ' — ' + dayTasks.length + ' task' + (dayTasks.length > 1 ? 's' : '') + '</span></div><div class="space-y-2">' +
+    el.innerHTML = '<div class="flex items-center justify-between mb-3"><span class="font-label-md font-semibold text-primary">' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + ' â€” ' + dayTasks.length + ' task' + (dayTasks.length > 1 ? 's' : '') + '</span></div><div class="space-y-2">' +
       dayTasks.map(function(t) { return renderTaskCard(t); }).join('') + '</div>';
   }
   el.classList.remove('hidden');

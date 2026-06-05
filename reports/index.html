@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -176,11 +176,9 @@ button, input, select, textarea { min-width: 0; }
 .print-only { display: none; }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="../firebase-config.js"></script>
-<script src="../firebase-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../firebase-config.js"></script>
+  <script src="../firebase-data.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -438,7 +436,7 @@ function initAuth(callback) {
           email: user.email,
           isAdmin: profile.isAdmin || false,
           role: profile.role || 'executive_path',
-          firebaseUid: user.uid,
+          supabaseUid: user.uid,
           loggedIn: true,
           timestamp: Date.now()
         };
@@ -669,7 +667,7 @@ function renderReport() {
     tbody.innerHTML = trips.map(function(t) {
       var statusLabel = t.status === 'completed' ? 'Completed' : t.status === 'cancelled' ? 'Cancelled' : 'Active';
       var statusClass = t.status === 'completed' ? 'bg-blue-100 text-blue-700' : t.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-surface-container-highest text-on-surface-variant';
-      return '<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors"><td class="py-3 pr-4 font-body-md font-medium text-on-surface">' + escapeHtml(t.name) + '</td><td class="py-3 pr-4 font-body-md text-on-surface-variant">' + escapeHtml(t._user || t.requestor || '—') + '</td><td class="py-3 pr-4 font-body-md text-on-surface-variant">' + escapeHtml(t.destination || '—') + '</td><td class="py-3 pr-4 font-body-md text-on-surface-variant">' + (t.date || '—') + '</td><td class="py-3 pr-4 font-body-md text-on-surface-variant">' + escapeHtml(t.van || '—') + '</td><td class="py-3"><span class="font-label-md ' + statusClass + ' px-2.5 py-1 rounded-full">' + statusLabel + '</span></td></tr>';
+      return '<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors"><td class="py-3 pr-4 font-body-md font-medium text-on-surface">' + escapeHtml(t.name) + '</td><td class="py-3 pr-4 font-body-md text-on-surface-variant">' + escapeHtml(t._user || t.requestor || 'â€”') + '</td><td class="py-3 pr-4 font-body-md text-on-surface-variant">' + escapeHtml(t.destination || 'â€”') + '</td><td class="py-3 pr-4 font-body-md text-on-surface-variant">' + (t.date || 'â€”') + '</td><td class="py-3 pr-4 font-body-md text-on-surface-variant">' + escapeHtml(t.van || 'â€”') + '</td><td class="py-3"><span class="font-label-md ' + statusClass + ' px-2.5 py-1 rounded-full">' + statusLabel + '</span></td></tr>';
     }).join('');
   }
 }

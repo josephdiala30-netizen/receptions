@@ -141,9 +141,7 @@ button, input, select, textarea { min-width: 0; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../firebase-data.js"></script>
 </head>
@@ -583,7 +581,7 @@ function initAuth(callback) {
           email: user.email,
           isAdmin: true,
           role: 'admin',
-          firebaseUid: user.uid,
+          supabaseUid: user.uid,
           loggedIn: true,
           timestamp: Date.now()
         };
@@ -748,19 +746,26 @@ function loadDashboard() {
   }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No activity</p>';
 }
 
-function updateFirebaseProfile(email, profile) {
-  firebase.firestore().collection('userdata')
-    .where('profile.email', '==', email)
-    .get()
-    .then(function(snap) {
-      if (!snap.empty) {
-        var uid = snap.docs[0].id;
-        return firebase.firestore().collection('userdata').doc(uid)
-          .set({ profile: { username: profile.username, name: profile.name, email: email, role: profile.role, isAdmin: profile.isAdmin } }, { merge: true });
+function updateSupabaseProfile(email, profile) {
+  var client = supabaseClient;
+  if (!client) return;
+  client.from('profiles').select('id').eq('email', email).single()
+    .then(function(result) {
+      if (!result.error && result.data) {
+        client.from('profiles').update({
+          username: profile.username, name: profile.name, role: profile.role, is_admin: profile.isAdmin
+        }).eq('id', result.data.id).then(function() {
+          client.from('userdata').select('data').eq('id', result.data.id).single()
+            .then(function(uResult) {
+              var data = (!uResult.error && uResult.data) ? uResult.data.data : {};
+              data.profile = { username: profile.username, name: profile.name, email: email, role: profile.role, isAdmin: profile.isAdmin };
+              client.from('userdata').update({ data: data }).eq('id', result.data.id).catch(function(e) {});
+            });
+        });
       }
     })
     .catch(function(err) {
-      console.error('Firebase profile update error:', err);
+      console.error('Supabase profile update error:', err);
     });
 }
 
@@ -854,9 +859,9 @@ async function saveUser() {
     users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin;
     if (password) users[idx].password = await hashPass(password);
     saveUsers(users);
-    // Sync changes to Firebase Firestore profile for cross-browser login
-    if (email && typeof firebase !== 'undefined') {
-      updateFirebaseProfile(email, { username: username, name: name, role: role, isAdmin: isAdmin });
+    // Sync changes to Supabase profile for cross-browser login
+    if (email && typeof supabaseClient !== 'undefined') {
+      updateSupabaseProfile(email, { username: username, name: name, role: role, isAdmin: isAdmin });
     }
   } else {
     if (users.some(function(u) { return u.username === username; })) {
@@ -870,8 +875,8 @@ async function saveUser() {
     users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin });
     localStorage.setItem('welcome_' + username, 'true');
     saveUsers(users);
-    // Also create Firebase Auth account + Firestore profile for cross-browser login
-    if (email && typeof firebase !== 'undefined') {
+    // Also create Supabase Auth account + profile for cross-browser login
+    if (email && typeof supabaseClient !== 'undefined') {
       fbRegister(email, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function() {});
     }
   }

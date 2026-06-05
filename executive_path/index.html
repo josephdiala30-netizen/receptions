@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -186,11 +186,9 @@ button, input, select, textarea { min-width: 0; }
 }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="../firebase-config.js"></script>
-<script src="../firebase-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../firebase-config.js"></script>
+  <script src="../firebase-data.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -492,7 +490,7 @@ function initAuth(callback) {
           email: user.email,
           isAdmin: profile.isAdmin || false,
           role: profile.role || 'executive_path',
-          firebaseUid: user.uid,
+          supabaseUid: user.uid,
           loggedIn: true,
           timestamp: Date.now()
         };
@@ -752,7 +750,7 @@ var tutorialSteps = [
   { selector: 'div.relative.w-full.max-w-sm input', title: 'Search', desc: 'Search through your trips and activities here.', pos: 'bottom' },
   { selector: '#userBtn', title: 'Your Profile', desc: 'Click here to view your profile or sign out.', pos: 'bottom' },
   { selector: 'aside.sidebar-glass button', title: 'New Trip', desc: 'Click here to plan and create a new trip.', pos: 'right' },
-  { selector: null, title: 'You\'re All Set!', desc: 'Start exploring — plan trips, track expenses, and manage your travel itinerary!', pos: 'center' }
+  { selector: null, title: 'You\'re All Set!', desc: 'Start exploring â€” plan trips, track expenses, and manage your travel itinerary!', pos: 'center' }
 ];
 var tutorialStep = 0;
 
