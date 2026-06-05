@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Migrate Backup Data</title>
+  <title>Migrate IT Data</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
@@ -17,57 +17,50 @@
 <body class="bg-gray-50 min-h-screen p-4 md:p-8">
   <div class="max-w-2xl mx-auto space-y-6">
     <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-      <h1 class="text-2xl font-bold text-gray-800 mb-1">Migrate Backup Data</h1>
-      <p class="text-sm text-gray-500 mb-6">Ilipat ang Executive IT data mula sa backup JSON papunta sa Supabase user account.</p>
+      <h1 class="text-2xl font-bold text-gray-800 mb-1">Migrate IT Data</h1>
+      <p class="text-sm text-gray-500 mb-6">Ilipat ang Executive IT data mula backup JSON papunta sa Supabase.</p>
 
-      <!-- Step 1: Upload Backup File -->
-      <div id="stepUpload" class="border border-gray-200 rounded-xl p-4 mb-4">
+      <div class="border border-gray-200 rounded-xl p-4 mb-4">
         <h2 class="font-bold text-gray-700 mb-3">Step 1: I-upload ang Backup File</h2>
-        <p class="text-xs text-gray-500 mb-3">Piliin ang file na <strong>scheduler-backup-2026-06-04.json</strong> mula sa iyong computer.</p>
         <input id="fileInput" type="file" accept=".json" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
-        <p id="fileStatus" class="text-xs text-gray-500 mt-2">Wala pang napipiling file.</p>
+        <p id="fileStatus" class="text-xs text-gray-500 mt-2">Pumili ng file.</p>
       </div>
 
-      <!-- Step 2: Login -->
-      <div id="stepLogin" class="border border-gray-200 rounded-xl p-4 mb-4">
-        <h2 class="font-bold text-gray-700 mb-3">Step 2: Login sa Supabas</h2>
+      <div class="border border-gray-200 rounded-xl p-4 mb-4">
+        <h2 class="font-bold text-gray-700 mb-3">Step 2: Login bilang joseph.diala30@gmail.com</h2>
         <div class="space-y-3">
-          <input id="loginEmail" type="email" value="joseph.diala30@gmail.com" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm" placeholder="Email"/>
+          <input id="loginEmail" type="email" value="joseph.diala30@gmail.com" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm bg-gray-100" readonly/>
           <input id="loginPass" type="password" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm" placeholder="Password"/>
           <button id="loginBtn" onclick="doLogin()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition text-sm">Login</button>
           <p id="loginMsg" class="text-xs text-gray-500 mt-1"></p>
         </div>
       </div>
 
-      <!-- Step 3: Preview & Migrate -->
       <div id="stepMigrate" class="border border-gray-200 rounded-xl p-4 hidden">
-        <h2 class="font-bold text-gray-700 mb-3">Step 3: Preview Data</h2>
+        <h2 class="font-bold text-gray-700 mb-3">Step 3: I-migrate ang IT Data</h2>
         <div id="previewData" class="text-sm text-gray-600 mb-4"></div>
         <div id="migrateActions" class="hidden">
-          <button id="migrateBtn" onclick="doMigrate()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-emerald-700 transition text-sm">Start Migration</button>
+          <button id="migrateBtn" onclick="doMigrate()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-emerald-700 transition text-sm">I-migrate ang IT Data</button>
           <p id="migrateMsg" class="text-xs text-gray-500 mt-2"></p>
         </div>
-        <p id="noDataMsg" class="text-xs text-amber-600 hidden">Walang nakitang IT data para sa joseph_diala sa backup file na ito.</p>
       </div>
 
-      <!-- Log -->
-      <div id="log" class="mt-4 text-sm font-mono bg-gray-900 text-green-400 rounded-xl p-4 h-48 overflow-y-auto hidden"></div>
+      <div id="log" class="mt-4 text-sm font-mono bg-gray-900 text-green-400 rounded-xl p-4 h-64 overflow-y-auto hidden"></div>
     </div>
   </div>
 
   <script>
     var backupData = null;
     var userId = null;
-    var itKeys = [];
+    var itData = {};
 
-    function log(msg) {
+    function log(msg, isError) {
       var el = document.getElementById('log');
       el.classList.remove('hidden');
-      el.innerHTML += '> ' + msg + '<br>';
+      el.innerHTML += '<span style="color:' + (isError ? '#f87171' : '#4ade80') + '">> ' + msg + '</span><br>';
       el.scrollTop = el.scrollHeight;
     }
 
-    // File upload handler
     document.getElementById('fileInput').addEventListener('change', function(e) {
       var file = e.target.files[0];
       if (!file) return;
@@ -77,28 +70,23 @@
           backupData = JSON.parse(ev.target.result);
           document.getElementById('fileStatus').textContent = 'Na-load: ' + file.name + ' (' + Object.keys(backupData).length + ' keys)';
           document.getElementById('fileStatus').className = 'text-xs text-emerald-600 mt-2 font-semibold';
-          tryPreview();
         } catch(err) {
           alert('Invalid JSON: ' + err.message);
-          document.getElementById('fileStatus').textContent = 'Error: Invalid JSON file';
-          document.getElementById('fileStatus').className = 'text-xs text-red-600 mt-2';
         }
       };
       reader.readAsText(file);
     });
 
     function doLogin() {
-      var email = document.getElementById('loginEmail').value.trim();
       var pass = document.getElementById('loginPass').value;
       var btn = document.getElementById('loginBtn');
       var msg = document.getElementById('loginMsg');
-
+      if (!pass) { msg.textContent = 'Ilagay ang password.'; msg.className = 'text-xs text-red-600 mt-1'; return; }
       btn.disabled = true;
       btn.textContent = 'Logging in...';
       msg.textContent = '';
-      msg.className = 'text-xs text-gray-500 mt-1';
 
-      client.auth.signInWithPassword({ email: email, password: pass })
+      client.auth.signInWithPassword({ email: 'joseph.diala30@gmail.com', password: pass })
         .then(function(result) {
           if (result.error) {
             msg.textContent = 'Error: ' + result.error.message;
@@ -112,7 +100,7 @@
           msg.className = 'text-xs text-emerald-600 mt-1 font-semibold';
           btn.textContent = 'Logged In';
           btn.className = 'bg-gray-400 text-white px-6 py-2 rounded-lg font-bold text-sm cursor-not-allowed';
-          tryPreview();
+          prepareMigration();
         })
         .catch(function(err) {
           msg.textContent = 'Error: ' + err.message;
@@ -122,48 +110,34 @@
         });
     }
 
-    function tryPreview() {
-      if (!backupData) {
-        document.getElementById('fileStatus').textContent = 'Please select a backup file first.';
-        document.getElementById('fileStatus').className = 'text-xs text-amber-600 mt-2';
-        return;
-      }
-      if (!userId) {
-        document.getElementById('loginMsg').textContent = 'Please login first to continue.';
-        document.getElementById('loginMsg').className = 'text-xs text-amber-600 mt-1';
-        return;
-      }
-      showPreview();
-    }
+    function prepareMigration() {
+      if (!backupData || !userId) return;
 
-    function showPreview() {
+      itData = {};
       var sourceUser = 'joseph_diala';
-      itKeys = Object.keys(backupData).filter(function(k) {
+      var itKeys = Object.keys(backupData).filter(function(k) {
         return k.indexOf('it_') === 0 && k.indexOf('_' + sourceUser) > 0;
       });
 
       if (itKeys.length === 0) {
         document.getElementById('previewData').innerHTML = '<p class="text-red-600">Walang IT data para sa joseph_diala sa backup na ito.</p>';
-        document.getElementById('migrateActions').classList.add('hidden');
-        document.getElementById('noDataMsg').classList.remove('hidden');
         document.getElementById('stepMigrate').classList.remove('hidden');
         return;
       }
 
-      var html = '<p class="font-semibold mb-2">IT Data para kay <strong>joseph_diala</strong>:</p><ul class="space-y-1">';
       var totalItems = 0;
+      var html = '<p class="font-semibold mb-2">IT Data na makikita:</p><ul class="space-y-1">';
       itKeys.forEach(function(k) {
         var items = Array.isArray(backupData[k]) ? backupData[k].length : 0;
         totalItems += items;
-        var fbKey = k.replace('_' + sourceUser, '');
-        html += '<li class="flex justify-between text-xs"><span>' + fbKey + '</span><span class="font-semibold">' + items + ' items</span></li>';
+        var shortKey = k.replace('_' + sourceUser, '');
+        itData[shortKey] = backupData[k];
+        html += '<li class="flex justify-between text-xs"><span>' + shortKey + '</span><span class="font-semibold">' + items + ' items</span></li>';
       });
-      html += '<li class="flex justify-between text-xs font-bold border-t border-gray-200 pt-1 mt-1"><span>TOTAL</span><span>' + totalItems + ' items</span></li>';
-      html += '</ul>';
+      html += '<li class="flex justify-between text-xs font-bold border-t pt-1 mt-1"><span>TOTAL</span><span>' + totalItems + ' items</span></li></ul>';
 
       document.getElementById('previewData').innerHTML = html;
       document.getElementById('migrateActions').classList.remove('hidden');
-      document.getElementById('noDataMsg').classList.add('hidden');
       document.getElementById('stepMigrate').classList.remove('hidden');
     }
 
@@ -173,59 +147,92 @@
       btn.disabled = true;
       btn.textContent = 'Migrating...';
       msg.textContent = '';
-      log('Starting migration...');
+      log('===== STARTING MIGRATION =====');
 
-      var userData = {};
-      var sourceUser = 'joseph_diala';
-      var count = 0;
-
-      itKeys.forEach(function(k) {
-        var items = backupData[k];
-        if (Array.isArray(items) && items.length > 0) {
-          var fbKey = k.replace('_' + sourceUser, '');
-          userData[fbKey] = items;
-          count += items.length;
-          log('  ' + fbKey + ': ' + items.length + ' items');
-        }
-      });
-
+      // Step 1: Kunin ang existing data
+      log('Fetching existing userdata...');
       client.from('userdata').select('data').eq('id', userId).single()
         .then(function(result) {
           var existingData = {};
-          if (!result.error && result.data && result.data.data) {
+          if (result.error) {
+            if (result.error.code === 'PGRST116') {
+              log('No existing userdata row — gagawa ng bago.');
+            } else {
+              log('Error fetching userdata: ' + result.error.message, true);
+              throw result.error;
+            }
+          } else if (result.data && result.data.data) {
             existingData = result.data.data;
-            log('Existing data found, merging...');
-          } else {
-            log('No existing data, creating new...');
+            log('Existing data found. Merging IT data...');
           }
 
-          Object.keys(userData).forEach(function(k) {
-            existingData[k] = userData[k];
+          // Step 2: I-merge ang lahat ng IT data
+          var dataKeys = Object.keys(itData);
+          dataKeys.forEach(function(k) {
+            var items = itData[k];
+            if (Array.isArray(items)) {
+              existingData[k] = items;
+              log('  Added ' + k + ': ' + items.length + ' items');
+            }
           });
 
+          // Step 3: I-save sa Supabase
+          log('Saving to Supabase (userdata.id=' + userId + ')...');
           return client.from('userdata').upsert(
-            { id: userId, data: existingData, updated_at: new Date().toISOString() },
+            { id: userId, data: existingData },
             { onConflict: 'id' }
           );
         })
         .then(function(result) {
-          if (result.error) {
-            log('ERROR: ' + result.error.message);
-            msg.textContent = 'Failed: ' + result.error.message;
+          if (result && result.error) {
+            log('UPSERT ERROR: ' + result.error.message + ' (code: ' + result.error.code + ')', true);
+            msg.textContent = 'Error: ' + result.error.message;
             msg.className = 'text-xs text-red-600 mt-2 font-semibold';
             btn.textContent = 'Retry';
             btn.disabled = false;
             return;
           }
-          log('Done! ' + count + ' items transferred.');
-          msg.textContent = 'SUCCESS! ' + count + ' items migrated to Supabase.';
-          msg.className = 'text-xs text-emerald-600 mt-2 font-semibold';
-          btn.textContent = 'Complete';
-          btn.className = 'bg-gray-400 text-white px-6 py-2 rounded-lg font-bold text-sm cursor-not-allowed';
+
+          log('===== MIGRATION COMPLETE! =====');
+          log('Lahat ng IT data ay na-save na sa Supabase.');
+
+          // Step 4: I-verify sa pamamagitan ng pagbasa ulit
+          log('Verifying...');
+          client.from('userdata').select('data').eq('id', userId).single()
+            .then(function(vResult) {
+              if (!vResult.error && vResult.data && vResult.data.data) {
+                var saved = vResult.data.data;
+                var dataKeys = Object.keys(itData);
+                var allOk = true;
+                dataKeys.forEach(function(k) {
+                  var savedCount = Array.isArray(saved[k]) ? saved[k].length : 0;
+                  var expectedCount = Array.isArray(itData[k]) ? itData[k].length : 0;
+                  var ok = savedCount === expectedCount;
+                  log((ok ? 'OK ' : 'MISMATCH ') + k + ': saved=' + savedCount + ', expected=' + expectedCount, !ok);
+                  if (!ok) allOk = false;
+                });
+                if (allOk) {
+                  msg.textContent = 'SUCCESS! Lahat ng ' + dataKeys.length + ' IT data type ay na-verify.';
+                  msg.className = 'text-xs text-emerald-600 mt-2 font-semibold';
+                  btn.textContent = 'Complete';
+                } else {
+                  msg.textContent = 'May hindi tugma — tingnan ang log.';
+                  msg.className = 'text-xs text-amber-600 mt-2 font-semibold';
+                  btn.textContent = 'Retry';
+                  btn.disabled = false;
+                }
+              } else {
+                log('Verify: No data found after save!', true);
+                msg.textContent = 'Warning: Hindi ma-verify ang data.';
+                msg.className = 'text-xs text-amber-600 mt-2 font-semibold';
+              }
+            });
         })
         .catch(function(err) {
-          log('ERROR: ' + err.message);
-          msg.textContent = 'Error: ' + err.message;
+          log('ERROR: ' + (err.message || err), true);
+          if (err.details) log('Details: ' + err.details, true);
+          if (err.hint) log('Hint: ' + err.hint, true);
+          msg.textContent = 'Error: ' + (err.message || err);
           msg.className = 'text-xs text-red-600 mt-2 font-semibold';
           btn.textContent = 'Retry';
           btn.disabled = false;
