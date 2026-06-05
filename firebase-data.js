@@ -364,115 +364,49 @@ function fbLogin(email, password, callback) {
       var user = result.data.user;
       window.__fbUser = { uid: user.id, email: user.email };
 
-      // Kunin ang role mula sa JWT metadata (reliable kahit walang profile row)
+      // Kunin ang role mula sa JWT metadata (walang RLS, walang recursion)
       var jwtMeta = user.user_metadata || {};
       var jwtRole = jwtMeta.role || null;
       var jwtIsAdmin = jwtMeta.is_admin || false;
       var jwtUsername = jwtMeta.username || null;
       var jwtName = jwtMeta.name || null;
 
-      // Read profile from Supabase
-      client.from('profiles').select('*').eq('id', user.id).single()
-        .then(function(pResult) {
-          var profile = {};
-          if (!pResult.error && pResult.data) {
-            profile = {
-              username: pResult.data.username,
-              name: pResult.data.name,
-              email: pResult.data.email,
-              isAdmin: pResult.data.is_admin,
-              role: pResult.data.role
-            };
-          }
+      // Hanapin ang local user para sa fallback
+      var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      var localUser = localUsers.find(function(u) { return u.email === user.email; });
 
-          // Load userdata into cache
-          client.from('userdata').select('data').eq('id', user.id).single()
-            .then(function(uResult) {
-              if (!uResult.error && uResult.data) {
-                window.__fbCache = uResult.data.data || {};
-                window.__fbLoaded = true;
-              } else {
-                window.__fbCache = {};
-                window.__fbLoaded = true;
-              }
+      // Role priority: JWT metadata > localStorage > default
+      var finalRole = jwtRole || (localUser ? localUser.role : null) || 'executive_path';
+      var finalIsAdmin = jwtIsAdmin || (localUser ? localUser.isAdmin || false : false);
+      var finalUsername = jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0];
+      var finalName = jwtName || (localUser ? localUser.name : null) || finalUsername;
 
-              // Merge local user data
-              var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-              var localUser = localUsers.find(function(u) {
-                return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
-              });
-              if (localUser) {
-                if (localUser.isAdmin !== undefined && localUser.isAdmin !== null) profile.isAdmin = localUser.isAdmin;
-                if (localUser.role) profile.role = localUser.role;
-                if (!profile.username) profile.username = localUser.username;
-                if (!profile.name) profile.name = localUser.name;
-              }
+      var session = {
+        username: finalUsername,
+        name: finalName,
+        email: user.email,
+        isAdmin: finalIsAdmin,
+        role: finalRole,
+        supabaseUid: user.id,
+        loggedIn: true,
+        timestamp: Date.now()
+      };
+      fbSaveSession(session);
 
-              // Role priority: profile > JWT metadata > localStorage > default
-              var finalRole = profile.role || jwtRole || (localUser ? localUser.role : null) || 'executive_path';
-              var finalIsAdmin = profile.isAdmin !== undefined && profile.isAdmin !== null ? profile.isAdmin : jwtIsAdmin || (localUser ? localUser.isAdmin : false);
-              var finalUsername = profile.username || jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0];
-              var finalName = profile.name || jwtName || (localUser ? localUser.name : null) || finalUsername;
+      // I-sync ang profile sa Supabase (upsert = walang recursion)
+      client.from('profiles').upsert({
+        id: user.id,
+        username: finalUsername,
+        name: finalName,
+        email: user.email,
+        role: finalRole,
+        is_admin: finalIsAdmin
+      }).catch(function(e) { console.error('Profile sync error:', e); });
 
-              var session = {
-                username: finalUsername,
-                name: finalName,
-                email: user.email,
-                isAdmin: finalIsAdmin,
-                role: finalRole,
-                supabaseUid: user.id,
-                loggedIn: true,
-                timestamp: Date.now()
-              };
-              fbSaveSession(session);
-
-              // Sync profile back to Supabase
-              client.from('profiles').upsert({
-                id: user.id,
-                username: finalUsername,
-                name: finalName,
-                email: user.email,
-                role: finalRole,
-                is_admin: finalIsAdmin
-              }).catch(function(e) { console.error('Profile sync error:', e); });
-
-              if (callback) callback(null, session);
-            })
-            .catch(function(err) {
-              console.error('Userdata read error:', err);
-              var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-              var localUser = localUsers.find(function(u) { return u.email === user.email; });
-              var session = {
-                username: jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0],
-                name: jwtName || (localUser ? localUser.name : null) || user.email.split('@')[0],
-                email: user.email,
-                isAdmin: jwtIsAdmin || (localUser ? localUser.isAdmin || false : false),
-                role: jwtRole || (localUser ? localUser.role : null) || 'executive_path',
-                supabaseUid: user.id,
-                loggedIn: true,
-                timestamp: Date.now()
-              };
-              fbSaveSession(session);
-              if (callback) callback(null, session);
-            });
-        })
-        .catch(function(err) {
-          console.error('Profile read error:', err);
-          var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-          var localUser = localUsers.find(function(u) { return u.email === user.email; });
-          var session = {
-            username: jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0],
-            name: jwtName || (localUser ? localUser.name : null) || user.email.split('@')[0],
-            email: user.email,
-            isAdmin: jwtIsAdmin || (localUser ? localUser.isAdmin || false : false),
-            role: jwtRole || (localUser ? localUser.role : null) || 'executive_path',
-            supabaseUid: user.id,
-            loggedIn: true,
-            timestamp: Date.now()
-          };
-          fbSaveSession(session);
-          if (callback) callback(null, session);
-        });
+      // Subukang i-load ang userdata (kung may RLS pa rin, localStorage fallback ang cache)
+      loadFBData(user.id, function() {
+        if (callback) callback(null, session);
+      });
     })
     .catch(function(err) {
       if (callback) callback(err);
