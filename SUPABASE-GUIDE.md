@@ -57,7 +57,34 @@
 3. Dapat ma-redirect ka sa admin portal
 4. Kung hindi, i-check ang browser console para sa errors
 
-## Step 9: I-configure ang Disable Email Confirmation (alternative)
+## Step 9: I-apply ang RLS Fix (kailangan para mag-sync ang data sa lahat ng devices)
+
+### Para sa lahat ng users (baguhan at luma):
+
+1. Pumunta sa **Supabase Dashboard** → https://supabase.com/dashboard
+2. I-click ang project mo
+3. Sa kaliwang sidebar, i-click ang **SQL Editor**
+4. I-click ang **New Query**
+5. Buksan ang file na `supabase-fix-rls.sql` sa project folder
+6. Pindutin ang **Ctrl+A** para piliin lahat, **Ctrl+C** para kopyahin
+7. Bumalik sa Supabase SQL Editor, pindutin ang **Ctrl+V** para i-paste
+8. I-click ang **Run** (or pindutin ang **Ctrl+Enter**)
+9. Hintaying mag-success — dapat walang error
+
+### Para sa mga existing users na mali ang role (laging napupunta sa executive_path):
+
+1. Pagkatapos ng RLS fix sa itaas, gumawa ng **New Query** ulit
+2. Buksan ang file na `supabase-repair-roles.sql`
+3. Kopyahin lahat at i-paste sa SQL Editor
+4. I-click ang **Run**
+5. Makikita mo ang listahan ng users at ang roles nila — dapat tama na sila
+
+### Pagkatapos:
+1. Mag-login ulit sa app (i-clear muna ang localStorage: F12 > Application > Local Storage > Clear All)
+2. Dapat mag-load ang data mula sa ibang device
+3. Ang mga bagong save ay mag-sa-sync sa real-time sa lahat ng devices
+
+## Step 10: I-configure ang Disable Email Confirmation (alternative)
 Kung hindi mo na-off ang "Confirm email" sa Step 3, pwedeng:
 1. Sa **Supabase Dashboard > Authentication > Settings**
 2. Sa **General**, i-off ang **Enable email confirmations**
