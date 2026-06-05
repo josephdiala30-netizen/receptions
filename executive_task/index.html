@@ -236,11 +236,21 @@ button, input, select, textarea { min-width: 0; }
       <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-primary text-on-primary flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
       <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
         <div class="px-4 py-3 border-b border-outline-variant">
-          <p id="userNameDisplay" class="font-body-md font-semibold text-primary inline"></p>
-          <span id="adminBadge" class="hidden text-xs bg-primary text-on-primary px-2 py-0.5 rounded-full font-label-md ml-2">Admin</span>
-          <p id="userUsernameDisplay" class="font-label-md text-on-surface-variant mt-0.5"></p>
+          <div class="flex items-center gap-3">
+            <div id="userMenuAvatar" class="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm overflow-hidden flex-shrink-0"></div>
+            <div class="min-w-0">
+              <p id="userNameDisplay" class="font-body-md font-semibold text-primary truncate"></p>
+              <p id="userUsernameDisplay" class="font-label-md text-on-surface-variant truncate"></p>
+            </div>
+          </div>
         </div>
-        <button class="w-full flex items-center gap-3 px-4 py-3 mt-1 rounded-xl text-on-surface-variant hover:bg-surface-container-high font-label-md transition-all duration-200 active:scale-[0.98]" onclick="doLogout()">
+        <button class="w-full flex items-center gap-3 px-4 py-3 mt-1 rounded-xl text-on-surface-variant hover:bg-surface-container-high font-label-md transition-all duration-200 active:scale-[0.98]" onclick="showAvatarModal()">
+          <span class="material-symbols-outlined text-sm">photo_camera</span> Change Avatar
+        </button>
+        <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high font-label-md transition-all duration-200 active:scale-[0.98]" onclick="showChangePasswordModal()">
+          <span class="material-symbols-outlined text-sm">lock</span> Change Password
+        </button>
+        <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high font-label-md transition-all duration-200 active:scale-[0.98]" onclick="doLogout()">
           <span class="material-symbols-outlined text-sm">logout</span> Sign Out
         </button>
       </div>
@@ -921,11 +931,13 @@ function finishAuth(session, callback) {
   if (session.role === 'executive_it') { window.location.href = getBaseUrl() + 'executive_it/'; return; }
   if (session.role !== 'executive_task' && session.role !== 'executive_path') { window.location.href = getBaseUrl() + 'login/'; return; }
   var initial = (session.name || session.username).charAt(0).toUpperCase();
+  sessionStorage.setItem('avatarInitial', initial);
   document.getElementById('userBtn').textContent = initial;
   document.getElementById('userNameDisplay').textContent = session.name || session.username;
   document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
   var badge = document.getElementById('adminBadge');
   if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
+  loadAvatar(session.username);
   if (callback) callback(session);
 }
 
@@ -2045,10 +2057,157 @@ initAuth(function() {
   loadDashboard();
 });
 
+// Avatar functions
+function loadAvatar(username) {
+  var btn = document.getElementById('userBtn');
+  var menuAvatar = document.getElementById('userMenuAvatar');
+  if (!btn) return;
+  var saved = localStorage.getItem('avatar_' + username);
+  var initial = sessionStorage.getItem('avatarInitial') || (username || 'U').charAt(0).toUpperCase();
+  if (saved) {
+    btn.innerHTML = '<img src="' + saved + '" class="w-full h-full object-cover" alt="avatar">';
+    if (menuAvatar) menuAvatar.innerHTML = '<img src="' + saved + '" class="w-full h-full object-cover rounded-full" alt="avatar">';
+  } else {
+    btn.textContent = initial;
+    if (menuAvatar) menuAvatar.textContent = initial;
+  }
+}
+
+function showChangePasswordModal() {
+  document.getElementById('curPass').value = '';
+  document.getElementById('newPass').value = '';
+  document.getElementById('confirmPass').value = '';
+  document.getElementById('passError').classList.add('hidden');
+  document.getElementById('changePassModal').classList.remove('hidden');
+  document.getElementById('userMenu').classList.add('hidden');
+}
+
+function closeChangePasswordModal() {
+  document.getElementById('changePassModal').classList.add('hidden');
+}
+
+function doChangePassword() {
+  var cur = document.getElementById('curPass').value;
+  var np = document.getElementById('newPass').value;
+  var cp = document.getElementById('confirmPass').value;
+  var err = document.getElementById('passError');
+  if (!cur || !np || !cp) { err.textContent = 'Please fill in all fields.'; err.classList.remove('hidden'); return; }
+  if (np !== cp) { err.textContent = 'New passwords do not match.'; err.classList.remove('hidden'); return; }
+  if (np.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.remove('hidden'); return; }
+  var client = getClient();
+  if (!client) { err.textContent = 'Not connected.'; err.classList.remove('hidden'); return; }
+  var email = (fbGetSession() || {}).email;
+  if (!email) { err.textContent = 'Session error.'; err.classList.remove('hidden'); return; }
+  client.auth.signInWithPassword({ email: email, password: cur }).then(function(r) {
+    if (r.error) { err.textContent = 'Current password is incorrect.'; err.classList.remove('hidden'); return; }
+    client.auth.updateUser({ password: np }).then(function(u) {
+      if (u.error) { err.textContent = u.error.message; err.classList.remove('hidden'); return; }
+      closeChangePasswordModal();
+      alert('Password updated successfully.');
+    });
+  });
+}
+
+function showAvatarModal() {
+  document.getElementById('avatarPreview').innerHTML = '<span class="material-symbols-outlined text-4xl text-outline">person</span>';
+  document.getElementById('saveAvatarBtn').classList.add('hidden');
+  document.getElementById('avatarInput').value = '';
+  document.getElementById('avatarModal').classList.remove('hidden');
+  document.getElementById('userMenu').classList.add('hidden');
+}
+
+function closeAvatarModal() {
+  document.getElementById('avatarModal').classList.add('hidden');
+}
+
+var __avatarData = null;
+
+function previewAvatar(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB.'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    __avatarData = e.target.result;
+    document.getElementById('avatarPreview').innerHTML = '<img src="' + __avatarData + '" class="w-full h-full object-cover rounded-full">';
+    document.getElementById('saveAvatarBtn').classList.remove('hidden');
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveAvatar() {
+  if (!__avatarData) return;
+  var session = fbGetSession();
+  var username = session ? session.username : null;
+  if (!username) return;
+  localStorage.setItem('avatar_' + username, __avatarData);
+  loadAvatar(username);
+  closeAvatarModal();
+}
+
+function removeAvatar() {
+  var session = fbGetSession();
+  var username = session ? session.username : null;
+  if (!username) return;
+  localStorage.removeItem('avatar_' + username);
+  var initial = sessionStorage.getItem('avatarInitial') || username.charAt(0).toUpperCase();
+  var btn = document.getElementById('userBtn');
+  var menuAvatar = document.getElementById('userMenuAvatar');
+  if (btn) btn.textContent = initial;
+  if (menuAvatar) menuAvatar.textContent = initial;
+  closeAvatarModal();
+}
+
 // Real-time cross-browser sync
 fbOnUpdate(function(data) {
   loadDashboard();
 });
 </script>
+
+<!-- Avatar Modal -->
+<div id="avatarModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onclick="if(event.target===this)return">
+  <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="font-headline-md font-bold">Change Avatar</h2>
+      <button onclick="closeAvatarModal()" class="p-2 rounded-xl hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="space-y-4">
+      <div id="avatarPreview" class="w-24 h-24 rounded-full mx-auto bg-surface-container flex items-center justify-center overflow-hidden border-2 border-dashed border-outline-variant">
+        <span class="material-symbols-outlined text-4xl text-outline">person</span>
+      </div>
+      <input id="avatarInput" type="file" accept="image/*" class="hidden" onchange="previewAvatar(this)">
+      <button onclick="document.getElementById('avatarInput').click()" class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-[0.98]">Choose Image</button>
+      <button id="saveAvatarBtn" onclick="saveAvatar()" class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-[0.98] hidden">Save Avatar</button>
+      <button onclick="removeAvatar()" class="w-full bg-red-100 text-red-700 py-3 rounded-xl font-label-md font-semibold hover:bg-red-200 transition-all">Remove Avatar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div id="changePassModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onclick="if(event.target===this)return">
+  <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="font-headline-md font-bold">Change Password</h2>
+      <button onclick="closeChangePasswordModal()" class="p-2 rounded-xl hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="font-label-md text-on-surface-variant block mb-1.5">Current Password</label>
+        <input id="curPass" type="password" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter current password">
+      </div>
+      <div>
+        <label class="font-label-md text-on-surface-variant block mb-1.5">New Password</label>
+        <input id="newPass" type="password" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter new password">
+      </div>
+      <div>
+        <label class="font-label-md text-on-surface-variant block mb-1.5">Confirm New Password</label>
+        <input id="confirmPass" type="password" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Confirm new password">
+      </div>
+      <p id="passError" class="hidden font-label-md text-red-600"></p>
+      <button onclick="doChangePassword()" class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-[0.98]">Update Password</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
