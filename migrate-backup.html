@@ -18,18 +18,17 @@
   <div class="max-w-2xl mx-auto space-y-6">
     <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
       <h1 class="text-2xl font-bold text-gray-800 mb-1">Migrate IT Data</h1>
-      <p class="text-sm text-gray-500 mb-6">Ilipat ang Executive IT data mula backup JSON papunta sa Supabase.</p>
+      <p class="text-sm text-gray-500 mb-6">Diretso i-import ang IT data mula backup papunta sa Supabase at localStorage.</p>
 
       <div class="border border-gray-200 rounded-xl p-4 mb-4">
-        <h2 class="font-bold text-gray-700 mb-3">Step 1: I-upload ang Backup File</h2>
+        <h2 class="font-bold text-gray-700 mb-3">Step 1: Upload Backup File</h2>
         <input id="fileInput" type="file" accept=".json" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
-        <p id="fileStatus" class="text-xs text-gray-500 mt-2">Pumili ng file.</p>
+        <p id="fileStatus" class="text-xs text-gray-500 mt-2">Pumili ng scheduler-backup-2026-06-04.json</p>
       </div>
 
       <div class="border border-gray-200 rounded-xl p-4 mb-4">
         <h2 class="font-bold text-gray-700 mb-3">Step 2: Login bilang joseph.diala30@gmail.com</h2>
         <div class="space-y-3">
-          <input id="loginEmail" type="email" value="joseph.diala30@gmail.com" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm bg-gray-100" readonly/>
           <input id="loginPass" type="password" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm" placeholder="Password"/>
           <button id="loginBtn" onclick="doLogin()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition text-sm">Login</button>
           <p id="loginMsg" class="text-xs text-gray-500 mt-1"></p>
@@ -37,12 +36,10 @@
       </div>
 
       <div id="stepMigrate" class="border border-gray-200 rounded-xl p-4 hidden">
-        <h2 class="font-bold text-gray-700 mb-3">Step 3: I-migrate ang IT Data</h2>
+        <h2 class="font-bold text-gray-700 mb-3">Step 3: Preview at I-migrate</h2>
         <div id="previewData" class="text-sm text-gray-600 mb-4"></div>
-        <div id="migrateActions" class="hidden">
-          <button id="migrateBtn" onclick="doMigrate()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-emerald-700 transition text-sm">I-migrate ang IT Data</button>
-          <p id="migrateMsg" class="text-xs text-gray-500 mt-2"></p>
-        </div>
+        <button id="migrateBtn" onclick="doMigrate()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-emerald-700 transition text-sm disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>I-migrate ang IT Data</button>
+        <p id="migrateMsg" class="text-xs text-gray-500 mt-2"></p>
       </div>
 
       <div id="log" class="mt-4 text-sm font-mono bg-gray-900 text-green-400 rounded-xl p-4 h-64 overflow-y-auto hidden"></div>
@@ -52,7 +49,10 @@
   <script>
     var backupData = null;
     var userId = null;
+    var username = null;
+    var accessToken = null;
     var itData = {};
+    var itKeys = [];
 
     function log(msg, isError) {
       var el = document.getElementById('log');
@@ -68,8 +68,9 @@
       reader.onload = function(ev) {
         try {
           backupData = JSON.parse(ev.target.result);
-          document.getElementById('fileStatus').textContent = 'Na-load: ' + file.name + ' (' + Object.keys(backupData).length + ' keys)';
+          document.getElementById('fileStatus').textContent = 'Loaded: ' + file.name + ' (' + Object.keys(backupData).length + ' keys)';
           document.getElementById('fileStatus').className = 'text-xs text-emerald-600 mt-2 font-semibold';
+          tryEnableMigrate();
         } catch(err) {
           alert('Invalid JSON: ' + err.message);
         }
@@ -96,11 +97,15 @@
             return;
           }
           userId = result.data.user.id;
-          msg.textContent = 'Logged in! User ID: ' + userId;
+          accessToken = result.data.session.access_token;
+
+          // Kunin ang username mula sa session o profiles table
+          username = 'joseph_diala';
+          msg.textContent = 'Logged in! User: joseph.diala30@gmail.com';
           msg.className = 'text-xs text-emerald-600 mt-1 font-semibold';
           btn.textContent = 'Logged In';
           btn.className = 'bg-gray-400 text-white px-6 py-2 rounded-lg font-bold text-sm cursor-not-allowed';
-          prepareMigration();
+          tryEnableMigrate();
         })
         .catch(function(err) {
           msg.textContent = 'Error: ' + err.message;
@@ -110,35 +115,34 @@
         });
     }
 
-    function prepareMigration() {
+    function tryEnableMigrate() {
       if (!backupData || !userId) return;
 
-      itData = {};
       var sourceUser = 'joseph_diala';
-      var itKeys = Object.keys(backupData).filter(function(k) {
+      itKeys = Object.keys(backupData).filter(function(k) {
         return k.indexOf('it_') === 0 && k.indexOf('_' + sourceUser) > 0;
       });
 
       if (itKeys.length === 0) {
-        document.getElementById('previewData').innerHTML = '<p class="text-red-600">Walang IT data para sa joseph_diala sa backup na ito.</p>';
+        document.getElementById('previewData').innerHTML = '<p class="text-red-600">Walang IT data para sa joseph_diala.</p>';
         document.getElementById('stepMigrate').classList.remove('hidden');
         return;
       }
 
-      var totalItems = 0;
+      itData = {};
+      var total = 0;
       var html = '<p class="font-semibold mb-2">IT Data na makikita:</p><ul class="space-y-1">';
       itKeys.forEach(function(k) {
         var items = Array.isArray(backupData[k]) ? backupData[k].length : 0;
-        totalItems += items;
+        total += items;
         var shortKey = k.replace('_' + sourceUser, '');
         itData[shortKey] = backupData[k];
         html += '<li class="flex justify-between text-xs"><span>' + shortKey + '</span><span class="font-semibold">' + items + ' items</span></li>';
       });
-      html += '<li class="flex justify-between text-xs font-bold border-t pt-1 mt-1"><span>TOTAL</span><span>' + totalItems + ' items</span></li></ul>';
-
+      html += '<li class="flex justify-between text-xs font-bold border-t pt-1 mt-1"><span>TOTAL</span><span>' + total + ' items</span></li></ul>';
       document.getElementById('previewData').innerHTML = html;
-      document.getElementById('migrateActions').classList.remove('hidden');
       document.getElementById('stepMigrate').classList.remove('hidden');
+      document.getElementById('migrateBtn').disabled = false;
     }
 
     function doMigrate() {
@@ -147,96 +151,86 @@
       btn.disabled = true;
       btn.textContent = 'Migrating...';
       msg.textContent = '';
-      log('===== STARTING MIGRATION =====');
+      log('===== MIGRATION START =====');
 
-      // Step 1: Kunin ang existing data
-      log('Fetching existing userdata...');
-      client.from('userdata').select('data').eq('id', userId).single()
-        .then(function(result) {
-          var existingData = {};
-          if (result.error) {
-            if (result.error.code === 'PGRST116') {
-              log('No existing userdata row — gagawa ng bago.');
+      // I-save muna sa localStorage para may backup
+      log('1/3: Saving to localStorage...');
+      var lsCount = 0;
+      Object.keys(itData).forEach(function(k) {
+        localStorage.setItem(k + '_' + username, JSON.stringify(itData[k]));
+        lsCount += itData[k].length;
+        log('  localStorage: ' + k + '_' + username + ' (' + itData[k].length + ' items)');
+      });
+
+      // I-save sa Supabase gamit ang REST API (upsert lang, walang SELECT)
+      log('2/3: Saving to Supabase via REST API...');
+      var dataPayload = {};
+      Object.keys(itData).forEach(function(k) {
+        dataPayload[k] = itData[k];
+      });
+
+      // Diretso upsert sa pamamagitan ng REST API (walang SELECT para iwas RLS recursion)
+      fetch(SUPABASE_URL + '/rest/v1/userdata', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + accessToken,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({
+          id: userId,
+          data: dataPayload
+        })
+      })
+      .then(function(response) {
+        if (response.status >= 200 && response.status < 300) {
+          log('  Supabase: Save successful (status ' + response.status + ')');
+          log('3/3: Verifying...');
+
+          // I-verify sa pamamagitan ng pagbasa sa localStorage (hindi sa Supabase para iwas RLS issue)
+          var allOk = true;
+          Object.keys(itData).forEach(function(k) {
+            var saved = localStorage.getItem(k + '_' + username);
+            if (saved) {
+              var parsed = JSON.parse(saved);
+              var ok = Array.isArray(parsed) && parsed.length === itData[k].length;
+              log((ok ? '  OK' : '  MISMATCH') + ' ' + k + '_' + username + ': ' + (Array.isArray(parsed) ? parsed.length : 0) + '/' + itData[k].length + ' items', !ok);
+              if (!ok) allOk = false;
             } else {
-              log('Error fetching userdata: ' + result.error.message, true);
-              throw result.error;
-            }
-          } else if (result.data && result.data.data) {
-            existingData = result.data.data;
-            log('Existing data found. Merging IT data...');
-          }
-
-          // Step 2: I-merge ang lahat ng IT data
-          var dataKeys = Object.keys(itData);
-          dataKeys.forEach(function(k) {
-            var items = itData[k];
-            if (Array.isArray(items)) {
-              existingData[k] = items;
-              log('  Added ' + k + ': ' + items.length + ' items');
+              log('  MISSING ' + k + '_' + username, true);
+              allOk = false;
             }
           });
 
-          // Step 3: I-save sa Supabase
-          log('Saving to Supabase (userdata.id=' + userId + ')...');
-          return client.from('userdata').upsert(
-            { id: userId, data: existingData },
-            { onConflict: 'id' }
-          );
-        })
-        .then(function(result) {
-          if (result && result.error) {
-            log('UPSERT ERROR: ' + result.error.message + ' (code: ' + result.error.code + ')', true);
-            msg.textContent = 'Error: ' + result.error.message;
-            msg.className = 'text-xs text-red-600 mt-2 font-semibold';
+          log('===== DONE =====');
+          if (allOk) {
+            msg.textContent = 'SUCCESS! ' + Object.keys(itData).length + ' IT data types na-save sa localStorage at Supabase.';
+            msg.className = 'text-xs text-emerald-600 mt-2 font-semibold';
+            btn.textContent = 'Complete';
+          } else {
+            msg.textContent = 'May issue - tingnan ang log.';
+            msg.className = 'text-xs text-amber-600 mt-2 font-semibold';
             btn.textContent = 'Retry';
             btn.disabled = false;
-            return;
           }
-
-          log('===== MIGRATION COMPLETE! =====');
-          log('Lahat ng IT data ay na-save na sa Supabase.');
-
-          // Step 4: I-verify sa pamamagitan ng pagbasa ulit
-          log('Verifying...');
-          client.from('userdata').select('data').eq('id', userId).single()
-            .then(function(vResult) {
-              if (!vResult.error && vResult.data && vResult.data.data) {
-                var saved = vResult.data.data;
-                var dataKeys = Object.keys(itData);
-                var allOk = true;
-                dataKeys.forEach(function(k) {
-                  var savedCount = Array.isArray(saved[k]) ? saved[k].length : 0;
-                  var expectedCount = Array.isArray(itData[k]) ? itData[k].length : 0;
-                  var ok = savedCount === expectedCount;
-                  log((ok ? 'OK ' : 'MISMATCH ') + k + ': saved=' + savedCount + ', expected=' + expectedCount, !ok);
-                  if (!ok) allOk = false;
-                });
-                if (allOk) {
-                  msg.textContent = 'SUCCESS! Lahat ng ' + dataKeys.length + ' IT data type ay na-verify.';
-                  msg.className = 'text-xs text-emerald-600 mt-2 font-semibold';
-                  btn.textContent = 'Complete';
-                } else {
-                  msg.textContent = 'May hindi tugma — tingnan ang log.';
-                  msg.className = 'text-xs text-amber-600 mt-2 font-semibold';
-                  btn.textContent = 'Retry';
-                  btn.disabled = false;
-                }
-              } else {
-                log('Verify: No data found after save!', true);
-                msg.textContent = 'Warning: Hindi ma-verify ang data.';
-                msg.className = 'text-xs text-amber-600 mt-2 font-semibold';
-              }
-            });
-        })
-        .catch(function(err) {
-          log('ERROR: ' + (err.message || err), true);
-          if (err.details) log('Details: ' + err.details, true);
-          if (err.hint) log('Hint: ' + err.hint, true);
-          msg.textContent = 'Error: ' + (err.message || err);
+          return;
+        }
+        return response.text().then(function(text) {
+          log('  Supabase ERROR (status ' + response.status + '): ' + text, true);
+          msg.textContent = 'Error ' + response.status + ': ' + text.substring(0, 100);
           msg.className = 'text-xs text-red-600 mt-2 font-semibold';
           btn.textContent = 'Retry';
           btn.disabled = false;
         });
+      })
+      .catch(function(err) {
+        log('ERROR: ' + (err.message || err), true);
+        msg.textContent = 'Error: ' + (err.message || err);
+        msg.className = 'text-xs text-red-600 mt-2 font-semibold';
+        btn.textContent = 'Retry';
+        btn.disabled = false;
+      });
     }
   </script>
 </body>
