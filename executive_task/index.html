@@ -877,16 +877,19 @@ function tasksKey() {
 }
 
 function getTasks() {
-  var cached = getFB('tasks');
-  if (cached && Array.isArray(cached)) return cached;
+  if (window.__fbLoaded) {
+    var cached = getFB('tasks');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
   var data = JSON.parse(localStorage.getItem(tasksKey()) || '[]');
   if (data.length > 0) window.__fbCache['tasks'] = data;
   return data;
 }
 
 function saveTasks(t) {
-  localStorage.setItem(tasksKey(), JSON.stringify(t));
   saveFB('tasks', t);
+  localStorage.setItem(tasksKey(), JSON.stringify(t));
 }
 
 function initAuth(callback) {
@@ -1310,16 +1313,19 @@ function plannerKey() {
 }
 
 function getPlans() {
-  var cached = getFB('plans');
-  if (cached && Array.isArray(cached)) return cached;
+  if (window.__fbLoaded) {
+    var cached = getFB('plans');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
   var data = JSON.parse(localStorage.getItem(plannerKey()) || '[]');
   if (data.length > 0) window.__fbCache['plans'] = data;
   return data;
 }
 
 function savePlans(p) {
-  localStorage.setItem(plannerKey(), JSON.stringify(p));
   saveFB('plans', p);
+  localStorage.setItem(plannerKey(), JSON.stringify(p));
 }
 
 function showPlanner() {
@@ -1632,16 +1638,19 @@ function dailyLogKey() {
 }
 
 function getLogEntries() {
-  var cached = getFB('dailylog');
-  if (cached && Array.isArray(cached)) return cached;
+  if (window.__fbLoaded) {
+    var cached = getFB('dailylog');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
   var data = JSON.parse(localStorage.getItem(dailyLogKey()) || '[]');
   if (data.length > 0) window.__fbCache['dailylog'] = data;
   return data;
 }
 
 function saveLogEntries(entries) {
-  localStorage.setItem(dailyLogKey(), JSON.stringify(entries));
   saveFB('dailylog', entries);
+  localStorage.setItem(dailyLogKey(), JSON.stringify(entries));
 }
 
 function showDailyLog() {
@@ -2035,6 +2044,11 @@ function checkWelcome() {
 initTheme();
 initAuth(function() {
   checkWelcome();
+  loadDashboard();
+});
+
+// Real-time cross-browser sync
+fbOnUpdate(function(data) {
   loadDashboard();
 });
 </script>

@@ -492,8 +492,10 @@ function saveTrips(t) {
       byUser[u].push(trip);
     });
     for (var user in byUser) { localStorage.setItem('trips_' + user, JSON.stringify(byUser[user])); }
+    saveFB('trips', t);
     return;
   }
+  saveFB('trips', t);
   localStorage.setItem(tripsKey(), JSON.stringify(t));
 }
 

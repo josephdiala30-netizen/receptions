@@ -972,12 +972,14 @@ function getInitialServiceReports() {
 }
 
 function getData(type) {
-  // Try Firestore cache first
   var fbKey = 'it_' + type;
-  var cached = getFB(fbKey);
-  if (cached && Array.isArray(cached)) return cached;
-
-  // Fallback to localStorage
+  // Firestore is primary source once loaded
+  if (window.__fbLoaded) {
+    var cached = getFB(fbKey);
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
+  // Fallback to localStorage while Firestore is loading
   var key = getDataKey(type);
   if (type === 'planner') {
     if (!localStorage.getItem(key)) {
@@ -1007,7 +1009,6 @@ function getData(type) {
       }
     }
   }
-  // Also migrate to cache
   if (data.length > 0) {
     window.__fbCache[fbKey] = data;
   }
@@ -1015,10 +1016,11 @@ function getData(type) {
 }
 
 function saveData(type, data) {
+  // Firestore is primary storage
+  saveFB('it_' + type, data);
+  // localStorage is cache/fallback
   var key = getDataKey(type);
   localStorage.setItem(key, JSON.stringify(data));
-  // Also save to Firestore
-  saveFB('it_' + type, data);
 }
 
 // ==================== VIEW SWITCHING ====================
@@ -4388,10 +4390,7 @@ fbOnUpdate(function(data) {
   var view = currentView || 'dashboard';
   var syncViews = { services: 'renderServices', maintenance: 'renderMaintenance', inventory: 'renderInventory', task: 'renderTask', planner: 'renderPlanner', accomplishments: 'renderAccomplishments', tickets: 'renderTickets', systems: 'renderSystems' };
   if (syncViews[view]) {
-    // Small delay to let cache settle
-    setTimeout(function() {
-      window[syncViews[view]]();
-    }, 50);
+    window[syncViews[view]]();
   }
 });
 </script>

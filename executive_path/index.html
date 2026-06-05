@@ -466,16 +466,19 @@ function tripsKey() {
 }
 
 function getTrips() {
-  var cached = getFB('trips');
-  if (cached && Array.isArray(cached)) return cached;
+  if (window.__fbLoaded) {
+    var cached = getFB('trips');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
   var data = JSON.parse(localStorage.getItem(tripsKey()) || '[]');
   if (data.length > 0) window.__fbCache['trips'] = data;
   return data;
 }
 
 function saveTrips(t) {
-  localStorage.setItem(tripsKey(), JSON.stringify(t));
   saveFB('trips', t);
+  localStorage.setItem(tripsKey(), JSON.stringify(t));
 }
 
 function initAuth(callback) {
@@ -829,6 +832,11 @@ initAuth(function() {
   loadDashboard();
 });
 initTripNotifications();
+
+// Real-time cross-browser sync
+fbOnUpdate(function(data) {
+  loadDashboard();
+});
 </script>
 </body>
 </html>
