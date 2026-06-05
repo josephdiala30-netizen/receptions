@@ -662,6 +662,51 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function mergeSupabaseUsers(sbUsers, localUsers) {
+  if (!sbUsers || !sbUsers.length) return localUsers;
+  var merged = localUsers.slice();
+  sbUsers.forEach(function(sb) {
+    var existing = merged.find(function(m) { return m.username === sb.username || m.email === sb.email; });
+    if (existing) {
+      existing.role = sb.role || existing.role;
+      existing.name = sb.name || sb.username || existing.name;
+      existing.email = sb.email || existing.email;
+      existing.isAdmin = sb.is_admin || (sb.role === 'admin');
+    } else {
+      merged.push({ username: sb.username, name: sb.name || sb.username, email: sb.email || '', role: sb.role || 'executive_task', isAdmin: sb.is_admin || false });
+    }
+  });
+  return merged;
+}
+
+function syncSupabaseUsers(callback) {
+  if (typeof supabaseClient === 'undefined') { if (callback) callback(); return; }
+
+  // Try RPC first (bypass RLS)
+  supabaseClient.rpc('get_all_profiles').then(function(rpcResult) {
+    if (!rpcResult.error && rpcResult.data && rpcResult.data.length) {
+      var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      var merged = mergeSupabaseUsers(rpcResult.data, localUsers);
+      localStorage.setItem('users', JSON.stringify(merged));
+      if (callback) callback();
+      return;
+    }
+    // RPC failed, try direct SELECT (gagana pagkatapos ng RLS fix)
+    throw new Error('RPC failed');
+  }).catch(function() {
+    supabaseClient.from('profiles').select('*').then(function(pResult) {
+      if (!pResult.error && pResult.data && pResult.data.length) {
+        var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        var merged = mergeSupabaseUsers(pResult.data, localUsers);
+        localStorage.setItem('users', JSON.stringify(merged));
+      }
+      if (callback) callback();
+    }).catch(function() {
+      if (callback) callback();
+    });
+  });
+}
+
 function getUsers() {
   var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
   // Merge legacy users_executive_it into single source
@@ -675,35 +720,6 @@ function getUsers() {
     localStorage.setItem('users', JSON.stringify(localUsers));
     localStorage.removeItem('users_executive_it');
   }
-
-  // Subukang kunin ang users mula sa Supabase (mas accurate)
-  // Gamit ang RPC para hindi ma-RLS block
-  if (typeof supabaseClient !== 'undefined') {
-    try {
-    supabaseClient.rpc('get_all_profiles').then(function(result) {
-        if (result.error) return;
-        var sbUsers = result.data || [];
-        var merged = localUsers.slice();
-        sbUsers.forEach(function(sb) {
-          var existing = merged.find(function(m) { return m.username === sb.username || m.email === sb.email; });
-          if (existing) {
-            existing.role = sb.role || existing.role;
-            existing.name = sb.name || sb.username || existing.name;
-            existing.email = sb.email || existing.email;
-            existing.isAdmin = sb.is_admin || (sb.role === 'admin');
-          } else {
-            merged.push({ username: sb.username, name: sb.name || sb.username, email: sb.email || '', role: sb.role || 'executive_task', isAdmin: sb.is_admin || false });
-          }
-        });
-        localStorage.setItem('users', JSON.stringify(merged));
-        // I-refresh ang current section kung hindi dashboard
-        var currId = SECTIONS.find(function(s) { return !document.getElementById(s).classList.contains('hidden'); });
-        if (currId === 'pageUsers') renderUsers();
-        if (currId === 'pageDashboard') loadDashboard();
-      });
-    } catch(e) {}
-  }
-
   return localUsers;
 }
 function saveUsers(users) {
@@ -1290,8 +1306,10 @@ function performGlobalSearch() {
 initTheme();
 initAuth(function() {
   checkWelcome();
-  loadDashboard();
-  populateUserFilters();
+  syncSupabaseUsers(function() {
+    loadDashboard();
+    populateUserFilters();
+  });
 });
 </script>
 </body>
