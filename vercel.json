@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "public": true,
   "cleanUrls": true,
   "trailingSlash": true,
   "rewrites": [
@@ -14,7 +13,6 @@
     { "source": "/reports/", "destination": "/reports/index.html" },
     { "source": "/plan_new_trip/", "destination": "/plan_new_trip/index.html" },
     { "source": "/trip_itinerary/", "destination": "/trip_itinerary/index.html" },
-    { "source": "/expenses_budgeting/", "destination": "/expenses_budgeting/index.html" },
-
+    { "source": "/expenses_budgeting/", "destination": "/expenses_budgeting/index.html" }
   ]
 }
