@@ -319,6 +319,13 @@ function fbLogin(email, password, callback) {
       var user = result.data.user;
       window.__fbUser = { uid: user.id, email: user.email };
 
+      // Kunin ang role mula sa JWT metadata (reliable kahit walang profile row)
+      var jwtMeta = user.user_metadata || {};
+      var jwtRole = jwtMeta.role || null;
+      var jwtIsAdmin = jwtMeta.is_admin || false;
+      var jwtUsername = jwtMeta.username || null;
+      var jwtName = jwtMeta.name || null;
+
       // Read profile from Supabase
       client.from('profiles').select('*').eq('id', user.id).single()
         .then(function(pResult) {
@@ -356,39 +363,46 @@ function fbLogin(email, password, callback) {
                 if (!profile.name) profile.name = localUser.name;
               }
 
+              // Role priority: profile > JWT metadata > localStorage > default
+              var finalRole = profile.role || jwtRole || (localUser ? localUser.role : null) || 'executive_path';
+              var finalIsAdmin = profile.isAdmin !== undefined && profile.isAdmin !== null ? profile.isAdmin : jwtIsAdmin || (localUser ? localUser.isAdmin : false);
+              var finalUsername = profile.username || jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0];
+              var finalName = profile.name || jwtName || (localUser ? localUser.name : null) || finalUsername;
+
               var session = {
-                username: profile.username || user.email.split('@')[0],
-                name: profile.name || profile.username || user.email.split('@')[0],
+                username: finalUsername,
+                name: finalName,
                 email: user.email,
-                isAdmin: profile.isAdmin || false,
-                role: profile.role || 'executive_path',
+                isAdmin: finalIsAdmin,
+                role: finalRole,
                 supabaseUid: user.id,
                 loggedIn: true,
                 timestamp: Date.now()
               };
               fbSaveSession(session);
 
-              // Sync profile back to Supabase if mismatch
-              var updatedProfile = { username: session.username, name: session.name, email: session.email, isAdmin: session.isAdmin, role: session.role };
+              // Sync profile back to Supabase
               client.from('profiles').upsert({
                 id: user.id,
-                username: updatedProfile.username,
-                name: updatedProfile.name,
-                email: updatedProfile.email,
-                role: updatedProfile.role,
-                is_admin: updatedProfile.isAdmin
+                username: finalUsername,
+                name: finalName,
+                email: user.email,
+                role: finalRole,
+                is_admin: finalIsAdmin
               }).catch(function(e) { console.error('Profile sync error:', e); });
 
               if (callback) callback(null, session);
             })
             .catch(function(err) {
               console.error('Userdata read error:', err);
+              var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+              var localUser = localUsers.find(function(u) { return u.email === user.email; });
               var session = {
-                username: user.email.split('@')[0],
-                name: user.email.split('@')[0],
+                username: jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0],
+                name: jwtName || (localUser ? localUser.name : null) || user.email.split('@')[0],
                 email: user.email,
-                isAdmin: false,
-                role: 'executive_path',
+                isAdmin: jwtIsAdmin || (localUser ? localUser.isAdmin || false : false),
+                role: jwtRole || (localUser ? localUser.role : null) || 'executive_path',
                 supabaseUid: user.id,
                 loggedIn: true,
                 timestamp: Date.now()
@@ -399,15 +413,14 @@ function fbLogin(email, password, callback) {
         })
         .catch(function(err) {
           console.error('Profile read error:', err);
-          // Fallback session
           var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
           var localUser = localUsers.find(function(u) { return u.email === user.email; });
           var session = {
-            username: user.email.split('@')[0],
-            name: user.email.split('@')[0],
+            username: jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0],
+            name: jwtName || (localUser ? localUser.name : null) || user.email.split('@')[0],
             email: user.email,
-            isAdmin: localUser ? localUser.isAdmin || false : false,
-            role: localUser ? (localUser.role || 'executive_path') : 'executive_path',
+            isAdmin: jwtIsAdmin || (localUser ? localUser.isAdmin || false : false),
+            role: jwtRole || (localUser ? localUser.role : null) || 'executive_path',
             supabaseUid: user.id,
             loggedIn: true,
             timestamp: Date.now()
