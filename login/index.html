@@ -271,19 +271,16 @@
         } else {
           // Fallback to Firebase if not found locally
           if (typeof firebase !== 'undefined') {
-            // Add a timeout so it doesn't hang forever on slow networks
-            var fbTimeout = setTimeout(function() {
-              window.__fbLoggingIn = false;
-              setLoading(false);
-              errEl.textContent = 'Login timeout. Please check your connection.';
-              errEl.classList.remove('hidden');
-            }, 30000); // 30s max wait
+            // Non-blocking indicator after 15s — just updates button text, never errors
+            var slowNotice = setTimeout(function() {
+              document.getElementById('loginBtnText').textContent = 'Still connecting…';
+            }, 15000);
 
             fbLogin(loginInput, pass, function(loginErr, session) {
-              clearTimeout(fbTimeout);
+              clearTimeout(slowNotice);
               window.__fbLoggingIn = false;
+              setLoading(false);
               if (loginErr) {
-                setLoading(false);
                 errEl.textContent = 'Invalid email or password.';
                 errEl.classList.remove('hidden');
               } else {
