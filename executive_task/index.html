@@ -383,6 +383,11 @@ button, input, select, textarea { min-width: 0; }
       <option value="high">High</option>
       <option value="urgent">Urgent</option>
     </select>
+    <select id="filterType" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="filterTasks()">
+      <option value="all">All Tasks</option>
+      <option value="mine">My Tasks</option>
+      <option value="assigned">Assigned to Me</option>
+    </select>
     <button class="flex items-center gap-2 bg-[#6366F1] text-white px-6 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="openCreateModal()">
       <span class="material-symbols-outlined">add</span> New Task
     </button>
@@ -536,6 +541,12 @@ button, input, select, textarea { min-width: 0; }
       <div>
         <label class="font-label-md text-on-surface-variant block mb-1.5">Category</label>
         <input id="taskCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="e.g. Development, Design, Marketing" type="text"/>
+      </div>
+      <div>
+        <label class="font-label-md text-on-surface-variant block mb-1.5">Assign To</label>
+        <select id="taskAssignee" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option value="">— Unassigned —</option>
+        </select>
       </div>
       <div>
         <label class="font-label-md text-on-surface-variant block mb-1.5">Due Date</label>
@@ -900,6 +911,87 @@ function saveTasks(t) {
   localStorage.setItem(tasksKey(), JSON.stringify(t));
 }
 
+function sharedTasksKey() {
+  var s = getSession();
+  return s ? 'shared_tasks_' + s.username : 'shared_tasks';
+}
+
+function getSharedTasks() {
+  if (window.__fbLoaded) {
+    var cached = getFB('shared_tasks');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
+  var data = JSON.parse(localStorage.getItem(sharedTasksKey()) || '[]');
+  if (data.length > 0) window.__fbCache['shared_tasks'] = data;
+  return data;
+}
+
+function saveSharedTasks(t) {
+  saveFB('shared_tasks', t);
+  localStorage.setItem(sharedTasksKey(), JSON.stringify(t));
+}
+
+function getAllTasks() {
+  var personal = getTasks().slice();
+  var shared = getSharedTasks().map(function(t) {
+    var copy = {};
+    for (var k in t) copy[k] = t[k];
+    copy._shared = true;
+    return copy;
+  });
+  return personal.concat(shared);
+}
+
+function currentUsername() {
+  var s = getSession();
+  return s ? s.username : null;
+}
+
+function populateAssigneeDropdown() {
+  var sel = document.getElementById('taskAssignee');
+  if (!sel) return;
+  var cur = currentUsername();
+  var users = JSON.parse(localStorage.getItem('users') || '[]');
+  var html = '<option value="">— Unassigned —</option>';
+  var seen = {};
+  if (cur) seen[cur] = true;
+  users.forEach(function(u) {
+    if (u.username && !seen[u.username]) {
+      seen[u.username] = true;
+      html += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + ' (@' + escapeHtml(u.username) + ')</option>';
+    }
+  });
+  html += '<option value="__reload__">⟳ Reload user list…</option>';
+  sel.innerHTML = html;
+
+  // Also try to get more users from Supabase
+  var client = getClient();
+  if (client) {
+    client.rpc('get_all_usernames').then(function(r) {
+      if (!r.error && r.data && r.data.length > 0) {
+        var html2 = '<option value="">— Unassigned —</option>';
+        var seen2 = {};
+        if (cur) seen2[cur] = true;
+        r.data.forEach(function(u) {
+          if (u.username && !seen2[u.username]) {
+            seen2[u.username] = true;
+            html2 += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + ' (@' + escapeHtml(u.username) + ')</option>';
+          }
+        });
+        sel.innerHTML = html2;
+      }
+    });
+  }
+}
+
+// Pag nag-click sa reload option, i-refresh ang dropdown
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'taskAssignee' && e.target.value === '__reload__') {
+    populateAssigneeDropdown();
+  }
+});
+
 function initAuth(callback) {
   initFirebase(function(err, user) {
     if (!err && user && window.__fbLoaded) {
@@ -998,7 +1090,7 @@ function statusClass(s) {
 
 function loadDashboard() {
   showSection('pageDashboard');
-  var tasks = getTasks();
+  var tasks = getAllTasks();
 
   document.getElementById('totalTasks').textContent = tasks.length;
   var sub = document.getElementById('totalTasksSub');
@@ -1041,32 +1133,40 @@ function loadDashboard() {
 }
 
 function renderTaskCard(t) {
+  var isShared = t._shared || false;
   var dueHtml = t.dueDate ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + formatDate(t.dueDate) + '</span>' : '';
   var catHtml = t.category ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">folder</span> ' + escapeHtml(t.category) + '</span>' : '';
+  var assignHtml = '';
+  if (isShared && t.assignedBy) {
+    assignHtml = '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> by ' + escapeHtml(t.assignedBy) + '</span>';
+  } else if (t.assignedTo) {
+    assignHtml = '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person_add</span> to ' + escapeHtml(t.assignedTo) + '</span>';
+  }
   var descHtml = t.description ? '<p class="font-label-md text-on-surface-variant mt-1 line-clamp-2">' + escapeHtml(t.description) + '</p>' : '';
 
   return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant card-lift cursor-pointer" onclick="viewTask(' + t.id + ')">' +
-    '<div class="p-3 rounded-xl bg-indigo-100 text-indigo-600"><span class="material-symbols-outlined">task</span></div>' +
+    '<div class="p-3 rounded-xl ' + (isShared ? 'bg-amber-100 text-amber-600' : 'bg-indigo-100 text-indigo-600') + '"><span class="material-symbols-outlined">' + (isShared ? 'share' : 'task') + '</span></div>' +
     '<div class="flex-1 min-w-0">' +
     '<div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary truncate">' + escapeHtml(t.title) + '</h4>' +
+    (isShared ? '<span class="font-label-md px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">Assigned</span>' : '') +
     '<span class="' + statusClass(t.status) + '">' + statusLabel(t.status) + '</span>' +
     '<span class="' + priorityClass(t.priority) + '">' + priorityLabel(t.priority) + '</span></div>' +
     descHtml +
     '<div class="flex items-center gap-4 mt-2 text-on-surface-variant flex-wrap">' +
-    dueHtml + catHtml +
+    dueHtml + catHtml + assignHtml +
     '</div></div>' +
     '<div class="flex items-start gap-1 ml-2 flex-shrink-0" onclick="event.stopPropagation()">' +
     (t.status !== 'done' ? '<button class="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors" title="Mark Done" onclick="setTaskStatus(' + t.id + ',\'done\')"><span class="material-symbols-outlined text-sm">check</span></button>' : '') +
     (t.status === 'todo' ? '<button class="p-1.5 rounded-lg hover:bg-blue-100 text-blue-600 transition-colors" title="Start" onclick="setTaskStatus(' + t.id + ',\'progress\')"><span class="material-symbols-outlined text-sm">play_arrow</span></button>' : '') +
-    '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="openEditModal(' + t.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
-    '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteTask(' + t.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+    (!isShared ? '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="openEditModal(' + t.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' : '') +
+    (!isShared ? '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteTask(' + t.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' : '') +
     '</div></div>';
 }
 
 var calendarDate = new Date();
 
 function renderCalendar() {
-  var tasks = getTasks();
+  var tasks = getAllTasks();
   var year = calendarDate.getFullYear();
   var month = calendarDate.getMonth();
 
@@ -1132,7 +1232,7 @@ function goToToday() {
 }
 
 function showDayTasks(dateStr) {
-  var tasks = getTasks();
+  var tasks = getAllTasks();
   var dayTasks = tasks.filter(function(t) { return t.dueDate === dateStr; });
   var el = document.getElementById('calendarTaskList');
   if (dayTasks.length === 0) {
@@ -1174,14 +1274,17 @@ function showAllTasks() {
 }
 
 function filterTasks() {
-  var tasks = getTasks();
+  var tasks = getAllTasks();
   var q = (document.getElementById('globalSearch').value || '').toLowerCase();
   var status = document.getElementById('filterStatus').value;
   var priority = document.getElementById('filterPriority').value;
+  var typeFilter = document.getElementById('filterType') ? document.getElementById('filterType').value : 'all';
 
   var filtered = tasks.filter(function(t) {
     if (status !== 'all' && t.status !== status) return false;
     if (priority !== 'all' && t.priority !== priority) return false;
+    if (typeFilter === 'mine' && t._shared) return false;
+    if (typeFilter === 'assigned' && !t._shared) return false;
     if (q && (t.title || '').toLowerCase().indexOf(q) === -1 && (t.description || '').toLowerCase().indexOf(q) === -1 && (t.category || '').toLowerCase().indexOf(q) === -1) return false;
     return true;
   });
@@ -1207,6 +1310,8 @@ function openCreateModal() {
   document.getElementById('taskPriority').value = 'medium';
   document.getElementById('taskCategory').value = '';
   document.getElementById('taskDueDate').value = '';
+  populateAssigneeDropdown();
+  document.getElementById('taskAssignee').value = '';
   document.getElementById('taskModal').classList.remove('hidden');
 }
 
@@ -1222,6 +1327,9 @@ function openEditModal(id) {
   document.getElementById('taskPriority').value = t.priority || 'medium';
   document.getElementById('taskCategory').value = t.category || '';
   document.getElementById('taskDueDate').value = t.dueDate || '';
+  populateAssigneeDropdown();
+  var as = document.getElementById('taskAssignee');
+  if (as) as.value = t.assignedTo || '';
   document.getElementById('taskModal').classList.remove('hidden');
 }
 
@@ -1235,18 +1343,76 @@ function saveTask() {
 
   var tasks = getTasks();
   var now = new Date().toISOString();
+  var assignedTo = document.getElementById('taskAssignee').value.trim();
+  var curUser = currentUsername();
 
   if (editingTaskId) {
     var t = tasks.find(function(x) { return x.id === editingTaskId; });
     if (t) {
+      var prevAssignedTo = t.assignedTo || '';
       t.title = title;
       t.description = document.getElementById('taskDesc').value.trim();
       t.status = document.getElementById('taskStatus').value;
       t.priority = document.getElementById('taskPriority').value;
       t.category = document.getElementById('taskCategory').value.trim();
       t.dueDate = document.getElementById('taskDueDate').value;
+      t.assignedTo = assignedTo || '';
+      t.assignedBy = t.assignedBy || curUser || '';
       t.updatedAt = now;
+
+      // Handle reassignment/unassignment
+      if (prevAssignedTo && prevAssignedTo !== assignedTo && prevAssignedTo !== curUser) {
+        removeSharedTaskRPC(prevAssignedTo, t.id);
+      }
+      if (assignedTo && assignedTo !== curUser) {
+        assignTaskRPC(assignedTo, t);
+      }
     }
+  } else {
+    var newTask = {
+      id: Date.now(),
+      title: title,
+      description: document.getElementById('taskDesc').value.trim(),
+      status: document.getElementById('taskStatus').value,
+      priority: document.getElementById('taskPriority').value,
+      category: document.getElementById('taskCategory').value.trim(),
+      dueDate: document.getElementById('taskDueDate').value,
+      assignedTo: assignedTo || '',
+      assignedBy: curUser || '',
+      createdAt: now,
+      updatedAt: now
+    };
+    tasks.push(newTask);
+
+    if (assignedTo && assignedTo !== curUser) {
+      assignTaskRPC(assignedTo, newTask);
+    }
+  }
+
+  saveTasks(tasks);
+  closeModal();
+  refreshCurrentView();
+}
+
+function assignTaskRPC(assigneeUsername, taskObj) {
+  var client = getClient();
+  if (!client) return;
+  var taskCopy = {};
+  for (var k in taskObj) {
+    if (k !== '_shared') taskCopy[k] = taskObj[k];
+  }
+  client.rpc('assign_task', { p_assignee_username: assigneeUsername, p_task: taskCopy }).catch(function(e) {
+    console.error('assign_task RPC error:', e);
+  });
+}
+
+function removeSharedTaskRPC(assigneeUsername, taskId) {
+  var client = getClient();
+  if (!client) return;
+  client.rpc('remove_shared_task', { p_assignee_username: assigneeUsername, p_task_id: taskId }).catch(function(e) {
+    console.error('remove_shared_task RPC error:', e);
+  });
+}
   } else {
     tasks.push({
       id: Date.now(),
@@ -1267,6 +1433,29 @@ function saveTask() {
 }
 
 function setTaskStatus(id, status) {
+  var curUser = currentUsername();
+  // Check if it's a shared task first
+  var shared = getSharedTasks();
+  var st = shared.find(function(x) { return x.id === id; });
+  if (st) {
+    st.status = status;
+    st.updatedAt = new Date().toISOString();
+    saveSharedTasks(shared);
+    // Sync status back to creator
+    if (st.assignedBy && st.assignedBy !== curUser) {
+      var client = getClient();
+      if (client) {
+        client.rpc('update_assigned_task_status', {
+          p_creator_username: st.assignedBy,
+          p_task_id: id,
+          p_status: status
+        }).catch(function(e) { console.error('update_assigned_task_status error:', e); });
+      }
+    }
+    refreshCurrentView();
+    return;
+  }
+  // Personal task
   var tasks = getTasks();
   var t = tasks.find(function(x) { return x.id === id; });
   if (t) { t.status = status; t.updatedAt = new Date().toISOString(); }
@@ -1277,30 +1466,41 @@ function setTaskStatus(id, status) {
 function deleteTask(id) {
   if (!confirm('Delete this task?')) return;
   var tasks = getTasks();
+  var deleted = tasks.find(function(x) { return x.id === id; });
   tasks = tasks.filter(function(x) { return x.id !== id; });
   saveTasks(tasks);
+  if (deleted && deleted.assignedTo && deleted.assignedTo !== currentUsername()) {
+    removeSharedTaskRPC(deleted.assignedTo, id);
+  }
   refreshCurrentView();
 }
 
 function viewTask(id) {
-  var tasks = getTasks();
-  var t = tasks.find(function(x) { return x.id === id; });
+  var allTasks = getAllTasks();
+  var t = allTasks.find(function(x) { return x.id === id; });
   if (!t) return;
+  var isShared = t._shared || false;
   document.getElementById('detailTitle').textContent = t.title || 'Untitled';
   var body = document.getElementById('detailBody');
   var dueStr = t.dueDate ? '<p><span class="font-label-md text-on-surface-variant">Due:</span> <span class="font-body-md">' + formatDate(t.dueDate) + '</span></p>' : '';
   var catStr = t.category ? '<p><span class="font-label-md text-on-surface-variant">Category:</span> <span class="font-body-md">' + escapeHtml(t.category) + '</span></p>' : '';
+  var assignStr = '';
+  if (isShared && t.assignedBy) {
+    assignStr = '<p><span class="font-label-md text-on-surface-variant">Assigned by:</span> <span class="font-body-md">' + escapeHtml(t.assignedBy) + '</span></p>';
+  } else if (t.assignedTo) {
+    assignStr = '<p><span class="font-label-md text-on-surface-variant">Assigned to:</span> <span class="font-body-md">' + escapeHtml(t.assignedTo) + '</span></p>';
+  }
   var descStr = t.description ? '<div><span class="font-label-md text-on-surface-variant">Description:</span><p class="font-body-md mt-1">' + escapeHtml(t.description) + '</p></div>' : '';
   body.innerHTML =
     '<div class="flex gap-2 items-center flex-wrap">' +
     '<span class="' + statusClass(t.status) + '">' + statusLabel(t.status) + '</span>' +
     '<span class="' + priorityClass(t.priority) + '">' + priorityLabel(t.priority) + '</span>' +
     '</div>' +
-    dueStr + catStr + descStr +
+    assignStr + dueStr + catStr + descStr +
     '<div class="flex gap-3 pt-3 border-t border-outline-variant">' +
     (t.status !== 'done' ? '<button class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl font-label-md hover:opacity-90" onclick="setTaskStatus(' + t.id + ',\'done\'); document.getElementById(\'taskDetailModal\').classList.add(\'hidden\')">Mark Done</button>' : '') +
     (t.status === 'todo' ? '<button class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl font-label-md hover:opacity-90" onclick="setTaskStatus(' + t.id + ',\'progress\'); document.getElementById(\'taskDetailModal\').classList.add(\'hidden\')">Start</button>' : '') +
-    '<button class="flex-1 border border-outline-variant py-2.5 rounded-xl font-label-md hover:bg-surface-container" onclick="document.getElementById(\'taskDetailModal\').classList.add(\'hidden\'); openEditModal(' + t.id + ')">Edit</button>' +
+    (!isShared ? '<button class="flex-1 border border-outline-variant py-2.5 rounded-xl font-label-md hover:bg-surface-container" onclick="document.getElementById(\'taskDetailModal\').classList.add(\'hidden\'); openEditModal(' + t.id + ')">Edit</button>' : '') +
     '</div>';
   document.getElementById('taskDetailModal').classList.remove('hidden');
 }

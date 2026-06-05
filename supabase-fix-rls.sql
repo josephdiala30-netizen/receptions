@@ -168,3 +168,141 @@ BEGIN
   RETURN TRUE;
 END;
 $$;
+
+-- ==================== TEAM COLLABORATION (OPTION B) ====================
+
+-- 11. RPC para makuha ang lahat ng username (para sa assignee dropdown)
+-- Any authenticated user can call this - walang sensitive data
+CREATE OR REPLACE FUNCTION public.get_all_usernames()
+RETURNS TABLE(username TEXT, name TEXT)
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+AS $$
+  SELECT username, name FROM public.profiles WHERE username IS NOT NULL ORDER BY username;
+$$;
+
+-- 12. RPC para mag-assign ng task sa ibang user
+-- Sinusulat ang task sa shared_tasks ng assignee gamit ang username
+CREATE OR REPLACE FUNCTION public.assign_task(
+  p_assignee_username TEXT,
+  p_task JSONB
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_assignee_id UUID;
+  v_existing JSONB;
+  v_task_id BIGINT;
+  v_filtered JSONB;
+BEGIN
+  -- Hanapin ang UUID ng assignee sa profiles
+  SELECT id INTO v_assignee_id FROM public.profiles WHERE username = p_assignee_username;
+  IF v_assignee_id IS NULL THEN RETURN FALSE; END IF;
+
+  v_task_id := (p_task->>'id')::BIGINT;
+
+  -- Kunin ang existing shared_tasks
+  SELECT COALESCE(data->'shared_tasks', '[]'::jsonb) INTO v_existing
+  FROM public.userdata WHERE id = v_assignee_id;
+
+  -- Remove duplicate kung same ID (support update/re-assign)
+  SELECT jsonb_agg(t) INTO v_filtered
+  FROM jsonb_array_elements(v_existing) t
+  WHERE (t->>'id')::BIGINT != v_task_id;
+
+  IF v_filtered IS NULL THEN v_filtered := '[]'::jsonb; END IF;
+
+  -- Alisin ang _shared flag bago i-store (client-side lang ito)
+  p_task := p_task - '_shared';
+
+  -- Add/update task
+  v_filtered := v_filtered || jsonb_build_array(p_task);
+
+  -- Save sa assignee's userdata
+  UPDATE public.userdata
+  SET data = data || jsonb_build_object('shared_tasks', v_filtered),
+      updated_at = now()
+  WHERE id = v_assignee_id;
+
+  RETURN TRUE;
+END;
+$$;
+
+-- 13. RPC para i-remove ang task sa shared_tasks ng assignee
+-- (kapag dinelete o inalis ng creator ang assignment)
+CREATE OR REPLACE FUNCTION public.remove_shared_task(
+  p_assignee_username TEXT,
+  p_task_id BIGINT
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_assignee_id UUID;
+  v_existing JSONB;
+  v_filtered JSONB;
+BEGIN
+  SELECT id INTO v_assignee_id FROM public.profiles WHERE username = p_assignee_username;
+  IF v_assignee_id IS NULL THEN RETURN FALSE; END IF;
+
+  SELECT COALESCE(data->'shared_tasks', '[]'::jsonb) INTO v_existing
+  FROM public.userdata WHERE id = v_assignee_id;
+
+  SELECT jsonb_agg(t) INTO v_filtered
+  FROM jsonb_array_elements(v_existing) t
+  WHERE (t->>'id')::BIGINT != p_task_id;
+
+  IF v_filtered IS NULL THEN v_filtered := '[]'::jsonb; END IF;
+
+  UPDATE public.userdata
+  SET data = data || jsonb_build_object('shared_tasks', v_filtered),
+      updated_at = now()
+  WHERE id = v_assignee_id;
+
+  RETURN TRUE;
+END;
+$$;
+
+-- 14. RPC para i-sync ang status update pabalik sa creator
+-- (kapag minarkahan ng assignee ang task bilang done/progress)
+CREATE OR REPLACE FUNCTION public.update_assigned_task_status(
+  p_creator_username TEXT,
+  p_task_id BIGINT,
+  p_status TEXT
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_creator_id UUID;
+  v_tasks JSONB;
+  v_updated JSONB;
+BEGIN
+  SELECT id INTO v_creator_id FROM public.profiles WHERE username = p_creator_username;
+  IF v_creator_id IS NULL THEN RETURN FALSE; END IF;
+
+  SELECT COALESCE(data->'tasks', '[]'::jsonb) INTO v_tasks
+  FROM public.userdata WHERE id = v_creator_id;
+
+  SELECT jsonb_agg(
+    CASE WHEN (t->>'id')::BIGINT = p_task_id THEN
+      t || jsonb_build_object('status', p_status, 'updatedAt', to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))
+    ELSE t END
+  ) INTO v_updated
+  FROM jsonb_array_elements(v_tasks) t;
+
+  IF v_updated IS NULL THEN v_updated := v_tasks; END IF;
+
+  UPDATE public.userdata
+  SET data = data || jsonb_build_object('tasks', v_updated),
+      updated_at = now()
+  WHERE id = v_creator_id;
+
+  RETURN TRUE;
+END;
+$$;

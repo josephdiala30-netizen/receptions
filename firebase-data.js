@@ -198,6 +198,7 @@ function syncCacheToLocalStorage(username) {
   var cache = window.__fbCache || {};
 
   if (cache.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(cache.tasks));
+  if (cache.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(cache.shared_tasks));
   if (cache.plans) localStorage.setItem('plans_' + username, JSON.stringify(cache.plans));
   if (cache.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(cache.dailylog));
   if (cache.trips) localStorage.setItem('trips_' + username, JSON.stringify(cache.trips));
