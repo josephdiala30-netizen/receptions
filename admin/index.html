@@ -701,11 +701,6 @@ function getUsers() {
         if (currId === 'pageUsers') renderUsers();
         if (currId === 'pageDashboard') loadDashboard();
       });
-        // I-save ang merged sa localStorage para sa instant load next time
-        localStorage.setItem('users', JSON.stringify(merged));
-        renderUsers();
-        loadDashboard();
-      });
     } catch(e) {}
   }
 
