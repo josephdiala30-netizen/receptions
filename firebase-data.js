@@ -80,43 +80,84 @@ function initFirebase(callback) {
 // Load all user data from Supabase into cache (one-time read)
 function loadFBData(uid, callback) {
   var client = getClient();
+
+  function fallbackToLocalStorage() {
+    var session = JSON.parse(localStorage.getItem('session') || 'null');
+    var username = session ? session.username : null;
+    if (!username) {
+      window.__fbCache = {};
+      window.__fbLoaded = true;
+      if (callback) callback();
+      return;
+    }
+    var cache = {};
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k) continue;
+      var suffix = '_' + username;
+      if (k.endsWith(suffix)) {
+        try {
+          var val = JSON.parse(localStorage.getItem(k));
+          var key = k.slice(0, -suffix.length);
+          cache[key] = val;
+        } catch(e) {}
+      }
+    }
+    window.__fbCache = cache;
+    window.__fbLoaded = true;
+    console.log('Supabase unavailable, using localStorage fallback');
+    if (callback) callback();
+  }
+
+  function loadFromSupabaseData(data) {
+    window.__fbCache = data;
+    window.__fbLoaded = true;
+    var username = data.profile ? data.profile.username : null;
+    if (username) syncCacheToLocalStorage(username);
+    if (callback) callback();
+  }
+
   if (!client) {
-    if (callback) callback('Supabase not loaded');
+    fallbackToLocalStorage();
     return;
   }
 
-  client.from('userdata').select('data').eq('id', uid).single()
-    .then(function(result) {
-      if (result.error) {
-        if (result.error.code === 'PGRST116') {
-          // No row yet - create one
-          window.__fbCache = {};
-          window.__fbLoaded = true;
-          client.from('userdata').insert({ id: uid, data: {} }).then(function() {
-            if (callback) callback();
-          }).catch(function(err) {
-            console.error('Supabase userdata insert error:', err);
-            if (callback) callback(err);
-          });
+  // Try RPC first (bypass RLS gamit ang get_userdata function)
+  client.rpc('get_userdata', { uid: uid }).then(function(rpcResult) {
+    if (!rpcResult.error && rpcResult.data) {
+      loadFromSupabaseData(typeof rpcResult.data === 'string' ? JSON.parse(rpcResult.data) : rpcResult.data);
+      return;
+    }
+    // RPC failed or walang data, fall back to SELECT
+    throw new Error('RPC failed');
+  }).catch(function() {
+    // Fall back to direct SELECT
+    client.from('userdata').select('data').eq('id', uid).single()
+      .then(function(result) {
+        if (result.error) {
+          if (result.error.code === 'PGRST116') {
+            window.__fbCache = {};
+            window.__fbLoaded = true;
+            client.from('userdata').insert({ id: uid, data: {} }).then(function() {
+              fallbackToLocalStorage();
+            }).catch(function(err) {
+              console.error('Supabase userdata insert error:', err);
+              fallbackToLocalStorage();
+            });
+            return;
+          }
+          console.error('Supabase load error:', result.error);
+          fallbackToLocalStorage();
           return;
         }
-        console.error('Supabase load error:', result.error);
-        if (callback) callback(result.error);
-        return;
-      }
-      var data = result.data.data || {};
-      window.__fbCache = data;
-      window.__fbLoaded = true;
-
-      var username = data.profile ? data.profile.username : null;
-      if (username) syncCacheToLocalStorage(username);
-
-      if (callback) callback();
-    })
-    .catch(function(err) {
-      console.error('Supabase load error:', err);
-      if (callback) callback(err);
-    });
+        var data = result.data.data || {};
+        loadFromSupabaseData(data);
+      })
+      .catch(function(err) {
+        console.error('Supabase load error:', err);
+        fallbackToLocalStorage();
+      });
+  });
 }
 
 // Set up real-time listener for cross-browser sync
@@ -177,6 +218,10 @@ function saveFB(key, data, callback) {
 
 function saveFBFull(callback) {
   var client = getClient();
+  // Kahit walang Supabase, i-save sa localStorage
+  var username = window.__fbCache && window.__fbCache.profile ? window.__fbCache.profile.username : null;
+  if (username) syncCacheToLocalStorage(username);
+
   if (!client) {
     if (callback) callback('Supabase not loaded');
     return;
