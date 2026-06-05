@@ -26,6 +26,16 @@ CREATE TABLE IF NOT EXISTS userdata (
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE userdata ENABLE ROW LEVEL SECURITY;
 
+-- 3.5 Helper function to check if user is admin (SECURITY DEFINER to avoid RLS recursion)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+AS $$
+  SELECT EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true);
+$$;
+
 -- 4. RLS policies for profiles
 CREATE POLICY "Users can view own profile"
   ON profiles FOR SELECT
@@ -33,7 +43,7 @@ CREATE POLICY "Users can view own profile"
 
 CREATE POLICY "Admins can view all profiles"
   ON profiles FOR SELECT
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true));
+  USING (public.is_admin());
 
 CREATE POLICY "Users can insert own profile"
   ON profiles FOR INSERT
@@ -45,7 +55,7 @@ CREATE POLICY "Users can update own profile"
 
 CREATE POLICY "Admins can update any profile"
   ON profiles FOR UPDATE
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true));
+  USING (public.is_admin());
 
 -- 5. RLS policies for userdata
 CREATE POLICY "Users can view own data"
@@ -54,7 +64,7 @@ CREATE POLICY "Users can view own data"
 
 CREATE POLICY "Admins can view all userdata"
   ON userdata FOR SELECT
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true));
+  USING (public.is_admin());
 
 CREATE POLICY "Users can insert own data"
   ON userdata FOR INSERT
