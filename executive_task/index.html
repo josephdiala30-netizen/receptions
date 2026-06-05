@@ -1413,24 +1413,7 @@ function removeSharedTaskRPC(assigneeUsername, taskId) {
     console.error('remove_shared_task RPC error:', e);
   });
 }
-  } else {
-    tasks.push({
-      id: Date.now(),
-      title: title,
-      description: document.getElementById('taskDesc').value.trim(),
-      status: document.getElementById('taskStatus').value,
-      priority: document.getElementById('taskPriority').value,
-      category: document.getElementById('taskCategory').value.trim(),
-      dueDate: document.getElementById('taskDueDate').value,
-      createdAt: now,
-      updatedAt: now
-    });
-  }
 
-  saveTasks(tasks);
-  closeModal();
-  refreshCurrentView();
-}
 
 function setTaskStatus(id, status) {
   var curUser = currentUsername();
