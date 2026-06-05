@@ -582,7 +582,7 @@ function loadDashboard() {
       : '';
     return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant card-lift">' +
       '<div class="p-3 rounded-xl bg-amber-100 text-amber-600"><span class="material-symbols-outlined">flight_takeoff</span></div>' +
-      '<div class="flex-1" onclick="window.location.href=\'/trip_itinerary/\'"><div class="flex items-center gap-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.name) + '</h4>' + statusBadge + '</div>' +
+      '<div class="flex-1" onclick="goTo(\'trip_itinerary/\')"><div class="flex items-center gap-2"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.name) + '</h4>' + statusBadge + '</div>' +
       '<div class="flex items-center gap-4 mt-1 text-on-surface-variant flex-wrap">' +
       (isAdmin ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">account_circle</span> ' + escapeHtml(t._user || '?') + '</span>' : '') +
       '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(t.requestor) + '</span>' +
@@ -703,6 +703,23 @@ function editTrip(id) {
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function showTripNotifications() {
+  var trips = getTrips().filter(function(t) {
+    if (!t.date) return false;
+    var tripDate = new Date(t.date + 'T' + (t.time || '00:00'));
+    if (isNaN(tripDate)) return false;
+    var diff = tripDate.getTime() - new Date().getTime();
+    return diff >= 0 && diff <= 3 * 24 * 60 * 60 * 1000;
+  });
+  if (!trips.length) {
+    alert('Walang paparating na trip sa susunod na 3 araw.');
+    return;
+  }
+  alert('Paparating na trip:\n\n' + trips.map(function(t) {
+    return '- ' + (t.name || 'Untitled') + ' (' + t.date + (t.time ? ' ' + t.time : '') + ') - ' + (t.destination || 'N/A');
+  }).join('\n'));
 }
 
 function initTripNotifications() {

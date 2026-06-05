@@ -269,11 +269,7 @@ input::placeholder, textarea::placeholder, select::placeholder {
   opacity: 1;
 }
 
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
+::-webkit-scrollbar {
   background: transparent;
 }
 

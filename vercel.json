@@ -15,7 +15,6 @@
     { "source": "/plan_new_trip/", "destination": "/plan_new_trip/index.html" },
     { "source": "/trip_itinerary/", "destination": "/trip_itinerary/index.html" },
     { "source": "/expenses_budgeting/", "destination": "/expenses_budgeting/index.html" },
-    { "source": "/dashboard_calendar_view/", "destination": "/dashboard_calendar_view/index.html" },
-    { "source": "/manager_approval_dashboard/", "destination": "/manager_approval_dashboard/index.html" }
+
   ]
 }
