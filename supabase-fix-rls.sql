@@ -179,7 +179,7 @@ LANGUAGE sql
 SECURITY DEFINER
 STABLE
 AS $$
-  SELECT username, name FROM public.profiles WHERE username IS NOT NULL ORDER BY username;
+  SELECT username, name FROM public.profiles WHERE username IS NOT NULL AND role = 'executive_task' ORDER BY username;
 $$;
 
 -- 12. RPC para mag-assign ng task sa ibang user

@@ -206,6 +206,10 @@ button, input, select, textarea { min-width: 0; }
       <span class="material-symbols-outlined">checklist</span>
       <span class="font-label-md">All Tasks</span>
     </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showBoard()">
+      <span class="material-symbols-outlined">view_column</span>
+      <span class="font-label-md">Board</span>
+    </a>
     <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPlanner()">
       <span class="material-symbols-outlined">map</span>
       <span class="font-label-md">Planner</span>
@@ -232,6 +236,17 @@ button, input, select, textarea { min-width: 0; }
   </div>
   <div class="flex items-center gap-2">
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
+    <div class="relative">
+      <button id="notifBtn" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90 relative" onclick="toggleNotifMenu()" title="Notifications">notifications</button>
+      <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"></span>
+      <div id="notifMenu" class="hidden absolute right-0 top-12 w-80 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50 max-h-96 overflow-y-auto">
+        <div class="px-4 py-2 border-b border-outline-variant flex items-center justify-between">
+          <span class="font-semibold text-sm text-primary">Notifications</span>
+          <button class="text-xs text-indigo-600 hover:underline" onclick="markAllNotifsRead()">Mark all read</button>
+        </div>
+        <div id="notifList" class="py-1"></div>
+      </div>
+    </div>
     <div class="relative">
       <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-primary text-on-primary flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
       <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
@@ -268,6 +283,9 @@ button, input, select, textarea { min-width: 0; }
   <div class="flex gap-3">
     <button class="flex items-center gap-2 border border-outline-variant px-4 py-2 rounded-lg font-label-md text-on-surface-variant hover:bg-surface-container transition-colors" onclick="showAllTasks()">
       <span class="material-symbols-outlined">checklist</span> View All
+    </button>
+    <button class="flex items-center gap-2 border border-outline-variant px-4 py-2 rounded-lg font-label-md text-on-surface-variant hover:bg-surface-container transition-colors" onclick="exportTasksCSV()" title="Export to CSV">
+      <span class="material-symbols-outlined">download</span>
     </button>
     <button class="flex items-center gap-2 bg-[#6366F1] text-white px-6 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="openCreateModal()">
       <span class="material-symbols-outlined">add</span> New Task
@@ -388,6 +406,9 @@ button, input, select, textarea { min-width: 0; }
       <option value="mine">My Tasks</option>
       <option value="assigned">Assigned to Me</option>
     </select>
+    <button class="flex items-center gap-2 border border-outline-variant text-on-surface-variant px-4 py-2 rounded-lg font-label-md hover:bg-surface-container transition-colors" onclick="exportTasksCSV()" title="Export to CSV">
+      <span class="material-symbols-outlined">download</span> Export
+    </button>
     <button class="flex items-center gap-2 bg-[#6366F1] text-white px-6 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="openCreateModal()">
       <span class="material-symbols-outlined">add</span> New Task
     </button>
@@ -395,6 +416,51 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 <div id="tasksContainer" class="space-y-3"></div>
+
+</section>
+
+<section id="pageBoard" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+  <div>
+    <h2 class="font-headline-lg text-headline-lg text-primary">Kanban Board</h2>
+    <p class="font-body-lg text-on-surface-variant">Drag and drop tasks between columns</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="boardColumns">
+  <div class="bg-rose-50/50 dark:bg-rose-900/10 border border-rose-200 dark:border-rose-800/30 rounded-xl p-4 min-h-[300px]" data-status="todo">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="w-3 h-3 rounded-full bg-rose-400"></span>
+      <h3 class="font-title-lg text-title-lg text-rose-700 dark:text-rose-300">To Do</h3>
+      <span class="font-label-md text-rose-500 dark:text-rose-400 ml-auto bg-rose-100 dark:bg-rose-900/30 px-2.5 py-0.5 rounded-full" id="boardCountTodo">0</span>
+    </div>
+    <div class="board-column space-y-3 min-h-[200px]" ondrop="onDrop(event)" ondragover="onDragOver(event)" data-status="todo"></div>
+  </div>
+  <div class="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/30 rounded-xl p-4 min-h-[300px]" data-status="progress">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="w-3 h-3 rounded-full bg-blue-400"></span>
+      <h3 class="font-title-lg text-title-lg text-blue-700 dark:text-blue-300">In Progress</h3>
+      <span class="font-label-md text-blue-500 dark:text-blue-400 ml-auto bg-blue-100 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-full" id="boardCountProgress">0</span>
+    </div>
+    <div class="board-column space-y-3 min-h-[200px]" ondrop="onDrop(event)" ondragover="onDragOver(event)" data-status="progress"></div>
+  </div>
+  <div class="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/30 rounded-xl p-4 min-h-[300px]" data-status="done">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+      <h3 class="font-title-lg text-title-lg text-emerald-700 dark:text-emerald-300">Done</h3>
+      <span class="font-label-md text-emerald-500 dark:text-emerald-400 ml-auto bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 rounded-full" id="boardCountDone">0</span>
+    </div>
+    <div class="board-column space-y-3 min-h-[200px]" ondrop="onDrop(event)" ondragover="onDragOver(event)" data-status="done"></div>
+  </div>
+</div>
+
+<style>
+.board-task { cursor: grab; transition: all 0.2s; }
+.board-task:active { cursor: grabbing; opacity: 0.6; transform: rotate(2deg); }
+.board-task.dragging { opacity: 0.4; }
+.board-column.drag-over { background: var(--surface-container-high) !important; }
+</style>
 
 </section>
 
@@ -443,6 +509,9 @@ button, input, select, textarea { min-width: 0; }
     <p class="font-body-lg text-on-surface-variant">Log and track all work accomplished each day</p>
   </div>
   <div class="flex gap-3">
+    <button class="flex items-center gap-2 border border-outline-variant text-on-surface-variant px-4 py-2 rounded-lg font-label-md hover:bg-surface-container transition-colors" onclick="exportLogCSV()" title="Export to CSV">
+      <span class="material-symbols-outlined">download</span> Export
+    </button>
     <button class="flex items-center gap-2 bg-[#6366F1] text-white px-6 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="openCreateLogModal()">
       <span class="material-symbols-outlined">add</span> New Entry
     </button>
@@ -495,6 +564,7 @@ button, input, select, textarea { min-width: 0; }
     <nav class="sidebar-mobile flex-1 space-y-1.5">
       <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="showSection('pageDashboard'); loadDashboard(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showAllTasks()"><span class="material-symbols-outlined">checklist</span> <span class="font-label-md">All Tasks</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showBoard(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">view_column</span> <span class="font-label-md">Board</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPlanner(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">map</span> <span class="font-label-md">Planner</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showDailyLog(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">edit_note</span> <span class="font-label-md">Daily Log</span></a>
     </nav>
@@ -1043,10 +1113,100 @@ function doLogout() {
   });
 }
 
+function notifKey() {
+  var s = getSession();
+  return s ? 'notifications_' + s.username : 'notifications';
+}
+
+function getNotifs() {
+  return JSON.parse(localStorage.getItem(notifKey()) || '[]');
+}
+
+function saveNotifs(n) {
+  localStorage.setItem(notifKey(), JSON.stringify(n));
+}
+
+function addNotif(message, type) {
+  var notifs = getNotifs();
+  notifs.unshift({ id: Date.now(), message: message, type: type || 'info', read: false, createdAt: new Date().toISOString() });
+  if (notifs.length > 50) notifs = notifs.slice(0, 50);
+  saveNotifs(notifs);
+  updateNotifBadge();
+}
+
+function updateNotifBadge() {
+  var unread = getNotifs().filter(function(n) { return !n.read; }).length;
+  var badge = document.getElementById('notifBadge');
+  if (badge) {
+    badge.textContent = unread > 9 ? '9+' : unread;
+    badge.classList.toggle('hidden', unread === 0);
+  }
+}
+
+function toggleNotifMenu() {
+  var menu = document.getElementById('notifMenu');
+  var hidden = menu.classList.toggle('hidden');
+  if (!hidden) renderNotifs();
+}
+
+function renderNotifs() {
+  var list = document.getElementById('notifList');
+  var notifs = getNotifs();
+  if (notifs.length === 0) {
+    list.innerHTML = '<div class="text-center py-8 text-on-surface-variant text-sm">No notifications</div>';
+    return;
+  }
+  list.innerHTML = notifs.map(function(n) {
+    var icons = { task: 'assignment', info: 'info', warning: 'warning', success: 'check_circle' };
+    var colors = { task: 'text-blue-500', info: 'text-indigo-500', warning: 'text-amber-500', success: 'text-emerald-500' };
+    return '<div class="flex items-start gap-3 px-4 py-3 hover:bg-surface-container-high rounded-xl cursor-pointer transition-colors ' + (n.read ? 'opacity-60' : '') + '" onclick="markNotifRead(' + n.id + ')">' +
+      '<span class="material-symbols-outlined text-sm mt-0.5 ' + (colors[n.type] || colors.info) + '">' + (icons[n.type] || icons.info) + '</span>' +
+      '<p class="text-sm text-on-surface flex-1">' + escapeHtml(n.message) + '</p>' +
+      (!n.read ? '<span class="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 flex-shrink-0"></span>' : '') +
+      '</div>';
+  }).join('');
+  updateNotifBadge();
+}
+
+function markNotifRead(id) {
+  var notifs = getNotifs();
+  var n = notifs.find(function(x) { return x.id === id; });
+  if (n) n.read = true;
+  saveNotifs(notifs);
+  renderNotifs();
+  updateNotifBadge();
+}
+
+function markAllNotifsRead() {
+  var notifs = getNotifs();
+  notifs.forEach(function(n) { n.read = true; });
+  saveNotifs(notifs);
+  renderNotifs();
+  updateNotifBadge();
+}
+
+// Check for new shared tasks and create notifications
+function checkNewAssignments() {
+  var cur = currentUsername();
+  if (!cur) return;
+  var lastCheck = localStorage.getItem('lastNotifCheck_' + cur) || '0';
+  var shared = getSharedTasks();
+  var newOnes = shared.filter(function(t) { return (t.createdAt || '') > lastCheck; });
+  newOnes.forEach(function(t) {
+    addNotif('Task "' + (t.title || 'Untitled') + '" was assigned to you' + (t.assignedBy ? ' by ' + t.assignedBy : ''), 'task');
+  });
+  localStorage.setItem('lastNotifCheck_' + cur, new Date().toISOString());
+  updateNotifBadge();
+}
+
 document.addEventListener('click', function(e) {
   var menu = document.getElementById('userMenu');
   if (menu && !menu.classList.contains('hidden') && !e.target.closest('#userBtn') && !e.target.closest('#userMenu')) {
     menu.classList.add('hidden');
+  }
+  var notifMenu = document.getElementById('notifMenu');
+  if (notifMenu && !notifMenu.classList.contains('hidden') && !e.target.closest('#notifBtn') && !e.target.closest('#notifMenu')) {
+    notifMenu.classList.add('hidden');
   }
 });
 
@@ -1136,12 +1296,15 @@ function renderTaskCard(t) {
   var isShared = t._shared || false;
   var dueHtml = t.dueDate ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + formatDate(t.dueDate) + '</span>' : '';
   var catHtml = t.category ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">folder</span> ' + escapeHtml(t.category) + '</span>' : '';
+  var subtaskCount = t.subtasks && t.subtasks.length ? t.subtasks.filter(function(s) { return s.completed; }).length + '/' + t.subtasks.length : '';
+  var subtaskHtml = subtaskCount ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">checklist</span> ' + subtaskCount + '</span>' : '';
   var assignHtml = '';
   if (isShared && t.assignedBy) {
     assignHtml = '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> by ' + escapeHtml(t.assignedBy) + '</span>';
   } else if (t.assignedTo) {
     assignHtml = '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person_add</span> to ' + escapeHtml(t.assignedTo) + '</span>';
   }
+  var timeHtml = (t.timeSpent || t.timerStart) ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">timer</span> ' + formatTime((t.timeSpent || 0) + (t.timerStart ? Math.floor((Date.now() - new Date(t.timerStart).getTime()) / 1000) : 0)) + '</span>' : '';
   var descHtml = t.description ? '<p class="font-label-md text-on-surface-variant mt-1 line-clamp-2">' + escapeHtml(t.description) + '</p>' : '';
 
   return '<div class="flex items-start gap-4 p-4 hover:bg-surface-container-low rounded-xl border border-outline-variant card-lift cursor-pointer" onclick="viewTask(' + t.id + ')">' +
@@ -1153,7 +1316,7 @@ function renderTaskCard(t) {
     '<span class="' + priorityClass(t.priority) + '">' + priorityLabel(t.priority) + '</span></div>' +
     descHtml +
     '<div class="flex items-center gap-4 mt-2 text-on-surface-variant flex-wrap">' +
-    dueHtml + catHtml + assignHtml +
+    dueHtml + catHtml + subtaskHtml + timeHtml + assignHtml +
     '</div></div>' +
     '<div class="flex items-start gap-1 ml-2 flex-shrink-0" onclick="event.stopPropagation()">' +
     (t.status !== 'done' ? '<button class="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors" title="Mark Done" onclick="setTaskStatus(' + t.id + ',\'done\')"><span class="material-symbols-outlined text-sm">check</span></button>' : '') +
@@ -1246,7 +1409,7 @@ function showDayTasks(dateStr) {
 }
 
 function setActiveNav(id) {
-  var sections = ['pageDashboard','pageAllTasks','pagePlanner','pageDailyLog'];
+  var sections = ['pageDashboard','pageAllTasks','pageBoard','pagePlanner','pageDailyLog'];
   var sidebars = [document.querySelectorAll('.sidebar-desktop a'), document.querySelectorAll('.sidebar-mobile a')];
   sidebars.forEach(function(links) {
     links.forEach(function(link, i) {
@@ -1264,6 +1427,7 @@ function showSection(id) {
   setActiveNav(id);
   document.getElementById('pageDashboard').classList.toggle('hidden', id !== 'pageDashboard');
   document.getElementById('pageAllTasks').classList.toggle('hidden', id !== 'pageAllTasks');
+  document.getElementById('pageBoard').classList.toggle('hidden', id !== 'pageBoard');
   document.getElementById('pagePlanner').classList.toggle('hidden', id !== 'pagePlanner');
   document.getElementById('pageDailyLog').classList.toggle('hidden', id !== 'pageDailyLog');
 }
@@ -1298,6 +1462,98 @@ function filterTasks() {
     container.innerHTML = filtered.map(function(t) { return renderTaskCard(t); }).join('');
   }
 }
+
+function showBoard() {
+  showSection('pageBoard');
+  renderBoard();
+}
+
+function renderBoard() {
+  var tasks = getAllTasks();
+  var columns = { todo: [], progress: [], done: [] };
+  tasks.forEach(function(t) {
+    if (columns[t.status]) columns[t.status].push(t);
+  });
+
+  document.getElementById('boardCountTodo').textContent = columns.todo.length;
+  document.getElementById('boardCountProgress').textContent = columns.progress.length;
+  document.getElementById('boardCountDone').textContent = columns.done.length;
+
+  ['todo', 'progress', 'done'].forEach(function(status) {
+    var col = document.querySelector('.board-column[data-status="' + status + '"]');
+    if (!col) return;
+    var sorted = columns[status].slice().sort(function(a, b) { return (b.updatedAt || b.createdAt || '') > (a.updatedAt || a.createdAt || '') ? 1 : -1; });
+    col.innerHTML = sorted.map(function(t) {
+      var pClass = t.priority === 'urgent' ? 'border-l-red-400' : t.priority === 'high' ? 'border-l-amber-400' : t.priority === 'medium' ? 'border-l-blue-400' : 'border-l-gray-300';
+      var dueLabel = '';
+      if (t.dueDate) {
+        var diff = Math.ceil((new Date(t.dueDate + 'T00:00:00') - new Date()) / (1000 * 60 * 60 * 24));
+        dueLabel = diff < 0 ? '<span class="font-label-md text-red-500 text-xs">Overdue</span>' : diff === 0 ? '<span class="font-label-md text-amber-500 text-xs">Today</span>' : '';
+      }
+      var subInfo = (t.subtasks && t.subtasks.length) ? '<span class="font-label-md text-on-surface-variant text-xs">' + t.subtasks.filter(function(s) { return s.completed; }).length + '/' + t.subtasks.length + '</span>' : '';
+      return '<div class="board-task bg-surface-container-lowest border border-outline-variant rounded-xl p-3 shadow-sm card-lift border-l-4 ' + pClass + '" draggable="true" ondragstart="onDragStart(event, ' + t.id + ')" onclick="viewTask(' + t.id + ')">' +
+        '<div class="flex items-start justify-between gap-2">' +
+        '<p class="font-body-md font-semibold text-primary text-sm leading-tight truncate">' + escapeHtml(t.title) + '</p>' +
+        '<span class="' + priorityClass(t.priority) + ' text-xs whitespace-nowrap">' + priorityLabel(t.priority) + '</span>' +
+        '</div>' +
+        (t.description ? '<p class="font-label-md text-on-surface-variant text-xs mt-1 line-clamp-2">' + escapeHtml(t.description) + '</p>' : '') +
+        '<div class="flex items-center gap-2 mt-2 text-on-surface-variant">' +
+        (t.category ? '<span class="font-label-md text-xs bg-surface-container px-2 py-0.5 rounded-full">' + escapeHtml(t.category) + '</span>' : '') +
+        subInfo +
+        dueLabel +
+        '</div></div>';
+    }).join('');
+  });
+}
+
+var draggedTaskId = null;
+
+function onDragStart(event, taskId) {
+  draggedTaskId = taskId;
+  event.dataTransfer.effectAllowed = 'move';
+  event.target.classList.add('dragging');
+}
+
+function onDragOver(event) {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'move';
+  event.currentTarget.classList.add('drag-over');
+}
+
+function onDrop(event) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+  if (draggedTaskId === null) return;
+  var newStatus = event.currentTarget.getAttribute('data-status');
+  if (!newStatus) return;
+
+  var tasks = getTasks();
+  var t = tasks.find(function(x) { return x.id === draggedTaskId; });
+  if (t) {
+    t.status = newStatus;
+    t.updatedAt = new Date().toISOString();
+    saveTasks(tasks);
+  } else {
+    var shared = getSharedTasks();
+    var st = shared.find(function(x) { return x.id === draggedTaskId; });
+    if (st) {
+      st.status = newStatus;
+      st.updatedAt = new Date().toISOString();
+      saveSharedTasks(shared);
+      if (st.assignedBy && st.assignedBy !== currentUsername()) {
+        var client = getClient();
+        if (client) client.rpc('update_assigned_task_status', { p_creator_username: st.assignedBy, p_task_id: draggedTaskId, p_status: newStatus }).catch(function(e) {});
+      }
+    }
+  }
+  draggedTaskId = null;
+  renderBoard();
+}
+
+document.addEventListener('dragend', function(e) {
+  document.querySelectorAll('.board-task.dragging').forEach(function(el) { el.classList.remove('dragging'); });
+  document.querySelectorAll('.board-column.drag-over').forEach(function(el) { el.classList.remove('drag-over'); });
+});
 
 var editingTaskId = null;
 
@@ -1379,6 +1635,9 @@ function saveTask() {
       dueDate: document.getElementById('taskDueDate').value,
       assignedTo: assignedTo || '',
       assignedBy: curUser || '',
+      subtasks: [],
+      timeSpent: 0,
+      timerStart: null,
       createdAt: now,
       updatedAt: now
     };
@@ -1446,6 +1705,71 @@ function setTaskStatus(id, status) {
   refreshCurrentView();
 }
 
+function addSubtask(taskId) {
+  var input = document.getElementById('newSubtaskInput');
+  if (!input || !input.value.trim()) return;
+  var tasks = getTasks();
+  var t = tasks.find(function(x) { return x.id === taskId; });
+  if (!t) return;
+  if (!t.subtasks) t.subtasks = [];
+  t.subtasks.push({ id: Date.now(), title: input.value.trim(), completed: false, createdAt: new Date().toISOString() });
+  t.updatedAt = new Date().toISOString();
+  saveTasks(tasks);
+  input.value = '';
+  viewTask(taskId);
+}
+
+function toggleSubtask(taskId, subtaskId) {
+  var tasks = getTasks();
+  var t = tasks.find(function(x) { return x.id === taskId; });
+  if (!t || !t.subtasks) return;
+  var s = t.subtasks.find(function(x) { return x.id === subtaskId; });
+  if (!s) return;
+  s.completed = !s.completed;
+  t.updatedAt = new Date().toISOString();
+  saveTasks(tasks);
+  viewTask(taskId);
+}
+
+function deleteSubtask(taskId, subtaskId) {
+  var tasks = getTasks();
+  var t = tasks.find(function(x) { return x.id === taskId; });
+  if (!t || !t.subtasks) return;
+  t.subtasks = t.subtasks.filter(function(x) { return x.id !== subtaskId; });
+  t.updatedAt = new Date().toISOString();
+  saveTasks(tasks);
+  viewTask(taskId);
+}
+
+function exportTasksCSV() {
+  var tasks = getAllTasks();
+  if (tasks.length === 0) { alert('No tasks to export.'); return; }
+  var rows = [['Title','Description','Status','Priority','Category','Due Date','Assigned To','Time Spent','Subtasks','Created','Updated']];
+  tasks.forEach(function(t) {
+    var subs = (t.subtasks || []).map(function(s) { return (s.completed ? '[x] ' : '[ ] ') + s.title; }).join('; ');
+    rows.push([
+      '"' + (t.title || '').replace(/"/g, '""') + '"',
+      '"' + (t.description || '').replace(/"/g, '""') + '"',
+      statusLabel(t.status),
+      priorityLabel(t.priority),
+      t.category || '',
+      t.dueDate || '',
+      t.assignedTo || (t._shared ? 'Assigned by ' + (t.assignedBy || '') : ''),
+      formatTime(t.timeSpent || 0),
+      '"' + subs + '"',
+      t.createdAt ? t.createdAt.slice(0, 10) : '',
+      t.updatedAt ? t.updatedAt.slice(0, 10) : ''
+    ]);
+  });
+  var csv = rows.map(function(r) { return r.join(','); }).join('\n');
+  var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'tasks_export_' + new Date().toISOString().slice(0, 10) + '.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
 function deleteTask(id) {
   if (!confirm('Delete this task?')) return;
   var tasks = getTasks();
@@ -1474,12 +1798,39 @@ function viewTask(id) {
     assignStr = '<p><span class="font-label-md text-on-surface-variant">Assigned to:</span> <span class="font-body-md">' + escapeHtml(t.assignedTo) + '</span></p>';
   }
   var descStr = t.description ? '<div><span class="font-label-md text-on-surface-variant">Description:</span><p class="font-body-md mt-1">' + escapeHtml(t.description) + '</p></div>' : '';
+
+  var subtaskHtml = '';
+  var subs = t.subtasks || [];
+  if (subs.length > 0) {
+    var doneSubs = subs.filter(function(s) { return s.completed; }).length;
+    subtaskHtml = '<div class="border-t border-outline-variant pt-3 mt-3"><div class="flex items-center justify-between mb-2"><span class="font-label-md font-semibold text-primary flex items-center gap-1"><span class="material-symbols-outlined text-sm">checklist</span> Subtasks (' + doneSubs + '/' + subs.length + ')</span></div><div class="space-y-1">' +
+      subs.map(function(s) {
+        return '<div class="flex items-center gap-3 py-1.5 ' + (s.completed ? 'opacity-60' : '') + '">' +
+          '<span class="material-symbols-outlined cursor-pointer text-lg hover:scale-110 transition-transform ' + (s.completed ? 'text-emerald-500' : 'text-on-surface-variant') + '" onclick="toggleSubtask(' + t.id + ',' + s.id + ')">' + (s.completed ? 'check_circle' : 'radio_button_unchecked') + '</span>' +
+          '<span class="flex-1 font-body-md ' + (s.completed ? 'line-through text-on-surface-variant' : 'text-primary') + '">' + escapeHtml(s.title) + '</span>' +
+          (!isShared ? '<span class="material-symbols-outlined text-sm text-red-400 cursor-pointer hover:text-red-600" onclick="deleteSubtask(' + t.id + ',' + s.id + ')">close</span>' : '') +
+          '</div>';
+      }).join('') + '</div></div>';
+  }
+  if (!isShared) {
+    subtaskHtml += '<div class="flex items-center gap-2 pt-2 pb-1 border-t border-outline-variant mt-3"><input id="newSubtaskInput" class="flex-1 bg-surface-container border border-outline-variant rounded-lg py-1.5 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Add subtask..." onkeydown="if(event.key===\'Enter\')addSubtask(' + t.id + ')"/><button class="bg-primary text-on-primary px-3 py-1.5 rounded-lg font-label-md hover:opacity-90 text-sm" onclick="addSubtask(' + t.id + ')">Add</button></div>';
+  }
+
+  var isTimerRunning = t.timerStart && t.timerStart !== null;
+  var isSharedTask = isShared;
+  var timerHtml = '<div class="border-t border-outline-variant pt-3 mt-3"><div class="flex items-center justify-between"><span class="font-label-md font-semibold text-primary flex items-center gap-1"><span class="material-symbols-outlined text-sm">timer</span> Time Tracking</span>';
+  if (!isSharedTask) {
+    timerHtml += '<button id="timerBtn" class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg font-label-md text-sm ' + (isTimerRunning ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200') + '" onclick="toggleTimer(' + t.id + ')">' +
+      '<span class="material-symbols-outlined text-sm">' + (isTimerRunning ? 'stop' : 'play_arrow') + '</span> ' + (isTimerRunning ? 'Stop' : 'Start') + '</button>';
+  }
+  timerHtml += '</div><div class="mt-2"><span id="timerDisplay" class="font-headline-md font-bold text-primary tabular-nums" data-task-id="' + t.id + '" data-base="' + (t.timeSpent || 0) + '" data-start="' + (t.timerStart || '') + '">' + formatTime((t.timeSpent || 0) + (t.timerStart ? Math.floor((Date.now() - new Date(t.timerStart).getTime()) / 1000) : 0)) + '</span></div></div>';
+
   body.innerHTML =
     '<div class="flex gap-2 items-center flex-wrap">' +
     '<span class="' + statusClass(t.status) + '">' + statusLabel(t.status) + '</span>' +
     '<span class="' + priorityClass(t.priority) + '">' + priorityLabel(t.priority) + '</span>' +
     '</div>' +
-    assignStr + dueStr + catStr + descStr +
+    assignStr + dueStr + catStr + descStr + subtaskHtml + timerHtml +
     '<div class="flex gap-3 pt-3 border-t border-outline-variant">' +
     (t.status !== 'done' ? '<button class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl font-label-md hover:opacity-90" onclick="setTaskStatus(' + t.id + ',\'done\'); document.getElementById(\'taskDetailModal\').classList.add(\'hidden\')">Mark Done</button>' : '') +
     (t.status === 'todo' ? '<button class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl font-label-md hover:opacity-90" onclick="setTaskStatus(' + t.id + ',\'progress\'); document.getElementById(\'taskDetailModal\').classList.add(\'hidden\')">Start</button>' : '') +
@@ -1488,11 +1839,49 @@ function viewTask(id) {
   document.getElementById('taskDetailModal').classList.remove('hidden');
 }
 
+function formatTime(totalSec) {
+  if (!totalSec || totalSec < 0) totalSec = 0;
+  var h = Math.floor(totalSec / 3600);
+  var m = Math.floor((totalSec % 3600) / 60);
+  var s = totalSec % 60;
+  return (h > 0 ? h + 'h ' : '') + (m > 0 || h > 0 ? m + 'm ' : '') + s + 's';
+}
+
+function toggleTimer(taskId) {
+  var tasks = getTasks();
+  var t = tasks.find(function(x) { return x.id === taskId; });
+  if (!t) return;
+  if (t.timerStart) {
+    var elapsed = Math.floor((Date.now() - new Date(t.timerStart).getTime()) / 1000);
+    t.timeSpent = (t.timeSpent || 0) + elapsed;
+    t.timerStart = null;
+  } else {
+    t.timerStart = new Date().toISOString();
+  }
+  t.updatedAt = new Date().toISOString();
+  saveTasks(tasks);
+  viewTask(taskId);
+}
+
+setInterval(function() {
+  var disp = document.getElementById('timerDisplay');
+  if (disp) {
+    var taskId = parseInt(disp.getAttribute('data-task-id'));
+    var base = parseInt(disp.getAttribute('data-base'));
+    var start = disp.getAttribute('data-start');
+    var total = base;
+    if (start) total += Math.floor((Date.now() - new Date(start).getTime()) / 1000);
+    disp.textContent = formatTime(total);
+  }
+}, 1000);
+
 function refreshCurrentView() {
   if (!document.getElementById('pageDashboard').classList.contains('hidden')) {
     loadDashboard();
   } else if (!document.getElementById('pageAllTasks').classList.contains('hidden')) {
     filterTasks();
+  } else if (!document.getElementById('pageBoard').classList.contains('hidden')) {
+    renderBoard();
   } else if (!document.getElementById('pagePlanner').classList.contains('hidden')) {
     loadPlanner();
   } else if (!document.getElementById('pageDailyLog').classList.contains('hidden')) {
@@ -2108,6 +2497,35 @@ function saveLogEntry() {
   loadDailyLog();
 }
 
+function exportLogCSV() {
+  var entries = getLogEntries();
+  if (entries.length === 0) { alert('No log entries to export.'); return; }
+  var rows = [['Date','Category','Title','Description','Time Spent','Status','Report Title','Requestor','Severity','Department','Incident Date','Resolution']];
+  entries.forEach(function(e) {
+    rows.push([
+      e.date || '',
+      e.category || '',
+      '"' + (e.title || '').replace(/"/g, '""') + '"',
+      '"' + (e.description || '').replace(/"/g, '""') + '"',
+      e.timeSpent || '',
+      e.status || '',
+      '"' + (e.reportTitle || '').replace(/"/g, '""') + '"',
+      '"' + (e.requestorName || '').replace(/"/g, '""') + '"',
+      e.severity || '',
+      e.department || '',
+      e.incidentDate ? e.incidentDate.replace('T', ' ') : '',
+      '"' + (e.resolution || '').replace(/"/g, '""') + '"'
+    ]);
+  });
+  var csv = rows.map(function(r) { return r.join(','); }).join('\n');
+  var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'dailylog_export_' + new Date().toISOString().slice(0, 10) + '.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
 function deleteLogEntry(id) {
   if (!confirm('Delete this accomplishment entry?')) return;
   var entries = getLogEntries();
@@ -2237,6 +2655,8 @@ function checkWelcome() {
 initTheme();
 initAuth(function() {
   checkWelcome();
+  checkNewAssignments();
+  updateNotifBadge();
   loadDashboard();
 });
 
