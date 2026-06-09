@@ -1808,7 +1808,7 @@ function onDrop(event) {
       saveSharedTasks(shared);
       if (st.assignedBy && st.assignedBy !== currentUsername()) {
         var client = getClient();
-        if (client) client.rpc('update_assigned_task_status', { p_creator_username: st.assignedBy, p_task_id: draggedTaskId, p_status: newStatus }).catch(function(e) {});
+        if (client) Promise.resolve(client.rpc('update_assigned_task_status', { p_creator_username: st.assignedBy, p_task_id: draggedTaskId, p_status: newStatus })).then(null, function(e) {});
       }
     }
   }
@@ -1937,7 +1937,7 @@ function assignTaskRPC(assigneeUsername, taskObj) {
   for (var k in taskObj) {
     if (k !== '_shared') taskCopy[k] = taskObj[k];
   }
-  client.rpc('assign_task', { p_assignee_username: assigneeUsername, p_task: taskCopy }).catch(function(e) {
+  Promise.resolve(client.rpc('assign_task', { p_assignee_username: assigneeUsername, p_task: taskCopy })).then(null, function(e) {
     console.error('assign_task RPC error:', e);
   });
 }
@@ -1945,7 +1945,7 @@ function assignTaskRPC(assigneeUsername, taskObj) {
 function removeSharedTaskRPC(assigneeUsername, taskId) {
   var client = getClient();
   if (!client) return;
-  client.rpc('remove_shared_task', { p_assignee_username: assigneeUsername, p_task_id: taskId }).catch(function(e) {
+  Promise.resolve(client.rpc('remove_shared_task', { p_assignee_username: assigneeUsername, p_task_id: taskId })).then(null, function(e) {
     console.error('remove_shared_task RPC error:', e);
   });
 }
@@ -1964,11 +1964,11 @@ function setTaskStatus(id, status) {
     if (st.assignedBy && st.assignedBy !== curUser) {
       var client = getClient();
       if (client) {
-        client.rpc('update_assigned_task_status', {
+        Promise.resolve(client.rpc('update_assigned_task_status', {
           p_creator_username: st.assignedBy,
           p_task_id: id,
           p_status: status
-        }).catch(function(e) { console.error('update_assigned_task_status error:', e); });
+        })).then(null, function(e) { console.error('update_assigned_task_status error:', e); });
       }
     }
     refreshCurrentView();

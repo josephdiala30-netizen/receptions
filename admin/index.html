@@ -922,14 +922,14 @@ function updateSupabaseProfile(email, profile) {
     if (result.error || !result.data) return;
     var found = result.data.find(function(p) { return p.email === email; });
     if (!found) return;
-    client.rpc('admin_update_profile', {
+    Promise.resolve(client.rpc('admin_update_profile', {
       p_user_id: found.id,
       p_username: profile.username,
       p_name: profile.name || profile.username,
       p_email: email,
       p_role: profile.role || 'executive_task',
       p_is_admin: profile.isAdmin || false
-    }).catch(function(e) { console.error('Supabase profile update error:', e); });
+    })).then(null, function(e) { console.error('Supabase profile update error:', e); });
   });
 }
 
@@ -1089,7 +1089,7 @@ function deleteUser(username) {
         if (result.error || !result.data) return;
         var found = result.data.find(function(p) { return p.username === username; });
         if (found) {
-          client.rpc('admin_delete_user', { p_user_id: found.id }).catch(function(e) { console.error('Supabase delete error:', e); });
+          Promise.resolve(client.rpc('admin_delete_user', { p_user_id: found.id })).then(null, function(e) { console.error('Supabase delete error:', e); });
         }
       });
     } catch(e) {}

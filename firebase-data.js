@@ -496,14 +496,14 @@ function fbLogin(email, password, callback) {
       fbSaveSession(session);
 
       // I-sync ang profile sa Supabase (upsert = walang recursion)
-      client.from('profiles').upsert({
+      Promise.resolve(client.from('profiles').upsert({
         id: user.id,
         username: finalUsername,
         name: finalName,
         email: user.email,
         role: finalRole,
         is_admin: finalIsAdmin
-      }).catch(function(e) { console.error('Profile sync error:', e); });
+      })).then(null, function(e) { console.error('Profile sync error:', e); });
 
       // Subukang i-load ang userdata (kung may RLS pa rin, localStorage fallback ang cache)
       loadFBData(user.id, function() {
