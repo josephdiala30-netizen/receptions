@@ -36,7 +36,7 @@ tailwind.config = {
         "tertiary-fixed": "var(--tertiary-fixed)", "primary": "var(--primary)", "surface-dim": "var(--surface-dim)",
         "surface-bright": "var(--surface-bright)", "secondary-fixed": "var(--secondary-fixed)"
       },
-      borderRadius: { DEFAULT: "0.5rem", lg: "0.75rem", xl: "1rem", full: "9999px" },
+      borderRadius: { DEFAULT: "0.375rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" },
       fontFamily: {
         "headline-md": ["-apple-system", "Inter", "system-ui", "sans-serif"],
         "body-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
@@ -128,18 +128,18 @@ button, input, select, textarea { min-width: 0; }
 .card-enter:nth-child(5) { animation-delay: 0.25s; }
 .card-enter:nth-child(6) { animation-delay: 0.3s; }
 
-.card-lift { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.card-lift:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
-.dark .card-lift:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+.card-lift { transition: all 0.15s ease; }
+.card-lift:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.dark .card-lift:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
-.stat-gradient-1 { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
-.stat-gradient-2 { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
-.stat-gradient-3 { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
-.stat-gradient-4 { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
-.dark .stat-gradient-1 { background: linear-gradient(135deg, #818CF8 0%, #6366F1 100%); }
-.dark .stat-gradient-2 { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
-.dark .stat-gradient-3 { background: linear-gradient(135deg, #4ADE80 0%, #22C55E 100%); }
-.dark .stat-gradient-4 { background: linear-gradient(135deg, #F87171 0%, #EF4444 100%); }
+.stat-gradient-1 { background: #6366F1; }
+.stat-gradient-2 { background: #F59E0B; }
+.stat-gradient-3 { background: #22C55E; }
+.stat-gradient-4 { background: #EF4444; }
+.dark .stat-gradient-1 { background: #4F46E5; }
+.dark .stat-gradient-2 { background: #D97706; }
+.dark .stat-gradient-3 { background: #16A34A; }
+.dark .stat-gradient-4 { background: #DC2626; }
 
 @media (max-width: 640px) {
   #calendarBody td { padding: 2px !important; }
@@ -148,15 +148,18 @@ button, input, select, textarea { min-width: 0; }
 }
 
 .sidebar-glass {
-  background: rgba(248, 249, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--surface-container);
 }
 .dark .sidebar-glass {
-  background: rgba(11, 19, 32, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--surface-container);
 }
+
+/* Simplified flat design overrides */
+.sidebar-nav a { border-radius: 0.5rem; }
+.modal-content { border-radius: 0.75rem; }
+.card-flat { border-radius: 0.5rem; }
+button, .btn { transition: opacity 0.15s ease; }
+button:active, .btn:active { opacity: 0.8; }
 
 @media (max-width: 767px) {
   .sidebar-glass { width: min(100%, 20rem); }
@@ -192,7 +195,7 @@ button, input, select, textarea { min-width: 0; }
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
-<aside class="fixed left-0 top-0 h-full w-72 sidebar-glass border-r border-outline-variant z-50 flex flex-col p-8 hidden md:flex shadow-sm">
+<aside class="fixed left-0 top-0 h-full w-72 bg-surface-container border-r border-outline-variant z-50 flex flex-col p-8 hidden md:flex shadow-sm">
   <div class="mb-10">
     <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Executive Task</h1>
     <p class="font-label-md text-label-md text-on-surface-variant mt-1">Task Management</p>
@@ -230,7 +233,7 @@ button, input, select, textarea { min-width: 0; }
 
 <main class="md:ml-72 min-h-screen">
 
-<header class="bg-surface/80 backdrop-blur-xl sticky top-0 z-40 border-b border-outline-variant flex justify-between items-center w-full px-6 md:px-10 h-16">
+<header class="bg-surface-container border-b border-outline-variant flex justify-between items-center w-full px-6 md:px-10 h-16">
   <div class="flex items-center gap-4 flex-1">
     <button class="md:hidden material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">menu</button>
     <div class="relative w-full max-w-sm">
@@ -247,7 +250,7 @@ button, input, select, textarea { min-width: 0; }
     <div class="relative">
       <button id="notifBtn" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90 relative" onclick="toggleNotifMenu()" title="Notifications">notifications</button>
       <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"></span>
-      <div id="notifMenu" class="hidden absolute right-0 top-12 w-80 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50 max-h-96 overflow-y-auto">
+      <div id="notifMenu" class="hidden absolute right-0 top-12 w-80 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-2 z-50 max-h-96 overflow-y-auto">
         <div class="px-4 py-2 border-b border-outline-variant flex items-center justify-between">
           <span class="font-semibold text-sm text-primary">Notifications</span>
           <button class="text-xs text-indigo-600 hover:underline" onclick="markAllNotifsRead()">Mark all read</button>
@@ -257,7 +260,7 @@ button, input, select, textarea { min-width: 0; }
     </div>
     <div class="relative">
       <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-primary text-on-primary flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
-      <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
+      <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-2 z-50">
         <div class="px-4 py-3 border-b border-outline-variant">
           <div class="flex items-center gap-3">
             <div id="userMenuAvatar" class="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm overflow-hidden flex-shrink-0"></div>
@@ -341,17 +344,13 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 <div class="md:col-span-4 grid grid-rows-2 gap-6">
-  <div class="bg-gradient-to-br from-[#6366F1] to-[#4F46E5] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg" style="animation: fadeInUp 0.5s ease both;">
-    <div class="relative z-10">
-      <span class="font-label-md uppercase tracking-wider text-white/70">Total Tasks</span>
-      <p class="font-display-lg text-[36px] font-bold mt-2" id="totalTasks">0</p>
-      <div class="mt-3 flex items-center gap-2 text-indigo-200" id="totalTasksSub">
-        <span class="material-symbols-outlined text-indigo-200">task_alt</span>
-        <span class="font-label-md">No tasks yet</span>
-      </div>
+  <div class="bg-[#6366F1] text-white rounded-xl p-6 shadow-sm card-lift">
+    <span class="font-label-md uppercase tracking-wider text-white/70">Total Tasks</span>
+    <p class="font-display-lg text-[36px] font-bold mt-2" id="totalTasks">0</p>
+    <div class="mt-3 flex items-center gap-2 text-indigo-200" id="totalTasksSub">
+      <span class="material-symbols-outlined text-indigo-200">task_alt</span>
+      <span class="font-label-md">No tasks yet</span>
     </div>
-    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
-    <div class="absolute -left-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
   </div>
   <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
     <div class="flex items-center justify-between mb-5">
@@ -359,17 +358,17 @@ button, input, select, textarea { min-width: 0; }
       <span class="font-label-md text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-lg font-semibold" id="statTotal">0 total</span>
     </div>
     <div class="grid grid-cols-2 gap-3">
-      <div class="stat-gradient-2 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.1s both;">
+      <div class="bg-amber-500 rounded-xl p-4 text-white">
         <span class="material-symbols-outlined text-white/80 text-sm">hourglass_empty</span>
         <p class="font-headline-md font-bold mt-1" id="statTodo">0</p>
         <p class="font-label-md text-white/70">To Do</p>
       </div>
-      <div class="stat-gradient-1 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.15s both;">
+      <div class="bg-indigo-500 rounded-xl p-4 text-white">
         <span class="material-symbols-outlined text-white/80 text-sm">sync</span>
         <p class="font-headline-md font-bold mt-1" id="statProgress">0</p>
         <p class="font-label-md text-white/70">In Progress</p>
       </div>
-      <div class="stat-gradient-3 rounded-xl p-4 text-white card-lift" style="animation: fadeInUp 0.4s ease 0.2s both;">
+      <div class="bg-emerald-500 rounded-xl p-4 text-white">
         <span class="material-symbols-outlined text-white/80 text-sm">task_alt</span>
         <p class="font-headline-md font-bold mt-1" id="statDone">0</p>
         <p class="font-label-md text-white/70">Done</p>
@@ -560,8 +559,8 @@ button, input, select, textarea { min-width: 0; }
 </section>
 </main>
 
-<div id="mobile-menu" class="md:hidden hidden fixed inset-0 bg-black/50 z-50" onclick="this.classList.add('hidden')">
-  <div class="absolute left-0 top-0 h-full w-72 sidebar-glass shadow-xl p-8" onclick="event.stopPropagation()">
+<div id="mobile-menu" class="md:hidden hidden fixed inset-0 bg-black/60 z-50" onclick="this.classList.add('hidden')">
+  <div class="absolute left-0 top-0 h-full w-72 bg-surface-container shadow-sm p-8" onclick="event.stopPropagation()">
     <div class="mb-10 flex justify-between items-center">
       <div>
         <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Executive Task</h1>
@@ -583,7 +582,7 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
-<div id="pomodoroPanel" class="hidden fixed right-0 top-0 h-full w-80 z-50 bg-surface-container-lowest/95 backdrop-blur-xl border-l border-outline-variant shadow-2xl p-5 flex flex-col">
+<div id="pomodoroPanel" class="hidden fixed right-0 top-0 h-full w-80 z-50 bg-surface-container-lowest border-l border-outline-variant shadow-md p-5 flex flex-col">
   <div class="flex items-center justify-between mb-6">
     <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="material-symbols-outlined">timer</span> Pomodoro</h3>
     <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="togglePomodoro()">close</button>
@@ -608,7 +607,7 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
-<div id="scratchpadPanel" class="hidden fixed right-0 top-0 h-full w-80 z-50 bg-surface-container-lowest/95 backdrop-blur-xl border-l border-outline-variant shadow-2xl p-5 flex flex-col">
+<div id="scratchpadPanel" class="hidden fixed right-0 top-0 h-full w-80 z-50 bg-surface-container-lowest border-l border-outline-variant shadow-md p-5 flex flex-col">
   <div class="flex items-center justify-between mb-4">
     <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="material-symbols-outlined">sticky_note_2</span> Scratchpad</h3>
     <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="toggleScratchpad()">close</button>
@@ -620,8 +619,8 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
-<div id="taskModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
-  <div class="bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+<div id="taskModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4">
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-6">
       <h3 id="modalTitle" class="font-title-lg text-title-lg text-primary">New Task</h3>
       <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="closeModal()">close</button>
@@ -691,8 +690,8 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
-<div id="taskDetailModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4" onclick="if(event.target===this)document.getElementById('taskDetailModal').classList.add('hidden')">
-  <div class="bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+<div id="taskDetailModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4" onclick="if(event.target===this)document.getElementById('taskDetailModal').classList.add('hidden')">
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-6">
       <h3 id="detailTitle" class="font-title-lg text-title-lg text-primary"></h3>
       <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="document.getElementById('taskDetailModal').classList.add('hidden')">close</button>
@@ -701,8 +700,8 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
-<div id="planDetailModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closePlanDetail()">
-  <div class="bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+<div id="planDetailModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closePlanDetail()">
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
     <input type="hidden" id="planDetailId"/>
     <div class="flex items-center justify-between mb-6">
       <h3 id="detailPlanTitle" class="font-title-lg text-title-lg text-primary"></h3>
@@ -747,8 +746,8 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
-<div id="logModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
-  <div class="bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+<div id="logModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4">
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-6">
       <h3 id="logModalTitle" class="font-title-lg text-title-lg text-primary">New Daily Job</h3>
       <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="closeLogModal()">close</button>
@@ -774,7 +773,7 @@ button, input, select, textarea { min-width: 0; }
       </div>
       
       <!-- IT Service Report Details (conditional) -->
-      <div id="itReportDetails" class="p-4 bg-surface-container-low rounded-2xl border border-outline-variant space-y-4">
+      <div id="itReportDetails" class="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-4">
         <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold text-sm border-b border-outline-variant/60 pb-1.5">
           <span class="material-symbols-outlined text-base">support</span> IT Service Report Details
         </div>
@@ -851,8 +850,8 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
-<div id="planModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
-  <div class="bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+<div id="planModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4">
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-6">
       <h3 id="planModalTitle" class="font-title-lg text-title-lg text-primary">New Plan</h3>
       <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="closePlanModal()">close</button>
@@ -895,8 +894,8 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
-<div id="milestoneModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
-  <div class="bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+<div id="milestoneModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4">
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
     <div class="flex items-center justify-between mb-6">
       <h3 id="milestoneModalTitle" class="font-title-lg text-title-lg text-primary">New Milestone</h3>
       <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="closeMilestoneModal()">close</button>
@@ -932,8 +931,8 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
-<div id="welcomeModal" class="hidden fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-  <div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
+<div id="welcomeModal" class="hidden fixed inset-0 z-[999] flex items-center justify-center bg-black/60">
+  <div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-xl shadow-md max-w-md w-full mx-4 p-8 text-center">
     <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
       <span class="material-symbols-outlined text-primary" style="font-size:32px;">celebration</span>
     </div>
@@ -948,7 +947,7 @@ button, input, select, textarea { min-width: 0; }
 <div id="tutorialOverlay" class="hidden fixed inset-0 z-[1000]">
   <div class="absolute inset-0 bg-black/60"></div>
   <div id="tutorialHighlight" class="absolute rounded-xl border-2 border-indigo-400 shadow-[0_0_0_4px_rgba(99,102,241,0.3)] transition-all duration-500 ease-out"></div>
-  <div id="tutorialTooltip" class="absolute bg-surface-container-lowest dark:bg-surface-container-low rounded-2xl shadow-2xl border border-outline-variant p-6 max-w-sm transition-all duration-500 ease-out">
+  <div id="tutorialTooltip" class="absolute bg-surface-container-lowest dark:bg-surface-container-low rounded-xl shadow-md border border-outline-variant p-6 max-w-sm transition-all duration-500 ease-out">
     <div class="flex items-center gap-2 mb-1">
       <span class="flex gap-1" id="tutorialDots"></span>
     </div>
@@ -3124,8 +3123,8 @@ fbOnUpdate(function(data) {
 </script>
 
 <!-- Keyboard Shortcuts Modal -->
-<div id="shortcutsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onclick="if(event.target===this)this.classList.add('hidden')">
-  <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+<div id="shortcutsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40  p-4" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="bg-surface-container-lowest rounded-xl shadow-md max-w-md w-full p-6" onclick="event.stopPropagation()">
     <div class="flex items-center justify-between mb-6">
       <h2 class="font-headline-md font-bold">Keyboard Shortcuts</h2>
       <button onclick="document.getElementById('shortcutsModal').classList.add('hidden')" class="p-2 rounded-xl hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">close</span></button>
@@ -3145,8 +3144,8 @@ fbOnUpdate(function(data) {
 </div>
 
 <!-- Avatar Modal -->
-<div id="avatarModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onclick="if(event.target===this)return">
-  <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+<div id="avatarModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40  p-4" onclick="if(event.target===this)return">
+  <div class="bg-surface-container-lowest rounded-xl shadow-md max-w-md w-full p-6" onclick="event.stopPropagation()">
     <div class="flex items-center justify-between mb-6">
       <h2 class="font-headline-md font-bold">Change Avatar</h2>
       <button onclick="closeAvatarModal()" class="p-2 rounded-xl hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">close</span></button>
@@ -3164,8 +3163,8 @@ fbOnUpdate(function(data) {
 </div>
 
 <!-- Change Password Modal -->
-<div id="changePassModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onclick="if(event.target===this)return">
-  <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+<div id="changePassModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40  p-4" onclick="if(event.target===this)return">
+  <div class="bg-surface-container-lowest rounded-xl shadow-md max-w-md w-full p-6" onclick="event.stopPropagation()">
     <div class="flex items-center justify-between mb-6">
       <h2 class="font-headline-md font-bold">Change Password</h2>
       <button onclick="closeChangePasswordModal()" class="p-2 rounded-xl hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">close</span></button>
