@@ -81,9 +81,13 @@ function initFirebase(callback) {
 function loadFBData(uid, callback) {
   var client = getClient();
 
-  function fallbackToLocalStorage() {
+  function getUsernameFromSession() {
     var session = JSON.parse(localStorage.getItem('session') || 'null');
-    var username = session ? session.username : null;
+    return session ? session.username : null;
+  }
+
+  function fallbackToLocalStorage() {
+    var username = getUsernameFromSession();
     if (!username) {
       window.__fbCache = {};
       window.__fbLoaded = true;
@@ -113,8 +117,33 @@ function loadFBData(uid, callback) {
     window.__fbCache = data;
     window.__fbLoaded = true;
     var username = data.profile ? data.profile.username : null;
-    if (username) syncCacheToLocalStorage(username);
+    if (username) {
+      // Merge local data into Supabase data (local may have newer unsaved changes)
+      mergeLocalToCache(username);
+      syncCacheToLocalStorage(username);
+    }
     if (callback) callback();
+  }
+
+  function mergeLocalToCache(username) {
+    if (!username) return;
+    var cache = window.__fbCache || {};
+    var suffix = '_' + username;
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k) continue;
+      if (k.endsWith(suffix)) {
+        try {
+          var val = JSON.parse(localStorage.getItem(k));
+          var key = k.slice(0, -suffix.length);
+          // Only use localStorage if cache doesn't have this key or it's empty
+          if (!cache[key] || (Array.isArray(cache[key]) && cache[key].length === 0)) {
+            cache[key] = val;
+          }
+        } catch(e) {}
+      }
+    }
+    window.__fbCache = cache;
   }
 
   if (!client) {
@@ -123,27 +152,29 @@ function loadFBData(uid, callback) {
   }
 
   // Try RPC first (bypass RLS gamit ang get_userdata function)
-  client.rpc('get_userdata', { uid: uid }).then(function(rpcResult) {
-    if (!rpcResult.error && rpcResult.data) {
-      loadFromSupabaseData(typeof rpcResult.data === 'string' ? JSON.parse(rpcResult.data) : rpcResult.data);
+  client.rpc('get_userdata', { p_uid: uid }).then(function(rpcResult) {
+    if (!rpcResult.error && rpcResult.data && Object.keys(rpcResult.data).length > 0) {
+      var data = typeof rpcResult.data === 'string' ? JSON.parse(rpcResult.data) : rpcResult.data;
+      loadFromSupabaseData(data);
       return;
     }
-    // RPC failed or walang data, fall back to SELECT
-    throw new Error('RPC failed');
+    // RPC returned empty data - migrate from localStorage
+    throw new Error('RPC empty');
   }).catch(function() {
     // Fall back to direct SELECT
     client.from('userdata').select('data').eq('id', uid).single()
       .then(function(result) {
         if (result.error) {
           if (result.error.code === 'PGRST116') {
+            // Row not found - set empty cache, try to migrate from localStorage
             window.__fbCache = {};
             window.__fbLoaded = true;
-            client.from('userdata').insert({ id: uid, data: {} }).then(function() {
-              fallbackToLocalStorage();
-            }).catch(function(err) {
-              console.error('Supabase userdata insert error:', err);
-              fallbackToLocalStorage();
-            });
+            var username = getUsernameFromSession();
+            if (username) {
+              // Try to migrate localStorage data to Supabase in the background
+              migrateLocalStorageNoReload(uid, username);
+            }
+            if (callback) callback();
             return;
           }
           console.error('Supabase load error:', result.error);
@@ -176,12 +207,27 @@ function fbSubscribe(uid, onUpdate) {
       { event: '*', schema: 'public', table: 'userdata', filter: 'id=eq.' + uid },
       function(payload) {
         if (payload.new && payload.new.data) {
-          window.__fbCache = payload.new.data;
+          // Merge: keep existing cache keys that aren't in the update
+          // (preserves any unsaved local changes)
+          var incoming = payload.new.data;
+          var merged = {};
+          // Start with existing cache
+          if (window.__fbCache && Object.keys(window.__fbCache).length > 0) {
+            for (var k in window.__fbCache) {
+              if (window.__fbCache.hasOwnProperty(k)) merged[k] = window.__fbCache[k];
+            }
+          }
+          // Apply remote changes (only for keys that exist in remote)
+          for (var k in incoming) {
+            if (incoming.hasOwnProperty(k)) merged[k] = incoming[k];
+          }
+          window.__fbCache = merged;
           window.__fbLoaded = true;
-          var username = payload.new.data.profile ? payload.new.data.profile.username : null;
+          var username = incoming.profile ? incoming.profile.username : null;
+          if (!username && merged.profile) username = merged.profile.username;
           if (username) syncCacheToLocalStorage(username);
-          if (onUpdate) onUpdate(payload.new.data);
-          if (window.__fbOnUpdate) window.__fbOnUpdate(payload.new.data);
+          if (onUpdate) onUpdate(merged);
+          if (window.__fbOnUpdate) window.__fbOnUpdate(merged);
         }
       }
     )
@@ -276,6 +322,61 @@ function fbClearSession() {
 
 // ==================== MIGRATION ====================
 // One-time migration from localStorage to Supabase
+
+function migrateLocalStorageNoReload(uid, username) {
+  if (!username) return;
+  var migrated = {};
+  var count = 0;
+
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    keys.push(localStorage.key(i));
+  }
+
+  var userKeys = keys.filter(function(k) {
+    return k.indexOf('tasks_' + username) === 0 ||
+           k.indexOf('plans_' + username) === 0 ||
+           k.indexOf('shared_tasks_' + username) === 0 ||
+           k.indexOf('milestones_' + username) === 0 ||
+           k.indexOf('dailylog_' + username) === 0 ||
+           k.indexOf('trips_' + username) === 0 ||
+           (k.indexOf('it_') === 0 && k.indexOf('_' + username) > 0);
+  });
+
+  var flags = keys.filter(function(k) {
+    return k === 'welcome_' + username || k === 'tutorial_' + username;
+  });
+
+  userKeys.forEach(function(k) {
+    try {
+      var val = JSON.parse(localStorage.getItem(k));
+      if (Array.isArray(val) && val.length > 0) {
+        var suffix = '_' + username;
+        var fbKey = k.endsWith(suffix) ? k.slice(0, -suffix.length) : k;
+        migrated[fbKey] = val;
+        count++;
+      }
+    } catch(e) {}
+  });
+
+  flags.forEach(function(k) {
+    migrated[k] = localStorage.getItem(k);
+    count++;
+  });
+
+  if (count > 0) {
+    var client = getClient();
+    if (!client) return;
+    client.from('userdata').upsert(
+      { id: uid, data: migrated, updated_at: new Date().toISOString() },
+      { onConflict: 'id' }
+    ).then(function() {
+      console.log('Migrated ' + count + ' localStorage keys to Supabase.');
+    }).catch(function(err) {
+      console.error('Background migration error:', err);
+    });
+  }
+}
 
 function migrateLocalStorage(uid, callback) {
   var migrated = {};

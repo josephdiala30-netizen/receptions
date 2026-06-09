@@ -262,7 +262,16 @@
           var role = found.role || 'executive_path';
           localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
           // Create Supabase account in background for future cross-browser login
-          if (typeof supabaseClient !== 'undefined' && found.email && found.email.indexOf('@') > 0) {
+          // Kahit walang email, gamitin ang synthetic email para sa Supabase
+          if (typeof supabaseClient !== 'undefined') {
+            var syncEmail = found.email;
+            if (!syncEmail || syncEmail.indexOf('@') === -1) {
+              syncEmail = found.username + '@app.local';
+              found.email = syncEmail;
+              var allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+              var ux = allUsers.find(function(u) { return u.username === found.username; });
+              if (ux) { ux.email = syncEmail; localStorage.setItem('users', JSON.stringify(allUsers)); }
+            }
             migrateLegacyUser(found, pass);
           }
           window.location.href = getBaseUrl() + role + '/';
@@ -275,12 +284,39 @@
             }, 15000);
 
             fbLogin(loginInput, pass, function(loginErr, session) {
-              clearTimeout(slowNotice);
-              window.__fbLoggingIn = false;
-              setLoading(false);
               if (loginErr) {
-                errEl.textContent = 'Invalid email or password.';
-                errEl.classList.remove('hidden');
+                // Baka username lang ang ginamit, subukan ang synthetic email
+                if (loginInput.indexOf('@') === -1) {
+                  fbLogin(loginInput + '@app.local', pass, function(err2, session2) {
+                    clearTimeout(slowNotice);
+                    window.__fbLoggingIn = false;
+                    setLoading(false);
+                    if (err2) {
+                      errEl.textContent = 'Invalid email or password.';
+                      errEl.classList.remove('hidden');
+                    } else {
+                      var users = JSON.parse(localStorage.getItem('users') || '[]');
+                      if (!users.some(function(u) { return u.email === session2.email || u.username === session2.username; })) {
+                        users.push({
+                          username: session2.username,
+                          name: session2.name,
+                          email: session2.email,
+                          password: hash,
+                          role: session2.role,
+                          isAdmin: session2.isAdmin
+                        });
+                        localStorage.setItem('users', JSON.stringify(users));
+                      }
+                      window.location.href = getBaseUrl() + session2.role + '/';
+                    }
+                  });
+                } else {
+                  clearTimeout(slowNotice);
+                  window.__fbLoggingIn = false;
+                  setLoading(false);
+                  errEl.textContent = 'Invalid email or password.';
+                  errEl.classList.remove('hidden');
+                }
               } else {
                 // Save user to localStorage for instant login next time
                 var users = JSON.parse(localStorage.getItem('users') || '[]');

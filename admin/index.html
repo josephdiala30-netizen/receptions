@@ -448,6 +448,14 @@ button, input, select, textarea { min-width: 0; }
       <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Registered users</span><span class="font-body-md font-semibold" id="sysInfoUsers">0</span></div>
     </div>
   </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">cloud_upload</span> Sync Users to Cloud</h3>
+    <p class="font-body-md text-on-surface-variant mb-4">Create or update Supabase Auth accounts for all local users. Required para makapag-login sila sa ibang device.</p>
+    <button class="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-emerald-700 transition-colors" onclick="syncAllLocalUsersToCloud()">
+      <span class="material-symbols-outlined">cloud_upload</span> Sync All Users to Cloud
+    </button>
+    <span id="syncStatus" class="font-label-md text-on-surface-variant ml-3"></span>
+  </div>
 </div>
 </section>
 
@@ -726,6 +734,147 @@ function saveUsers(users) {
   localStorage.setItem('users', JSON.stringify(users));
 }
 
+function fetchSupabaseUserData(username, callback) {
+  var client = supabaseClient;
+  if (!client) { if (callback) callback(null); return; }
+
+  // Hanapin muna ang UID ng user mula sa profiles
+  client.from('profiles').select('id').eq('username', username).single().then(function(pResult) {
+    if (pResult.error || !pResult.data) { if (callback) callback(null); return; }
+
+    client.rpc('get_userdata', { p_uid: pResult.data.id }).then(function(rpcResult) {
+      if (!rpcResult.error && rpcResult.data && Object.keys(rpcResult.data).length > 0) {
+        var data = typeof rpcResult.data === 'string' ? JSON.parse(rpcResult.data) : rpcResult.data;
+        // Sync sa localStorage
+        if (data.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(data.tasks));
+        if (data.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(data.shared_tasks));
+        if (data.plans) localStorage.setItem('plans_' + username, JSON.stringify(data.plans));
+        if (data.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(data.dailylog));
+        if (data.trips) localStorage.setItem('trips_' + username, JSON.stringify(data.trips));
+        if (data.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(data.milestones));
+        Object.keys(data).forEach(function(k) {
+          if (k.indexOf('it_') === 0) localStorage.setItem(k + '_' + username, JSON.stringify(data[k]));
+        });
+        if (callback) callback(data);
+      } else {
+        // Fallback sa direct SELECT
+        client.from('userdata').select('data').eq('id', pResult.data.id).single().then(function(sResult) {
+          if (!sResult.error && sResult.data && sResult.data.data) {
+            var d = sResult.data.data;
+            if (d.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(d.tasks));
+            if (d.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(d.shared_tasks));
+            if (d.plans) localStorage.setItem('plans_' + username, JSON.stringify(d.plans));
+            if (d.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(d.dailylog));
+            if (d.trips) localStorage.setItem('trips_' + username, JSON.stringify(d.trips));
+            if (d.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(d.milestones));
+            Object.keys(d).forEach(function(k) {
+              if (k.indexOf('it_') === 0) localStorage.setItem(k + '_' + username, JSON.stringify(d[k]));
+            });
+            if (callback) callback(d);
+          } else {
+            if (callback) callback(null);
+          }
+        }).catch(function() { if (callback) callback(null); });
+      }
+    }).catch(function() { if (callback) callback(null); });
+  }).catch(function() { if (callback) callback(null); });
+}
+
+function syncAllUsersFromSupabase(callback) {
+  var users = getUsers();
+  if (!users.length || typeof supabaseClient === 'undefined') { if (callback) callback(); return; }
+
+  var pending = users.length;
+  var done = 0;
+
+  users.forEach(function(u) {
+    fetchSupabaseUserData(u.username, function() {
+      done++;
+      if (done >= pending && callback) callback();
+    });
+  });
+}
+
+// I-sync ang lahat ng local users papuntang Supabase Auth (para makapag-login sa ibang device)
+function syncAllLocalUsersToCloud() {
+  var statusEl = document.getElementById('syncStatus');
+  if (!statusEl) return;
+  statusEl.textContent = 'Syncing...';
+
+  var users = getUsers();
+  if (!users.length || typeof supabaseClient === 'undefined') {
+    statusEl.textContent = 'No users or Supabase not connected.';
+    return;
+  }
+
+  var pending = users.length;
+  var done = 0;
+  var errors = 0;
+
+  users.forEach(function(u) {
+    var email = u.email || (u.username + '@app.local');
+    var password = 'temp123'; // Default password for legacy users
+
+    // Try to create Supabase Auth account (will fail silently if already exists)
+    supabaseClient.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: {
+          username: u.username,
+          name: u.name || u.username,
+          role: u.role || 'executive_task',
+          is_admin: u.isAdmin || false
+        }
+      }
+    }).then(function(result) {
+      if (result.data && result.data.user) {
+        var uid = result.data.user.id;
+        // Create profile and migrate data
+        supabaseClient.from('profiles').upsert({
+          id: uid, username: u.username, name: u.name || u.username,
+          email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false
+        }, { onConflict: 'id' }).then(function() {
+          // Migrate their data
+          var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, role: u.role || 'executive_task' } };
+          ['tasks','plans','milestones','dailylog','trips','shared_tasks'].forEach(function(k) {
+            try { var v = JSON.parse(localStorage.getItem(k + '_' + u.username)); if (Array.isArray(v)) userData[k] = v; } catch(e) {}
+          });
+          ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+            try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {}
+          });
+          supabaseClient.from('userdata').upsert({ id: uid, data: userData }, { onConflict: 'id' }).then(function() {
+            done++;
+            if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users synced.' + (errors ? ' (' + errors + ' errors)' : '');
+          });
+        });
+      } else {
+        // Account might already exist — try to update profile instead
+        supabaseClient.from('profiles').select('id').eq('username', u.username).single().then(function(p) {
+          if (p.data && p.data.id) {
+            supabaseClient.from('userdata').upsert({ id: p.data.id, data: {} }, { onConflict: 'id' }).then(function() {
+              done++;
+              if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users synced.' + (errors ? ' (' + errors + ' errors)' : '');
+            });
+          } else {
+            done++;
+            if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users synced.' + (errors ? ' (' + errors + ' errors)' : '');
+          }
+        }).catch(function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
+      }
+    }).catch(function() {
+      // Account exists, try to just ensure profile exists
+      supabaseClient.from('profiles').upsert({
+        username: u.username, name: u.name || u.username,
+        email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false
+      }, { onConflict: 'username' }).then(function() {
+        done++;
+        if (done >= pending) statusEl.textContent = 'Sync complete! Existing accounts updated.';
+      }).catch(function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
+    });
+  });
+}
+
 function collectUserData(username) {
   var data = {
     tasks: JSON.parse(localStorage.getItem('tasks_' + username) || '[]'),
@@ -917,8 +1066,16 @@ async function saveUser() {
     localStorage.setItem('welcome_' + username, 'true');
     saveUsers(users);
     // Also create Supabase Auth account + profile for cross-browser login
-    if (email && typeof supabaseClient !== 'undefined') {
-      fbRegister(email, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function() {});
+    // Kung walang email, gamitin ang username@app.local para makapag-login sa ibang device
+    var syncEmail = email || (username + '@app.local');
+    if (typeof supabaseClient !== 'undefined') {
+      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function() {});
+      // Update user record para may email na for future logins
+      if (!email) {
+        var allUsers = getUsers();
+        var foundUser = allUsers.find(function(x) { return x.username === username; });
+        if (foundUser) { foundUser.email = syncEmail; saveUsers(allUsers); }
+      }
     }
   }
   closeUserModal();
@@ -1307,8 +1464,12 @@ initTheme();
 initAuth(function() {
   checkWelcome();
   syncSupabaseUsers(function() {
-    loadDashboard();
-    populateUserFilters();
+    // I-sync ang lahat ng user data mula Supabase papuntang localStorage
+    // para makita ng admin ang data kahit sa ibang device ginawa
+    syncAllUsersFromSupabase(function() {
+      loadDashboard();
+      populateUserFilters();
+    });
   });
 });
 </script>
