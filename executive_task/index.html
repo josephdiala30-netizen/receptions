@@ -218,6 +218,10 @@ button, input, select, textarea { min-width: 0; }
       <span class="material-symbols-outlined">edit_note</span>
       <span class="font-label-md">Daily Log</span>
     </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="toggleScratchpad()">
+      <span class="material-symbols-outlined">sticky_note_2</span>
+      <span class="font-label-md">Notes</span>
+    </a>
   </nav>
   <button class="mt-auto bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="openCreateModal()">
     <span class="material-symbols-outlined">add</span> New Task
@@ -236,6 +240,10 @@ button, input, select, textarea { min-width: 0; }
   </div>
   <div class="flex items-center gap-2">
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
+    <div class="relative">
+      <button id="pomodoroBtn" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="togglePomodoro()" title="Pomodoro Timer">timer</button>
+      <span id="pomodoroBadge" class="hidden absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
+    </div>
     <div class="relative">
       <button id="notifBtn" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90 relative" onclick="toggleNotifMenu()" title="Notifications">notifications</button>
       <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"></span>
@@ -567,10 +575,48 @@ button, input, select, textarea { min-width: 0; }
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showBoard(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">view_column</span> <span class="font-label-md">Board</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPlanner(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">map</span> <span class="font-label-md">Planner</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showDailyLog(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">edit_note</span> <span class="font-label-md">Daily Log</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="toggleScratchpad(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">sticky_note_2</span> <span class="font-label-md">Notes</span></a>
     </nav>
     <button class="mt-auto w-full bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="openCreateModal()">
       <span class="material-symbols-outlined">add</span> New Task
     </button>
+  </div>
+</div>
+
+<div id="pomodoroPanel" class="hidden fixed right-0 top-0 h-full w-80 z-50 bg-surface-container-lowest/95 backdrop-blur-xl border-l border-outline-variant shadow-2xl p-5 flex flex-col">
+  <div class="flex items-center justify-between mb-6">
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="material-symbols-outlined">timer</span> Pomodoro</h3>
+    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="togglePomodoro()">close</button>
+  </div>
+  <div class="text-center py-6">
+    <div class="text-6xl font-bold tabular-nums text-primary mb-2" id="pomodoroDisplay">25:00</div>
+    <p class="font-label-md text-on-surface-variant" id="pomodoroPhase">Focus Time</p>
+  </div>
+  <div class="flex justify-center gap-3 mb-6">
+    <button id="pomodoroStartBtn" class="bg-emerald-600 text-white px-8 py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-95 flex items-center gap-2" onclick="pomodoroStart()"><span class="material-symbols-outlined text-sm">play_arrow</span> Start</button>
+    <button id="pomodoroPauseBtn" class="hidden bg-amber-600 text-white px-8 py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-95 flex items-center gap-2" onclick="pomodoroPause()"><span class="material-symbols-outlined text-sm">pause</span> Pause</button>
+    <button class="border border-outline-variant text-on-surface-variant px-4 py-3 rounded-xl font-label-md hover:bg-surface-container transition-all" onclick="pomodoroReset()"><span class="material-symbols-outlined text-sm">refresh</span></button>
+  </div>
+  <div class="flex justify-center gap-2 mb-6">
+    <button class="px-3 py-1.5 rounded-lg font-label-md text-xs border border-outline-variant hover:bg-surface-container transition-all" onclick="pomodoroSetMode(25)" id="pomodoroMode25">25 min</button>
+    <button class="px-3 py-1.5 rounded-lg font-label-md text-xs border border-outline-variant hover:bg-surface-container transition-all" onclick="pomodoroSetMode(15)" id="pomodoroMode15">15 min</button>
+    <button class="px-3 py-1.5 rounded-lg font-label-md text-xs border border-outline-variant hover:bg-surface-container transition-all" onclick="pomodoroSetMode(5)" id="pomodoroMode5">5 min</button>
+  </div>
+  <div class="mt-auto pt-4 border-t border-outline-variant text-center">
+    <p class="font-label-md text-on-surface-variant">Pomodoros completed today</p>
+    <p class="font-headline-md font-bold text-primary" id="pomodoroCount">0</p>
+  </div>
+</div>
+
+<div id="scratchpadPanel" class="hidden fixed right-0 top-0 h-full w-80 z-50 bg-surface-container-lowest/95 backdrop-blur-xl border-l border-outline-variant shadow-2xl p-5 flex flex-col">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="material-symbols-outlined">sticky_note_2</span> Scratchpad</h3>
+    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="toggleScratchpad()">close</button>
+  </div>
+  <textarea id="scratchpadText" class="flex-1 w-full bg-surface-container border border-outline-variant rounded-xl p-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none" placeholder="Jot down quick ideas, notes, or reminders...&#10;&#10;Tip: Press Ctrl+Enter to create a task from this note."></textarea>
+  <div class="flex gap-2 mt-3">
+    <button class="flex-1 bg-primary text-on-primary py-2.5 rounded-xl font-label-md hover:opacity-90 transition-all text-sm flex items-center justify-center gap-1" onclick="noteToTask()"><span class="material-symbols-outlined text-sm">add_task</span> Create Task</button>
+    <button class="flex-1 border border-outline-variant text-on-surface-variant py-2.5 rounded-xl font-label-md hover:bg-surface-container transition-all text-sm" onclick="clearScratchpad()">Clear</button>
   </div>
 </div>
 
@@ -613,6 +659,12 @@ button, input, select, textarea { min-width: 0; }
         <input id="taskCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="e.g. Development, Design, Marketing" type="text"/>
       </div>
       <div>
+        <label class="font-label-md text-on-surface-variant block mb-1.5">Parent Task</label>
+        <select id="taskParent" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option value="">— No parent —</option>
+        </select>
+      </div>
+      <div>
         <label class="font-label-md text-on-surface-variant block mb-1.5">Assign To</label>
         <select id="taskAssignee" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
           <option value="">— Unassigned —</option>
@@ -621,6 +673,15 @@ button, input, select, textarea { min-width: 0; }
       <div>
         <label class="font-label-md text-on-surface-variant block mb-1.5">Due Date</label>
         <input id="taskDueDate" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" type="date"/>
+      </div>
+      <div>
+        <label class="font-label-md text-on-surface-variant block mb-1.5">Repeat</label>
+        <select id="taskRecurring" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option value="">No repeat</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
       </div>
       <div class="flex gap-3 pt-2">
         <button class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-title-lg hover:opacity-90 transition-all active:scale-[0.98]" onclick="saveTask()">Save Task</button>
@@ -1055,6 +1116,19 @@ function populateAssigneeDropdown() {
   }
 }
 
+function populateParentDropdown() {
+  var sel = document.getElementById('taskParent');
+  if (!sel) return;
+  var tasks = getTasks();
+  var editingId = editingTaskId;
+  var html = '<option value="">— No parent —</option>';
+  tasks.forEach(function(t) {
+    if (t.id === editingId) return;
+    html += '<option value="' + t.id + '">' + escapeHtml(t.title.slice(0, 60)) + '</option>';
+  });
+  sel.innerHTML = html;
+}
+
 // Pag nag-click sa reload option, i-refresh ang dropdown
 document.addEventListener('change', function(e) {
   if (e.target && e.target.id === 'taskAssignee' && e.target.value === '__reload__') {
@@ -1210,6 +1284,196 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// --- Scratchpad ---
+function scratchpadKey() {
+  var s = getSession();
+  return s ? 'scratchpad_' + s.username : 'scratchpad';
+}
+
+function toggleScratchpad() {
+  var panel = document.getElementById('scratchpadPanel');
+  var hidden = panel.classList.toggle('hidden');
+  if (!hidden) {
+    var saved = localStorage.getItem(scratchpadKey()) || '';
+    document.getElementById('scratchpadText').value = saved;
+    document.getElementById('scratchpadText').focus();
+  }
+}
+
+function clearScratchpad() {
+  if (!confirm('Clear all notes?')) return;
+  document.getElementById('scratchpadText').value = '';
+  localStorage.setItem(scratchpadKey(), '');
+}
+
+function noteToTask() {
+  var text = document.getElementById('scratchpadText').value.trim();
+  if (!text) { alert('Write something in the scratchpad first.'); return; }
+  openCreateModal();
+  document.getElementById('taskTitle').value = text.split('\n')[0].slice(0, 100);
+  document.getElementById('taskDesc').value = text;
+}
+
+// Auto-save scratchpad on typing
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id === 'scratchpadText') {
+    localStorage.setItem(scratchpadKey(), e.target.value);
+  }
+});
+
+// Ctrl+Enter to create task from scratchpad
+document.addEventListener('keydown', function(e) {
+  if (e.target && e.target.id === 'scratchpadText' && e.ctrlKey && e.key === 'Enter') {
+    e.preventDefault();
+    noteToTask();
+  }
+});
+
+// --- Pomodoro Timer ---
+var pomodoroState = { running: false, paused: false, minutes: 25, seconds: 0, interval: null, mode: 'focus' };
+var pomodoroToday = parseInt(localStorage.getItem('pomodoroCount_' + (getSession() ? getSession().username : '')) || '0');
+
+function updatePomodoroToday() {
+  var key = 'pomodoroCount_' + (getSession() ? getSession().username : '');
+  localStorage.setItem(key, pomodoroToday);
+  document.getElementById('pomodoroCount').textContent = pomodoroToday;
+}
+
+function pomodoroDisplay() {
+  var m = String(pomodoroState.minutes).padStart(2, '0');
+  var s = String(pomodoroState.seconds).padStart(2, '0');
+  document.getElementById('pomodoroDisplay').textContent = m + ':' + s;
+}
+
+function pomodoroSetMode(min) {
+  if (pomodoroState.running) return;
+  pomodoroState.minutes = min;
+  pomodoroState.seconds = 0;
+  pomodoroState.mode = min >= 20 ? 'focus' : 'break';
+  document.getElementById('pomodoroPhase').textContent = min >= 20 ? 'Focus Time' : 'Break';
+  pomodoroDisplay();
+  // highlight active mode
+  [25, 15, 5].forEach(function(n) {
+    var el = document.getElementById('pomodoroMode' + n);
+    if (el) el.className = 'px-3 py-1.5 rounded-lg font-label-md text-xs border ' + (n === min ? 'bg-primary text-on-primary border-primary' : 'border-outline-variant hover:bg-surface-container transition-all');
+  });
+}
+
+function togglePomodoro() {
+  var panel = document.getElementById('pomodoroPanel');
+  panel.classList.toggle('hidden');
+  if (!panel.classList.contains('hidden')) {
+    updatePomodoroToday();
+    pomodoroDisplay();
+  }
+}
+
+function pomodoroStart() {
+  if (pomodoroState.paused) {
+    pomodoroState.paused = false;
+    pomodoroState.running = true;
+    document.getElementById('pomodoroStartBtn').classList.add('hidden');
+    document.getElementById('pomodoroPauseBtn').classList.remove('hidden');
+    document.getElementById('pomodoroBadge').classList.remove('hidden');
+    pomodoroTick();
+    return;
+  }
+  if (pomodoroState.running) return;
+  pomodoroState.running = true;
+  pomodoroState.paused = false;
+  document.getElementById('pomodoroStartBtn').classList.add('hidden');
+  document.getElementById('pomodoroPauseBtn').classList.remove('hidden');
+  document.getElementById('pomodoroBadge').classList.remove('hidden');
+  pomodoroTick();
+}
+
+function pomodoroTick() {
+  if (!pomodoroState.running || pomodoroState.paused) return;
+  if (pomodoroState.seconds === 0) {
+    if (pomodoroState.minutes === 0) {
+      pomodoroComplete();
+      return;
+    }
+    pomodoroState.minutes--;
+    pomodoroState.seconds = 59;
+  } else {
+    pomodoroState.seconds--;
+  }
+  pomodoroDisplay();
+  pomodoroState.interval = setTimeout(pomodoroTick, 1000);
+}
+
+function pomodoroPause() {
+  pomodoroState.paused = true;
+  pomodoroState.running = false;
+  clearTimeout(pomodoroState.interval);
+  document.getElementById('pomodoroStartBtn').classList.remove('hidden');
+  document.getElementById('pomodoroStartBtn').innerHTML = '<span class="material-symbols-outlined text-sm">play_arrow</span> Resume';
+  document.getElementById('pomodoroPauseBtn').classList.add('hidden');
+  document.getElementById('pomodoroBadge').classList.add('hidden');
+}
+
+function pomodoroReset() {
+  clearTimeout(pomodoroState.interval);
+  pomodoroState.running = false;
+  pomodoroState.paused = false;
+  pomodoroState.minutes = 25;
+  pomodoroState.seconds = 0;
+  pomodoroState.mode = 'focus';
+  document.getElementById('pomodoroStartBtn').classList.remove('hidden');
+  document.getElementById('pomodoroStartBtn').innerHTML = '<span class="material-symbols-outlined text-sm">play_arrow</span> Start';
+  document.getElementById('pomodoroPauseBtn').classList.add('hidden');
+  document.getElementById('pomodoroBadge').classList.add('hidden');
+  document.getElementById('pomodoroPhase').textContent = 'Focus Time';
+  pomodoroSetMode(25);
+  pomodoroDisplay();
+}
+
+function pomodoroComplete() {
+  clearTimeout(pomodoroState.interval);
+  pomodoroState.running = false;
+  pomodoroState.paused = false;
+  document.getElementById('pomodoroBadge').classList.add('hidden');
+  document.getElementById('pomodoroStartBtn').classList.remove('hidden');
+  document.getElementById('pomodoroStartBtn').innerHTML = '<span class="material-symbols-outlined text-sm">play_arrow</span> Start';
+  document.getElementById('pomodoroPauseBtn').classList.add('hidden');
+
+  if (pomodoroState.mode === 'focus') {
+    pomodoroToday++;
+    updatePomodoroToday();
+    addNotif('Pomodoro completed! Time for a break.', 'success');
+    pomodoroSetMode(5);
+    document.getElementById('pomodoroPhase').textContent = 'Break - Well done!';
+  } else {
+    addNotif('Break over! Time to focus.', 'info');
+    pomodoroSetMode(25);
+    document.getElementById('pomodoroPhase').textContent = 'Focus Time';
+  }
+  pomodoroDisplay();
+}
+
+// --- Keyboard Shortcuts ---
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+    if (e.key === 'Escape') e.target.blur();
+    return;
+  }
+  var key = e.key.toLowerCase();
+  if (key === 'n') { e.preventDefault(); openCreateModal(); }
+  if (key === 'f' || key === '/') { e.preventDefault(); document.getElementById('globalSearch').focus(); }
+  if (key === 'b') { e.preventDefault(); showBoard(); }
+  if (key === '1') { e.preventDefault(); showSection('pageDashboard'); loadDashboard(); }
+  if (key === '2') { e.preventDefault(); showAllTasks(); }
+  if (key === '3') { e.preventDefault(); showPlanner(); }
+  if (key === '4') { e.preventDefault(); showDailyLog(); }
+  if (key === '?') { e.preventDefault(); document.getElementById('shortcutsModal').classList.remove('hidden'); }
+  if (key === 'escape') {
+    document.querySelectorAll('.fixed:not(.hidden)').forEach(function(m) {
+      if (m.id !== 'tutorialOverlay') m.classList.add('hidden');
+    });
+  }
+});
+
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -1304,6 +1568,9 @@ function renderTaskCard(t) {
   } else if (t.assignedTo) {
     assignHtml = '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person_add</span> to ' + escapeHtml(t.assignedTo) + '</span>';
   }
+  var recurringIcon = t.recurring ? '<span class="font-label-md flex items-center gap-1" title="' + t.recurring.charAt(0).toUpperCase() + t.recurring.slice(1) + '"><span class="material-symbols-outlined text-sm">loop</span></span>' : '';
+  var hasChildren = getAllTasks().filter(function(x) { return x.parentId === t.id && !x._shared; }).length > 0;
+  var hierarchyIcon = t.parentId ? '<span class="font-label-md flex items-center gap-1" title="Sub-task"><span class="material-symbols-outlined text-sm">subdirectory_arrow_left</span></span>' : (hasChildren ? '<span class="font-label-md flex items-center gap-1" title="Has sub-tasks"><span class="material-symbols-outlined text-sm">account_tree</span></span>' : '');
   var timeHtml = (t.timeSpent || t.timerStart) ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">timer</span> ' + formatTime((t.timeSpent || 0) + (t.timerStart ? Math.floor((Date.now() - new Date(t.timerStart).getTime()) / 1000) : 0)) + '</span>' : '';
   var descHtml = t.description ? '<p class="font-label-md text-on-surface-variant mt-1 line-clamp-2">' + escapeHtml(t.description) + '</p>' : '';
 
@@ -1316,7 +1583,7 @@ function renderTaskCard(t) {
     '<span class="' + priorityClass(t.priority) + '">' + priorityLabel(t.priority) + '</span></div>' +
     descHtml +
     '<div class="flex items-center gap-4 mt-2 text-on-surface-variant flex-wrap">' +
-    dueHtml + catHtml + subtaskHtml + timeHtml + assignHtml +
+    dueHtml + catHtml + subtaskHtml + timeHtml + recurringIcon + hierarchyIcon + assignHtml +
     '</div></div>' +
     '<div class="flex items-start gap-1 ml-2 flex-shrink-0" onclick="event.stopPropagation()">' +
     (t.status !== 'done' ? '<button class="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors" title="Mark Done" onclick="setTaskStatus(' + t.id + ',\'done\')"><span class="material-symbols-outlined text-sm">check</span></button>' : '') +
@@ -1566,7 +1833,10 @@ function openCreateModal() {
   document.getElementById('taskPriority').value = 'medium';
   document.getElementById('taskCategory').value = '';
   document.getElementById('taskDueDate').value = '';
+  document.getElementById('taskRecurring').value = '';
+  populateParentDropdown();
   populateAssigneeDropdown();
+  document.getElementById('taskParent').value = '';
   document.getElementById('taskAssignee').value = '';
   document.getElementById('taskModal').classList.remove('hidden');
 }
@@ -1583,7 +1853,11 @@ function openEditModal(id) {
   document.getElementById('taskPriority').value = t.priority || 'medium';
   document.getElementById('taskCategory').value = t.category || '';
   document.getElementById('taskDueDate').value = t.dueDate || '';
+  document.getElementById('taskRecurring').value = t.recurring || '';
+  populateParentDropdown();
   populateAssigneeDropdown();
+  var par = document.getElementById('taskParent');
+  if (par) par.value = t.parentId || '';
   var as = document.getElementById('taskAssignee');
   if (as) as.value = t.assignedTo || '';
   document.getElementById('taskModal').classList.remove('hidden');
@@ -1612,6 +1886,8 @@ function saveTask() {
       t.priority = document.getElementById('taskPriority').value;
       t.category = document.getElementById('taskCategory').value.trim();
       t.dueDate = document.getElementById('taskDueDate').value;
+      t.recurring = document.getElementById('taskRecurring').value || null;
+      t.parentId = document.getElementById('taskParent').value || null;
       t.assignedTo = assignedTo || '';
       t.assignedBy = t.assignedBy || curUser || '';
       t.updatedAt = now;
@@ -1633,6 +1909,8 @@ function saveTask() {
       priority: document.getElementById('taskPriority').value,
       category: document.getElementById('taskCategory').value.trim(),
       dueDate: document.getElementById('taskDueDate').value,
+      recurring: document.getElementById('taskRecurring').value || null,
+      parentId: document.getElementById('taskParent').value || null,
       assignedTo: assignedTo || '',
       assignedBy: curUser || '',
       subtasks: [],
@@ -1700,9 +1978,66 @@ function setTaskStatus(id, status) {
   // Personal task
   var tasks = getTasks();
   var t = tasks.find(function(x) { return x.id === id; });
-  if (t) { t.status = status; t.updatedAt = new Date().toISOString(); }
+  if (t) {
+    t.status = status;
+    t.updatedAt = new Date().toISOString();
+    // If marked as done and recurring, create next instance
+    if (status === 'done' && t.recurring) {
+      createNextRecurring(t);
+    }
+  }
   saveTasks(tasks);
   refreshCurrentView();
+}
+
+function getNextRecurringDate(recurring, fromDate) {
+  var d = fromDate ? new Date(fromDate + 'T00:00:00') : new Date();
+  if (recurring === 'daily') d.setDate(d.getDate() + 1);
+  else if (recurring === 'weekly') d.setDate(d.getDate() + 7);
+  else if (recurring === 'monthly') d.setMonth(d.getMonth() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function createNextRecurring(t) {
+  var tasks = getTasks();
+  var nextDate = getNextRecurringDate(t.recurring, t.dueDate);
+  var newTask = {
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    title: t.title,
+    description: t.description || '',
+    status: 'todo',
+    priority: t.priority || 'medium',
+    category: t.category || '',
+    dueDate: nextDate,
+    assignedTo: t.assignedTo || '',
+    assignedBy: t.assignedBy || '',
+    subtasks: [],
+    timeSpent: 0,
+    timerStart: null,
+    recurring: t.recurring,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  tasks.push(newTask);
+  saveTasks(tasks);
+  addNotif('Recurring task "' + t.title + '" created for ' + nextDate, 'task');
+}
+
+function checkRecurring() {
+  var tasks = getTasks();
+  var today = new Date().toISOString().slice(0, 10);
+  var changed = false;
+  tasks.forEach(function(t) {
+    if (t.recurring && t.status !== 'done' && t.dueDate && t.dueDate < today) {
+      // Overdue recurring task - create next instance and mark current as done
+      if (t.status === 'done') return;
+      t.status = 'done';
+      t.updatedAt = new Date().toISOString();
+      createNextRecurring(t);
+      changed = true;
+    }
+  });
+  if (changed) saveTasks(tasks);
 }
 
 function addSubtask(taskId) {
@@ -1799,6 +2134,26 @@ function viewTask(id) {
   }
   var descStr = t.description ? '<div><span class="font-label-md text-on-surface-variant">Description:</span><p class="font-body-md mt-1">' + escapeHtml(t.description) + '</p></div>' : '';
 
+  // Parent/Child relationship
+  var parentChildHtml = '';
+  if (t.parentId) {
+    var parent = allTasks.find(function(x) { return x.id === t.parentId; });
+    if (parent) {
+      parentChildHtml += '<div class="border-t border-outline-variant pt-3 mt-3"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">subdirectory_arrow_left</span><span class="font-label-md text-on-surface-variant">Parent:</span><a class="font-body-md text-indigo-600 hover:underline cursor-pointer" onclick="viewTask(' + parent.id + ')">' + escapeHtml(parent.title) + '</a></div></div>';
+    }
+  }
+  var children = allTasks.filter(function(x) { return x.parentId === id && !x._shared; });
+  if (children.length > 0) {
+    parentChildHtml += '<div class="border-t border-outline-variant pt-3 mt-3"><span class="font-label-md font-semibold text-primary flex items-center gap-1 mb-2"><span class="material-symbols-outlined text-sm">account_tree</span> Child Tasks (' + children.length + ')</span><div class="space-y-1">' +
+      children.map(function(c) {
+        return '<div class="flex items-center gap-2 py-1.5 px-2 hover:bg-surface-container-low rounded-lg cursor-pointer" onclick="viewTask(' + c.id + ')">' +
+          '<span class="material-symbols-outlined text-sm text-on-surface-variant">subdirectory_arrow_right</span>' +
+          '<span class="flex-1 font-body-md text-sm ' + (c.status === 'done' ? 'line-through text-on-surface-variant' : 'text-primary') + '">' + escapeHtml(c.title) + '</span>' +
+          '<span class="' + statusClass(c.status) + ' text-xs">' + statusLabel(c.status) + '</span>' +
+          '</div>';
+      }).join('') + '</div></div>';
+  }
+
   var subtaskHtml = '';
   var subs = t.subtasks || [];
   if (subs.length > 0) {
@@ -1830,7 +2185,7 @@ function viewTask(id) {
     '<span class="' + statusClass(t.status) + '">' + statusLabel(t.status) + '</span>' +
     '<span class="' + priorityClass(t.priority) + '">' + priorityLabel(t.priority) + '</span>' +
     '</div>' +
-    assignStr + dueStr + catStr + descStr + subtaskHtml + timerHtml +
+    assignStr + dueStr + catStr + descStr + parentChildHtml + subtaskHtml + timerHtml +
     '<div class="flex gap-3 pt-3 border-t border-outline-variant">' +
     (t.status !== 'done' ? '<button class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl font-label-md hover:opacity-90" onclick="setTaskStatus(' + t.id + ',\'done\'); document.getElementById(\'taskDetailModal\').classList.add(\'hidden\')">Mark Done</button>' : '') +
     (t.status === 'todo' ? '<button class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl font-label-md hover:opacity-90" onclick="setTaskStatus(' + t.id + ',\'progress\'); document.getElementById(\'taskDetailModal\').classList.add(\'hidden\')">Start</button>' : '') +
@@ -2656,6 +3011,7 @@ initTheme();
 initAuth(function() {
   checkWelcome();
   checkNewAssignments();
+  checkRecurring();
   updateNotifBadge();
   loadDashboard();
 });
@@ -2766,6 +3122,27 @@ fbOnUpdate(function(data) {
   loadDashboard();
 });
 </script>
+
+<!-- Keyboard Shortcuts Modal -->
+<div id="shortcutsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="font-headline-md font-bold">Keyboard Shortcuts</h2>
+      <button onclick="document.getElementById('shortcutsModal').classList.add('hidden')" class="p-2 rounded-xl hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="space-y-3">
+      <div class="flex items-center justify-between py-2 border-b border-outline-variant/60"><span class="font-body-md">New Task</span><kbd class="bg-surface-container px-3 py-1 rounded-lg font-label-md font-mono text-sm">N</kbd></div>
+      <div class="flex items-center justify-between py-2 border-b border-outline-variant/60"><span class="font-body-md">Search Tasks</span><kbd class="bg-surface-container px-3 py-1 rounded-lg font-label-md font-mono text-sm">F</kbd></div>
+      <div class="flex items-center justify-between py-2 border-b border-outline-variant/60"><span class="font-body-md">Board View</span><kbd class="bg-surface-container px-3 py-1 rounded-lg font-label-md font-mono text-sm">B</kbd></div>
+      <div class="flex items-center justify-between py-2 border-b border-outline-variant/60"><span class="font-body-md">Dashboard</span><kbd class="bg-surface-container px-3 py-1 rounded-lg font-label-md font-mono text-sm">1</kbd></div>
+      <div class="flex items-center justify-between py-2 border-b border-outline-variant/60"><span class="font-body-md">All Tasks</span><kbd class="bg-surface-container px-3 py-1 rounded-lg font-label-md font-mono text-sm">2</kbd></div>
+      <div class="flex items-center justify-between py-2 border-b border-outline-variant/60"><span class="font-body-md">Planner</span><kbd class="bg-surface-container px-3 py-1 rounded-lg font-label-md font-mono text-sm">3</kbd></div>
+      <div class="flex items-center justify-between py-2 border-b border-outline-variant/60"><span class="font-body-md">Daily Log</span><kbd class="bg-surface-container px-3 py-1 rounded-lg font-label-md font-mono text-sm">4</kbd></div>
+      <div class="flex items-center justify-between py-2 border-b border-outline-variant/60"><span class="font-body-md">Close Modal</span><kbd class="bg-surface-container px-3 py-1 rounded-lg font-label-md font-mono text-sm">Esc</kbd></div>
+      <div class="flex items-center justify-between py-2"><span class="font-body-md">Show Shortcuts</span><kbd class="bg-surface-container px-3 py-1 rounded-lg font-label-md font-mono text-sm">?</kbd></div>
+    </div>
+  </div>
+</div>
 
 <!-- Avatar Modal -->
 <div id="avatarModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onclick="if(event.target===this)return">
