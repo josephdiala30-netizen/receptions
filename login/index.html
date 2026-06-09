@@ -365,12 +365,12 @@
         var uid = result.data ? result.data.user && result.data.user.id : null;
         if (!uid) {
           // Account already exists - try to update profile
-          client.from('profiles').select('id').eq('username', found.username).single().then(function(p) {
+          Promise.resolve(client.from('profiles').select('id').eq('username', found.username).single()).then(function(p) {
             if (p.data && p.data.id) {
               var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
-              client.from('userdata').upsert({ id: p.data.id, data: userData }, { onConflict: 'id' }).catch(function(e) { console.error('Migration userdata update error:', e); });
+              Promise.resolve(client.from('userdata').upsert({ id: p.data.id, data: userData }, { onConflict: 'id' })).then(null, function(e) { console.error('Migration userdata update error:', e); });
             }
-          }).catch(function(e) { console.error('Migration profile lookup error:', e); });
+          }, function(e) { console.error('Migration profile lookup error:', e); });
           return;
         }
         s.supabaseUid = uid;
@@ -380,14 +380,14 @@
         prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
         var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
         itTypes.forEach(function(t) { try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {} });
-        client.from('profiles').upsert({
+        Promise.resolve(client.from('profiles').upsert({
           id: uid, username: found.username, name: found.name, email: found.email,
           role: found.role || 'executive_path', is_admin: found.isAdmin || false
-        }, { onConflict: 'id' }).then(function() {
-          client.from('userdata').upsert({ id: uid, data: userData }, { onConflict: 'id' }).then(function() {
+        }, { onConflict: 'id' })).then(function() {
+          Promise.resolve(client.from('userdata').upsert({ id: uid, data: userData }, { onConflict: 'id' })).then(function() {
             console.log('Migration to Supabase complete');
-          }).catch(function(e) { console.error('Migration userdata error:', e); });
-        }).catch(function(e) { console.error('Migration profile error:', e); });
+          }, function(e) { console.error('Migration userdata error:', e); });
+        }, function(e) { console.error('Migration profile error:', e); });
       }).catch(function(err) {
         console.error('Migration signup error:', err);
       });

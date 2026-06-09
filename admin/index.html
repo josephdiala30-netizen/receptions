@@ -816,7 +816,7 @@ function syncAllLocalUsersToCloud() {
 
     // I-ensure lang na may profile at userdata sa Supabase
     // (Hindi na ginagalaw ang Auth account - yan ay kay admin mag-create o via login)
-    supabaseClient.from('profiles').select('id').eq('username', u.username).single().then(function(p) {
+    Promise.resolve(supabaseClient.from('profiles').select('id').eq('username', u.username).single()).then(function(p) {
       if (p.data && p.data.id) {
         // May profile na - update userdata
         var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, role: u.role || 'executive_task' } };
@@ -826,26 +826,26 @@ function syncAllLocalUsersToCloud() {
         ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
           try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {}
         });
-        supabaseClient.from('userdata').upsert({ id: p.data.id, data: userData }, { onConflict: 'id' }).then(function() {
+        Promise.resolve(supabaseClient.from('userdata').upsert({ id: p.data.id, data: userData }, { onConflict: 'id' })).then(function() {
           done++;
           if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
-        }).catch(function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
+        }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
       } else {
         // Wala pang profile - subukan i-create (kung may existing Auth account)
         // Kung wala, ito ay mabibigo at magti-trigger ng error
-        supabaseClient.from('profiles').insert({
+        Promise.resolve(supabaseClient.from('profiles').insert({
           username: u.username, name: u.name || u.username,
           email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false
-        }).then(function() {
+        })).then(function() {
           done++;
           if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
-        }).catch(function() {
+        }, function() {
           // Profile insert failed - malamang walang Auth account
           done++; errors++;
           if (done >= pending) statusEl.textContent = 'Sync done. ' + errors + ' users need Supabase Auth account. Create them via Users tab first.';
         });
       }
-    }).catch(function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
+    }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
   });
 }
 

@@ -554,21 +554,21 @@ function fbRegister(email, password, profile, callback) {
       role: profile.role || 'executive_task',
       is_admin: profile.isAdmin || false
     };
-    client.from('profiles').upsert(p, { onConflict: 'id' }).then(function() {
-      client.from('userdata').upsert({ id: uid, data: {} }, { onConflict: 'id' }).then(function() {
-        localStorage.setItem('welcome_' + profile.username, 'true');
-        // Don't signOut - that logs out the current admin!
-        window.__fbRegistering = false;
-        if (callback) callback(null, { username: profile.username, name: profile.name, role: profile.role });
-      }).catch(function(err) {
-        console.error('userdata upsert error:', err);
-        window.__fbRegistering = false;
-        if (callback) callback(err);
-      });
-    }).catch(function(err) {
-      console.error('profiles upsert error:', err);
+    function doCb(err, ok) {
       window.__fbRegistering = false;
-      if (callback) callback(err);
+      if (callback) callback(err, ok);
+    }
+    Promise.resolve(client.from('profiles').upsert(p, { onConflict: 'id' })).then(function() {
+      Promise.resolve(client.from('userdata').upsert({ id: uid, data: {} }, { onConflict: 'id' })).then(function() {
+        localStorage.setItem('welcome_' + profile.username, 'true');
+        doCb(null, { username: profile.username, name: profile.name, role: profile.role });
+      }, function(err) {
+        console.error('userdata upsert error:', err);
+        doCb(err);
+      });
+    }, function(err) {
+      console.error('profiles upsert error:', err);
+      doCb(err);
     });
   })
   .catch(function(err) {
