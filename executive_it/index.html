@@ -1367,6 +1367,7 @@ function renderDashboardCharts(services, tasks, maintenance) {
     });
   }
 }
+function timeAgo(ts) {
   if (!ts) return 'just now';
   var diff = Date.now() - ts;
   var mins = Math.floor(diff / 60000);
