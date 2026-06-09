@@ -285,6 +285,14 @@
 
             fbLogin(loginInput, pass, function(loginErr, session) {
               if (loginErr) {
+                // Ipakita ang actual error para malaman kung ano ang problema
+                var errMsg = loginErr.message || loginErr.error_description || loginErr.toString();
+                // Kung "Email not confirmed" ang error, iba ang message
+                if (errMsg.indexOf('Email not confirmed') !== -1 || errMsg.indexOf('email_not_confirmed') !== -1) {
+                  errEl.textContent = 'Email not confirmed. Check your inbox or disable email confirmation in Supabase Auth settings.';
+                } else {
+                  errEl.textContent = errMsg;
+                }
                 // Baka username lang ang ginamit, subukan ang synthetic email
                 if (loginInput.indexOf('@') === -1) {
                   fbLogin(loginInput + '@app.local', pass, function(err2, session2) {
@@ -292,7 +300,7 @@
                     window.__fbLoggingIn = false;
                     setLoading(false);
                     if (err2) {
-                      errEl.textContent = 'Invalid email or password.';
+                      errEl.textContent = err2.message || err2.error_description || err2.toString();
                       errEl.classList.remove('hidden');
                     } else {
                       var users = JSON.parse(localStorage.getItem('users') || '[]');
@@ -314,7 +322,6 @@
                   clearTimeout(slowNotice);
                   window.__fbLoggingIn = false;
                   setLoading(false);
-                  errEl.textContent = 'Invalid email or password.';
                   errEl.classList.remove('hidden');
                 }
               } else {
@@ -355,8 +362,17 @@
         options: { data: { username: found.username, name: found.name, role: found.role || 'executive_path', is_admin: found.isAdmin || false } }
       }).then(function(result) {
         if (result.error && result.error.message.indexOf('already') < 0) return;
-        var uid = result.data ? result.data.user.id : null;
-        if (!uid) return;
+        var uid = result.data ? result.data.user && result.data.user.id : null;
+        if (!uid) {
+          // Account already exists - try to update profile
+          client.from('profiles').select('id').eq('username', found.username).single().then(function(p) {
+            if (p.data && p.data.id) {
+              var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
+              client.from('userdata').upsert({ id: p.data.id, data: userData }, { onConflict: 'id' }).catch(function(e) { console.error('Migration userdata update error:', e); });
+            }
+          }).catch(function(e) { console.error('Migration profile lookup error:', e); });
+          return;
+        }
         s.supabaseUid = uid;
         localStorage.setItem('session', JSON.stringify(s));
         var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
@@ -370,10 +386,10 @@
         }, { onConflict: 'id' }).then(function() {
           client.from('userdata').upsert({ id: uid, data: userData }, { onConflict: 'id' }).then(function() {
             console.log('Migration to Supabase complete');
-          });
-        });
+          }).catch(function(e) { console.error('Migration userdata error:', e); });
+        }).catch(function(e) { console.error('Migration profile error:', e); });
       }).catch(function(err) {
-        console.error('Migration error:', err);
+        console.error('Migration signup error:', err);
       });
     }
 
