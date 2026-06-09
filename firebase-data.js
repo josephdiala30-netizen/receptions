@@ -557,16 +557,10 @@ function fbRegister(email, password, profile, callback) {
     client.from('profiles').upsert(p, { onConflict: 'id' }).then(function() {
       client.from('userdata').upsert({ id: uid, data: {} }, { onConflict: 'id' }).then(function() {
         localStorage.setItem('welcome_' + profile.username, 'true');
-
-        // Sign out so user must log in
-        client.auth.signOut().then(function() {
-          window.__fbRegistering = false;
-          fbClearSession();
-          window.__fbCache = {};
-          window.__fbLoaded = false;
-          window.__fbUser = null;
-          if (callback) callback(null, { username: profile.username, name: profile.name, role: profile.role });
-        });
+        // Don't signOut - that logs out the current admin!
+        // Just reset the local cache for the new user context
+        window.__fbRegistering = false;
+        if (callback) callback(null, { username: profile.username, name: profile.name, role: profile.role });
       });
     });
   })

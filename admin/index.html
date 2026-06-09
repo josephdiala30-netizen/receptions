@@ -813,65 +813,39 @@ function syncAllLocalUsersToCloud() {
 
   users.forEach(function(u) {
     var email = u.email || (u.username + '@app.local');
-    var password = 'temp123'; // Default password for legacy users
 
-    // Try to create Supabase Auth account (will fail silently if already exists)
-    supabaseClient.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        data: {
-          username: u.username,
-          name: u.name || u.username,
-          role: u.role || 'executive_task',
-          is_admin: u.isAdmin || false
-        }
-      }
-    }).then(function(result) {
-      if (result.data && result.data.user) {
-        var uid = result.data.user.id;
-        // Create profile and migrate data
-        supabaseClient.from('profiles').upsert({
-          id: uid, username: u.username, name: u.name || u.username,
-          email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false
-        }, { onConflict: 'id' }).then(function() {
-          // Migrate their data
-          var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, role: u.role || 'executive_task' } };
-          ['tasks','plans','milestones','dailylog','trips','shared_tasks'].forEach(function(k) {
-            try { var v = JSON.parse(localStorage.getItem(k + '_' + u.username)); if (Array.isArray(v)) userData[k] = v; } catch(e) {}
-          });
-          ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
-            try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {}
-          });
-          supabaseClient.from('userdata').upsert({ id: uid, data: userData }, { onConflict: 'id' }).then(function() {
-            done++;
-            if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users synced.' + (errors ? ' (' + errors + ' errors)' : '');
-          });
+    // I-ensure lang na may profile at userdata sa Supabase
+    // (Hindi na ginagalaw ang Auth account - yan ay kay admin mag-create o via login)
+    supabaseClient.from('profiles').select('id').eq('username', u.username).single().then(function(p) {
+      if (p.data && p.data.id) {
+        // May profile na - update userdata
+        var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, role: u.role || 'executive_task' } };
+        ['tasks','plans','milestones','dailylog','trips','shared_tasks'].forEach(function(k) {
+          try { var v = JSON.parse(localStorage.getItem(k + '_' + u.username)); if (Array.isArray(v)) userData[k] = v; } catch(e) {}
         });
-      } else {
-        // Account might already exist — try to update profile instead
-        supabaseClient.from('profiles').select('id').eq('username', u.username).single().then(function(p) {
-          if (p.data && p.data.id) {
-            supabaseClient.from('userdata').upsert({ id: p.data.id, data: {} }, { onConflict: 'id' }).then(function() {
-              done++;
-              if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users synced.' + (errors ? ' (' + errors + ' errors)' : '');
-            });
-          } else {
-            done++;
-            if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users synced.' + (errors ? ' (' + errors + ' errors)' : '');
-          }
+        ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+          try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {}
+        });
+        supabaseClient.from('userdata').upsert({ id: p.data.id, data: userData }, { onConflict: 'id' }).then(function() {
+          done++;
+          if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
         }).catch(function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
+      } else {
+        // Wala pang profile - subukan i-create (kung may existing Auth account)
+        // Kung wala, ito ay mabibigo at magti-trigger ng error
+        supabaseClient.from('profiles').insert({
+          username: u.username, name: u.name || u.username,
+          email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false
+        }).then(function() {
+          done++;
+          if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
+        }).catch(function() {
+          // Profile insert failed - malamang walang Auth account
+          done++; errors++;
+          if (done >= pending) statusEl.textContent = 'Sync done. ' + errors + ' users need Supabase Auth account. Create them via Users tab first.';
+        });
       }
-    }).catch(function() {
-      // Account exists, try to just ensure profile exists
-      supabaseClient.from('profiles').upsert({
-        username: u.username, name: u.name || u.username,
-        email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false
-      }, { onConflict: 'username' }).then(function() {
-        done++;
-        if (done >= pending) statusEl.textContent = 'Sync complete! Existing accounts updated.';
-      }).catch(function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
-    });
+    }).catch(function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
   });
 }
 
@@ -1069,7 +1043,14 @@ async function saveUser() {
     // Kung walang email, gamitin ang username@app.local para makapag-login sa ibang device
     var syncEmail = email || (username + '@app.local');
     if (typeof supabaseClient !== 'undefined') {
-      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function() {});
+      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function(err) {
+        if (err) {
+          console.error('Supabase account creation error:', err);
+          // Show error to admin but don't block the flow
+          var statusEl = document.getElementById('syncStatus');
+          if (statusEl) statusEl.textContent = 'Note: ' + username + ' Supabase account: ' + (err.message || err).substring(0, 60);
+        }
+      });
       // Update user record para may email na for future logins
       if (!email) {
         var allUsers = getUsers();
