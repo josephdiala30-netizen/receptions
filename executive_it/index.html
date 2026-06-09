@@ -158,6 +158,7 @@ button, input, select, textarea { min-width: 0; }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="../firebase-config.js"></script>
   <script src="../firebase-data.js"></script>
 </head>
@@ -206,6 +207,18 @@ button, input, select, textarea { min-width: 0; }
       <span class="material-symbols-outlined">monitor_heart</span>
       <span class="font-label-md">System Monitor</span>
     </a>
+    <a id="navTimetrack" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('timetrack')">
+      <span class="material-symbols-outlined">timer</span>
+      <span class="font-label-md">Time Tracking</span>
+    </a>
+    <a id="navKnowledge" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('knowledge')">
+      <span class="material-symbols-outlined">menu_book</span>
+      <span class="font-label-md">Knowledge Base</span>
+    </a>
+    <a id="navAuditlog" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('auditlog')">
+      <span class="material-symbols-outlined">history</span>
+      <span class="font-label-md">Audit Log</span>
+    </a>
   </nav>
   <button class="mt-auto bg-emerald-500 hover:bg-emerald-400 text-white py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="openAddModal()">
     <span class="material-symbols-outlined">add</span> New Item
@@ -250,6 +263,15 @@ button, input, select, textarea { min-width: 0; }
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('systems');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">monitor_heart</span><span class="font-label-md">System Monitor</span>
+      </a>
+      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('timetrack');document.getElementById('mobile-menu').classList.add('hidden')">
+        <span class="material-symbols-outlined">timer</span><span class="font-label-md">Time Tracking</span>
+      </a>
+      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('knowledge');document.getElementById('mobile-menu').classList.add('hidden')">
+        <span class="material-symbols-outlined">menu_book</span><span class="font-label-md">Knowledge Base</span>
+      </a>
+      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('auditlog');document.getElementById('mobile-menu').classList.add('hidden')">
+        <span class="material-symbols-outlined">history</span><span class="font-label-md">Audit Log</span>
       </a>
     </nav>
   </aside>
@@ -365,6 +387,46 @@ button, input, select, textarea { min-width: 0; }
         <button class="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors" onclick="closeCalPopup()"><span class="material-symbols-outlined text-on-surface-variant">close</span></button>
       </div>
       <div id="calPopupBody" class="p-6 space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4">
+      <p class="font-label-md text-on-surface-variant">Avg Resolution Time</p>
+      <p id="kpiAvgResolution" class="font-headline-md text-headline-md font-bold text-primary mt-1">0h</p>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4">
+      <p class="font-label-md text-on-surface-variant">Open Tickets</p>
+      <p id="kpiOpenTickets" class="font-headline-md text-headline-md font-bold text-primary mt-1">0</p>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4">
+      <p class="font-label-md text-on-surface-variant">Systems Online</p>
+      <p id="kpiSystemsOnline" class="font-headline-md text-headline-md font-bold text-primary mt-1">0</p>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4">
+      <p class="font-label-md text-on-surface-variant">Today Tracked</p>
+      <p id="kpiTodayTracked" class="font-headline-md text-headline-md font-bold text-primary mt-1">0h</p>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4">
+      <h3 class="font-title-lg font-semibold text-primary mb-3">Tickets by Status</h3>
+      <canvas id="chartTickets" height="200"></canvas>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4">
+      <h3 class="font-title-lg font-semibold text-primary mb-3">Services by Department</h3>
+      <canvas id="chartServices" height="200"></canvas>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4">
+      <h3 class="font-title-lg font-semibold text-primary mb-3">Maintenance Status</h3>
+      <canvas id="chartMaintenance" height="200"></canvas>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4">
+      <h3 class="font-title-lg font-semibold text-primary mb-3">Task Distribution</h3>
+      <canvas id="chartTasks" height="200"></canvas>
     </div>
   </div>
 
@@ -545,6 +607,116 @@ button, input, select, textarea { min-width: 0; }
     </button>
   </div>
   <div id="systemList" class="space-y-3"></div>
+</section>
+
+<!-- ============ TIME TRACKING VIEW ============ -->
+<section id="viewTimetrack" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+      <h2 class="font-headline-lg text-headline-lg text-primary">Time Tracking</h2>
+      <p class="font-body-lg text-on-surface-variant">Log and track time spent on tasks and activities</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('timetrack')">
+        <span class="material-symbols-outlined text-sm">add</span> Log Time
+      </button>
+    </div>
+  </div>
+  <div id="timerCard" class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 mb-6">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <p class="font-label-md text-on-surface-variant">Current Timer</p>
+        <p id="timerDisplay" class="font-headline-lg text-headline-lg font-bold text-primary mt-1">00:00:00</p>
+        <p id="timerTaskName" class="font-body-md text-on-surface-variant hidden"></p>
+      </div>
+      <div class="flex gap-3">
+        <select id="timerTaskSelect" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md min-w-[200px]">
+          <option value="">Select task...</option>
+        </select>
+        <button id="timerStartBtn" class="flex items-center gap-2 bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:bg-emerald-600 transition-all" onclick="startTimer()">
+          <span class="material-symbols-outlined">play_arrow</span> Start
+        </button>
+        <button id="timerStopBtn" class="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:bg-red-600 transition-all hidden" onclick="stopTimer()">
+          <span class="material-symbols-outlined">stop</span> Stop
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="flex items-center gap-4 mb-4">
+    <button class="px-4 py-2 rounded-xl font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors" onclick="filterTimetrack('today')">Today</button>
+    <button class="px-4 py-2 rounded-xl font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors" onclick="filterTimetrack('week')">This Week</button>
+    <button class="px-4 py-2 rounded-xl font-label-md border border-outline-variant bg-primary/10 text-primary font-semibold" id="timetrackFilterAll" onclick="filterTimetrack('all')">All</button>
+    <span id="timetrackTotal" class="font-body-md text-on-surface-variant ml-auto"></span>
+  </div>
+  <div id="timetrackList" class="space-y-2"></div>
+</section>
+
+<!-- ============ KNOWLEDGE BASE VIEW ============ -->
+<section id="viewKnowledge" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+      <h2 class="font-headline-lg text-headline-lg text-primary">Knowledge Base</h2>
+      <p class="font-body-lg text-on-surface-variant">IT documentation, SOPs, and troubleshooting guides</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-label-md font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.97] shadow-sm" onclick="openAddModal('knowledge')">
+        <span class="material-symbols-outlined text-sm">add</span> New Article
+      </button>
+    </div>
+  </div>
+  <div class="flex gap-2 mb-6 flex-wrap">
+    <button class="px-4 py-2 rounded-xl font-label-md border border-outline-variant bg-primary/10 text-primary font-semibold" onclick="filterKnowledge('all')">All</button>
+    <button class="px-4 py-2 rounded-xl font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors" onclick="filterKnowledge('sop')">SOPs</button>
+    <button class="px-4 py-2 rounded-xl font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors" onclick="filterKnowledge('troubleshooting')">Troubleshooting</button>
+    <button class="px-4 py-2 rounded-xl font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors" onclick="filterKnowledge('guide')">Guides</button>
+    <button class="px-4 py-2 rounded-xl font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors" onclick="filterKnowledge('reference')">Reference</button>
+    <div class="relative ml-auto">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+      <input id="knowledgeSearch" class="bg-surface-container border border-outline-variant rounded-xl py-2 pl-9 pr-4 text-body-md w-64" placeholder="Search articles..." oninput="renderKnowledge()"/>
+    </div>
+  </div>
+  <div id="knowledgeList" class="space-y-3"></div>
+</section>
+
+<!-- ============ AUDIT LOG VIEW ============ -->
+<section id="viewAuditlog" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+      <h2 class="font-headline-lg text-headline-lg text-primary">Audit Log</h2>
+      <p class="font-body-lg text-on-surface-variant">Track all changes and actions across modules</p>
+    </div>
+    <div class="flex gap-3">
+      <button class="flex items-center gap-2 border border-outline-variant px-4 py-2 rounded-xl font-label-md text-on-surface-variant hover:bg-surface-container transition-colors" onclick="clearAuditLog()">
+        <span class="material-symbols-outlined text-sm">delete_sweep</span> Clear
+      </button>
+      <button class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-xl font-label-md font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all" onclick="exportAuditLog()">
+        <span class="material-symbols-outlined text-sm">download</span> Export
+      </button>
+    </div>
+  </div>
+  <div class="flex gap-4 mb-4 flex-wrap">
+    <select id="auditModuleFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md" onchange="renderAuditLog()">
+      <option value="">All Modules</option>
+      <option value="services">IT Services</option>
+      <option value="maintenance">Maintenance</option>
+      <option value="inventory">Inventory</option>
+      <option value="task">Task</option>
+      <option value="planner">Plans</option>
+      <option value="accomplishments">Accomplishments</option>
+      <option value="tickets">Tickets</option>
+      <option value="systems">Systems</option>
+      <option value="timetrack">Time Tracking</option>
+      <option value="knowledge">Knowledge Base</option>
+    </select>
+    <select id="auditActionFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md" onchange="renderAuditLog()">
+      <option value="">All Actions</option>
+      <option value="create">Created</option>
+      <option value="update">Updated</option>
+      <option value="delete">Deleted</option>
+    </select>
+    <span id="auditCount" class="font-body-md text-on-surface-variant ml-auto"></span>
+  </div>
+  <div id="auditLogList" class="space-y-2"></div>
 </section>
 
 </main>
@@ -1039,15 +1211,15 @@ var searchQuery = '';
 
 function switchView(view) {
   currentView = view;
-  var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems'];
+  var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems', 'Timetrack', 'Knowledge', 'Auditlog'];
   views.forEach(function(v) {
     var el = document.getElementById('view' + v);
     if (el) el.classList.toggle('hidden', v.toLowerCase() !== view);
   });
 
   // Update sidebar active state
-  var navIds = ['navDashboard', 'navServices', 'navMaintenance', 'navInventory', 'navTask', 'navPlanner', 'navAccomplishments', 'navTickets', 'navSystems'];
-  var viewMap = { dashboard: 'navDashboard', services: 'navServices', maintenance: 'navMaintenance', inventory: 'navInventory', task: 'navTask', planner: 'navPlanner', accomplishments: 'navAccomplishments', tickets: 'navTickets', systems: 'navSystems' };
+  var navIds = ['navDashboard', 'navServices', 'navMaintenance', 'navInventory', 'navTask', 'navPlanner', 'navAccomplishments', 'navTickets', 'navSystems', 'navTimetrack', 'navKnowledge', 'navAuditlog'];
+  var viewMap = { dashboard: 'navDashboard', services: 'navServices', maintenance: 'navMaintenance', inventory: 'navInventory', task: 'navTask', planner: 'navPlanner', accomplishments: 'navAccomplishments', tickets: 'navTickets', systems: 'navSystems', timetrack: 'navTimetrack', knowledge: 'navKnowledge', auditlog: 'navAuditlog' };
   navIds.forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -1068,6 +1240,9 @@ function switchView(view) {
   else if (view === 'accomplishments') renderAccomplishments();
   else if (view === 'tickets') renderTickets();
   else if (view === 'systems') renderSystems();
+  else if (view === 'timetrack') renderTimetrack();
+  else if (view === 'knowledge') renderKnowledge();
+  else if (view === 'auditlog') renderAuditLog();
 }
 
 // ==================== DASHBOARD ====================
@@ -1110,9 +1285,88 @@ function loadDashboard() {
   }).join('');
 
   renderCalendar(services, tasks, maintenance);
+  renderDashboardCharts(services, tasks, maintenance);
+  renderDashboardKPIs();
 }
 
-function getTimeAgo(ts) {
+function renderDashboardKPIs() {
+  var tickets = getData('tickets');
+  var systems = getData('systems');
+  var timetrack = getData('timetrack');
+  var resolved = tickets.filter(function(t) { return t.status === 'resolved' || t.status === 'closed'; });
+  var avgTime = 0;
+  if (resolved.length > 0) {
+    var totalHours = 0; var count = 0;
+    resolved.forEach(function(t) {
+      if (t.createdAt && t.dateResolve) {
+        var diff = new Date(t.dateResolve) - new Date(t.createdAt);
+        if (diff > 0) { totalHours += diff / 3600000; count++; }
+      }
+    });
+    avgTime = count > 0 ? Math.round(totalHours / count) : 0;
+  }
+  document.getElementById('kpiAvgResolution').textContent = avgTime + 'h';
+  document.getElementById('kpiOpenTickets').textContent = tickets.filter(function(t) { return t.status === 'open' || t.status === 'in-progress'; }).length;
+  document.getElementById('kpiSystemsOnline').textContent = systems.filter(function(s) { return s.status === 'online'; }).length + '/' + systems.length;
+
+  var today = new Date().toISOString().split('T')[0];
+  var todayMinutes = 0;
+  timetrack.forEach(function(e) {
+    if (e.date === today) todayMinutes += e.duration || 0;
+  });
+  document.getElementById('kpiTodayTracked').textContent = Math.round(todayMinutes / 60 * 10) / 10 + 'h';
+}
+
+var __charts = {};
+
+function renderDashboardCharts(services, tasks, maintenance) {
+  Object.keys(__charts).forEach(function(k) { if (__charts[k]) { __charts[k].destroy(); delete __charts[k]; } });
+
+  var tickets = getData('tickets');
+  var tCounts = { open: 0, 'in-progress': 0, resolved: 0, closed: 0 };
+  tickets.forEach(function(t) { if (tCounts[t.status] !== undefined) tCounts[t.status]++; else tCounts[t.status] = 1; });
+  var tCtx = document.getElementById('chartTickets');
+  if (tCtx) {
+    __charts.tickets = new Chart(tCtx, {
+      type: 'doughnut',
+      data: { labels: Object.keys(tCounts), datasets: [{ data: Object.values(tCounts), backgroundColor: ['#ef4444','#f59e0b','#10b981','#6366f1'] }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } } }
+    });
+  }
+
+  var deptCounts = {};
+  services.forEach(function(s) { var d = s.department || 'Other'; deptCounts[d] = (deptCounts[d] || 0) + 1; });
+  var sCtx = document.getElementById('chartServices');
+  if (sCtx) {
+    __charts.services = new Chart(sCtx, {
+      type: 'bar',
+      data: { labels: Object.keys(deptCounts), datasets: [{ label: 'Services', data: Object.values(deptCounts), backgroundColor: '#6366f1' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+  }
+
+  var mCounts = { scheduled: 0, 'in-progress': 0, completed: 0, cancelled: 0 };
+  maintenance.forEach(function(m) { if (mCounts[m.status] !== undefined) mCounts[m.status]++; else mCounts[m.status] = 1; });
+  var mCtx = document.getElementById('chartMaintenance');
+  if (mCtx) {
+    __charts.maintenance = new Chart(mCtx, {
+      type: 'pie',
+      data: { labels: Object.keys(mCounts), datasets: [{ data: Object.values(mCounts), backgroundColor: ['#3b82f6','#f59e0b','#10b981','#ef4444'] }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } } }
+    });
+  }
+
+  var taskCounts = { todo: 0, 'in-progress': 0, done: 0 };
+  tasks.forEach(function(t) { if (taskCounts[t.status] !== undefined) taskCounts[t.status]++; else taskCounts[t.status] = 1; });
+  var taskCtx = document.getElementById('chartTasks');
+  if (taskCtx) {
+    __charts.tasks = new Chart(taskCtx, {
+      type: 'doughnut',
+      data: { labels: Object.keys(taskCounts), datasets: [{ data: Object.values(taskCounts), backgroundColor: ['#94a3b8','#6366f1','#10b981'] }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } } }
+    });
+  }
+}
   if (!ts) return 'just now';
   var diff = Date.now() - ts;
   var mins = Math.floor(diff / 60000);
@@ -3169,6 +3423,246 @@ function toggleSystemStatus(id) {
   }
 }
 
+// ==================== TIME TRACKING ====================
+var __timerInterval = null;
+var __timerStart = null;
+var __timerTaskId = null;
+
+function startTimer() {
+  var taskId = document.getElementById('timerTaskSelect').value;
+  if (!taskId) { alert('Please select a task first.'); return; }
+  if (__timerInterval) return;
+  __timerStart = Date.now();
+  __timerTaskId = parseInt(taskId);
+  document.getElementById('timerStartBtn').classList.add('hidden');
+  document.getElementById('timerStopBtn').classList.remove('hidden');
+  var task = getData('task').find(function(t) { return t.id === __timerTaskId; });
+  document.getElementById('timerTaskName').textContent = (task ? task.title : '') + ' - ' + new Date().toLocaleDateString();
+  document.getElementById('timerTaskName').classList.remove('hidden');
+  __timerInterval = setInterval(function() {
+    var elapsed = Math.floor((Date.now() - __timerStart) / 1000);
+    var h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+    var m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+    var s = String(elapsed % 60).padStart(2, '0');
+    document.getElementById('timerDisplay').textContent = h + ':' + m + ':' + s;
+  }, 1000);
+}
+
+function stopTimer() {
+  if (!__timerInterval || !__timerStart) return;
+  clearInterval(__timerInterval);
+  __timerInterval = null;
+  var elapsed = Math.floor((Date.now() - __timerStart) / 1000);
+  document.getElementById('timerStartBtn').classList.remove('hidden');
+  document.getElementById('timerStopBtn').classList.add('hidden');
+  document.getElementById('timerTaskName').classList.add('hidden');
+
+  var minutes = Math.round(elapsed / 60);
+  if (minutes < 1) { alert('Timer too short. Minimum 1 minute.'); __timerStart = null; __timerTaskId = null; return; }
+
+  var task = getData('task').find(function(t) { return t.id === __timerTaskId; });
+  var entry = {
+    id: generateId(),
+    createdAt: Date.now(),
+    date: new Date().toISOString().split('T')[0],
+    taskId: __timerTaskId,
+    taskName: task ? task.title : 'Unknown',
+    duration: minutes,
+    notes: ''
+  };
+
+  var data = getData('timetrack');
+  data.push(entry);
+  saveData('timetrack', data);
+  addAuditLog('create', 'timetrack', entry.id, 'Logged ' + minutes + 'm on "' + entry.taskName + '"');
+  __timerStart = null;
+  __timerTaskId = null;
+  document.getElementById('timerDisplay').textContent = '00:00:00';
+  renderTimetrack();
+}
+
+var __timetrackFilter = 'all';
+
+function filterTimetrack(filter) {
+  __timetrackFilter = filter;
+  document.querySelectorAll('#viewTimetrack .flex-wrap .rounded-xl').forEach(function(b) {
+    if (b.tagName === 'BUTTON') b.className = 'px-4 py-2 rounded-xl font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors';
+  });
+  var btn = document.querySelector('#viewTimetrack .flex-wrap button:nth-child(' + (filter === 'today' ? 1 : filter === 'week' ? 2 : 3) + ')');
+  if (btn) btn.className = 'px-4 py-2 rounded-xl font-label-md border border-outline-variant bg-primary/10 text-primary font-semibold';
+  renderTimetrack();
+}
+
+function renderTimetrack() {
+  var data = getData('timetrack');
+  var filtered = data;
+  var today = new Date().toISOString().split('T')[0];
+  if (__timetrackFilter === 'today') {
+    filtered = data.filter(function(e) { return e.date === today; });
+  } else if (__timetrackFilter === 'week') {
+    var now = new Date(); var start = new Date(now); start.setDate(now.getDate() - now.getDay());
+    var startStr = start.toISOString().split('T')[0];
+    filtered = data.filter(function(e) { return e.date >= startStr && e.date <= today; });
+  }
+  filtered.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+
+  var totalMin = 0;
+  filtered.forEach(function(e) { totalMin += e.duration || 0; });
+  document.getElementById('timetrackTotal').textContent = 'Total: ' + Math.floor(totalMin / 60) + 'h ' + (totalMin % 60) + 'm';
+
+  // Update timer task select
+  var tasks = getData('task');
+  var select = document.getElementById('timerTaskSelect');
+  select.innerHTML = '<option value="">Select task...</option>' + tasks.filter(function(t) { return t.status !== 'done'; }).map(function(t) {
+    return '<option value="' + t.id + '"' + (t.id === __timerTaskId ? ' selected' : '') + '>' + escapeHtml(t.title) + '</option>';
+  }).join('');
+
+  var el = document.getElementById('timetrackList');
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">timer_off</span><p class="font-body-md text-on-surface-variant mt-4">No time entries</p></div>';
+    return;
+  }
+  el.innerHTML = filtered.map(function(e) {
+    var h = Math.floor((e.duration || 0) / 60);
+    var m = (e.duration || 0) % 60;
+    return '<div class="flex items-center gap-4 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl card-enter">' +
+      '<div class="p-2 rounded-full bg-indigo-100 text-indigo-600"><span class="material-symbols-outlined">timer</span></div>' +
+      '<div class="flex-1"><p class="font-body-md font-medium text-primary">' + escapeHtml(e.taskName || 'Unknown') + '</p>' +
+      '<p class="font-label-md text-on-surface-variant">' + escapeHtml(e.date || '') + ' &middot; ' + h + 'h ' + m + 'm</p></div>' +
+      '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" onclick="deleteTimetrackEntry(' + e.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button></div>';
+  }).join('');
+}
+
+function deleteTimetrackEntry(id) {
+  if (!confirm('Delete this time entry?')) return;
+  var data = getData('timetrack');
+  var entry = data.find(function(e) { return e.id === id; });
+  data = data.filter(function(e) { return e.id !== id; });
+  saveData('timetrack', data);
+  if (entry) addAuditLog('delete', 'timetrack', id, 'Deleted time entry (' + entry.duration + 'm on "' + entry.taskName + '")');
+  renderTimetrack();
+}
+
+// ==================== KNOWLEDGE BASE ====================
+var __knowledgeFilter = 'all';
+
+function filterKnowledge(cat) {
+  __knowledgeFilter = cat;
+  document.querySelectorAll('#viewKnowledge .flex-wrap .rounded-xl').forEach(function(b) {
+    if (b.tagName === 'BUTTON') b.className = 'px-4 py-2 rounded-xl font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors';
+  });
+  document.querySelector('#viewKnowledge .flex-wrap button:first-child').className = cat === 'all'
+    ? 'px-4 py-2 rounded-xl font-label-md border border-outline-variant bg-primary/10 text-primary font-semibold'
+    : 'px-4 py-2 rounded-xl font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors';
+  renderKnowledge();
+}
+
+function renderKnowledge() {
+  var data = getData('knowledge');
+  var q = (document.getElementById('knowledgeSearch').value || '').toLowerCase();
+  if (q) data = data.filter(function(a) { return (a.title || '').toLowerCase().indexOf(q) !== -1 || (a.content || '').toLowerCase().indexOf(q) !== -1; });
+  if (__knowledgeFilter !== 'all') data = data.filter(function(a) { return a.category === __knowledgeFilter; });
+  data.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+
+  var el = document.getElementById('knowledgeList');
+  if (data.length === 0) {
+    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">menu_book</span><p class="font-body-md text-on-surface-variant mt-4">No articles yet</p><button class="mt-4 bg-primary text-on-primary px-5 py-2 rounded-xl font-label-md font-semibold" onclick="openAddModal(\'knowledge\')">Create First Article</button></div>';
+    return;
+  }
+  el.innerHTML = data.map(function(a) {
+    var cats = { sop: 'bg-blue-100 text-blue-700', troubleshooting: 'bg-red-100 text-red-700', guide: 'bg-green-100 text-green-700', reference: 'bg-purple-100 text-purple-700' };
+    var catClass = cats[a.category] || 'bg-gray-100 text-gray-700';
+    var preview = (a.content || '').substring(0, 200);
+    if (a.content && a.content.length > 200) preview += '...';
+    return '<div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 card-enter">' +
+      '<div class="flex items-start justify-between gap-4">' +
+      '<div class="flex-1"><div class="flex items-center gap-2 mb-2 flex-wrap">' +
+      '<h4 class="font-body-md font-semibold text-primary">' + escapeHtml(a.title) + '</h4>' +
+      '<span class="font-label-md ' + catClass + ' px-2 py-0.5 rounded-full">' + escapeHtml(a.category || 'Guide') + '</span></div>' +
+      '<p class="font-body-md text-on-surface-variant">' + escapeHtml(preview) + '</p></div>' +
+      '<div class="flex items-start gap-1 flex-shrink-0">' +
+      '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="View" onclick="viewKnowledgeArticle(' + a.id + ')"><span class="material-symbols-outlined text-sm">visibility</span></button>' +
+      '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="editItem(\'knowledge\',' + a.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+      '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteItem(\'knowledge\',' + a.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button></div></div></div>';
+  }).join('');
+}
+
+function viewKnowledgeArticle(id) {
+  var data = getData('knowledge');
+  var a = data.find(function(x) { return x.id === id; });
+  if (!a) return;
+  document.getElementById('modalTitle').textContent = a.title;
+  document.getElementById('modalBody').innerHTML = '<div class="space-y-4"><p class="font-label-md text-on-surface-variant">' + escapeHtml(a.category || '') + ' &middot; ' + formatDate(a.createdAt ? new Date(a.createdAt).toISOString().split('T')[0] : '') + '</p><div class="bg-surface-container rounded-xl p-4 whitespace-pre-wrap font-body-md">' + escapeHtml(a.content || '') + '</div></div>';
+  document.getElementById('actionFooter').innerHTML = '<button class="bg-primary text-on-primary px-5 py-2.5 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all" onclick="closeModal()">Close</button>';
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
+// ==================== AUDIT LOG ====================
+function addAuditLog(action, module, itemId, details) {
+  if (action === 'view') return;
+  var data = getData('auditlog');
+  data.push({
+    id: generateId(),
+    createdAt: Date.now(),
+    action: action,
+    module: module,
+    itemId: itemId || null,
+    details: details || '',
+    username: (getSession() || {}).username || 'unknown'
+  });
+  // Keep last 500 entries
+  if (data.length > 500) data = data.slice(data.length - 500);
+  saveData('auditlog', data);
+}
+
+function renderAuditLog() {
+  var data = getData('auditlog');
+  var moduleFilter = document.getElementById('auditModuleFilter').value;
+  var actionFilter = document.getElementById('auditActionFilter').value;
+  if (moduleFilter) data = data.filter(function(e) { return e.module === moduleFilter; });
+  if (actionFilter) data = data.filter(function(e) { return e.action === actionFilter; });
+  data.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+
+  document.getElementById('auditCount').textContent = data.length + ' entries';
+
+  var el = document.getElementById('auditLogList');
+  if (data.length === 0) {
+    el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-2xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">history</span><p class="font-body-md text-on-surface-variant mt-4">No audit log entries</p></div>';
+    return;
+  }
+  el.innerHTML = data.slice(0, 200).map(function(e) {
+    var icons = { create: 'add_circle', update: 'edit', delete: 'delete' };
+    var colors = { create: 'text-green-600 bg-green-100', update: 'text-blue-600 bg-blue-100', delete: 'text-red-600 bg-red-100' };
+    var c = colors[e.action] || 'text-gray-600 bg-gray-100';
+    var icon = icons[e.action] || 'info';
+    var timeAgo = getTimeAgo(e.createdAt);
+    return '<div class="flex items-start gap-3 p-3 bg-surface-container-lowest border border-outline-variant rounded-xl">' +
+      '<div class="p-1.5 rounded-full ' + c + '"><span class="material-symbols-outlined text-sm">' + icon + '</span></div>' +
+      '<div class="flex-1"><p class="font-body-md text-primary">' + escapeHtml((e.details || e.action + ' on ' + e.module).substring(0, 100)) + '</p>' +
+      '<p class="font-label-md text-on-surface-variant">' + escapeHtml(e.module) + ' &middot; ' + escapeHtml(e.username) + ' &middot; ' + timeAgo + '</p></div></div>';
+  }).join('');
+}
+
+function clearAuditLog() {
+  if (!confirm('Clear all audit log entries?')) return;
+  saveData('auditlog', []);
+  renderAuditLog();
+}
+
+function exportAuditLog() {
+  var data = getData('auditlog');
+  if (data.length === 0) { alert('No audit log entries to export.'); return; }
+  var csv = 'Date,Action,Module,Details,User\n';
+  data.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+  data.forEach(function(e) {
+    csv += '"' + (e.createdAt ? new Date(e.createdAt).toISOString() : '') + '","' + (e.action || '') + '","' + (e.module || '') + '","' + (e.details || '').replace(/"/g, '""') + '","' + (e.username || '') + '"\n';
+  });
+  var blob = new Blob([csv], { type: 'text/csv' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = 'auditlog_export.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ==================== MODAL / CRUD ====================
 var editingType = null;
 var editingId = null;
@@ -3181,7 +3675,7 @@ function openAddModal(type) {
   var title = document.getElementById('modalTitle');
   var body = document.getElementById('modalBody');
 
-  var titles = { service: 'New IT Service', maintenance: 'Office Equipment Inspection Checklist (ITDF-01)', inventory: 'Add Inventory Item', task: 'New Task', planner: 'New Plan', accomplishment: 'New Accomplishment', ticket: 'Create Ticket', system: 'Add System' };
+  var titles = { service: 'New IT Service', maintenance: 'Office Equipment Inspection Checklist (ITDF-01)', inventory: 'Add Inventory Item', task: 'New Task', planner: 'New Plan', accomplishment: 'New Accomplishment', ticket: 'Create Ticket', system: 'Add System', timetrack: 'Log Time Entry', knowledge: 'New Knowledge Article' };
   title.textContent = titles[type] || 'Add Item';
   body.innerHTML = getFormHtml(type, null);
   if (type === 'maintenance') { populatePeriodDropdown(); }
@@ -3200,7 +3694,7 @@ function editItem(type, id) {
   var title = document.getElementById('modalTitle');
   var body = document.getElementById('modalBody');
 
-  var titles = { service: 'Edit Service', maintenance: 'Edit Equipment Inspection (ITDF-01)', inventory: 'Edit Inventory Item', task: 'Edit Task', planner: 'Edit Plan', accomplishment: 'Edit Accomplishment', ticket: 'Edit Ticket', system: 'Edit System' };
+  var titles = { service: 'Edit Service', maintenance: 'Edit Equipment Inspection (ITDF-01)', inventory: 'Edit Inventory Item', task: 'Edit Task', planner: 'Edit Plan', accomplishment: 'Edit Accomplishment', ticket: 'Edit Ticket', system: 'Add System', timetrack: 'Edit Time Entry', knowledge: 'Edit Knowledge Article' };
   title.textContent = titles[type] || 'Edit Item';
   body.innerHTML = getFormHtml(type, item);
   if (type === 'maintenance') { populatePeriodDropdown(item.period); }
@@ -3809,6 +4303,24 @@ function getFormHtml(type, item) {
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Status</label><select id="fStatus" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="online"' + ((item.status === 'online' || !item.status) ? ' selected' : '') + '>Online</option><option value="degraded"' + (item.status === 'degraded' ? ' selected' : '') + '>Degraded</option><option value="offline"' + (item.status === 'offline' ? ' selected' : '') + '>Offline</option></select></div>' +
       '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save System</button></div>';
   }
+  if (type === 'timetrack') {
+    var tasks = getData('task');
+    var taskOpts = '<option value="">Select a task...</option>';
+    tasks.forEach(function(t) { taskOpts += '<option value="' + t.id + '"' + (item.taskId === t.id ? ' selected' : '') + '>' + escapeHtml(t.title) + '</option>'; });
+    return '<div class="space-y-4">' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Task *</label><select id="fTask" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' + taskOpts + '</select></div>' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Date</label><input id="fDate" type="date" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.date || new Date().toISOString().split('T')[0]) + '"/></div>' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Duration (minutes) *</label><input id="fDuration" type="number" min="1" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + (item.duration || '') + '"/></div>' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Notes</label><textarea id="fNotes" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 resize-none">' + escapeHtml(item.notes || '') + '</textarea></div>' +
+      '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Time Entry</button></div>';
+  }
+  if (type === 'knowledge') {
+    return '<div class="space-y-4">' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Title *</label><input id="fTitle" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.title || '') + '"/></div>' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Category</label><select id="fCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="sop"' + (item.category === 'sop' ? ' selected' : '') + '>SOP</option><option value="troubleshooting"' + (item.category === 'troubleshooting' ? ' selected' : '') + '>Troubleshooting</option><option value="guide"' + ((item.category === 'guide' || !item.category) ? ' selected' : '') + '>Guide</option><option value="reference"' + (item.category === 'reference' ? ' selected' : '') + '>Reference</option></select></div>' +
+      '<div><label class="font-label-md text-on-surface-variant block mb-1">Content *</label><textarea id="fContent" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-64 resize-none font-mono" placeholder="Write article content here (supports plain text)...">' + escapeHtml(item.content || '') + '</textarea></div>' +
+      '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Article</button></div>';
+  }
   return '';
 }
 
@@ -4012,12 +4524,36 @@ function saveItem() {
     item.ip = document.getElementById('fIp').value.trim();
     item.uptime = document.getElementById('fUptime').value.trim();
     item.status = document.getElementById('fStatus').value;
+  } else if (type === 'timetrack') {
+    var taskId = parseInt(document.getElementById('fTask').value);
+    if (!taskId) { alert('Please select a task.'); return; }
+    var duration = parseInt(document.getElementById('fDuration').value);
+    if (!duration || duration < 1) { alert('Duration must be at least 1 minute.'); return; }
+    var task = getData('task').find(function(t) { return t.id === taskId; });
+    item.taskId = taskId;
+    item.taskName = task ? task.title : 'Unknown';
+    item.duration = duration;
+    item.date = document.getElementById('fDate').value;
+    item.notes = document.getElementById('fNotes').value.trim();
+  } else if (type === 'knowledge') {
+    var title = document.getElementById('fTitle').value.trim();
+    if (!title) { alert('Article title is required.'); return; }
+    var content = document.getElementById('fContent').value.trim();
+    if (!content) { alert('Article content is required.'); return; }
+    item.title = title;
+    item.content = content;
+    item.category = document.getElementById('fCategory').value;
   }
+
+  var action = editingId ? 'update' : 'create';
+  var itemLabel = item.title || item.name || item.taskName || '';
+  var moduleLabel = type === 'service' ? 'services' : type === 'ticket' ? 'tickets' : type === 'system' ? 'systems' : type === 'accomplishment' ? 'accomplishments' : type;
 
   if (!editingId) {
     data.push(item);
   }
   saveData(dataKey, data);
+  addAuditLog(action, moduleLabel, item.id, action === 'create' ? 'Created "' + itemLabel + '"' : 'Updated "' + itemLabel + '"');
   closeModal();
   switchView(currentView);
 }
@@ -4025,8 +4561,12 @@ function saveItem() {
 function deleteItem(type, id) {
   if (!confirm('Delete this item?')) return;
   var dataKey = type === 'service' ? 'services' : type === 'ticket' ? 'tickets' : type === 'system' ? 'systems' : type === 'accomplishment' ? 'accomplishments' : type;
-  var data = getData(dataKey).filter(function(x) { return x.id !== id; });
+  var data = getData(dataKey);
+  var item = data.find(function(x) { return x.id === id; });
+  var itemLabel = item ? (item.title || item.name || '') : '';
+  data = data.filter(function(x) { return x.id !== id; });
   saveData(dataKey, data);
+  addAuditLog('delete', dataKey, id, 'Deleted "' + itemLabel + '"');
   switchView(currentView);
 }
 
@@ -4398,7 +4938,7 @@ initAuth(function() {
 // Real-time cross-browser sync: re-render current view when Firestore changes
 fbOnUpdate(function(data) {
   var view = currentView || 'dashboard';
-  var syncViews = { services: 'renderServices', maintenance: 'renderMaintenance', inventory: 'renderInventory', task: 'renderTask', planner: 'renderPlanner', accomplishments: 'renderAccomplishments', tickets: 'renderTickets', systems: 'renderSystems' };
+  var syncViews = { services: 'renderServices', maintenance: 'renderMaintenance', inventory: 'renderInventory', task: 'renderTask', planner: 'renderPlanner', accomplishments: 'renderAccomplishments', tickets: 'renderTickets', systems: 'renderSystems', timetrack: 'renderTimetrack', knowledge: 'renderKnowledge' };
   if (syncViews[view]) {
     window[syncViews[view]]();
   }
