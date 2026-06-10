@@ -2859,6 +2859,7 @@ function viewAccomplishment(id) {
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Requestor Name</span><span class="font-semibold text-primary">' + escapeHtml(item.requestorName || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Severity</span><span class="font-semibold text-primary">' + escapeHtml(item.severity || 'Medium') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Department</span><span class="font-semibold text-primary">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Branch</span><span class="font-semibold text-primary">' + escapeHtml(item.branch || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl col-span-2"><span class="font-label-md text-on-surface-variant block">Incident Date</span><span class="font-semibold text-primary">' + escapeHtml(item.incidentDate ? item.incidentDate.replace('T', ' ') : 'N/A') + '</span></div>' +
       (item.dateResolve ? '<div class="p-3 bg-surface-container-low rounded-xl col-span-2"><span class="font-label-md text-on-surface-variant block">Date Resolved</span><span class="font-semibold text-primary">' + escapeHtml(item.dateResolve.replace('T', ' ')) + '</span></div>' : '') +
       (item.resolution ? '<div class="p-3 bg-surface-container-low rounded-xl col-span-2"><span class="font-label-md text-on-surface-variant block">Resolution</span><span class="font-semibold text-primary whitespace-pre-wrap">' + escapeHtml(item.resolution) + '</span></div>' : '');
@@ -2994,6 +2995,7 @@ function renderAccomplishments() {
              (item.description || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.reportTitle || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.department || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.branch || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.resolution || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.status || '').toLowerCase().indexOf(searchQuery) !== -1;
     });
@@ -3087,6 +3089,7 @@ function renderAccomplishments() {
             '    <div><span class="font-medium">Requestor:</span> <span class="text-primary font-semibold">' + escapeHtml(item.requestorName || 'N/A') + '</span></div>' +
             '    <div><span class="font-medium">Severity:</span> <span class="text-primary font-semibold">' + escapeHtml(item.severity || 'Medium') + '</span></div>' +
             '    <div><span class="font-medium">Department:</span> <span class="text-primary font-semibold">' + escapeHtml(item.department || 'N/A') + '</span></div>' +
+            '    <div><span class="font-medium">Branch:</span> <span class="text-primary font-semibold">' + escapeHtml(item.branch || 'N/A') + '</span></div>' +
             '    <div class="col-span-2"><span class="font-medium">Incident Date:</span> <span class="text-primary font-semibold">' + escapeHtml(item.incidentDate ? item.incidentDate.replace('T', ' ') : 'N/A') + '</span></div>' +
             '  </div>' +
             (item.resolution ? '  <div class="border-t border-outline-variant/60 pt-2"><span class="font-medium text-on-surface-variant">Resolution:</span> <p class="text-primary mt-0.5">' + escapeHtml(item.resolution) + '</p></div>' : '') +
@@ -3173,6 +3176,7 @@ function downloadAccomplishmentsExcel() {
           (item.requestorName ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.requestorName) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
           (item.severity ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.severity) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
           (item.department ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.department) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+          (item.branch ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.branch) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
           (item.incidentDate ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.incidentDate.replace('T', ' ')) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
           (item.dateResolve ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.dateResolve.replace('T', ' ')) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
           (item.resolution ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.resolution) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>');
@@ -3220,7 +3224,7 @@ function downloadAccomplishmentsExcel() {
   // Technical Support section
   '<div class="section-title">Technical Support (' + techSupport.length + ' entries)</div>' +
   (techSupport.length > 0
-    ? '<table><thead><tr><th style="width:30px">#</th><th>Date</th><th>Title</th><th>Status</th><th>Description</th><th>Requestor</th><th>Severity</th><th>Department</th><th>Incident Date</th><th>Date Resolve</th><th>Resolution</th></tr></thead><tbody>' + techRows + '</tbody></table>'
+    ? '<table><thead><tr><th style="width:30px">#</th><th>Date</th><th>Title</th><th>Status</th><th>Description</th><th>Requestor</th><th>Severity</th><th>Department</th><th>Branch</th><th>Incident Date</th><th>Date Resolve</th><th>Resolution</th></tr></thead><tbody>' + techRows + '</tbody></table>'
     : '<div class="sub-header">No Technical Support entries.</div>') +
 
   // Uploading/Encoding section
@@ -3311,7 +3315,7 @@ function printAccomplishmentReport() {
   w.document.write('<table><thead><tr><th>Category</th><th>Count</th></tr></thead><tbody>' + catHtml + '</tbody></table>');
   w.document.write('<h3>Detailed Accomplishments</h3>');
   w.document.write('<table><thead><tr>' +
-    '<th>#</th><th>Date</th><th>Title</th><th>Category</th><th>Status</th><th>Description</th>' +
+    '<th>#</th><th>Date</th><th>Title</th><th>Category</th><th>Branch</th><th>Status</th><th>Description</th>' +
     '</tr></thead><tbody>');
   data.forEach(function(item, i) {
     var statusTag = item.status === 'pending' ? 'tag-pending' : item.status === 'in-progress' ? 'tag-progress' : 'tag-completed';
@@ -3322,6 +3326,7 @@ function printAccomplishmentReport() {
       '<td>' + escapeHtml(item.date || '\u2014') + '</td>' +
       '<td><strong>' + escapeHtml(item.title || '\u2014') + '</strong></td>' +
       '<td>' + escapeHtml(item.category || 'Other') + '</td>' +
+      '<td>' + escapeHtml(item.branch || '\u2014') + '</td>' +
       '<td><span class="tag ' + statusTag + '">' + escapeHtml(item.status || 'pending') + '</span></td>' +
       '<td>' + escapeHtml(desc) + '</td>' +
       '</tr>');
@@ -4249,7 +4254,7 @@ function getFormHtml(type, item) {
       '        </select>' +
       '      </div>' +
       '    </div>' +
-    '    <div class="grid grid-cols-3 gap-4">' +
+    '    <div class="grid grid-cols-2 gap-4">' +
     '      <div>' +
     '        <label class="font-label-md text-on-surface-variant block mb-1">Department</label>' +
     '        <select id="fDepartment" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
@@ -4264,6 +4269,12 @@ function getFormHtml(type, item) {
 '          <option value="Warehouse"' + (item.department === 'Warehouse' ? ' selected' : '') + '>Warehouse</option>' +
     '        </select>' +
     '      </div>' +
+    '      <div>' +
+    '        <label class="font-label-md text-on-surface-variant block mb-1">Branch</label>' +
+    '        <input id="fBranch" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Makati Branch, Cebu Branch" value="' + escapeHtml(item.branch || '') + '"/>' +
+    '      </div>' +
+    '    </div>' +
+    '    <div class="grid grid-cols-2 gap-4">' +
     '      <div>' +
     '        <label class="font-label-md text-on-surface-variant block mb-1">Incident Date</label>' +
     '        <input id="fIncidentDate" type="datetime-local" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.incidentDate || defaultIncidentDate) + '"/>' +
@@ -4453,6 +4464,7 @@ function saveItem() {
       item.requestorName = requestorName;
       item.severity = document.getElementById('fSeverity').value;
       item.department = document.getElementById('fDepartment').value;
+      item.branch = document.getElementById('fBranch').value.trim();
       item.incidentDate = document.getElementById('fIncidentDate').value;
       item.dateResolve = document.getElementById('fDateResolve').value;
       item.resolution = document.getElementById('fResolution').value.trim();
@@ -4506,6 +4518,7 @@ function saveItem() {
       delete item.requestorName;
       delete item.severity;
       delete item.department;
+      delete item.branch;
       delete item.incidentDate;
       delete item.resolution;
     }

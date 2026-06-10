@@ -1239,6 +1239,7 @@ function renderAdminDailyLogs() {
       '</div>' + (l.description ? '<p class="font-label-md text-on-surface-variant mt-1">' + escapeHtml(l.description) + '</p>' : '') +
       '<div class="flex items-center gap-3 mt-2 text-on-surface-variant flex-wrap"><span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(l._user) + '</span>' +
       (l.date ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + l.date + '</span>' : '') +
+      (l.branch ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">business</span> ' + escapeHtml(l.branch) + '</span>' : '') +
       (l.timeSpent ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> ' + escapeHtml(l.timeSpent) + '</span>' : '') +
       '</div></div></div>';
   }).join('');

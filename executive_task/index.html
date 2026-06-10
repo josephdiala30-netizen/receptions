@@ -813,9 +813,13 @@ button:active, .btn:active { opacity: 0.8; }
             </select>
           </div>
           <div>
-            <label class="font-label-md text-on-surface-variant block mb-1.5">Incident Date</label>
-            <input id="logIncidentDate" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" type="datetime-local"/>
+            <label class="font-label-md text-on-surface-variant block mb-1.5">Branch</label>
+            <input id="logBranch" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="e.g. Makati Branch, Cebu Branch" type="text"/>
           </div>
+        </div>
+        <div>
+          <label class="font-label-md text-on-surface-variant block mb-1.5">Incident Date</label>
+          <input id="logIncidentDate" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" type="datetime-local"/>
         </div>
         <div>
           <label class="font-label-md text-on-surface-variant block mb-1.5">Report Resolution (Optional)</label>
@@ -2670,6 +2674,7 @@ function renderLogEntry(e) {
       '    <div><span class="font-medium">Requestor:</span> <span class="text-primary font-semibold">' + escapeHtml(e.requestorName || 'N/A') + '</span></div>' +
       '    <div><span class="font-medium">Severity:</span> <span class="text-primary font-semibold">' + escapeHtml(e.severity || 'Medium') + '</span></div>' +
       '    <div><span class="font-medium">Department:</span> <span class="text-primary font-semibold">' + escapeHtml(e.department || 'N/A') + '</span></div>' +
+      '    <div><span class="font-medium">Branch:</span> <span class="text-primary font-semibold">' + escapeHtml(e.branch || 'N/A') + '</span></div>' +
       '    <div class="col-span-2"><span class="font-medium">Incident Date:</span> <span class="text-primary font-semibold">' + escapeHtml(e.incidentDate ? e.incidentDate.replace('T', ' ') : 'N/A') + '</span></div>' +
       '  </div>' +
       (e.resolution ? '  <div class="border-t border-outline-variant/60 pt-2"><span class="font-medium text-on-surface-variant">Resolution:</span> <p class="text-primary mt-0.5">' + escapeHtml(e.resolution) + '</p></div>' : '') +
@@ -2719,6 +2724,7 @@ function openCreateLogModal() {
   document.getElementById('logRequestorName').value = '';
   document.getElementById('logSeverity').value = 'Medium';
   document.getElementById('logDepartment').value = '';
+  document.getElementById('logBranch').value = '';
   document.getElementById('logIncidentDate').value = '';
   document.getElementById('logResolution').value = '';
   
@@ -2743,6 +2749,7 @@ function openEditLogModal(id) {
     document.getElementById('logRequestorName').value = e.requestorName || '';
     document.getElementById('logSeverity').value = e.severity || 'Medium';
     document.getElementById('logDepartment').value = e.department || '';
+    document.getElementById('logBranch').value = e.branch || '';
     document.getElementById('logIncidentDate').value = e.incidentDate || '';
     document.getElementById('logResolution').value = e.resolution || '';
   } else {
@@ -2750,6 +2757,7 @@ function openEditLogModal(id) {
     document.getElementById('logRequestorName').value = '';
     document.getElementById('logSeverity').value = 'Medium';
     document.getElementById('logDepartment').value = '';
+    document.getElementById('logBranch').value = '';
     document.getElementById('logIncidentDate').value = '';
     document.getElementById('logResolution').value = '';
   }
@@ -2774,6 +2782,7 @@ function saveLogEntry() {
   var requestorName = '';
   var severity = '';
   var department = '';
+  var branch = '';
   var incidentDate = '';
   var resolution = '';
 
@@ -2786,6 +2795,7 @@ function saveLogEntry() {
     }
     severity = document.getElementById('logSeverity').value;
     department = document.getElementById('logDepartment').value;
+    branch = document.getElementById('logBranch').value.trim();
     incidentDate = document.getElementById('logIncidentDate').value;
     resolution = document.getElementById('logResolution').value.trim();
     title = reportTitle;
@@ -2812,6 +2822,7 @@ function saveLogEntry() {
         e.requestorName = requestorName;
         e.severity = severity;
         e.department = department;
+        e.branch = branch;
         e.incidentDate = incidentDate;
         e.resolution = resolution;
       } else {
@@ -2819,6 +2830,7 @@ function saveLogEntry() {
         delete e.requestorName;
         delete e.severity;
         delete e.department;
+        delete e.branch;
         delete e.incidentDate;
         delete e.resolution;
       }
@@ -2840,6 +2852,7 @@ function saveLogEntry() {
       newEntry.requestorName = requestorName;
       newEntry.severity = severity;
       newEntry.department = department;
+      newEntry.branch = branch;
       newEntry.incidentDate = incidentDate;
       newEntry.resolution = resolution;
     }
@@ -2854,7 +2867,7 @@ function saveLogEntry() {
 function exportLogCSV() {
   var entries = getLogEntries();
   if (entries.length === 0) { alert('No log entries to export.'); return; }
-  var rows = [['Date','Category','Title','Description','Time Spent','Status','Report Title','Requestor','Severity','Department','Incident Date','Resolution']];
+  var rows = [['Date','Category','Title','Description','Time Spent','Status','Report Title','Requestor','Severity','Department','Branch','Incident Date','Resolution']];
   entries.forEach(function(e) {
     rows.push([
       e.date || '',
@@ -2867,6 +2880,7 @@ function exportLogCSV() {
       '"' + (e.requestorName || '').replace(/"/g, '""') + '"',
       e.severity || '',
       e.department || '',
+      e.branch || '',
       e.incidentDate ? e.incidentDate.replace('T', ' ') : '',
       '"' + (e.resolution || '').replace(/"/g, '""') + '"'
     ]);
