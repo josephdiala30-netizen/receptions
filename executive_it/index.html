@@ -3159,6 +3159,8 @@ function downloadAccomplishmentsExcel() {
   var uploadEncoding = data.filter(function(a) { return a.category === 'Uploading/Encoding'; });
   var other = data.filter(function(a) { return a.category !== 'Technical Support' && a.category !== 'Uploading/Encoding'; });
 
+  var staffName = (getSession() || {}).name || (getSession() || {}).username || '';
+
   function makeRows(arr, includeDetails) {
     return arr.map(function(item, i) {
       var stat = item.status || 'pending';
@@ -3179,7 +3181,8 @@ function downloadAccomplishmentsExcel() {
           (item.branch ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.branch) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
           (item.incidentDate ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.incidentDate.replace('T', ' ')) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
           (item.dateResolve ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.dateResolve.replace('T', ' ')) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
-          (item.resolution ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.resolution) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>');
+          (item.resolution ? '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.resolution) + '</td>' : '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">\u2014</td>') +
+          '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:#1e1b4d">' + escapeHtml(staffName) + '</td>';
       }
       return '<tr>' + cols + '</tr>';
     }).join('');
@@ -3224,7 +3227,7 @@ function downloadAccomplishmentsExcel() {
   // Technical Support section
   '<div class="section-title">Technical Support (' + techSupport.length + ' entries)</div>' +
   (techSupport.length > 0
-    ? '<table><thead><tr><th style="width:30px">#</th><th>Date</th><th>Title</th><th>Status</th><th>Description</th><th>Requestor</th><th>Severity</th><th>Department</th><th>Branch</th><th>Incident Date</th><th>Date Resolve</th><th>Resolution</th></tr></thead><tbody>' + techRows + '</tbody></table>'
+    ? '<table><thead><tr><th style="width:30px">#</th><th>Date</th><th>Title</th><th>Status</th><th>Description</th><th>Requestor</th><th>Severity</th><th>Department</th><th>Branch</th><th>Incident Date</th><th>Date Resolve</th><th>Resolution</th><th>IT Staff</th></tr></thead><tbody>' + techRows + '</tbody></table>'
     : '<div class="sub-header">No Technical Support entries.</div>') +
 
   // Uploading/Encoding section
@@ -3314,8 +3317,9 @@ function printAccomplishmentReport() {
   w.document.write('<h3>Category Breakdown</h3>');
   w.document.write('<table><thead><tr><th>Category</th><th>Count</th></tr></thead><tbody>' + catHtml + '</tbody></table>');
   w.document.write('<h3>Detailed Accomplishments</h3>');
+  var staffName = (getSession() || {}).name || (getSession() || {}).username || '';
   w.document.write('<table><thead><tr>' +
-    '<th>#</th><th>Date</th><th>Title</th><th>Category</th><th>Branch</th><th>Status</th><th>Description</th>' +
+    '<th>#</th><th>Date</th><th>Title</th><th>Category</th><th>Branch</th><th>Status</th><th>Description</th><th>IT Staff</th>' +
     '</tr></thead><tbody>');
   data.forEach(function(item, i) {
     var statusTag = item.status === 'pending' ? 'tag-pending' : item.status === 'in-progress' ? 'tag-progress' : 'tag-completed';
@@ -3329,6 +3333,7 @@ function printAccomplishmentReport() {
       '<td>' + escapeHtml(item.branch || '\u2014') + '</td>' +
       '<td><span class="tag ' + statusTag + '">' + escapeHtml(item.status || 'pending') + '</span></td>' +
       '<td>' + escapeHtml(desc) + '</td>' +
+      '<td><strong>' + escapeHtml(staffName) + '</strong></td>' +
       '</tr>');
   });
   w.document.write('</tbody></table>');
