@@ -30,3 +30,4 @@ supabase-*.sql
 *.png
 *.jpg
 !hero_background.png
+!mobile/icons/*.png
