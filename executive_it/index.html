@@ -810,12 +810,13 @@ function initAuth(callback) {
     if (!err && user && window.__fbLoaded) {
       var profile = getFB('profile') || {};
       if (profile.username) {
+        var prevSession = getSession();
         var fbSession = {
           username: profile.username,
           name: profile.name || profile.username,
           email: user.email,
           isAdmin: profile.isAdmin || false,
-          executiveAdmin: profile.executiveAdmin || false,
+          executiveAdmin: profile.executiveAdmin !== undefined ? profile.executiveAdmin : (prevSession ? prevSession.executiveAdmin || false : false),
           role: profile.role || 'executive_it',
           supabaseUid: user.uid,
           loggedIn: true,
