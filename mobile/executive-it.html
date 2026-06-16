@@ -294,7 +294,7 @@ tailwind.config={theme:{extend:{colors:{brand:'#6366f1','brand-dark':'#4f46e5'}}
         <div class="icon-wrap" style="background:#e0e7ff;color:#6366f1"><span class="material-symbols-outlined">handyman</span></div>
         <span>Maintenance</span>
       </div>
-      <div class="menu-grid-item" onclick="switchMobileView('inventory');mobileApp.toggleMoreMenu()">
+      <div class="menu-grid-item" id="more-inventory" onclick="switchMobileView('inventory');mobileApp.toggleMoreMenu()">
         <div class="icon-wrap" style="background:#dbeafe;color:#2563eb"><span class="material-symbols-outlined">inventory</span></div>
         <span>Inventory</span>
       </div>
@@ -310,7 +310,7 @@ tailwind.config={theme:{extend:{colors:{brand:'#6366f1','brand-dark':'#4f46e5'}}
         <div class="icon-wrap" style="background:#fce7f3;color:#db2777"><span class="material-symbols-outlined">confirmation_number</span></div>
         <span>Tickets</span>
       </div>
-      <div class="menu-grid-item" onclick="switchMobileView('systems');mobileApp.toggleMoreMenu()">
+      <div class="menu-grid-item" id="more-systems" onclick="switchMobileView('systems');mobileApp.toggleMoreMenu()">
         <div class="icon-wrap" style="background:#ccfbf1;color:#0d9488"><span class="material-symbols-outlined">monitor_heart</span></div>
         <span>System Monitor</span>
       </div>
@@ -318,7 +318,7 @@ tailwind.config={theme:{extend:{colors:{brand:'#6366f1','brand-dark':'#4f46e5'}}
         <div class="icon-wrap" style="background:#ede9fe;color:#7c3aed"><span class="material-symbols-outlined">timer</span></div>
         <span>Time Tracking</span>
       </div>
-      <div class="menu-grid-item" onclick="switchMobileView('knowledge');mobileApp.toggleMoreMenu()">
+      <div class="menu-grid-item" id="more-knowledge" onclick="switchMobileView('knowledge');mobileApp.toggleMoreMenu()">
         <div class="icon-wrap" style="background:#ffe4e6;color:#e11d48"><span class="material-symbols-outlined">menu_book</span></div>
         <span>Knowledge</span>
       </div>
@@ -344,7 +344,7 @@ tailwind.config={theme:{extend:{colors:{brand:'#6366f1','brand-dark':'#4f46e5'}}
         <div class="icon-wrap" style="background:#e0e7ff;color:#6366f1"><span class="material-symbols-outlined">handyman</span></div>
         <span>Maintenance</span>
       </div>
-      <div class="menu-grid-item p-3 rounded-xl border border-slate-100" onclick="closeAddModal();showInventoryForm()">
+      <div class="menu-grid-item p-3 rounded-xl border border-slate-100" id="fab-inventory" onclick="closeAddModal();showInventoryForm()">
         <div class="icon-wrap" style="background:#e0e7ff;color:#6366f1"><span class="material-symbols-outlined">inventory</span></div>
         <span>Inventory</span>
       </div>
@@ -395,8 +395,14 @@ var _formSection = '';
 var _formEditId = null;
 var _auditLog = [];
 
+var _restrictedViews = {inventory:1,systems:1,knowledge:1};
 function switchMobileView(view) {
   if (view === 'more') { mobileApp.toggleMoreMenu(); return; }
+  var session = mobileApp.session;
+  if (_restrictedViews[view] && (!session || !session.executiveAdmin)) {
+    mobileApp.showToast('Access denied. Executive Admin only.');
+    return;
+  }
   document.querySelectorAll('.view-section').forEach(function(el) { el.classList.remove('active'); });
   var target = document.getElementById('view-' + view);
   if (target) {
@@ -1399,6 +1405,15 @@ function initPortal() {
 
   var origView = mobileApp.switchView;
   mobileApp.switchView = function(v) { switchMobileView(v); };
+
+  if (!session || !session.executiveAdmin) {
+    ['inventory','systems','knowledge'].forEach(function(k) {
+      var el = document.getElementById('more-' + k);
+      if (el) el.style.display = 'none';
+    });
+    var fi = document.getElementById('fab-inventory');
+    if (fi) fi.style.display = 'none';
+  }
 
   // Sync theme icon with mobileApp
   mobileApp.enableDarkMode = function() {
