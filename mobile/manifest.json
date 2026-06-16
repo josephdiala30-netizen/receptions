@@ -16,9 +16,9 @@
   ],
   "screenshots": [],
   "shortcuts": [
-    { "name": "Executive IT", "short_name": "IT", "url": "/mobile/executive-it.html", "icons": [{ "src": "icons/icon-it.png", "sizes": "96x96" }] },
-    { "name": "Executive Task", "short_name": "Tasks", "url": "/mobile/executive-task.html", "icons": [{ "src": "icons/icon-task.png", "sizes": "96x96" }] },
-    { "name": "Executive Path", "short_name": "Travel", "url": "/mobile/executive-path.html", "icons": [{ "src": "icons/icon-path.png", "sizes": "96x96" }] },
-    { "name": "Administrator", "short_name": "Admin", "url": "/mobile/admin.html", "icons": [{ "src": "icons/icon-admin.png", "sizes": "96x96" }] }
+    { "name": "Executive IT", "short_name": "IT", "url": "/mobile/executive-it/", "icons": [{ "src": "icons/icon-it.png", "sizes": "96x96" }] },
+    { "name": "Executive Task", "short_name": "Tasks", "url": "/mobile/executive-task/", "icons": [{ "src": "icons/icon-task.png", "sizes": "96x96" }] },
+    { "name": "Executive Path", "short_name": "Travel", "url": "/mobile/executive-path/", "icons": [{ "src": "icons/icon-path.png", "sizes": "96x96" }] },
+    { "name": "Administrator", "short_name": "Admin", "url": "/mobile/admin/", "icons": [{ "src": "icons/icon-admin.png", "sizes": "96x96" }] }
   ]
 }
