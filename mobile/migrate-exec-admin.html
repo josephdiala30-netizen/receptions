@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Migration - Executive Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+<div class="max-w-md w-full bg-white rounded-2xl shadow-lg p-6">
+  <h1 class="text-xl font-bold text-slate-900 mb-2">Executive Admin Migration</h1>
+  <p class="text-sm text-slate-500 mb-4">Ise-set si <strong>joseph_diala</strong> bilang Executive Administrator</p>
+  <div id="status" class="text-sm space-y-2 mb-4"></div>
+  <button id="runBtn" onclick="runMigration()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-500 active:scale-[0.98] transition-all">Run Migration</button>
+</div>
+<script>
+function log(msg, ok) {
+  var el = document.getElementById('status');
+  el.innerHTML += '<div class="' + (ok ? 'text-emerald-600' : 'text-slate-600') + '">' + (ok ? '✓ ' : '→ ') + msg + '</div>';
+}
+
+async function runMigration() {
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('runBtn').textContent = 'Running...';
+  var status = document.getElementById('status');
+  status.innerHTML = '';
+
+  var targetUsername = 'joseph_diala';
+  var targetEmail = 'joseph.diala30@gmail.com';
+
+  // Step 1: Update localStorage users array
+  var users = JSON.parse(localStorage.getItem('users') || '[]');
+  var found = users.find(function(u) { return u.username === targetUsername; });
+  if (found) {
+    found.executiveAdmin = true;
+    localStorage.setItem('users', JSON.stringify(users));
+    log('Local users array updated: executiveAdmin=true', true);
+  } else {
+    log('User ' + targetUsername + ' not found in localStorage users', false);
+  }
+
+  // Step 2: Update current session if it's this user
+  var session = JSON.parse(localStorage.getItem('session') || '{}');
+  if (session.username === targetUsername) {
+    session.executiveAdmin = true;
+    localStorage.setItem('session', JSON.stringify(session));
+    log('Current session updated with executiveAdmin', true);
+  } else {
+    log('Current session is not ' + targetUsername + ' (skipping)', false);
+  }
+
+  // Step 3: Update any existing session for this user
+  var sessions = Object.keys(localStorage).filter(function(k) { return k.startsWith('supabase-') || k.startsWith('sb-'); });
+  log('Found ' + sessions.length + ' Supabase session keys', sessions.length > 0);
+
+  // Step 4: Check if supabase client is available and try to update profile
+  if (typeof supabaseClient !== 'undefined') {
+    try {
+      // Hanapin ang user sa profiles table
+      var { data: profiles, error: profileErr } = await supabaseClient
+        .from('profiles')
+        .select('id')
+        .eq('username', targetUsername);
+
+      if (profileErr) {
+        log('Error fetching profile: ' + profileErr.message, false);
+      } else if (profiles && profiles.length > 0) {
+        var uid = profiles[0].id;
+        log('Found Supabase profile: ' + uid, true);
+
+        // Update profiles table
+        var { error: updateErr } = await supabaseClient
+          .from('profiles')
+          .upsert({ id: uid, username: targetUsername, executive_admin: true }, { onConflict: 'id' });
+
+        if (updateErr) {
+          log('Profile update error (anon key - expected): ' + updateErr.message, false);
+          // Subukan sa pamamagitan ng RPC
+          var { error: rpcErr } = await supabaseClient.rpc('admin_update_profile', {
+            p_user_id: uid,
+            p_username: targetUsername,
+            p_name: found ? found.name : targetUsername,
+            p_email: targetEmail,
+            p_role: 'executive_it',
+            p_is_admin: found ? found.isAdmin || false : false,
+            p_executive_admin: true
+          });
+          if (rpcErr) {
+            log('RPC also failed: ' + rpcErr.message, false);
+            log('Will update via userdata cache instead', false);
+          } else {
+            log('RPC update successful!', true);
+          }
+        } else {
+          log('Profile updated successfully in Supabase!', true);
+        }
+
+        // Update userdata cache - add executiveAdmin to profile
+        var { data: ud, error: udErr } = await supabaseClient
+          .from('userdata')
+          .select('data')
+          .eq('id', uid)
+          .single();
+
+        if (udErr) {
+          log('Error reading userdata: ' + udErr.message, false);
+        } else if (ud && ud.data) {
+          var cache = ud.data;
+          if (!cache.profile) cache.profile = {};
+          cache.profile.executiveAdmin = true;
+          cache.profile.username = targetUsername;
+          cache.profile.role = 'executive_it';
+          var { error: saveErr } = await supabaseClient
+            .from('userdata')
+            .upsert({ id: uid, data: cache }, { onConflict: 'id' });
+          if (saveErr) {
+            log('Error saving userdata: ' + saveErr.message, false);
+          } else {
+            log('Userdata cache updated! executiveAdmin will reflect on next login.', true);
+          }
+        }
+      } else {
+        log('No Supabase profile found for ' + targetUsername, false);
+      }
+    } catch(e) {
+      log('Supabase error: ' + e.message, false);
+    }
+  } else {
+    log('Supabase client not available', false);
+  }
+
+  // Step 5: Update any stored userdata_username keys
+  var dataKeys = Object.keys(localStorage).filter(function(k) { return k === 'userdata_' + targetUsername; });
+  dataKeys.forEach(function(k) {
+    try {
+      var data = JSON.parse(localStorage.getItem(k));
+      if (!data.profile) data.profile = {};
+      data.profile.executiveAdmin = true;
+      localStorage.setItem(k, JSON.stringify(data));
+      log('Local userdata cache updated', true);
+    } catch(e) {}
+  });
+
+  log('Migration complete! Pakilog-out at mag-login uli si joseph_diala para mag-reflect.', true);
+  document.getElementById('runBtn').textContent = 'Done ✓';
+}
+</script>
+</body>
+</html>

@@ -534,6 +534,10 @@ button, input, select, textarea { min-width: 0; }
         <input type="checkbox" id="userIsAdmin" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500"/>
         <label for="userIsAdmin" class="font-label-md text-on-surface-variant cursor-pointer">Portal Admin (can view all users' data within their portal)</label>
       </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="userExecutiveAdmin" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500"/>
+        <label for="userExecutiveAdmin" class="font-label-md text-on-surface-variant cursor-pointer">Executive Administrator (access to Inventory, System Monitor &amp; Knowledge Base)</label>
+      </div>
       <div class="flex gap-3 pt-2">
         <button class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-title-lg hover:opacity-90 transition-all active:scale-[0.98]" onclick="saveUser()">Save</button>
         <button class="flex-1 border border-outline-variant text-on-surface-variant py-3 rounded-xl font-title-lg hover:bg-surface-container transition-all" onclick="closeUserModal()">Cancel</button>
@@ -894,14 +898,38 @@ function updateSupabaseProfile(email, profile) {
     if (result.error || !result.data) return;
     var found = result.data.find(function(p) { return p.email === email; });
     if (!found) return;
+    // Subukan ang RPC, kung ayaw (e.g. unknown parameter), fallback sa direct update
     Promise.resolve(client.rpc('admin_update_profile', {
       p_user_id: found.id,
       p_username: profile.username,
       p_name: profile.name || profile.username,
       p_email: email,
       p_role: profile.role || 'executive_task',
-      p_is_admin: profile.isAdmin || false
-    })).then(null, function(e) { console.error('Supabase profile update error:', e); });
+      p_is_admin: profile.isAdmin || false,
+      p_executive_admin: profile.executiveAdmin || false
+    })).then(null, function(rpcErr) {
+      // Fallback: direct update ng profiles table
+      Promise.resolve(client.from('profiles').upsert({
+        id: found.id,
+        username: profile.username,
+        name: profile.name || profile.username,
+        email: email,
+        role: profile.role || 'executive_task',
+        is_admin: profile.isAdmin || false,
+        executive_admin: profile.executiveAdmin || false
+      }, { onConflict: 'id' })).then(null, function(dirErr) {
+        console.error('Direct profile update error:', dirErr);
+      });
+      // Update din ang userdata cache para agad mag-reflect
+      Promise.resolve(client.from('userdata').select('data').eq('id', found.id).single()).then(function(ud) {
+        if (!ud.error && ud.data && ud.data.data) {
+          var cache = ud.data.data;
+          if (!cache.profile) cache.profile = {};
+          cache.profile.executiveAdmin = profile.executiveAdmin || false;
+          Promise.resolve(client.from('userdata').upsert({ id: found.id, data: cache }, { onConflict: 'id' })).then(null, function(e) {});
+        }
+      });
+    });
   });
 }
 
@@ -960,6 +988,7 @@ function openUserModal(data) {
   document.getElementById('userPassword').value = '';
   document.getElementById('userRole').value = data ? (data.role || 'executive_task') : 'executive_task';
   document.getElementById('userIsAdmin').checked = data ? !!data.isAdmin : false;
+  document.getElementById('userExecutiveAdmin').checked = data ? !!data.executiveAdmin : false;
   document.getElementById('userModal').classList.remove('hidden');
 }
 
@@ -972,6 +1001,7 @@ async function saveUser() {
   var password = document.getElementById('userPassword').value;
   var role = document.getElementById('userRole').value;
   var isAdmin = document.getElementById('userIsAdmin').checked;
+  var executiveAdmin = document.getElementById('userExecutiveAdmin').checked;
   var editId = document.getElementById('editUserId').value;
   var errEl = document.getElementById('userModal').querySelector('.space-y-4');
   var oldErr = document.getElementById('userModalErr');
@@ -992,12 +1022,12 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Super Administrator role cannot be changed.'; errEl.prepend(err); return;
     }
-    users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin;
+    users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin; users[idx].executiveAdmin = executiveAdmin;
     if (password) users[idx].password = await hashPass(password);
     saveUsers(users);
     // Sync changes to Supabase profile for cross-browser login
     if (email && typeof supabaseClient !== 'undefined') {
-      updateSupabaseProfile(email, { username: username, name: name, role: role, isAdmin: isAdmin });
+      updateSupabaseProfile(email, { username: username, name: name, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin });
     }
   } else {
     if (users.some(function(u) { return u.username === username; })) {
@@ -1008,14 +1038,14 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Password is required for new users.'; errEl.prepend(err); return;
     }
-    users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin });
+    users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin });
     localStorage.setItem('welcome_' + username, 'true');
     saveUsers(users);
     // Also create Supabase Auth account + profile for cross-browser login
     // Kung walang email, gamitin ang username@app.local para makapag-login sa ibang device
     var syncEmail = email || (username + '@app.local');
     if (typeof supabaseClient !== 'undefined') {
-      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function(err) {
+      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin }, function(err) {
         if (err) {
           console.error('Supabase account creation error:', err);
           // Show error to admin but don't block the flow

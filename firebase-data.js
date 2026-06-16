@@ -481,6 +481,7 @@ function fbLogin(email, password, callback) {
       var jwtMeta = user.user_metadata || {};
       var jwtRole = jwtMeta.role || null;
       var jwtIsAdmin = jwtMeta.is_admin || false;
+      var jwtExecutiveAdmin = jwtMeta.executive_admin || false;
       var jwtUsername = jwtMeta.username || null;
       var jwtName = jwtMeta.name || null;
 
@@ -491,6 +492,7 @@ function fbLogin(email, password, callback) {
       // Role priority: JWT metadata > localStorage > default
       var finalRole = jwtRole || (localUser ? localUser.role : null) || 'executive_path';
       var finalIsAdmin = jwtIsAdmin || (localUser ? localUser.isAdmin || false : false);
+      var finalExecutiveAdmin = jwtExecutiveAdmin || (localUser ? localUser.executiveAdmin || false : false);
       var finalUsername = jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0];
       var finalName = jwtName || (localUser ? localUser.name : null) || finalUsername;
 
@@ -499,6 +501,7 @@ function fbLogin(email, password, callback) {
         name: finalName,
         email: user.email,
         isAdmin: finalIsAdmin,
+        executiveAdmin: finalExecutiveAdmin,
         role: finalRole,
         supabaseUid: user.id,
         loggedIn: true,
@@ -513,7 +516,8 @@ function fbLogin(email, password, callback) {
         name: finalName,
         email: user.email,
         role: finalRole,
-        is_admin: finalIsAdmin
+        is_admin: finalIsAdmin,
+        executive_admin: finalExecutiveAdmin
       })).then(null, function(e) { console.error('Profile sync error:', e); });
 
       // Subukang i-load ang userdata (kung may RLS pa rin, localStorage fallback ang cache)
@@ -543,7 +547,8 @@ function fbRegister(email, password, profile, callback) {
         username: profile.username,
         name: profile.name,
         role: profile.role || 'executive_task',
-        is_admin: profile.isAdmin || false
+        is_admin: profile.isAdmin || false,
+        executive_admin: profile.executiveAdmin || false
       }
     }
   })
@@ -563,7 +568,8 @@ function fbRegister(email, password, profile, callback) {
       name: profile.name,
       email: email,
       role: profile.role || 'executive_task',
-      is_admin: profile.isAdmin || false
+      is_admin: profile.isAdmin || false,
+      executive_admin: profile.executiveAdmin || false
     };
     function doCb(err, ok) {
       window.__fbRegistering = false;

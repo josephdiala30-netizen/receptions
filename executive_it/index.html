@@ -248,7 +248,7 @@ button, input, select, textarea { min-width: 0; }
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('maintenance');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">handyman</span><span class="font-label-md">IT Maintenance</span>
       </a>
-      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('inventory');document.getElementById('mobile-menu').classList.add('hidden')">
+      <a id="mobile-nav-inventory" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('inventory');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">inventory</span><span class="font-label-md">IT Inventory</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('task');document.getElementById('mobile-menu').classList.add('hidden')">
@@ -263,13 +263,13 @@ button, input, select, textarea { min-width: 0; }
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('tickets');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">confirmation_number</span><span class="font-label-md">Support Tickets</span>
       </a>
-      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('systems');document.getElementById('mobile-menu').classList.add('hidden')">
+      <a id="mobile-nav-systems" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('systems');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">monitor_heart</span><span class="font-label-md">System Monitor</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('timetrack');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">timer</span><span class="font-label-md">Time Tracking</span>
       </a>
-      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('knowledge');document.getElementById('mobile-menu').classList.add('hidden')">
+      <a id="mobile-nav-knowledge" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('knowledge');document.getElementById('mobile-menu').classList.add('hidden')">
         <span class="material-symbols-outlined">menu_book</span><span class="font-label-md">Knowledge Base</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('auditlog');document.getElementById('mobile-menu').classList.add('hidden')">
@@ -815,6 +815,7 @@ function initAuth(callback) {
           name: profile.name || profile.username,
           email: user.email,
           isAdmin: profile.isAdmin || false,
+          executiveAdmin: profile.executiveAdmin || false,
           role: profile.role || 'executive_it',
           supabaseUid: user.uid,
           loggedIn: true,
@@ -840,6 +841,19 @@ function finishAuth(session, callback) {
   if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
   if (session.role === 'executive_path') { window.location.href = getBaseUrl() + 'executive_path/'; return; }
   if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
+
+  // Restrict advanced modules to executiveAdmin only
+  var isExecAdmin = session.executiveAdmin === true;
+  var restrictedNavs = ['navInventory', 'navSystems', 'navKnowledge'];
+  restrictedNavs.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = isExecAdmin ? '' : 'none';
+  });
+  var restrictedMobile = ['mobile-nav-inventory', 'mobile-nav-systems', 'mobile-nav-knowledge'];
+  restrictedMobile.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = isExecAdmin ? '' : 'none';
+  });
 
   var initial = (session.name || session.username).charAt(0).toUpperCase();
   sessionStorage.setItem('avatarInitial', initial);
@@ -1202,6 +1216,11 @@ var currentView = 'dashboard';
 var searchQuery = '';
 
 function switchView(view) {
+  var restricted = { inventory: 1, systems: 1, knowledge: 1 };
+  if (restricted[view]) {
+    var s = getSession();
+    if (!s || s.executiveAdmin !== true) { switchView('dashboard'); return; }
+  }
   currentView = view;
   var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems', 'Timetrack', 'Knowledge', 'Auditlog'];
   views.forEach(function(v) {
