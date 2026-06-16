@@ -3016,6 +3016,7 @@ initAuth(function() {
   updateNotifBadge();
   loadDashboard();
 });
+fbOnUpdate(function() { refreshCurrentView(); });
 
 // Avatar functions
 function loadAvatar(username) {
@@ -3117,11 +3118,6 @@ function removeAvatar() {
   if (menuAvatar) menuAvatar.textContent = initial;
   closeAvatarModal();
 }
-
-// Real-time cross-browser sync
-fbOnUpdate(function(data) {
-  loadDashboard();
-});
 </script>
 
 <!-- Keyboard Shortcuts Modal -->

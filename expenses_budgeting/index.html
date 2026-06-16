@@ -498,6 +498,7 @@ function showTripNotifications() {
 initTheme(); initAuth(function() {
   initTripNotifications();
 });
+fbOnUpdate(function() { location.reload(); });
 </script>
 </body>
 </html>

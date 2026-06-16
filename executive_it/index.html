@@ -4955,7 +4955,7 @@ initAuth(function() {
   checkDueTasks();
 });
 
-// Real-time cross-browser sync: re-render current view when Firestore changes
+// Real-time cross-browser sync: re-render current view
 fbOnUpdate(function(data) {
   var view = currentView || 'dashboard';
   var syncViews = { services: 'renderServices', maintenance: 'renderMaintenance', inventory: 'renderInventory', task: 'renderTask', planner: 'renderPlanner', accomplishments: 'renderAccomplishments', tickets: 'renderTickets', systems: 'renderSystems', timetrack: 'renderTimetrack', knowledge: 'renderKnowledge' };

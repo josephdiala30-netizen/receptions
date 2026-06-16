@@ -832,11 +832,7 @@ initAuth(function() {
   loadDashboard();
 });
 initTripNotifications();
-
-// Real-time cross-browser sync
-fbOnUpdate(function(data) {
-  loadDashboard();
-});
+fbOnUpdate(function() { loadDashboard(); });
 
 // Avatar functions
 function loadAvatar(username) {

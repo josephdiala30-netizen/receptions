@@ -705,6 +705,7 @@ function init() {
     sel.innerHTML = years.map(function(y) { return '<option value="' + y + '">' + y + '</option>'; }).join('');
     renderReport();
   });
+  fbOnUpdate(function() { location.reload(); });
 }
 
 init();

@@ -8,6 +8,8 @@ window.__fbLoaded = false;
 window.__fbUser = null;
 window.__fbUnsubscribe = null;
 window.__fbAuthListener = null;
+window.__fbSaveToken = 0;
+window.__fbLastData = '';
 
 // Get the Supabase client
 function getClient() {
@@ -192,6 +194,8 @@ function loadFBData(uid, callback) {
 }
 
 // Set up real-time listener for cross-browser sync
+// When data changes in Supabase (from another tab/computer),
+// the callback triggers page re-render via fbOnUpdate().
 function fbSubscribe(uid, onUpdate) {
   var client = getClient();
   if (!client) return;
@@ -201,25 +205,30 @@ function fbSubscribe(uid, onUpdate) {
     window.__fbUnsubscribe = null;
   }
 
-  // Use Supabase Realtime
   var channel = client.channel('userdata-' + uid)
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'userdata', filter: 'id=eq.' + uid },
       function(payload) {
         if (payload.new && payload.new.data) {
-          // Merge: keep existing cache keys that aren't in the update
-          // (preserves any unsaved local changes)
           var incoming = payload.new.data;
+          var incomingStr = JSON.stringify(incoming);
+
+          // Skip if this is our own save (same data we just sent)
+          if (incomingStr === window.__fbLastData) return;
+
+          // Merge: remote is source of truth.
+          // Start with remote, then overlay local keys not in remote
+          // (preserves local-only data like welcome flags, tutorial state)
           var merged = {};
-          // Start with existing cache
-          if (window.__fbCache && Object.keys(window.__fbCache).length > 0) {
-            for (var k in window.__fbCache) {
-              if (window.__fbCache.hasOwnProperty(k)) merged[k] = window.__fbCache[k];
-            }
-          }
-          // Apply remote changes (only for keys that exist in remote)
           for (var k in incoming) {
             if (incoming.hasOwnProperty(k)) merged[k] = incoming[k];
+          }
+          if (window.__fbCache) {
+            for (var k in window.__fbCache) {
+              if (window.__fbCache.hasOwnProperty(k) && !incoming.hasOwnProperty(k)) {
+                merged[k] = window.__fbCache[k];
+              }
+            }
           }
           window.__fbCache = merged;
           window.__fbLoaded = true;
@@ -277,6 +286,8 @@ function saveFBFull(callback) {
     if (callback) callback('Not authenticated');
     return;
   }
+  // Store snapshot of what we're sending so Realtime handler can skip own saves
+  window.__fbLastData = JSON.stringify(window.__fbCache);
   client.from('userdata').upsert(
     { id: window.__fbUser.uid, data: window.__fbCache, updated_at: new Date().toISOString() },
     { onConflict: 'id' }
