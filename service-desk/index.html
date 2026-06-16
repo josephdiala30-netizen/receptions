@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
 <title>IT Service Desk</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
 * { -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Inter', system-ui, sans-serif; }
@@ -97,6 +99,10 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
+<script src="../shared.js"></script>
 <script>
 function generateId() {
   return Date.now() + Math.floor(Math.random() * 1000);
@@ -113,9 +119,12 @@ function submitTicket() {
   var desc = document.getElementById('fDescription').value.trim();
 
   if (!name) { alert('Please enter your name.'); document.getElementById('fName').focus(); return; }
-  if (!email) { alert('Please enter your email.'); document.getElementById('fEmail').focus(); return; }
+  if (!email || email.indexOf('@') === -1) { alert('Please enter a valid email address.'); document.getElementById('fEmail').focus(); return; }
+  if (email.length > 254) { alert('Email address is too long.'); document.getElementById('fEmail').focus(); return; }
   if (!subject) { alert('Please enter a subject.'); document.getElementById('fSubject').focus(); return; }
+  if (subject.length > 200) { alert('Subject is too long (max 200 characters).'); document.getElementById('fSubject').focus(); return; }
   if (!desc) { alert('Please describe your issue.'); document.getElementById('fDescription').focus(); return; }
+  if (desc.length > 2000) { alert('Description is too long (max 2000 characters).'); document.getElementById('fDescription').focus(); return; }
 
   var btn = document.getElementById('submitBtn');
   btn.disabled = true;

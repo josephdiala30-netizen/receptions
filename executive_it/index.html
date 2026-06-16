@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
 <title>Executive IT | Dashboard</title>
 <meta name="description" content="Executive IT Management Portal â€” monitor systems, track IT services, and coordinate IT projects."/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -161,6 +162,7 @@ button, input, select, textarea { min-width: 0; }
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="../firebase-config.js"></script>
   <script src="../firebase-data.js"></script>
+  <script src="../shared.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -778,16 +780,6 @@ function getBaseUrl() {
   var p = window.location.pathname.replace(/\/executive_it\/?.*$/i, '/');
   if (!p.endsWith('/')) p += '/';
   return p;
-}
-
-function getSession() {
-  return JSON.parse(localStorage.getItem('session') || 'null');
-}
-
-function escapeHtml(str) {
-  if (typeof str !== 'string') str = String(str || '');
-  if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function generateId() {
@@ -1799,6 +1791,7 @@ function renderMaintenance() {
           '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs bg-surface-container-low/40 p-3 rounded-xl border border-outline-variant/60">' +
           '  <div><span class="text-on-surface-variant block font-medium">Equipment Info</span><span class="text-primary font-semibold">' + escapeHtml(equipInfo) + '</span></div>' +
           '  <div><span class="text-on-surface-variant block font-medium">Serial Number</span><span class="text-primary font-semibold">' + escapeHtml(serial || 'N/A') + '</span></div>' +
+          '  <div><span class="text-on-surface-variant block font-medium">Location</span><span class="text-primary font-semibold">' + escapeHtml(item.location || 'N/A') + '</span></div>' +
           '  <div><span class="text-on-surface-variant block font-medium">Inspected By</span><span class="text-primary font-semibold">' + escapeHtml(inspected) + '</span></div>' +
           '  <div><span class="text-on-surface-variant block font-medium">Checked By</span><span class="text-primary font-semibold">' + escapeHtml(checked) + '</span></div>' +
           '</div>' +
@@ -2157,6 +2150,7 @@ function downloadMaintenanceExcel() {
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:11px;font-weight:600;color:#1e1b4d">' + escapeHtml(equipName) + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(equipInfo) + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.serial || '\u2014') + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.location || '\u2014') + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.frequency || 'Quarterly') + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.period || '\u2014') + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(dateVal) + '</td>' +
@@ -2209,7 +2203,7 @@ function downloadMaintenanceExcel() {
 
   '<div class="section-title">Detailed Maintenance Records</div>' +
   '<table><thead><tr>' +
-    '<th style="width:30px">#</th><th>Equipment</th><th>Brand / Model</th><th>Serial No.</th><th>Frequency</th><th>Period</th><th>Date</th><th>Inspected By</th><th>Status</th><th>Parts</th><th>Clean</th><th>Oper.</th><th>Elec.</th><th>Recommendations</th>' +
+    '<th style="width:30px">#</th><th>Equipment</th><th>Brand / Model</th><th>Serial No.</th><th>Location</th><th>Frequency</th><th>Period</th><th>Date</th><th>Inspected By</th><th>Status</th><th>Parts</th><th>Clean</th><th>Oper.</th><th>Elec.</th><th>Recommendations</th>' +
   '</tr></thead><tbody>' + rows + '</tbody></table>' +
 
   '<div class="footer">KALYX IT Maintenance Report &middot; Generated on ' + dateStr + ' &middot; Confidential</div>' +
@@ -2304,6 +2298,7 @@ function printMaintenanceEntry(id) {
     '  <div class="info-item"><div class="lbl">Equipment Type</div><div class="val">' + escapeHtml(item.equipment || item.asset || item.title || 'N/A') + '</div></div>' +
     '  <div class="info-item"><div class="lbl">Brand / Model</div><div class="val">' + escapeHtml(equipInfo) + '</div></div>' +
     '  <div class="info-item"><div class="lbl">Serial Number</div><div class="val">' + escapeHtml(item.serial || 'N/A') + '</div></div>' +
+    '  <div class="info-item"><div class="lbl">Location</div><div class="val">' + escapeHtml(item.location || 'N/A') + '</div></div>' +
     '  <div class="info-item"><div class="lbl">Inspection Period</div><div class="val">' + escapeHtml(item.period || 'N/A') + '</div></div>' +
     '</div></div>');
 
@@ -2949,6 +2944,7 @@ function viewMaintenance(id) {
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Date</span><span class="font-semibold text-primary">' + escapeHtml(item.inspectionDate || item.scheduledDate || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Equipment Info</span><span class="font-semibold text-primary">' + escapeHtml(equipInfo) + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Serial Number</span><span class="font-semibold text-primary">' + escapeHtml(item.serial || 'N/A') + '</span></div>' +
+      '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Location</span><span class="font-semibold text-primary">' + escapeHtml(item.location || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Frequency</span><span class="font-semibold text-primary">' + escapeHtml(item.frequency || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Period</span><span class="font-semibold text-primary">' + escapeHtml(item.period || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Inspected By</span><span class="font-semibold text-primary">' + escapeHtml(item.inspectedBy || 'N/A') + '</span></div>' +
@@ -3931,6 +3927,10 @@ function getFormHtml(type, item) {
       '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Serial Number</label>' +
       '      <input id="fSerial" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="S/N" value="' + escapeHtml(item.serial || '') + '"/>' +
       '    </div>' +
+      '    <div>' +
+      '      <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Location</label>' +
+      '      <input id="fLocation" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. 2nd Floor, Main Office" value="' + escapeHtml(item.location || '') + '"/>' +
+      '    </div>' +
       '  </div>' +
 
       '  <!-- Maintenance Activities & Status -->' +
@@ -4383,6 +4383,7 @@ function saveItem() {
     item.brand = document.getElementById('fBrand').value.trim();
     item.model = document.getElementById('fModel').value.trim();
     item.serial = document.getElementById('fSerial').value.trim();
+    item.location = document.getElementById('fLocation').value.trim();
     item.description = document.getElementById('fDescription').value.trim();
     item.inspectedBy = inspectedBy;
     item.checkedBy = document.getElementById('fCheckedBy').value.trim();

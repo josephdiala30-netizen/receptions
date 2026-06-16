@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
 <title>Administrator | Control Panel</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -144,6 +145,7 @@ button, input, select, textarea { min-width: 0; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../firebase-data.js"></script>
+<script src="../shared.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -553,30 +555,7 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 <script>
-function getSession() {
-  return JSON.parse(localStorage.getItem('session') || 'null');
-}
-
-function getBaseUrl() {
-  var p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
-  return p.substring(0, p.lastIndexOf('/') + 1);
-}
-
 function goTo(path) { window.location.href = getBaseUrl() + path; }
-
-function initTheme() {
-  var theme = localStorage.getItem('theme') || 'light';
-  if (theme === 'dark') document.documentElement.classList.add('dark');
-  var btn = document.getElementById('themeToggle');
-  if (btn) btn.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
-}
-
-function toggleTheme() {
-  var isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  var btn = document.getElementById('themeToggle');
-  if (btn) btn.textContent = isDark ? 'light_mode' : 'dark_mode';
-}
 
 function initAuth(callback) {
   initFirebase(function(err, user) {
@@ -616,8 +595,6 @@ function finishAuth(session, callback) {
   document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
   if (callback) callback(session);
 }
-
-function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
 
 function checkWelcome() {
   var s = JSON.parse(localStorage.getItem('session') || '{}');
@@ -663,11 +640,6 @@ function showSection(id) {
   SECTIONS.forEach(function(s) { document.getElementById(s).classList.toggle('hidden', s !== id); });
   document.getElementById('pageTitle').textContent = SECTION_TITLES[id] || 'Dashboard';
   if (id === 'pageData') loadSystemInfo();
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function mergeSupabaseUsers(sbUsers, localUsers) {

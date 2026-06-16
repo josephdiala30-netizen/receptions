@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
   <title>Executive Path | Login</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -10,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../firebase-config.js"></script>
   <script src="../firebase-data.js"></script>
+  <script src="../shared.js"></script>
   <script>
     tailwind.config = {
       darkMode: "class",
@@ -384,9 +386,7 @@
           id: uid, username: found.username, name: found.name, email: found.email,
           role: found.role || 'executive_path', is_admin: found.isAdmin || false
         }, { onConflict: 'id' })).then(function() {
-          Promise.resolve(client.from('userdata').upsert({ id: uid, data: userData }, { onConflict: 'id' })).then(function() {
-            console.log('Migration to Supabase complete');
-          }, function(e) { console.error('Migration userdata error:', e); });
+          Promise.resolve(client.from('userdata').upsert({ id: uid, data: userData }, { onConflict: 'id' })).then(null, function(e) { console.error('Migration userdata error:', e); });
         }, function(e) { console.error('Migration profile error:', e); });
       }).catch(function(err) {
         console.error('Migration signup error:', err);
@@ -510,7 +510,6 @@
         }
       }
       keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
-      if (keysToRemove.length > 0) console.log('Cleaned ' + keysToRemove.length + ' stale localStorage entries from removed accounts');
     })();
 
     updateRegisterVisibility();
