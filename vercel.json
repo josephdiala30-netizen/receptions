@@ -13,6 +13,10 @@
     { "source": "/reports/", "destination": "/reports/index.html" },
     { "source": "/plan_new_trip/", "destination": "/plan_new_trip/index.html" },
     { "source": "/trip_itinerary/", "destination": "/trip_itinerary/index.html" },
-    { "source": "/expenses_budgeting/", "destination": "/expenses_budgeting/index.html" }
+    { "source": "/expenses_budgeting/", "destination": "/expenses_budgeting/index.html" },
+    { "source": "/mobile/executive-it/", "destination": "/mobile/executive-it.html" },
+    { "source": "/mobile/executive-task/", "destination": "/mobile/executive-task.html" },
+    { "source": "/mobile/executive-path/", "destination": "/mobile/executive-path.html" },
+    { "source": "/mobile/admin/", "destination": "/mobile/admin.html" }
   ]
 }
