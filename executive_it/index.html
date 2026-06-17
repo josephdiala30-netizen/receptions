@@ -1693,6 +1693,49 @@ function renderServices() {
   el.innerHTML = html;
 }
 
+// ==================== TONER / INK HELPERS ====================
+function updateTonerFromPercent(val) {
+  var level = 'Full';
+  var note = '';
+  if (val >= 76) { level = 'Full'; note = 'Toner/ink level is sufficient, monitor regularly.'; }
+  else if (val >= 51) { level = 'Medium'; note = 'Toner/ink is at medium level, prepare replacement stock.'; }
+  else if (val >= 26) { level = 'Low'; note = 'Toner/ink is running low, order replacement soon.'; }
+  else if (val >= 1) { level = 'Low'; note = 'Toner/ink is critically low, immediate replacement needed.'; }
+  else { level = 'Empty'; note = 'Toner/ink is empty, replacement required.'; }
+
+  document.getElementById('fTonerLevel').value = level;
+  document.getElementById('tonerPercentVal').textContent = val + '%';
+  document.getElementById('tonerLevelBadge').textContent = level;
+  document.getElementById('tonerLevelBadge').className = 'text-xs px-2 py-0.5 rounded-full font-semibold ' +
+    (level === 'Full' ? 'bg-emerald-100 text-emerald-700' :
+     level === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+     level === 'Low' ? 'bg-orange-100 text-orange-700' :
+     'bg-red-100 text-red-700');
+
+  var naCheck = document.getElementById('fTonerNA');
+  if (naCheck) naCheck.checked = false;
+  var notes = document.getElementById('fTonerNotes');
+  if (!notes.dataset.edited) notes.value = note;
+}
+function toggleTonerNA() {
+  var na = document.getElementById('fTonerNA').checked;
+  var controls = document.getElementById('tonerControls');
+  var badge = document.getElementById('tonerLevelBadge');
+  var percent = document.getElementById('fTonerPercent');
+  var level = document.getElementById('fTonerLevel');
+  var notes = document.getElementById('fTonerNotes');
+  if (na) {
+    controls.classList.add('opacity-40', 'pointer-events-none');
+    badge.textContent = 'N/A';
+    badge.className = 'text-xs px-2 py-0.5 rounded-full font-semibold bg-gray-100 text-gray-500';
+    level.value = 'N/A';
+    notes.value = 'Not applicable for this equipment.';
+  } else {
+    controls.classList.remove('opacity-40', 'pointer-events-none');
+    updateTonerFromPercent(percent.value);
+  }
+}
+
 // ==================== MAINTENANCE ====================
 function renderMaintenance() {
   var data = getData('maintenance');
@@ -3985,30 +4028,36 @@ function getFormHtml(type, item) {
       '    </div>' +
       '  </div>' +
 
-      '  <!-- Toner / Ink Level -->' +
+      '  <!-- Toner / Ink Level (Integrated) -->' +
       '  <div class="p-4 bg-surface-container-low rounded-2xl border border-outline-variant space-y-3">' +
-      '    <p class="font-semibold text-on-surface text-sm">Toner / Ink Level</p>' +
-      '    <div class="grid grid-cols-3 gap-4">' +
-      '      <div>' +
-      '        <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Toner/Ink Level *</label>' +
-      '        <select id="fTonerLevel" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
-      '          <option value="Full"' + (item.tonerLevel === 'Full' || !item.tonerLevel ? ' selected' : '') + '>Full</option>' +
-      '          <option value="Medium"' + (item.tonerLevel === 'Medium' ? ' selected' : '') + '>Medium</option>' +
-      '          <option value="Low"' + (item.tonerLevel === 'Low' ? ' selected' : '') + '>Low</option>' +
-      '          <option value="Empty"' + (item.tonerLevel === 'Empty' ? ' selected' : '') + '>Empty</option>' +
-      '          <option value="N/A"' + (item.tonerLevel === 'N/A' ? ' selected' : '') + '>N/A (Not Applicable)</option>' +
-      '        </select>' +
-      '      </div>' +
-      '      <div>' +
-      '        <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Toner % *</label>' +
-      '        <div class="flex items-center gap-2">' +
-      '          <input id="fTonerPercent" type="range" min="0" max="100" class="w-full accent-primary" value="' + (item.tonerPercent != null ? item.tonerPercent : 100) + '" oninput="document.getElementById(\'tonerPercentVal\').textContent=this.value+\'%\'"/>' +
-      '          <span id="tonerPercentVal" class="font-semibold text-primary text-sm min-w-[40px] text-right">' + (item.tonerPercent != null ? item.tonerPercent : 100) + '%</span>' +
+      '    <p class="font-semibold text-on-surface text-sm flex items-center gap-2">Toner / Ink Level <span id="tonerLevelBadge" class="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-700">' + (item.tonerLevel === 'N/A' ? 'N/A' : (item.tonerLevel || 'Full')) + '</span></p>' +
+      '    <select id="fTonerLevel" class="hidden">' +
+      '      <option value="Full"' + ((item.tonerLevel === 'Full' || !item.tonerLevel) ? ' selected' : '') + '>Full</option>' +
+      '      <option value="Medium"' + (item.tonerLevel === 'Medium' ? ' selected' : '') + '>Medium</option>' +
+      '      <option value="Low"' + (item.tonerLevel === 'Low' ? ' selected' : '') + '>Low</option>' +
+      '      <option value="Empty"' + (item.tonerLevel === 'Empty' ? ' selected' : '') + '>Empty</option>' +
+      '      <option value="N/A"' + (item.tonerLevel === 'N/A' ? ' selected' : '') + '>N/A</option>' +
+      '    </select>' +
+      '    <div id="tonerControls">' +
+      '      <div class="flex items-center gap-3 mb-3">' +
+      '        <div class="flex-1">' +
+      '          <input id="fTonerPercent" type="range" min="0" max="100" class="w-full accent-primary" value="' + (item.tonerPercent != null ? item.tonerPercent : 100) + '" oninput="updateTonerFromPercent(this.value)"/>' +
       '        </div>' +
+      '        <span id="tonerPercentVal" class="font-bold text-lg text-primary min-w-[50px] text-right tabular-nums">' + (item.tonerPercent != null ? item.tonerPercent : 100) + '%</span>' +
+      '      </div>' +
+      '      <div class="flex items-center justify-between mb-3">' +
+      '        <div class="flex items-center gap-1 text-xs text-on-surface-variant">' +
+      '          <span class="material-symbols-outlined text-[16px]">local_printshop</span>' +
+      '          <span>Slide to set level &mdash; note is auto-generated</span>' +
+      '        </div>' +
+      '        <label class="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-on-surface-variant hover:text-primary transition-colors">' +
+      '          <input type="checkbox" id="fTonerNA" class="w-3.5 h-3.5 accent-primary" onchange="toggleTonerNA()"' + (item.tonerLevel === 'N/A' ? ' checked' : '') + '/>' +
+      '          <span>N/A</span>' +
+      '        </label>' +
       '      </div>' +
       '      <div>' +
-      '        <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Toner/Ink Notes</label>' +
-      '        <input id="fTonerNotes" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Replace soon, reorder needed" value="' + escapeHtml(item.tonerNotes || '') + '"/>' +
+      '        <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Notes <span class="font-normal normal-case text-on-surface-variant/60">(auto-generated, editable)</span></label>' +
+      '        <textarea id="fTonerNotes" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-16 resize-none" oninput="this.dataset.edited=\'true\'" placeholder="Note will be auto-generated based on percentage">' + escapeHtml((function(){if(item.tonerNotes){return item.tonerNotes}var p=item.tonerPercent!=null?item.tonerPercent:100;if(p>=76)return"Toner/ink level is sufficient, monitor regularly.";if(p>=51)return"Toner/ink is at medium level, prepare replacement stock.";if(p>=26)return"Toner/ink is running low, order replacement soon.";if(p>=1)return"Toner/ink is critically low, immediate replacement needed.";return"Toner/ink is empty, replacement required.";})()) + '</textarea>' +
       '      </div>' +
       '    </div>' +
       '  </div>' +
