@@ -1707,7 +1707,9 @@ function renderMaintenance() {
              (item.description || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.serial || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.inspectedBy || '').toLowerCase().indexOf(searchQuery) !== -1 ||
-             (item.checkedBy || '').toLowerCase().indexOf(searchQuery) !== -1;
+             (item.checkedBy || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.tonerLevel || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (item.tonerNotes || '').toLowerCase().indexOf(searchQuery) !== -1;
     });
   }
   var el = document.getElementById('maintenanceList');
@@ -1814,6 +1816,7 @@ function renderMaintenance() {
           '  <div><span class="text-on-surface-variant block font-medium">Location</span><span class="text-primary font-semibold">' + escapeHtml(item.location || 'N/A') + '</span></div>' +
           '  <div><span class="text-on-surface-variant block font-medium">Inspected By</span><span class="text-primary font-semibold">' + escapeHtml(inspected) + '</span></div>' +
           '  <div><span class="text-on-surface-variant block font-medium">Checked By</span><span class="text-primary font-semibold">' + escapeHtml(checked) + '</span></div>' +
+          (item.tonerLevel ? '  <div><span class="text-on-surface-variant block font-medium">Toner/Ink Level</span><span class="text-primary font-semibold">' + escapeHtml(item.tonerLevel) + '</span></div>' : '') +
           '</div>' +
           '<div>' +
           '  <p class="text-xs font-semibold text-on-surface-variant mb-1.5">Maintenance Activities</p>' +
@@ -2090,9 +2093,17 @@ function printMaintenanceReport() {
     '</div>');
   w.document.write('<h3>Maintenance Frequency Breakdown</h3>');
   w.document.write('<table><thead><tr><th>Frequency</th><th>Count</th></tr></thead><tbody>' + freqHtml + '</tbody></table>');
+  w.document.write('<h3>Toner / Ink Level Summary</h3>');
+  w.document.write('<table><thead><tr><th>Level</th><th>Count</th></tr></thead><tbody>');
+  ['Full','Medium','Low','Empty','N/A'].forEach(function(lvl) {
+    var c = data.filter(function(m) { return (m.tonerLevel || 'Full') === lvl; }).length;
+    w.document.write('<tr><td>' + lvl + '</td><td><strong>' + c + '</strong></td></tr>');
+  });
+  w.document.write('</tbody></table>');
+
   w.document.write('<h3>Detailed Maintenance Records</h3>');
   w.document.write('<table><thead><tr>' +
-    '<th>#</th><th>Equipment</th><th>Brand / Model</th><th>Serial No.</th><th>Frequency</th><th>Date</th><th>Inspected By</th><th>Status</th><th>Parts</th><th>Clean</th><th>Oper.</th><th>Elec.</th>' +
+    '<th>#</th><th>Equipment</th><th>Brand / Model</th><th>Serial No.</th><th>Frequency</th><th>Date</th><th>Inspected By</th><th>Toner/Ink</th><th>Status</th><th>Parts</th><th>Clean</th><th>Oper.</th><th>Elec.</th>' +
     '</tr></thead><tbody>');
   data.forEach(function(item, i) {
     var checks = item.checks || {};
@@ -2106,6 +2117,8 @@ function printMaintenanceReport() {
     var cleanInt = checks.cleanInteriors ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
     var operCond = checks.operatingCondition ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
     var electWir = checks.electricalWires ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
+    var tonerLvl = item.tonerLevel || 'Full';
+    var tonerColor = tonerLvl === 'Full' ? '#059669' : tonerLvl === 'Medium' ? '#d97706' : tonerLvl === 'Low' ? '#dc2626' : tonerLvl === 'Empty' ? '#7f1d1d' : '#6b7280';
     w.document.write('<tr>' +
       '<td>' + (i + 1) + '</td>' +
       '<td><strong>' + escapeHtml(equipName) + '</strong></td>' +
@@ -2114,6 +2127,7 @@ function printMaintenanceReport() {
       '<td>' + escapeHtml(item.frequency || 'Quarterly') + '</td>' +
       '<td>' + escapeHtml(dateVal) + '</td>' +
       '<td>' + escapeHtml(item.inspectedBy || 'â€”') + '</td>' +
+      '<td style="font-weight:600;color:' + tonerColor + '">' + escapeHtml(tonerLvl) + '</td>' +
       '<td><span class="tag ' + statusTag + '">' + escapeHtml(item.status || 'scheduled') + '</span></td>' +
       '<td style="text-align:center">' + checkParts + '</td>' +
       '<td style="text-align:center">' + cleanInt + '</td>' +
@@ -2165,6 +2179,8 @@ function downloadMaintenanceExcel() {
     var cleanInt = checks.cleanInteriors ? '\u2713' : '\u2014';
     var operCond = checks.operatingCondition ? '\u2713' : '\u2014';
     var electWir = checks.electricalWires ? '\u2713' : '\u2014';
+    var tonerLevel = item.tonerLevel || '\u2014';
+    var tonerColor = tonerLevel === 'Full' ? '#059669' : tonerLevel === 'Medium' ? '#d97706' : tonerLevel === 'Low' ? '#dc2626' : tonerLevel === 'Empty' ? '#7f1d1d' : '#6b7280';
     return '<tr>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center;color:#6b7280">' + (i + 1) + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:11px;font-weight:600;color:#1e1b4d">' + escapeHtml(equipName) + '</td>' +
@@ -2175,6 +2191,8 @@ function downloadMaintenanceExcel() {
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.period || '\u2014') + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(dateVal) + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.inspectedBy || '\u2014') + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:' + tonerColor + ';text-align:center">' + escapeHtml(tonerLevel) + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;max-width:150px;word-wrap:break-word">' + escapeHtml(item.tonerNotes || '\u2014') + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:' + statColor + ';text-align:center">' + escapeHtml(stat) + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center">' + checkParts + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center">' + cleanInt + '</td>' +
@@ -2216,14 +2234,23 @@ function downloadMaintenanceExcel() {
     '<div class="summary-card"><div class="num">' + Object.keys(freqCounts).length + '</div><div class="lbl">Frequencies</div></div>' +
     '<div class="summary-card"><div class="num">' + data.filter(function(m) { return m.checks && (m.checks.checkParts || m.checks.cleanInteriors || m.checks.operatingCondition || m.checks.electricalWires); }).length + '</div><div class="lbl">Inspections Done</div></div>' +
     '<div class="summary-card"><div class="num">' + data.filter(function(m) { return m.description && m.description.length > 0; }).length + '</div><div class="lbl">With Recommendations</div></div>' +
+    '<div class="summary-card" style="border-color:#fde68a;background:#fffbeb"><div class="num" style="color:#d97706">' + data.filter(function(m) { return m.tonerLevel === 'Low' || m.tonerLevel === 'Empty'; }).length + '</div><div class="lbl">Low/Empty Toner</div></div>' +
   '</div>' +
 
   '<div class="section-title">Maintenance Frequency Breakdown</div>' +
   '<table><thead><tr><th style="width:70%">Frequency</th><th style="width:30%">Count</th></tr></thead><tbody>' + freqRows + '</tbody></table>' +
 
+  '<div class="section-title">Toner / Ink Level Breakdown</div>' +
+  '<table><thead><tr><th style="width:70%">Level</th><th style="width:30%">Count</th></tr></thead><tbody>' +
+  ['Full','Medium','Low','Empty','N/A'].map(function(lvl) {
+    var c = data.filter(function(m) { return (m.tonerLevel || 'Full') === lvl; }).length;
+    return '<tr' + (lvl === 'Low' || lvl === 'Empty' ? ' style="background:#fef2f2"' : '') + '><td style="padding:4px 8px;border:1px solid #d1d5db;font-size:11px;font-weight:' + (lvl === 'Low' || lvl === 'Empty' ? '700' : '400') + '">' + lvl + '</td><td style="padding:4px 8px;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">' + c + '</td></tr>';
+  }).join('') +
+  '</tbody></table>' +
+
   '<div class="section-title">Detailed Maintenance Records</div>' +
   '<table><thead><tr>' +
-    '<th style="width:30px">#</th><th>Equipment</th><th>Brand / Model</th><th>Serial No.</th><th>Location</th><th>Frequency</th><th>Period</th><th>Date</th><th>Inspected By</th><th>Status</th><th>Parts</th><th>Clean</th><th>Oper.</th><th>Elec.</th><th>Recommendations</th>' +
+    '<th style="width:30px">#</th><th>Equipment</th><th>Brand / Model</th><th>Serial No.</th><th>Location</th><th>Frequency</th><th>Period</th><th>Date</th><th>Inspected By</th><th>Toner/Ink Level</th><th>Toner/Ink Notes</th><th>Status</th><th>Parts</th><th>Clean</th><th>Oper.</th><th>Elec.</th><th>Recommendations</th>' +
   '</tr></thead><tbody>' + rows + '</tbody></table>' +
 
   '<div class="footer">KALYX IT Maintenance Report &middot; Generated on ' + dateStr + ' &middot; Confidential</div>' +
@@ -2329,6 +2356,7 @@ function printMaintenanceEntry(id) {
     '  <div class="info-item"><div class="lbl">Inspected By</div><div class="val">' + escapeHtml(item.inspectedBy || 'N/A') + '</div></div>' +
     '  <div class="info-item"><div class="lbl">Checked By</div><div class="val">' + escapeHtml(item.checkedBy || 'N/A') + '</div></div>' +
     '  <div class="info-item"><div class="lbl">Document Reference</div><div class="val">' + escapeHtml(item.reference || 'ITDF-01') + '</div></div>' +
+    (item.tonerLevel ? '  <div class="info-item"><div class="lbl">Toner/Ink Level</div><div class="val">' + escapeHtml(item.tonerLevel) + (item.tonerNotes ? ' &mdash; ' + escapeHtml(item.tonerNotes) : '') + '</div></div>' : '') +
     '</div></div>');
 
   w.document.write('<div class="section">' +
@@ -2969,6 +2997,7 @@ function viewMaintenance(id) {
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Period</span><span class="font-semibold text-primary">' + escapeHtml(item.period || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Inspected By</span><span class="font-semibold text-primary">' + escapeHtml(item.inspectedBy || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Checked By</span><span class="font-semibold text-primary">' + escapeHtml(item.checkedBy || 'N/A') + '</span></div>' +
+      (item.tonerLevel ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Toner/Ink Level</span><span class="font-semibold text-primary">' + escapeHtml(item.tonerLevel) + (item.tonerNotes ? ' &mdash; ' + escapeHtml(item.tonerNotes) : '') + '</span></div>' : '') +
     '</div>' +
     '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1.5">Maintenance Activities</span><div class="flex flex-wrap gap-1.5">' + checklistHtml + '</div></div>' +
     (item.description ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1">Recommendations</span><p class="font-body-md text-primary whitespace-pre-wrap">' + escapeHtml(item.description) + '</p></div>' : '') +
@@ -3953,6 +3982,27 @@ function getFormHtml(type, item) {
       '    </div>' +
       '  </div>' +
 
+      '  <!-- Toner / Ink Level -->' +
+      '  <div class="p-4 bg-surface-container-low rounded-2xl border border-outline-variant space-y-3">' +
+      '    <p class="font-semibold text-on-surface text-sm">Toner / Ink Level</p>' +
+      '    <div class="grid grid-cols-2 gap-4">' +
+      '      <div>' +
+      '        <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Toner/Ink Level *</label>' +
+      '        <select id="fTonerLevel" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
+      '          <option value="Full"' + (item.tonerLevel === 'Full' || !item.tonerLevel ? ' selected' : '') + '>Full</option>' +
+      '          <option value="Medium"' + (item.tonerLevel === 'Medium' ? ' selected' : '') + '>Medium</option>' +
+      '          <option value="Low"' + (item.tonerLevel === 'Low' ? ' selected' : '') + '>Low</option>' +
+      '          <option value="Empty"' + (item.tonerLevel === 'Empty' ? ' selected' : '') + '>Empty</option>' +
+      '          <option value="N/A"' + (item.tonerLevel === 'N/A' ? ' selected' : '') + '>N/A (Not Applicable)</option>' +
+      '        </select>' +
+      '      </div>' +
+      '      <div>' +
+      '        <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Toner/Ink Notes</label>' +
+      '        <input id="fTonerNotes" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Replace soon, reorder needed" value="' + escapeHtml(item.tonerNotes || '') + '"/>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+
       '  <!-- Maintenance Activities & Status -->' +
       '  <div class="p-4 bg-surface-container-low rounded-2xl border border-outline-variant space-y-3">' +
       '    <p class="font-semibold text-on-surface text-sm">Maintenance Activities &amp; Status</p>' +
@@ -4409,6 +4459,8 @@ function saveItem() {
     item.checkedBy = document.getElementById('fCheckedBy').value.trim();
     item.status = document.getElementById('fStatus').value;
     item.asset = equipment;
+    item.tonerLevel = document.getElementById('fTonerLevel').value;
+    item.tonerNotes = document.getElementById('fTonerNotes').value.trim();
     item.checks = {
       checkParts: document.getElementById('ckCheckParts').checked,
       cleanInteriors: document.getElementById('ckCleanInteriors').checked,
