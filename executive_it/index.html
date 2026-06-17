@@ -1709,7 +1709,8 @@ function renderMaintenance() {
              (item.inspectedBy || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.checkedBy || '').toLowerCase().indexOf(searchQuery) !== -1 ||
              (item.tonerLevel || '').toLowerCase().indexOf(searchQuery) !== -1 ||
-             (item.tonerNotes || '').toLowerCase().indexOf(searchQuery) !== -1;
+             (item.tonerNotes || '').toLowerCase().indexOf(searchQuery) !== -1 ||
+             (String(item.tonerPercent != null ? item.tonerPercent : '')).indexOf(searchQuery) !== -1;
     });
   }
   var el = document.getElementById('maintenanceList');
@@ -1816,7 +1817,7 @@ function renderMaintenance() {
           '  <div><span class="text-on-surface-variant block font-medium">Location</span><span class="text-primary font-semibold">' + escapeHtml(item.location || 'N/A') + '</span></div>' +
           '  <div><span class="text-on-surface-variant block font-medium">Inspected By</span><span class="text-primary font-semibold">' + escapeHtml(inspected) + '</span></div>' +
           '  <div><span class="text-on-surface-variant block font-medium">Checked By</span><span class="text-primary font-semibold">' + escapeHtml(checked) + '</span></div>' +
-          (item.tonerLevel ? '  <div><span class="text-on-surface-variant block font-medium">Toner/Ink Level</span><span class="text-primary font-semibold">' + escapeHtml(item.tonerLevel) + '</span></div>' : '') +
+          (item.tonerLevel ? '  <div><span class="text-on-surface-variant block font-medium">Toner/Ink Level</span><span class="text-primary font-semibold">' + escapeHtml(item.tonerLevel) + (item.tonerPercent != null ? ' (' + item.tonerPercent + '%)' : '') + '</span></div>' : '') +
           '</div>' +
           '<div>' +
           '  <p class="text-xs font-semibold text-on-surface-variant mb-1.5">Maintenance Activities</p>' +
@@ -2118,6 +2119,7 @@ function printMaintenanceReport() {
     var operCond = checks.operatingCondition ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
     var electWir = checks.electricalWires ? '<span class="check-ok">&#10003;</span>' : '<span class="check-miss">&#8212;</span>';
     var tonerLvl = item.tonerLevel || 'Full';
+    var tonerPct = item.tonerPercent != null ? ' (' + item.tonerPercent + '%)' : '';
     var tonerColor = tonerLvl === 'Full' ? '#059669' : tonerLvl === 'Medium' ? '#d97706' : tonerLvl === 'Low' ? '#dc2626' : tonerLvl === 'Empty' ? '#7f1d1d' : '#6b7280';
     w.document.write('<tr>' +
       '<td>' + (i + 1) + '</td>' +
@@ -2127,7 +2129,7 @@ function printMaintenanceReport() {
       '<td>' + escapeHtml(item.frequency || 'Quarterly') + '</td>' +
       '<td>' + escapeHtml(dateVal) + '</td>' +
       '<td>' + escapeHtml(item.inspectedBy || 'â€”') + '</td>' +
-      '<td style="font-weight:600;color:' + tonerColor + '">' + escapeHtml(tonerLvl) + '</td>' +
+      '<td style="font-weight:600;color:' + tonerColor + '">' + escapeHtml(tonerLvl + tonerPct) + '</td>' +
       '<td><span class="tag ' + statusTag + '">' + escapeHtml(item.status || 'scheduled') + '</span></td>' +
       '<td style="text-align:center">' + checkParts + '</td>' +
       '<td style="text-align:center">' + cleanInt + '</td>' +
@@ -2180,6 +2182,7 @@ function downloadMaintenanceExcel() {
     var operCond = checks.operatingCondition ? '\u2713' : '\u2014';
     var electWir = checks.electricalWires ? '\u2713' : '\u2014';
     var tonerLevel = item.tonerLevel || '\u2014';
+    var tonerPct = item.tonerPercent != null ? ' (' + item.tonerPercent + '%)' : '';
     var tonerColor = tonerLevel === 'Full' ? '#059669' : tonerLevel === 'Medium' ? '#d97706' : tonerLevel === 'Low' ? '#dc2626' : tonerLevel === 'Empty' ? '#7f1d1d' : '#6b7280';
     return '<tr>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center;color:#6b7280">' + (i + 1) + '</td>' +
@@ -2191,7 +2194,7 @@ function downloadMaintenanceExcel() {
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.period || '\u2014') + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(dateVal) + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px">' + escapeHtml(item.inspectedBy || '\u2014') + '</td>' +
-      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:' + tonerColor + ';text-align:center">' + escapeHtml(tonerLevel) + '</td>' +
+      '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:' + tonerColor + ';text-align:center">' + escapeHtml(tonerLevel + tonerPct) + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;max-width:150px;word-wrap:break-word">' + escapeHtml(item.tonerNotes || '\u2014') + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;font-weight:600;color:' + statColor + ';text-align:center">' + escapeHtml(stat) + '</td>' +
       '<td style="padding:5px 8px;border:1px solid #d1d5db;font-size:10px;text-align:center">' + checkParts + '</td>' +
@@ -2356,7 +2359,7 @@ function printMaintenanceEntry(id) {
     '  <div class="info-item"><div class="lbl">Inspected By</div><div class="val">' + escapeHtml(item.inspectedBy || 'N/A') + '</div></div>' +
     '  <div class="info-item"><div class="lbl">Checked By</div><div class="val">' + escapeHtml(item.checkedBy || 'N/A') + '</div></div>' +
     '  <div class="info-item"><div class="lbl">Document Reference</div><div class="val">' + escapeHtml(item.reference || 'ITDF-01') + '</div></div>' +
-    (item.tonerLevel ? '  <div class="info-item"><div class="lbl">Toner/Ink Level</div><div class="val">' + escapeHtml(item.tonerLevel) + (item.tonerNotes ? ' &mdash; ' + escapeHtml(item.tonerNotes) : '') + '</div></div>' : '') +
+    (item.tonerLevel ? '  <div class="info-item"><div class="lbl">Toner/Ink Level</div><div class="val">' + escapeHtml(item.tonerLevel) + (item.tonerPercent != null ? ' (' + item.tonerPercent + '%)' : '') + (item.tonerNotes ? ' &mdash; ' + escapeHtml(item.tonerNotes) : '') + '</div></div>' : '') +
     '</div></div>');
 
   w.document.write('<div class="section">' +
@@ -2997,7 +3000,7 @@ function viewMaintenance(id) {
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Period</span><span class="font-semibold text-primary">' + escapeHtml(item.period || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Inspected By</span><span class="font-semibold text-primary">' + escapeHtml(item.inspectedBy || 'N/A') + '</span></div>' +
       '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Checked By</span><span class="font-semibold text-primary">' + escapeHtml(item.checkedBy || 'N/A') + '</span></div>' +
-      (item.tonerLevel ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Toner/Ink Level</span><span class="font-semibold text-primary">' + escapeHtml(item.tonerLevel) + (item.tonerNotes ? ' &mdash; ' + escapeHtml(item.tonerNotes) : '') + '</span></div>' : '') +
+      (item.tonerLevel ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block">Toner/Ink Level</span><span class="font-semibold text-primary">' + escapeHtml(item.tonerLevel) + (item.tonerPercent != null ? ' (' + item.tonerPercent + '%)' : '') + (item.tonerNotes ? ' &mdash; ' + escapeHtml(item.tonerNotes) : '') + '</span></div>' : '') +
     '</div>' +
     '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1.5">Maintenance Activities</span><div class="flex flex-wrap gap-1.5">' + checklistHtml + '</div></div>' +
     (item.description ? '<div class="p-3 bg-surface-container-low rounded-xl"><span class="font-label-md text-on-surface-variant block mb-1">Recommendations</span><p class="font-body-md text-primary whitespace-pre-wrap">' + escapeHtml(item.description) + '</p></div>' : '') +
@@ -3985,7 +3988,7 @@ function getFormHtml(type, item) {
       '  <!-- Toner / Ink Level -->' +
       '  <div class="p-4 bg-surface-container-low rounded-2xl border border-outline-variant space-y-3">' +
       '    <p class="font-semibold text-on-surface text-sm">Toner / Ink Level</p>' +
-      '    <div class="grid grid-cols-2 gap-4">' +
+      '    <div class="grid grid-cols-3 gap-4">' +
       '      <div>' +
       '        <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Toner/Ink Level *</label>' +
       '        <select id="fTonerLevel" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">' +
@@ -3995,6 +3998,13 @@ function getFormHtml(type, item) {
       '          <option value="Empty"' + (item.tonerLevel === 'Empty' ? ' selected' : '') + '>Empty</option>' +
       '          <option value="N/A"' + (item.tonerLevel === 'N/A' ? ' selected' : '') + '>N/A (Not Applicable)</option>' +
       '        </select>' +
+      '      </div>' +
+      '      <div>' +
+      '        <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Toner % *</label>' +
+      '        <div class="flex items-center gap-2">' +
+      '          <input id="fTonerPercent" type="range" min="0" max="100" class="w-full accent-primary" value="' + (item.tonerPercent != null ? item.tonerPercent : 100) + '" oninput="document.getElementById(\'tonerPercentVal\').textContent=this.value+\'%\'"/>' +
+      '          <span id="tonerPercentVal" class="font-semibold text-primary text-sm min-w-[40px] text-right">' + (item.tonerPercent != null ? item.tonerPercent : 100) + '%</span>' +
+      '        </div>' +
       '      </div>' +
       '      <div>' +
       '        <label class="font-label-md font-semibold text-on-surface-variant uppercase tracking-wider text-[10px] block mb-1">Toner/Ink Notes</label>' +
@@ -4460,6 +4470,7 @@ function saveItem() {
     item.status = document.getElementById('fStatus').value;
     item.asset = equipment;
     item.tonerLevel = document.getElementById('fTonerLevel').value;
+    item.tonerPercent = parseInt(document.getElementById('fTonerPercent').value) || 100;
     item.tonerNotes = document.getElementById('fTonerNotes').value.trim();
     item.checks = {
       checkParts: document.getElementById('ckCheckParts').checked,

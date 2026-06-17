@@ -672,7 +672,8 @@ function renderMaintenance() {
   var list = document.getElementById('maintenanceList');
   if (!data.length) { list.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined">handyman</span><p>No maintenance records yet</p></div>'; return; }
   list.innerHTML = data.slice().reverse().map(function(item) {
-    var tonerBadge = item.tonerLevel && item.tonerLevel !== 'N/A' ? '<span class="text-xs px-1.5 py-0.5 rounded-full ' + (item.tonerLevel === 'Full' ? 'bg-green-100 text-green-700' : item.tonerLevel === 'Medium' ? 'bg-yellow-100 text-yellow-700' : item.tonerLevel === 'Low' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700') + '">' + mobileApp.escapeHtml(item.tonerLevel) + '</span>' : '';
+    var tonerPct = item.tonerPercent != null ? ' (' + item.tonerPercent + '%)' : '';
+    var tonerBadge = item.tonerLevel && item.tonerLevel !== 'N/A' ? '<span class="text-xs px-1.5 py-0.5 rounded-full ' + (item.tonerLevel === 'Full' ? 'bg-green-100 text-green-700' : item.tonerLevel === 'Medium' ? 'bg-yellow-100 text-yellow-700' : item.tonerLevel === 'Low' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700') + '">' + mobileApp.escapeHtml(item.tonerLevel + tonerPct) + '</span>' : '';
     return '<div class="mobile-card fade-in" onclick="showMaintDetail(' + item.id + ')">' +
       '<div class="flex items-center gap-3">' +
         '<span class="material-symbols-outlined text-amber-500">handyman</span>' +
@@ -696,7 +697,8 @@ function showMaintenanceForm(data) {
     '<div class="form-group"><label class="form-label">Model</label><input class="form-input" id="f_model" value="' + mobileApp.escapeHtml(d.model||'') + '" placeholder="Model"></div>' +
     '<div class="form-group"><label class="form-label">Serial</label><input class="form-input" id="f_serial" value="' + mobileApp.escapeHtml(d.serial||'') + '" placeholder="Serial"></div>' +
     '<div class="form-group"><label class="form-label">Location</label><input class="form-input" id="f_location" value="' + mobileApp.escapeHtml(d.location||'') + '" placeholder="Location"></div>' +
-    '<div class="form-group"><label class="form-label">Toner/Ink Level</label><select class="form-input" id="f_tonerLevel"><option value="Full"' + ((d.tonerLevel||'Full')==='Full'?' selected':'') + '>Full</option><option value="Medium"' + (d.tonerLevel==='Medium'?' selected':'') + '>Medium</option><option value="Low"' + (d.tonerLevel==='Low'?' selected':'') + '>Low</option><option value="Empty"' + (d.tonerLevel==='Empty'?' selected':'') + '>Empty</option><option value="N/A"' + (d.tonerLevel==='N/A'?' selected':'') + '>N/A</option></select></div>' +
+    '<div class="form-group"><label class="form-label">Toner/Ink Level</label><select class="form-input" id="f_tonerLevel" onchange="updateTonerPercentRange()"><option value="Full"' + ((d.tonerLevel||'Full')==='Full'?' selected':'') + '>Full</option><option value="Medium"' + (d.tonerLevel==='Medium'?' selected':'') + '>Medium</option><option value="Low"' + (d.tonerLevel==='Low'?' selected':'') + '>Low</option><option value="Empty"' + (d.tonerLevel==='Empty'?' selected':'') + '>Empty</option><option value="N/A"' + (d.tonerLevel==='N/A'?' selected':'') + '>N/A</option></select></div>' +
+    '<div class="form-group"><label class="form-label">Toner %</label><div class="flex items-center gap-2"><input type="range" id="f_tonerPercent" min="0" max="100" class="flex-1" value="' + (d.tonerPercent != null ? d.tonerPercent : 100) + '" oninput="document.getElementById(\'tonerPctVal\').textContent=this.value+\'%\'"/><span id="tonerPctVal" class="font-bold text-sm min-w-[40px] text-right">' + (d.tonerPercent != null ? d.tonerPercent : 100) + '%</span></div></div>' +
     '<div class="form-group"><label class="form-label">Toner/Ink Notes</label><input class="form-input" id="f_tonerNotes" value="' + mobileApp.escapeHtml(d.tonerNotes||'') + '" placeholder="Toner/ink notes"></div>' +
     '<div class="form-group"><label class="form-label">Status</label><select class="form-input" id="f_status"><option value="Scheduled"' + ((d.status||'Scheduled')==='Scheduled'?' selected':'') + '>Scheduled</option><option value="In-Progress"' + (d.status==='In-Progress'?' selected':'') + '>In-Progress</option><option value="Completed"' + (d.status==='Completed'?' selected':'') + '>Completed</option></select></div>';
   mobileApp.openModal('modal-form');
@@ -715,7 +717,7 @@ function showMaintDetail(id) {
     '<div class="flex justify-between"><span class="text-slate-400">Model</span><span class="text-slate-700">' + mobileApp.escapeHtml(item.model||'-') + '</span></div>' +
     '<div class="flex justify-between"><span class="text-slate-400">Serial</span><span class="text-slate-700">' + mobileApp.escapeHtml(item.serial||'-') + '</span></div>' +
     '<div class="flex justify-between"><span class="text-slate-400">Location</span><span class="text-slate-700">' + mobileApp.escapeHtml(item.location||'-') + '</span></div>' +
-    (item.tonerLevel ? '<div class="flex justify-between"><span class="text-slate-400">Toner/Ink Level</span><span class="text-slate-700">' + mobileApp.escapeHtml(item.tonerLevel) + (item.tonerNotes ? ' &mdash; ' + mobileApp.escapeHtml(item.tonerNotes) : '') + '</span></div>' : '') +
+    (item.tonerLevel ? '<div class="flex justify-between"><span class="text-slate-400">Toner/Ink Level</span><span class="text-slate-700">' + mobileApp.escapeHtml(item.tonerLevel) + (item.tonerPercent != null ? ' (' + item.tonerPercent + '%)' : '') + (item.tonerNotes ? ' &mdash; ' + mobileApp.escapeHtml(item.tonerNotes) : '') + '</span></div>' : '') +
     '<div class="flex justify-between"><span class="text-slate-400">Status</span><span class="text-slate-700">' + mobileApp.escapeHtml(item.status||'-') + '</span></div>' +
     '</div><div class="flex gap-3 mt-5"><button class="btn-secondary flex-1" onclick="deleteMaintItem(' + item.id + ')">Delete</button><button class="btn-primary flex-1" onclick="editMaintItem(' + item.id + ')">Edit</button></div>';
   document.getElementById('detailBody').innerHTML = html;
@@ -1289,6 +1291,7 @@ function saveFormItem() {
     formData.serial = document.getElementById('f_serial').value;
     formData.location = document.getElementById('f_location').value;
     formData.tonerLevel = document.getElementById('f_tonerLevel').value;
+    formData.tonerPercent = parseInt(document.getElementById('f_tonerPercent').value) || 100;
     formData.tonerNotes = document.getElementById('f_tonerNotes').value;
     formData.status = document.getElementById('f_status').value;
     formData.createdAt = _formMode === 'add' ? new Date().toISOString() : (function(){var d=getFB('it_maintenance')||[];for(var i=0;i<d.length;i++){if(d[i].id==_formEditId)return d[i].createdAt;}return new Date().toISOString();})();
@@ -1468,6 +1471,16 @@ mobileApp.onDataUpdate = function(data) {
   if (document.getElementById('view-knowledge').classList.contains('active')) renderKnowledge();
   if (document.getElementById('view-auditlog').classList.contains('active')) renderAuditLog();
 };
+
+function updateTonerPercentRange() {
+  var lvl = document.getElementById('f_tonerLevel').value;
+  var pct = document.getElementById('f_tonerPercent');
+  var val = document.getElementById('tonerPctVal');
+  if (lvl === 'Full') { pct.value = 100; val.textContent = '100%'; }
+  else if (lvl === 'Medium') { pct.value = 50; val.textContent = '50%'; }
+  else if (lvl === 'Low') { pct.value = 25; val.textContent = '25%'; }
+  else if (lvl === 'Empty') { pct.value = 0; val.textContent = '0%'; }
+}
 
 mobileApp.init();
 </script>
