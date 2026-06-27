@@ -1,0 +1,8 @@
+{
+  "name": "kalyx-scheduler",
+  "version": "1.0.0",
+  "description": "KALYX Executive Management Platform",
+  "scripts": {
+    "dev": "npx serve ."
+  }
+}

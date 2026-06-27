@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html class="h-full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Executive Path - Mobile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config={theme:{extend:{colors:{brand:'#ea580c','brand-dark':'#c2410c'}}}}
+</script>
+<link rel="stylesheet" href="styles/mobile.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ea580c">
+<style>
+:root {
+  --brand: #ea580c;
+  --brand-light: #fff7ed;
+  --brand-dark: #c2410c;
+}
+body.dark-mode {
+  --brand-light: #431407;
+}
+.brand-gradient {
+  background: linear-gradient(135deg, #ea580c, #c2410c);
+}
+.brand-bg { background: var(--brand-light); }
+.brand-text { color: var(--brand); }
+.border-brand { border-color: var(--brand); }
+.dark-mode .brand-bg { background: #1c1917; }
+.dark-mode .brand-text { color: #fb923c; }
+
+.status-scheduled { background: #dbeafe; color: #1d4ed8; }
+.status-completed { background: #dcfce7; color: #16a34a; }
+.status-cancelled { background: #fee2e2; color: #dc2626; }
+.dark-mode .status-scheduled { background: #1e3a5f; color: #93c5fd; }
+.dark-mode .status-completed { background: #14532d; color: #86efac; }
+.dark-mode .status-cancelled { background: #450a0a; color: #fca5a5; }
+
+.trip-card {
+  background: white;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  padding: 14px;
+  transition: transform 0.15s;
+}
+.trip-card:active { transform: scale(0.98); }
+.dark-mode .trip-card { background: #1e293b; border-color: #334155; }
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+.detail-row:last-child { border-bottom: none; }
+.dark-mode .detail-row { border-color: #1e293b; }
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+
+.filter-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  color: #64748b;
+  background: white;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.filter-chip.active {
+  background: #ea580c;
+  color: white;
+  border-color: #ea580c;
+}
+.dark-mode .filter-chip { background: #1e293b; border-color: #334155; color: #94a3b8; }
+.dark-mode .filter-chip.active { background: #ea580c; color: white; border-color: #ea580c; }
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body class="h-full bg-slate-50 flex flex-col">
+
+<header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-slate-200 px-4 py-3 flex items-center justify-between mobile-header">
+  <div class="flex items-center gap-3 min-w-0">
+    <div class="w-9 h-9 brand-gradient rounded-lg flex items-center justify-center flex-shrink-0">
+      <span class="material-symbols-outlined text-white text-xl">map</span>
+    </div>
+    <div class="min-w-0">
+      <h1 class="text-base font-extrabold text-slate-900 truncate">Executive Path</h1>
+      <p class="text-[10px] text-slate-500 leading-tight truncate">Travel Management</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-1">
+    <button id="install-btn" onclick="installApp()" style="display:none" class="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100" title="Install App">
+      <span class="material-symbols-outlined">download</span>
+    </button>
+    <button onclick="mobileApp.toggleTheme()" class="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100">
+      <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+    </button>
+    <div id="user-avatar-wrap" class="w-8 h-8 rounded-full brand-gradient flex items-center justify-center text-white text-sm font-bold flex-shrink-0 cursor-pointer" onclick="mobileApp.switchView('settings')">
+      <span id="user-avatar"></span>
+    </div>
+  </div>
+</header>
+
+<main class="flex-1 overflow-y-auto no-scrollbar pb-safe">
+  <div id="view-dashboard" class="view-section">
+    <div class="px-4 pt-5 pb-4">
+      <div class="mb-5">
+        <h2 class="text-xl font-bold text-slate-900">Welcome back, <span id="greeting-name">User</span></h2>
+        <p class="text-xs text-slate-500 mt-0.5" id="greeting-sub">Here's your travel overview</p>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2 mb-5" id="stats-row">
+        <div class="stat-card text-center">
+          <div class="icon brand-bg mx-auto"><span class="material-symbols-outlined brand-text">flight_takeoff</span></div>
+          <div class="value text-lg" id="stat-total">0</div>
+          <div class="label">Total</div>
+        </div>
+        <div class="stat-card text-center">
+          <div class="icon bg-blue-50 mx-auto"><span class="material-symbols-outlined text-blue-600">schedule</span></div>
+          <div class="value text-lg" id="stat-active">0</div>
+          <div class="label">Active</div>
+        </div>
+        <div class="stat-card text-center">
+          <div class="icon bg-green-50 mx-auto"><span class="material-symbols-outlined text-green-600">check_circle</span></div>
+          <div class="value text-lg" id="stat-completed">0</div>
+          <div class="label">Done</div>
+        </div>
+        <div class="stat-card text-center">
+          <div class="icon bg-red-50 mx-auto"><span class="material-symbols-outlined text-red-500">cancel</span></div>
+          <div class="value text-lg" id="stat-cancelled">0</div>
+          <div class="label">Cancel</div>
+        </div>
+      </div>
+
+      <div class="section-title">Upcoming Trips</div>
+      <div class="space-y-2" id="upcoming-list"></div>
+
+      <div class="section-title mt-5">Recent Activity</div>
+      <div class="mobile-card" id="recent-list">
+        <div class="empty-state">
+          <span class="material-symbols-outlined text-4xl text-slate-300">history</span>
+          <p class="text-xs text-slate-400 mt-2">No recent activity</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-trips" class="view-section" style="display:none">
+    <div class="px-4 pt-4 pb-4">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="search-bar flex-1">
+          <span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+          <input type="text" id="trip-search" placeholder="Search trips..." oninput="renderTrips()">
+        </div>
+      </div>
+
+      <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2 mb-4" id="trip-filters">
+        <span class="filter-chip active" data-filter="all" onclick="setTripFilter('all',this)">All</span>
+        <span class="filter-chip" data-filter="scheduled" onclick="setTripFilter('scheduled',this)">Scheduled</span>
+        <span class="filter-chip" data-filter="completed" onclick="setTripFilter('completed',this)">Completed</span>
+        <span class="filter-chip" data-filter="cancelled" onclick="setTripFilter('cancelled',this)">Cancelled</span>
+      </div>
+
+      <div id="trips-list" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <div id="view-reports" class="view-section" style="display:none">
+    <div class="px-4 pt-5 pb-4">
+      <h2 class="text-lg font-bold text-slate-900 mb-1">Trip Reports</h2>
+      <p class="text-xs text-slate-500 mb-4">Analytics and summary</p>
+
+      <div class="grid grid-cols-2 gap-3 mb-5" id="reports-stats"></div>
+
+      <div class="section-title">Trips by Status</div>
+      <div class="space-y-2 mb-5" id="reports-status"></div>
+
+      <div class="section-title">Trips Overview</div>
+      <div class="mobile-card">
+        <div id="reports-overview"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-itinerary" class="view-section" style="display:none">
+    <div class="px-4 pt-5 pb-4">
+      <h2 class="text-lg font-bold text-slate-900 mb-1">Trip Itinerary</h2>
+      <p class="text-xs text-slate-500 mb-4">Timeline view</p>
+      <div id="itinerary-list" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <div id="view-expenses" class="view-section" style="display:none">
+    <div class="px-4 pt-5 pb-4">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Expenses</h2>
+          <p class="text-xs text-slate-500">Track trip costs</p>
+        </div>
+        <button onclick="openExpenseModal()" class="flex items-center gap-1 text-sm font-semibold brand-text">
+          <span class="material-symbols-outlined text-lg">add</span> Add
+        </button>
+      </div>
+      <div id="expenses-list" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <div id="view-settings" class="view-section" style="display:none">
+    <div class="px-4 pt-5 pb-4">
+      <h2 class="text-lg font-bold text-slate-900 mb-4">Settings</h2>
+
+      <div class="mobile-card flex items-center gap-4 mb-5">
+        <div class="avatar-circle brand-gradient text-white" id="settings-avatar"></div>
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-slate-900 text-sm" id="settings-name"></p>
+          <p class="text-xs text-slate-500" id="settings-email"></p>
+          <p class="text-xs text-slate-400" id="settings-role"></p>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <div class="mobile-card cursor-pointer flex items-center gap-3" onclick="showChangePassword()">
+          <span class="material-symbols-outlined text-slate-400">lock</span>
+          <span class="flex-1 text-sm font-medium text-slate-900">Change Password</span>
+          <span class="material-symbols-outlined text-slate-300 text-lg">chevron_right</span>
+        </div>
+        <div class="mobile-card cursor-pointer flex items-center gap-3" onclick="mobileApp.doLogout()">
+          <span class="material-symbols-outlined text-red-400">logout</span>
+          <span class="flex-1 text-sm font-medium text-red-500">Sign Out</span>
+          <span class="material-symbols-outlined text-slate-300 text-lg">chevron_right</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-guide" class="view-section" style="display:none">
+    <div class="px-4 pt-5 pb-4">
+      <h2 class="text-lg font-bold text-slate-900 mb-1">Guide</h2>
+      <p class="text-xs text-slate-500 mb-4">How to use Executive Path</p>
+      <div class="space-y-3" id="guide-list"></div>
+    </div>
+  </div>
+</main>
+
+<nav class="bottom-nav flex items-center justify-around px-2">
+  <div class="bottom-nav-item active" data-view="dashboard" onclick="mobileApp.switchView('dashboard')">
+    <span class="material-symbols-outlined nav-icon">dashboard</span>
+    <span class="nav-label">Dash</span>
+  </div>
+  <div class="bottom-nav-item" data-view="trips" onclick="mobileApp.switchView('trips')">
+    <span class="material-symbols-outlined nav-icon">flight_takeoff</span>
+    <span class="nav-label">Trips</span>
+  </div>
+  <div class="bottom-nav-item fab-wrap" data-view="fab">
+    <div class="fab" onclick="handleFab()">
+      <span class="material-symbols-outlined text-2xl">add</span>
+    </div>
+  </div>
+  <div class="bottom-nav-item" data-view="reports" onclick="mobileApp.switchView('reports')">
+    <span class="material-symbols-outlined nav-icon">bar_chart</span>
+    <span class="nav-label">Reports</span>
+  </div>
+  <div class="bottom-nav-item" data-view="more" onclick="mobileApp.toggleMoreMenu()">
+    <span class="material-symbols-outlined nav-icon">more_horiz</span>
+    <span class="nav-label">More</span>
+  </div>
+</nav>
+
+<div class="menu-overlay" id="more-menu" onclick="mobileApp.closeMoreMenu()">
+  <div class="menu-panel" onclick="event.stopPropagation()">
+    <div class="section-title mb-3">More Options</div>
+    <div class="grid grid-cols-4 gap-2">
+      <div class="menu-grid-item" onclick="mobileApp.closeMoreMenu();openPlanTripModal()">
+        <div class="icon-wrap brand-bg"><span class="material-symbols-outlined brand-text">flight</span></div>
+        <span>Plan Trip</span>
+      </div>
+      <div class="menu-grid-item" onclick="mobileApp.closeMoreMenu();mobileApp.switchView('itinerary')">
+        <div class="icon-wrap bg-blue-50"><span class="material-symbols-outlined text-blue-600">calendar_month</span></div>
+        <span>Itinerary</span>
+      </div>
+      <div class="menu-grid-item" onclick="mobileApp.closeMoreMenu();mobileApp.switchView('expenses')">
+        <div class="icon-wrap bg-green-50"><span class="material-symbols-outlined text-green-600">receipt</span></div>
+        <span>Expenses</span>
+      </div>
+      <div class="menu-grid-item" onclick="mobileApp.closeMoreMenu();mobileApp.switchView('settings')">
+        <div class="icon-wrap bg-purple-50"><span class="material-symbols-outlined text-purple-600">settings</span></div>
+        <span>Settings</span>
+      </div>
+      <div class="menu-grid-item" onclick="mobileApp.closeMoreMenu();mobileApp.switchView('guide')">
+        <div class="icon-wrap bg-amber-50"><span class="material-symbols-outlined text-amber-600">help</span></div>
+        <span>Guide</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-plan-trip" onclick="mobileApp.closeModal('modal-plan-trip')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <h3 class="text-lg font-bold text-slate-900 mb-4">Plan New Trip</h3>
+    <div class="form-group">
+      <label class="form-label">Trip Name</label>
+      <input class="form-input" id="pt-name" placeholder="e.g. Client Meeting">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Destination</label>
+      <input class="form-input" id="pt-destination" placeholder="e.g. Manila Office">
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input class="form-input" id="pt-date" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time</label>
+        <input class="form-input" id="pt-time" type="time">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Driver</label>
+      <input class="form-input" id="pt-driver" placeholder="Driver name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Van</label>
+      <input class="form-input" id="pt-van" placeholder="Vehicle info">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Requestor</label>
+      <input class="form-input" id="pt-requestor" placeholder="Your name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Purpose</label>
+      <input class="form-input" id="pt-purpose" placeholder="Purpose of trip">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-input" id="pt-notes" rows="2" placeholder="Additional notes"></textarea>
+    </div>
+    <button class="btn-primary mt-2" onclick="saveNewTrip()">Create Trip</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-trip-detail" onclick="mobileApp.closeModal('modal-trip-detail')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="flex items-start justify-between mb-4">
+      <h3 class="text-lg font-bold text-slate-900 flex-1" id="td-name"></h3>
+      <span class="text-xs font-semibold px-2.5 py-1 rounded-full" id="td-status"></span>
+    </div>
+    <div id="td-details"></div>
+    <div class="flex gap-2 mt-4" id="td-actions"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-expense" onclick="mobileApp.closeModal('modal-expense')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <h3 class="text-lg font-bold text-slate-900 mb-4" id="expense-modal-title">Add Expense</h3>
+    <input type="hidden" id="expense-edit-id">
+    <div class="form-group">
+      <label class="form-label">Trip</label>
+      <select class="form-input" id="expense-trip"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="expense-desc" placeholder="e.g. Fuel">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount</label>
+      <input class="form-input" id="expense-amount" type="number" step="0.01" placeholder="0.00">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-input" id="expense-cat">
+        <option value="Fuel">Fuel</option>
+        <option value="Toll">Toll</option>
+        <option value="Parking">Parking</option>
+        <option value="Food">Food</option>
+        <option value="Accommodation">Accommodation</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input class="form-input" id="expense-date" type="date">
+    </div>
+    <button class="btn-primary mt-2" onclick="saveExpense()">Save Expense</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-password" onclick="mobileApp.closeModal('modal-password')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <h3 class="text-lg font-bold text-slate-900 mb-4">Change Password</h3>
+    <div class="form-group">
+      <label class="form-label">Current Password</label>
+      <input class="form-input" id="mp-cur" type="password" placeholder="Enter current password">
+    </div>
+    <div class="form-group">
+      <label class="form-label">New Password</label>
+      <input class="form-input" id="mp-new" type="password" placeholder="Enter new password">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirm Password</label>
+      <input class="form-input" id="mp-confirm" type="password" placeholder="Confirm new password">
+    </div>
+    <p class="text-xs text-red-500 mb-2 hidden" id="mp-error"></p>
+    <button class="btn-primary mt-1" onclick="doChangePassword()">Update Password</button>
+  </div>
+</div>
+
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
+<script src="js/mobile.js"></script>
+<script>
+var tripFilter = 'all';
+
+function handleFab() {
+  var v = mobileApp.currentView;
+  if (v === 'trips' || v === 'itinerary') openPlanTripModal();
+  else mobileApp.switchView('trips');
+}
+
+function getTrips() {
+  if (window.__fbLoaded) {
+    var cached = getFB('trips');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
+  var session = fbGetSession();
+  if (!session) return [];
+  var data = JSON.parse(localStorage.getItem('trips_' + session.username) || '[]');
+  if (data.length > 0) window.__fbCache['trips'] = data;
+  return data;
+}
+
+function saveTrips(t) {
+  saveFB('trips', t);
+  var session = fbGetSession();
+  if (session) localStorage.setItem('trips_' + session.username, JSON.stringify(t));
+}
+
+function getExpenses() {
+  var session = fbGetSession();
+  if (!session) return [];
+  try { return JSON.parse(localStorage.getItem('expenses_' + session.username) || '[]'); } catch(e) { return []; }
+}
+
+function saveExpenses(ex) {
+  var session = fbGetSession();
+  if (!session) return;
+  localStorage.setItem('expenses_' + session.username, JSON.stringify(ex));
+}
+
+function renderDashboard() {
+  var trips = getTrips();
+  var session = fbGetSession();
+  var name = session ? session.name || session.username || 'User' : 'User';
+  document.getElementById('greeting-name').textContent = name;
+
+  document.getElementById('stat-total').textContent = trips.length;
+  var active = trips.filter(function(t) { return t.status !== 'completed' && t.status !== 'cancelled'; });
+  var completed = trips.filter(function(t) { return t.status === 'completed'; });
+  var cancelled = trips.filter(function(t) { return t.status === 'cancelled'; });
+  document.getElementById('stat-active').textContent = active.length;
+  document.getElementById('stat-completed').textContent = completed.length;
+  document.getElementById('stat-cancelled').textContent = cancelled.length;
+
+  var upcoming = trips.filter(function(t) { return t.status !== 'cancelled'; });
+  upcoming.sort(function(a,b) { return (a.date||'') > (b.date||'') ? 1 : -1; });
+  var upcomingEl = document.getElementById('upcoming-list');
+  if (upcoming.length === 0) {
+    upcomingEl.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-4xl text-slate-300">calendar_month</span><p class="text-xs text-slate-400 mt-2">No upcoming trips</p></div>';
+  } else {
+    upcomingEl.innerHTML = upcoming.slice(0, 5).map(function(t) {
+      var sc = t.status === 'completed' ? 'status-completed' : t.status === 'cancelled' ? 'status-cancelled' : 'status-scheduled';
+      var sl = t.status === 'completed' ? 'Completed' : t.status === 'cancelled' ? 'Cancelled' : 'Scheduled';
+      return '<div class="trip-card cursor-pointer" onclick="showTripDetail(' + t.id + ')">' +
+        '<div class="flex items-start gap-3">' +
+          '<div class="w-9 h-9 brand-bg rounded-lg flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined brand-text text-lg">flight_takeoff</span></div>' +
+          '<div class="flex-1 min-w-0">' +
+            '<div class="flex items-center gap-2"><h4 class="font-semibold text-slate-900 text-sm truncate">' + mobileApp.escapeHtml(t.name) + '</h4><span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full ' + sc + '">' + sl + '</span></div>' +
+            '<div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-slate-500">' +
+              '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">person</span>' + mobileApp.escapeHtml(t.requestor||'') + '</span>' +
+              '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">location_on</span>' + mobileApp.escapeHtml(t.destination||'') + '</span>' +
+              '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">calendar_today</span>' + (t.date||'') + '</span>' +
+              (t.time ? '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">schedule</span>' + t.time + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<span class="material-symbols-outlined text-slate-300 text-lg">chevron_right</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  var recentEl = document.getElementById('recent-list');
+  if (trips.length === 0) {
+    recentEl.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-4xl text-slate-300">history</span><p class="text-xs text-slate-400 mt-2">No recent activity</p></div>';
+  } else {
+    recentEl.innerHTML = trips.slice(0, 8).map(function(t) {
+      var action = t.status === 'completed' ? 'completed' : t.status === 'cancelled' ? 'cancelled' : 'scheduled';
+      return '<div class="list-item"><div class="w-8 h-8 brand-bg rounded-lg flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined brand-text text-sm">flight_takeoff</span></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-slate-900 truncate">' + mobileApp.escapeHtml(t.name) + ' <span class="text-slate-400 font-normal">' + action + '</span></p><p class="text-xs text-slate-400">' + (t.date||'') + ' &middot; ' + mobileApp.escapeHtml(t.destination||'') + '</p></div></div>';
+    }).join('');
+  }
+}
+
+function renderTrips() {
+  var trips = getTrips();
+  var q = (document.getElementById('trip-search').value || '').toLowerCase();
+  var filtered = trips.filter(function(t) {
+    if (tripFilter !== 'all' && t.status !== tripFilter) return false;
+    if (q && (t.name||'').toLowerCase().indexOf(q) === -1 && (t.destination||'').toLowerCase().indexOf(q) === -1 && (t.requestor||'').toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+  filtered.sort(function(a,b) { return (b.date||'') > (a.date||'') ? 1 : -1; });
+  var el = document.getElementById('trips-list');
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-4xl text-slate-300">flight_takeoff</span><p class="text-xs text-slate-400 mt-2">No trips found</p></div>';
+    return;
+  }
+  el.innerHTML = filtered.map(function(t) {
+    var sc = t.status === 'completed' ? 'status-completed' : t.status === 'cancelled' ? 'status-cancelled' : 'status-scheduled';
+    var sl = t.status === 'completed' ? 'Completed' : t.status === 'cancelled' ? 'Cancelled' : 'Scheduled';
+    return '<div class="trip-card cursor-pointer" onclick="showTripDetail(' + t.id + ')">' +
+      '<div class="flex items-start gap-3">' +
+        '<div class="w-9 h-9 brand-bg rounded-lg flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined brand-text text-lg">flight_takeoff</span></div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<div class="flex items-center gap-2"><h4 class="font-semibold text-slate-900 text-sm truncate">' + mobileApp.escapeHtml(t.name) + '</h4><span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full ' + sc + '">' + sl + '</span></div>' +
+          '<div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-slate-500">' +
+            '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">person</span>' + mobileApp.escapeHtml(t.requestor||'') + '</span>' +
+            '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">location_on</span>' + mobileApp.escapeHtml(t.destination||'') + '</span>' +
+            '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">calendar_today</span>' + (t.date||'') + '</span>' +
+            (t.time ? '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">schedule</span>' + t.time + '</span>' : '') +
+            (t.van ? '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">directions_car</span>' + mobileApp.escapeHtml(t.van) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<span class="material-symbols-outlined text-slate-300 text-lg">chevron_right</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function setTripFilter(f, el) {
+  tripFilter = f;
+  document.querySelectorAll('#trip-filters .filter-chip').forEach(function(c) { c.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  renderTrips();
+}
+
+function showTripDetail(id) {
+  var trips = getTrips();
+  var t = trips.find(function(x) { return x.id === id; });
+  if (!t) return;
+  document.getElementById('td-name').textContent = t.name || 'Untitled Trip';
+  var sc = t.status === 'completed' ? 'status-completed' : t.status === 'cancelled' ? 'status-cancelled' : 'status-scheduled';
+  var sl = t.status === 'completed' ? 'Completed' : t.status === 'cancelled' ? 'Cancelled' : 'Scheduled';
+  document.getElementById('td-status').className = 'text-xs font-semibold px-2.5 py-1 rounded-full ' + sc;
+  document.getElementById('td-status').textContent = sl;
+
+  var details = [
+    { icon: 'person', label: 'Requestor', val: t.requestor },
+    { icon: 'location_on', label: 'Destination', val: t.destination },
+    { icon: 'calendar_today', label: 'Date', val: t.date },
+    { icon: 'schedule', label: 'Time', val: t.time },
+    { icon: 'directions_car', label: 'Van', val: t.van },
+    { icon: 'badge', label: 'Driver', val: t.driver },
+    { icon: 'flag', label: 'Purpose', val: t.purpose },
+    { icon: 'notes', label: 'Notes', val: t.notes },
+    { icon: 'schedule', label: 'Created', val: t.createdAt ? mobileApp.formatDate(t.createdAt) : '' }
+  ];
+  document.getElementById('td-details').innerHTML = details.map(function(d) {
+    if (!d.val) return '';
+    return '<div class="detail-row"><span class="material-symbols-outlined text-slate-400 text-base">' + d.icon + '</span><span class="text-slate-500 w-20 text-xs">' + d.label + '</span><span class="flex-1 text-slate-900 font-medium text-xs">' + mobileApp.escapeHtml(d.val) + '</span></div>';
+  }).join('');
+
+  var actions = '';
+  if (t.status !== 'completed' && t.status !== 'cancelled') {
+    actions += '<button class="btn-secondary flex-1" onclick="mobileApp.closeModal(\'modal-trip-detail\');completeTrip(' + t.id + ')"><span class="material-symbols-outlined text-base">check_circle</span> Complete</button>';
+    actions += '<button class="btn-danger flex-1" onclick="mobileApp.closeModal(\'modal-trip-detail\');cancelTrip(' + t.id + ')"><span class="material-symbols-outlined text-base">cancel</span> Cancel</button>';
+  }
+  document.getElementById('td-actions').innerHTML = actions;
+  mobileApp.openModal('modal-trip-detail');
+}
+
+function completeTrip(id) {
+  var trips = getTrips();
+  var t = trips.find(function(x) { return x.id === id; });
+  if (t) t.status = 'completed';
+  saveTrips(trips);
+  refreshAll();
+  mobileApp.showToast('Trip marked completed');
+}
+
+function cancelTrip(id) {
+  var trips = getTrips();
+  var t = trips.find(function(x) { return x.id === id; });
+  if (t) t.status = 'cancelled';
+  saveTrips(trips);
+  refreshAll();
+  mobileApp.showToast('Trip cancelled');
+}
+
+function openPlanTripModal(editId) {
+  var session = fbGetSession();
+  document.getElementById('pt-name').value = '';
+  document.getElementById('pt-destination').value = '';
+  document.getElementById('pt-date').value = mobileApp.today();
+  document.getElementById('pt-time').value = '';
+  document.getElementById('pt-driver').value = '';
+  document.getElementById('pt-van').value = '';
+  document.getElementById('pt-requestor').value = session ? session.name || session.username || '' : '';
+  document.getElementById('pt-purpose').value = '';
+  document.getElementById('pt-notes').value = '';
+  mobileApp.openModal('modal-plan-trip');
+}
+
+function saveNewTrip() {
+  var name = document.getElementById('pt-name').value.trim();
+  var dest = document.getElementById('pt-destination').value.trim();
+  var date = document.getElementById('pt-date').value;
+  var time = document.getElementById('pt-time').value;
+  var driver = document.getElementById('pt-driver').value.trim();
+  var van = document.getElementById('pt-van').value.trim();
+  var requestor = document.getElementById('pt-requestor').value.trim();
+  var purpose = document.getElementById('pt-purpose').value.trim();
+  var notes = document.getElementById('pt-notes').value.trim();
+  if (!name || !dest || !date) {
+    mobileApp.showToast('Please fill in name, destination, and date');
+    return;
+  }
+  var trips = getTrips();
+  var trip = {
+    id: mobileApp.genId(),
+    name: name,
+    requestor: requestor,
+    destination: dest,
+    van: van,
+    driver: driver,
+    date: date,
+    time: time,
+    purpose: purpose,
+    notes: notes,
+    status: 'scheduled',
+    createdAt: new Date().toISOString()
+  };
+  trips.push(trip);
+  saveTrips(trips);
+  mobileApp.closeModal('modal-plan-trip');
+  refreshAll();
+  mobileApp.showToast('Trip created successfully');
+}
+
+function renderReports() {
+  var trips = getTrips();
+  var total = trips.length;
+  var active = trips.filter(function(t) { return t.status !== 'completed' && t.status !== 'cancelled'; }).length;
+  var completed = trips.filter(function(t) { return t.status === 'completed'; }).length;
+  var cancelled = trips.filter(function(t) { return t.status === 'cancelled'; }).length;
+
+  document.getElementById('reports-stats').innerHTML =
+    '<div class="stat-card text-center"><div class="icon brand-bg mx-auto"><span class="material-symbols-outlined brand-text">flight_takeoff</span></div><div class="value">' + total + '</div><div class="label">Total Trips</div></div>' +
+    '<div class="stat-card text-center"><div class="icon bg-blue-50 mx-auto"><span class="material-symbols-outlined text-blue-600">schedule</span></div><div class="value">' + active + '</div><div class="label">Active</div></div>' +
+    '<div class="stat-card text-center"><div class="icon bg-green-50 mx-auto"><span class="material-symbols-outlined text-green-600">check_circle</span></div><div class="value">' + completed + '</div><div class="label">Completed</div></div>' +
+    '<div class="stat-card text-center"><div class="icon bg-red-50 mx-auto"><span class="material-symbols-outlined text-red-500">cancel</span></div><div class="value">' + cancelled + '</div><div class="label">Cancelled</div></div>';
+
+  var statusData = [
+    { label: 'Scheduled', count: trips.filter(function(t) { return t.status === 'scheduled'; }).length, color: 'bg-blue-100 text-blue-700' },
+    { label: 'Completed', count: completed, color: 'bg-green-100 text-green-700' },
+    { label: 'Cancelled', count: cancelled, color: 'bg-red-100 text-red-700' }
+  ];
+  var maxCount = Math.max(1, statusData[0].count, statusData[1].count, statusData[2].count);
+  document.getElementById('reports-status').innerHTML = statusData.map(function(s) {
+    var pct = Math.round((s.count / maxCount) * 100);
+    return '<div><div class="flex justify-between text-xs mb-1"><span class="font-medium text-slate-700">' + s.label + '</span><span class="text-slate-500">' + s.count + '</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full rounded-full ' + s.color.split(' ')[0] + '" style="width:' + pct + '%"></div></div></div>';
+  }).join('');
+
+  document.getElementById('reports-overview').innerHTML = total === 0
+    ? '<div class="empty-state"><span class="material-symbols-outlined text-4xl text-slate-300">bar_chart</span><p class="text-xs text-slate-400 mt-2">No trip data available</p></div>'
+    : '<p class="text-sm text-slate-600">You have <strong>' + total + '</strong> total trip' + (total > 1 ? 's' : '') + '. <strong>' + active + '</strong> active, <strong>' + completed + '</strong> completed, <strong>' + cancelled + '</strong> cancelled.</p>' +
+      '<p class="text-xs text-slate-400 mt-2">Completion rate: ' + (total > 0 ? Math.round((completed / total) * 100) : 0) + '%</p>';
+}
+
+function renderItinerary() {
+  var trips = getTrips().filter(function(t) { return t.status !== 'cancelled'; });
+  trips.sort(function(a,b) { return (a.date||'') > (b.date||'') ? 1 : (a.date||'') < (b.date||'') ? -1 : (a.time||'') > (b.time||'') ? 1 : -1; });
+  var el = document.getElementById('itinerary-list');
+  if (trips.length === 0) {
+    el.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-4xl text-slate-300">timeline</span><p class="text-xs text-slate-400 mt-2">No trips scheduled</p></div>';
+    return;
+  }
+  el.innerHTML = trips.map(function(t, i) {
+    var isLast = i === trips.length - 1;
+    var sc = t.status === 'completed' ? 'status-completed' : 'status-scheduled';
+    var sl = t.status === 'completed' ? 'Completed' : 'Scheduled';
+    var today = mobileApp.today();
+    var badge = t.date === today ? '<span class="text-[10px] font-bold text-white bg-brand px-1.5 py-0.5 rounded-full ml-2">Today</span>' : '';
+    return '<div class="flex gap-3">' +
+      '<div class="flex flex-col items-center">' +
+        '<div class="w-7 h-7 rounded-full brand-gradient flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-white text-sm">flight_takeoff</span></div>' +
+        (isLast ? '' : '<div class="w-0.5 flex-1 bg-slate-200 mt-1"></div>') +
+      '</div>' +
+      '<div class="flex-1 pb-4">' +
+        '<div class="trip-card cursor-pointer" onclick="showTripDetail(' + t.id + ')">' +
+          '<div class="flex items-center gap-2 mb-1"><h4 class="font-semibold text-slate-900 text-sm">' + mobileApp.escapeHtml(t.name) + '</h4><span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full ' + sc + '">' + sl + '</span>' + badge + '</div>' +
+          '<div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">' +
+            '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">calendar_today</span>' + (t.date||'') + '</span>' +
+            (t.time ? '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">schedule</span>' + t.time + '</span>' : '') +
+            '<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">location_on</span>' + mobileApp.escapeHtml(t.destination||'') + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderExpenses() {
+  var expenses = getExpenses();
+  var trips = getTrips();
+  var el = document.getElementById('expenses-list');
+  if (expenses.length === 0) {
+    el.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-4xl text-slate-300">receipt</span><p class="text-xs text-slate-400 mt-2">No expenses recorded</p></div>';
+    return;
+  }
+  var total = 0;
+  expenses.forEach(function(e) { total += parseFloat(e.amount) || 0; });
+  el.innerHTML = '<div class="mobile-card flex justify-between items-center mb-3 bg-amber-50"><span class="text-sm font-semibold text-amber-800">Total Expenses</span><span class="text-lg font-bold text-amber-800">PHP ' + total.toFixed(2) + '</span></div>' +
+    expenses.slice().sort(function(a,b) { return (b.date||'') > (a.date||'') ? 1 : -1; }).map(function(e) {
+      var tripName = 'Unknown';
+      var t = trips.find(function(x) { return x.id === e.tripId; });
+      if (t) tripName = t.name;
+      return '<div class="trip-card">' +
+        '<div class="flex items-center gap-3">' +
+          '<div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-green-600 text-lg">receipt</span></div>' +
+          '<div class="flex-1 min-w-0">' +
+            '<div class="flex items-center justify-between"><h4 class="font-semibold text-slate-900 text-sm truncate">' + mobileApp.escapeHtml(e.description) + '</h4><span class="text-sm font-bold text-slate-900">PHP ' + (parseFloat(e.amount)||0).toFixed(2) + '</span></div>' +
+            '<div class="flex items-center gap-2 text-xs text-slate-400 mt-0.5">' +
+              '<span>' + mobileApp.escapeHtml(e.category) + '</span>' +
+              '<span>&middot;</span>' +
+              '<span>' + mobileApp.escapeHtml(tripName) + '</span>' +
+              '<span>&middot;</span>' +
+              '<span>' + (e.date||'') + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<button class="p-1 text-slate-400 hover:text-red-500" onclick="deleteExpense(' + e.id + ')"><span class="material-symbols-outlined text-base">delete</span></button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+}
+
+function openExpenseModal(editId) {
+  document.getElementById('expense-edit-id').value = editId || '';
+  document.getElementById('expense-desc').value = '';
+  document.getElementById('expense-amount').value = '';
+  document.getElementById('expense-date').value = mobileApp.today();
+  document.getElementById('expense-modal-title').textContent = editId ? 'Edit Expense' : 'Add Expense';
+
+  var trips = getTrips();
+  var sel = document.getElementById('expense-trip');
+  sel.innerHTML = '<option value="">-- Select Trip --</option>' + trips.map(function(t) { return '<option value="' + t.id + '">' + mobileApp.escapeHtml(t.name) + '</option>'; }).join('');
+
+  if (editId) {
+    var expenses = getExpenses();
+    var e = expenses.find(function(x) { return x.id === editId; });
+    if (e) {
+      document.getElementById('expense-desc').value = e.description || '';
+      document.getElementById('expense-amount').value = e.amount || '';
+      document.getElementById('expense-date').value = e.date || mobileApp.today();
+      document.getElementById('expense-trip').value = e.tripId || '';
+      document.getElementById('expense-cat').value = e.category || 'Fuel';
+    }
+  }
+  mobileApp.openModal('modal-expense');
+}
+
+function saveExpense() {
+  var id = document.getElementById('expense-edit-id').value;
+  var tripId = document.getElementById('expense-trip').value;
+  var desc = document.getElementById('expense-desc').value.trim();
+  var amount = document.getElementById('expense-amount').value;
+  var cat = document.getElementById('expense-cat').value;
+  var date = document.getElementById('expense-date').value;
+  if (!desc || !amount) { mobileApp.showToast('Please enter description and amount'); return; }
+  var expenses = getExpenses();
+  if (id) {
+    var idx = expenses.findIndex(function(x) { return x.id === id; });
+    if (idx > -1) {
+      expenses[idx].description = desc;
+      expenses[idx].amount = amount;
+      expenses[idx].category = cat;
+      expenses[idx].date = date;
+      expenses[idx].tripId = tripId;
+    }
+  } else {
+    expenses.push({ id: mobileApp.genId(), tripId: tripId, description: desc, amount: amount, category: cat, date: date });
+  }
+  saveExpenses(expenses);
+  mobileApp.closeModal('modal-expense');
+  renderExpenses();
+  mobileApp.showToast(id ? 'Expense updated' : 'Expense added');
+}
+
+function deleteExpense(id) {
+  var expenses = getExpenses();
+  expenses = expenses.filter(function(x) { return x.id !== id; });
+  saveExpenses(expenses);
+  renderExpenses();
+  mobileApp.showToast('Expense deleted');
+}
+
+function renderSettings() {
+  var session = fbGetSession();
+  if (!session) return;
+  document.getElementById('settings-avatar').textContent = (session.name || session.username || '?')[0].toUpperCase();
+  document.getElementById('settings-name').textContent = session.name || session.username;
+  document.getElementById('settings-email').textContent = session.email || '';
+  document.getElementById('settings-role').textContent = 'Role: ' + (session.role || 'N/A');
+}
+
+function showChangePassword() {
+  document.getElementById('mp-cur').value = '';
+  document.getElementById('mp-new').value = '';
+  document.getElementById('mp-confirm').value = '';
+  document.getElementById('mp-error').classList.add('hidden');
+  mobileApp.openModal('modal-password');
+}
+
+function doChangePassword() {
+  var cur = document.getElementById('mp-cur').value;
+  var np = document.getElementById('mp-new').value;
+  var cp = document.getElementById('mp-confirm').value;
+  var err = document.getElementById('mp-error');
+  if (!cur || !np || !cp) { err.textContent = 'Please fill in all fields'; err.classList.remove('hidden'); return; }
+  if (np !== cp) { err.textContent = 'Passwords do not match'; err.classList.remove('hidden'); return; }
+  if (np.length < 6) { err.textContent = 'Password must be at least 6 characters'; err.classList.remove('hidden'); return; }
+  var client = getClient();
+  if (!client) { err.textContent = 'Not connected'; err.classList.remove('hidden'); return; }
+  var email = (fbGetSession() || {}).email;
+  if (!email) { err.textContent = 'Session error'; err.classList.remove('hidden'); return; }
+  client.auth.signInWithPassword({ email: email, password: cur }).then(function(r) {
+    if (r.error) { err.textContent = 'Current password is incorrect'; err.classList.remove('hidden'); return; }
+    client.auth.updateUser({ password: np }).then(function(u) {
+      if (u.error) { err.textContent = u.error.message; err.classList.remove('hidden'); return; }
+      mobileApp.closeModal('modal-password');
+      mobileApp.showToast('Password updated successfully');
+    });
+  });
+}
+
+function renderGuide() {
+  var guides = [
+    { icon: 'flight', title: 'Planning a Trip', desc: 'Tap Plan Trip or the + button. Fill in name, destination, date, and other details. Tap Create Trip to save.' },
+    { icon: 'flight_takeoff', title: 'Viewing Trips', desc: 'Go to the Trips tab to see all your trips. Use the search bar or filter by status to find specific trips.' },
+    { icon: 'calendar_month', title: 'Trip Itinerary', desc: 'The Itinerary tab shows all scheduled trips in chronological order. Tap any trip to view details.' },
+    { icon: 'receipt', title: 'Managing Expenses', desc: 'Track trip costs in the Expenses section. Tap Add to record a new expense with amount, category, and date.' },
+    { icon: 'bar_chart', title: 'Viewing Reports', desc: 'The Reports section provides analytics on your trips - totals, status breakdowns, and completion rates.' },
+    { icon: 'check_circle', title: 'Completing Trips', desc: 'Tap a trip and use the Complete button to mark it as done. Use Cancel to cancel a trip.' },
+    { icon: 'settings', title: 'Account Settings', desc: 'Go to Settings to view your profile, change your password, or sign out of the application.' }
+  ];
+  document.getElementById('guide-list').innerHTML = guides.map(function(g) {
+    return '<div class="mobile-card"><div class="flex items-start gap-3"><div class="w-9 h-9 brand-bg rounded-lg flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined brand-text text-lg">' + g.icon + '</span></div><div class="flex-1 min-w-0"><h4 class="font-semibold text-slate-900 text-sm">' + g.title + '</h4><p class="text-xs text-slate-500 mt-0.5">' + g.desc + '</p></div></div></div>';
+  }).join('');
+}
+
+function refreshAll() {
+  if (mobileApp.currentView === 'dashboard') renderDashboard();
+  if (mobileApp.currentView === 'trips') renderTrips();
+  if (mobileApp.currentView === 'reports') renderReports();
+  if (mobileApp.currentView === 'itinerary') renderItinerary();
+  if (mobileApp.currentView === 'expenses') renderExpenses();
+}
+
+mobileApp.onViewChange = function(view) {
+  if (view === 'dashboard') renderDashboard();
+  else if (view === 'trips') renderTrips();
+  else if (view === 'reports') renderReports();
+  else if (view === 'itinerary') renderItinerary();
+  else if (view === 'expenses') renderExpenses();
+  else if (view === 'settings') renderSettings();
+  else if (view === 'guide') renderGuide();
+};
+
+mobileApp.onDataUpdate = function() {
+  refreshAll();
+};
+
+mobileApp.onReady = function() {
+  var session = fbGetSession();
+  if (session) {
+    document.getElementById('user-avatar').textContent = (session.name || session.username || '?')[0].toUpperCase();
+  }
+  renderDashboard();
+  renderGuide();
+};
+
+mobileApp.init();
+</script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Data Migration — KALYX</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #1e293b; padding: 2rem; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+p { color: #64748b; margin-bottom: 1.5rem; }
+button { background: #6366f1; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.danger { background: #ef4444; }
+.status { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; margin: 1rem 0; max-height: 400px; overflow-y: auto; font-size: 0.875rem; line-height: 1.6; }
+.status .ok { color: #22c55e; }
+.status .err { color: #ef4444; }
+.status .info { color: #6366f1; }
+.status .warn { color: #f59e0b; }
+input[type="file"] { display: block; margin: 1rem 0; }
+.hidden { display: none; }
+pre { background: #f1f5f9; padding: 0.5rem; border-radius: 0.375rem; margin: 0.25rem 0; font-size: 0.75rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Data Migration Tool</h1>
+  <p>Import data from backup JSON file to Firestore. Select the backup file and click Start Migration.</p>
+
+  <div id="loginNotice" class="hidden" style="background:#fef3c7;border:1px solid #f59e0b;border-radius:0.75rem;padding:1rem;margin-bottom:1rem;">
+    You must be logged in as an admin to run migration.
+  </div>
+
+  <input type="file" id="fileInput" accept=".json"/>
+  <button id="startBtn" onclick="startMigration()" disabled>Start Migration</button>
+  <button class="danger" onclick="resetAll()" style="margin-left:0.5rem;">Reset All Data</button>
+
+  <div class="status" id="statusLog"><span class="info">Waiting for file...</span></div>
+
+  <div id="summary" class="hidden" style="background:#f0fdf4;border:1px solid #22c55e;border-radius:0.75rem;padding:1.5rem;margin-top:1rem;text-align:center;">
+    <h2 style="color:#16a34a;margin-bottom:0.5rem;">Migration Complete!</h2>
+    <p id="summaryText"></p>
+    <button onclick="goToApp()" style="margin-top:1rem;">Go to App</button>
+  </div>
+</div>
+
+<script>
+var db = firebase.firestore();
+var backupData = null;
+
+// Check auth state
+firebase.auth().onAuthStateChanged(function(user) {
+  var btn = document.getElementById('startBtn');
+  var notice = document.getElementById('loginNotice');
+  if (user) {
+    // Check if admin
+    db.collection('profiles').doc(user.uid).get().then(function(doc) {
+      if (doc.exists && (doc.data().is_admin || doc.data().role === 'admin')) {
+        btn.disabled = !backupData;
+        notice.classList.add('hidden');
+      } else {
+        notice.textContent = 'Your account does not have admin privileges.';
+        notice.classList.remove('hidden');
+      }
+    }).catch(function() {
+      notice.textContent = 'Could not verify admin status. Check Firestore rules.';
+      notice.classList.remove('hidden');
+    });
+  } else {
+    btn.disabled = true;
+    notice.classList.remove('hidden');
+  }
+});
+
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      backupData = JSON.parse(ev.target.result);
+      if (!backupData.users || !backupData.exportedAt) {
+        log('err', 'Invalid backup file format.');
+        backupData = null;
+        return;
+      }
+      log('ok', 'Loaded backup from ' + backupData.exportedAt + ' — ' + backupData.users.length + ' users');
+      document.getElementById('startBtn').disabled = !firebase.auth().currentUser;
+    } catch(e) {
+      log('err', 'Failed to parse file: ' + e.message);
+    }
+  };
+  reader.readAsText(file);
+});
+
+function log(type, msg) {
+  var el = document.getElementById('statusLog');
+  var cls = type === 'ok' ? 'ok' : type === 'err' ? 'err' : type === 'warn' ? 'warn' : 'info';
+  el.innerHTML += '<div class="' + cls + '">' + msg + '</div>';
+  el.scrollTop = el.scrollHeight;
+}
+
+function getUserData(username) {
+  if (!backupData) return null;
+  var result = {};
+  var prefix = username + '_'; // e.g., "superadmin_"
+
+  Object.keys(backupData).forEach(function(key) {
+    // Match keys like tasks_superadmin, plans_superadmin, it_services_superadmin
+    if (key.endsWith('_' + username)) {
+      var dataKey = key.slice(0, -(username.length + 1)); // Remove "_username" suffix
+      result[dataKey] = backupData[key];
+    }
+    // Also match shared_tasks_username
+    if (key === 'shared_tasks_' + username) {
+      result.shared_tasks = backupData[key];
+    }
+  });
+  return result;
+}
+
+function startMigration() {
+  if (!backupData) { log('err', 'No backup file loaded.'); return; }
+  var user = firebase.auth().currentUser;
+  if (!user) { log('err', 'Not authenticated.'); return; }
+
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('statusLog').innerHTML = '';
+  log('info', 'Starting migration...');
+
+  var users = backupData.users;
+  var total = users.length;
+  var done = 0;
+  var errors = 0;
+
+  users.forEach(function(u) {
+    var email = u.email || (u.username + '@app.local');
+    var userData = getUserData(u.username);
+
+    // Step 1: Find or create profile
+    // First, check if there's already a profile for this user
+    db.collection('profiles').where('username', '==', u.username).get()
+      .then(function(snapshot) {
+        if (!snapshot.empty) {
+          // Profile exists — update it and import data
+          var docId = snapshot.docs[0].id;
+          var updates = [];
+          updates.push(db.collection('profiles').doc(docId).update({
+            username: u.username,
+            name: u.name || u.username,
+            email: email,
+            role: u.role || 'executive_path',
+            is_admin: u.isAdmin || false,
+            executive_admin: u.executiveAdmin || false
+          }).catch(function() {
+            // Doc might not exist yet, try set
+            return db.collection('profiles').doc(docId).set({
+              username: u.username,
+              name: u.name || u.username,
+              email: email,
+              role: u.role || 'executive_path',
+              is_admin: u.isAdmin || false,
+              executive_admin: u.executiveAdmin || false
+            });
+          }));
+
+          // Import user data if exists
+          if (userData && Object.keys(userData).length > 0) {
+            updates.push(db.collection('userdata').doc(docId).set({
+              data: userData,
+              updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            }));
+            log('ok', u.username + ': profile updated, data imported (' + Object.keys(userData).length + ' keys)');
+          } else {
+            log('ok', u.username + ': profile updated (no data to import)');
+          }
+
+          return Promise.all(updates);
+        } else {
+          // No profile exists — try to find by UID (if user has Firebase Auth)
+          // First try joseph_diala — he has Firebase Auth, find his UID
+          return db.collection('profiles').where('email', '==', email).get()
+            .then(function(emailSnapshot) {
+              if (!emailSnapshot.empty) {
+                var docId = emailSnapshot.docs[0].id;
+                var updates = [];
+                updates.push(db.collection('profiles').doc(docId).update({
+                  username: u.username,
+                  name: u.name || u.username,
+                  email: email,
+                  role: u.role || 'executive_path',
+                  is_admin: u.isAdmin || false,
+                  executive_admin: u.executiveAdmin || false
+                }));
+                if (userData && Object.keys(userData).length > 0) {
+                  updates.push(db.collection('userdata').doc(docId).set({
+                    data: userData,
+                    updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                  }));
+                }
+                log('ok', u.username + ': profile found by email, data imported');
+                return Promise.all(updates);
+              } else {
+                // No profile at all — create one with a new doc
+                var profile = {
+                  username: u.username,
+                  name: u.name || u.username,
+                  email: email,
+                  role: u.role || 'executive_path',
+                  is_admin: u.isAdmin || false,
+                  executive_admin: u.executiveAdmin || false
+                };
+                return db.collection('profiles').add(profile).then(function(docRef) {
+                  if (userData && Object.keys(userData).length > 0) {
+                    return db.collection('userdata').doc(docRef.id).set({
+                      data: userData,
+                      updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(function() {
+                      log('ok', u.username + ': new profile created, data imported (' + Object.keys(userData).length + ' keys)');
+                    });
+                  } else {
+                    log('warn', u.username + ': new profile created (no data, needs Firebase Auth registration)');
+                  }
+                });
+              }
+            });
+        }
+      })
+      .then(function() {
+        done++;
+        if (done >= total) finishMigration(errors);
+      })
+      .catch(function(err) {
+        errors++;
+        log('err', u.username + ': FAILED — ' + err.message);
+        done++;
+        if (done >= total) finishMigration(errors);
+      });
+  });
+}
+
+function finishMigration(errors) {
+  log('info', 'Migration finished. Errors: ' + errors);
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('summary').classList.remove('hidden');
+  var summary = document.getElementById('summaryText');
+  summary.textContent = backupData.users.length + ' users processed. ' +
+    (errors ? errors + ' errors. Check the log above.' : 'All data migrated successfully!');
+  document.getElementById('startBtn').textContent = 'Migration Done';
+}
+
+function resetAll() {
+  if (!confirm('This will DELETE ALL profiles and user data from Firestore! Continue?')) return;
+  if (!confirm('FINAL WARNING: All data will be permanently deleted. Proceed?')) return;
+  log('info', 'Starting data reset...');
+  document.getElementById('startBtn').disabled = true;
+
+  db.collection('profiles').get().then(function(snapshot) {
+    var batch = db.batch();
+    snapshot.forEach(function(doc) { batch.delete(doc.ref); });
+    return batch.commit();
+  }).then(function() {
+    return db.collection('userdata').get().then(function(snapshot) {
+      var batch = db.batch();
+      snapshot.forEach(function(doc) { batch.delete(doc.ref); });
+      return batch.commit();
+    });
+  }).then(function() {
+    log('ok', 'All Firestore data cleared.');
+    document.getElementById('startBtn').disabled = false;
+  }).catch(function(err) {
+    log('err', 'Reset failed: ' + err.message);
+    document.getElementById('startBtn').disabled = false;
+  });
+}
+
+function goToApp() {
+  window.location.href = 'admin/';
+}
+</script>
+</body>
+</html>

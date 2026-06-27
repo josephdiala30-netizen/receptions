@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://fonts.googleapis.com https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com wss://firestore.googleapis.com https://*.firebaseio.com;">
+<title>Administrator | Control Panel</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-primary-container": "var(--on-primary-container)", "on-surface": "var(--on-surface)",
+        "outline": "var(--outline)", "on-background": "var(--on-background)",
+        "on-secondary-fixed": "var(--on-secondary-fixed)", "surface-container-highest": "var(--surface-container-highest)",
+        "inverse-surface": "var(--inverse-surface)", "tertiary-fixed-dim": "var(--tertiary-fixed-dim)",
+        "surface": "var(--surface)", "secondary": "var(--secondary)", "on-secondary": "var(--on-secondary)",
+        "on-primary-fixed-variant": "var(--on-primary-fixed-variant)", "secondary-container": "var(--secondary-container)",
+        "on-error": "var(--on-error)", "on-primary": "var(--on-primary)",
+        "on-error-container": "var(--on-error-container)", "on-tertiary": "var(--on-tertiary)",
+        "surface-container-high": "var(--surface-container-high)", "inverse-on-surface": "var(--inverse-on-surface)",
+        "on-secondary-container": "var(--on-secondary-container)", "surface-variant": "var(--surface-variant)",
+        "primary-container": "var(--primary-container)", "error-container": "var(--error-container)",
+        "tertiary": "var(--tertiary)", "inverse-primary": "var(--inverse-primary)",
+        "secondary-fixed-dim": "var(--secondary-fixed-dim)", "tertiary-container": "var(--tertiary-container)",
+        "surface-container-low": "var(--surface-container-low)", "surface-container-lowest": "var(--surface-container-lowest)",
+        "on-tertiary-container": "var(--on-tertiary-container)", "on-secondary-fixed-variant": "var(--on-secondary-fixed-variant)",
+        "surface-container": "var(--surface-container)", "on-primary-fixed": "var(--on-primary-fixed)",
+        "error": "var(--error)", "background": "var(--background)", "primary-fixed": "var(--primary-fixed)",
+        "surface-tint": "var(--surface-tint)", "outline-variant": "var(--outline-variant)",
+        "primary-fixed-dim": "var(--primary-fixed-dim)", "on-tertiary-fixed": "var(--on-tertiary-fixed)",
+        "on-tertiary-fixed-variant": "var(--on-tertiary-fixed-variant)", "on-surface-variant": "var(--on-surface-variant)",
+        "tertiary-fixed": "var(--tertiary-fixed)", "primary": "var(--primary)", "surface-dim": "var(--surface-dim)",
+        "surface-bright": "var(--surface-bright)", "secondary-fixed": "var(--secondary-fixed)"
+      },
+      borderRadius: { DEFAULT: "0.5rem", lg: "0.75rem", xl: "1rem", full: "9999px" },
+      fontFamily: {
+        "headline-md": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "body-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "label-md": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "title-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "code-sm": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "display-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "body-md": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "headline-lg-mobile": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "headline-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"]
+      },
+      fontSize: {
+        "headline-md": ["24px", {lineHeight: "32px", fontWeight: "600"}],
+        "body-lg": ["16px", {lineHeight: "24px", fontWeight: "400"}],
+        "label-md": ["12px", {lineHeight: "16px", fontWeight: "500"}],
+        "title-lg": ["20px", {lineHeight: "28px", fontWeight: "600"}],
+        "code-sm": ["12px", {lineHeight: "16px", fontWeight: "400"}],
+        "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700"}],
+        "body-md": ["14px", {lineHeight: "20px", fontWeight: "400"}],
+        "headline-lg-mobile": ["24px", {lineHeight: "32px", fontWeight: "600"}],
+        "headline-lg": ["32px", {lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600"}]
+      }
+    }
+  }
+}
+</script>
+<style>
+:root {
+  --on-primary-container: #8590a6; --on-surface: #0b1c30; --outline: #75777d;
+  --on-background: #0b1c30; --on-secondary-fixed: #131b2e; --surface-container-highest: #d3e4fe;
+  --inverse-surface: #213145; --tertiary-fixed-dim: #6bd8cb; --surface: #f8f9ff;
+  --secondary: #565e74; --on-secondary: #ffffff; --on-primary-fixed-variant: #3c475a;
+  --secondary-container: #dae2fd; --on-error: #ffffff; --on-primary: #ffffff;
+  --on-error-container: #93000a; --on-tertiary: #ffffff; --surface-container-high: #dce9ff;
+  --inverse-on-surface: #eaf1ff; --on-secondary-container: #5c647a; --surface-variant: #d3e4fe;
+  --primary-container: #1e293b; --error-container: #ffdad6; --tertiary: #001815;
+  --inverse-primary: #bcc7de; --secondary-fixed-dim: #bec6e0; --tertiary-container: #002f2a;
+  --surface-container-low: #eff4ff; --surface-container-lowest: #ffffff;
+  --on-tertiary-container: #28a094; --on-secondary-fixed-variant: #3f465c;
+  --surface-container: #e5eeff; --on-primary-fixed: #111c2d; --error: #ba1a1a;
+  --background: #f8f9ff; --primary-fixed: #d8e3fb; --surface-tint: #545f73;
+  --outline-variant: #c5c6cd; --primary-fixed-dim: #bcc7de; --on-tertiary-fixed: #00201d;
+  --on-tertiary-fixed-variant: #005049; --on-surface-variant: #45474c;
+  --tertiary-fixed: #89f5e7; --primary: #091426; --surface-dim: #cbdbf5;
+  --surface-bright: #f8f9ff; --secondary-fixed: #dae2fd;
+}
+.dark {
+  --on-primary-container: #b0b8cc; --on-surface: #e4e8ee; --outline: #90949c;
+  --on-background: #e4e8ee; --on-secondary-fixed: #c4cce0; --surface-container-highest: #2c3848;
+  --inverse-surface: #d4dfee; --tertiary-fixed-dim: #50b8aa; --surface: #111827;
+  --secondary: #a0a8ba; --on-secondary: #111827; --on-primary-fixed-variant: #a8b0c4;
+  --secondary-container: #2a3448; --on-error: #111827; --on-primary: #0b1c30;
+  --on-error-container: #ffb4ab; --on-tertiary: #111827; --surface-container-high: #253040;
+  --inverse-on-surface: #213145; --on-secondary-container: #b8c0d4; --surface-variant: #253040;
+  --primary-container: #c4d0e8; --error-container: #93000a; --tertiary: #50d4c4;
+  --inverse-primary: #3c4a60; --secondary-fixed-dim: #424c64; --tertiary-container: #005049;
+  --surface-container-low: #1a2332; --surface-container-lowest: #0d1420;
+  --on-tertiary-container: #89f5e7; --on-secondary-fixed-variant: #a8b0c4;
+  --surface-container: #1e2a3a; --on-primary-fixed: #d8e3fb; --error: #ffb4ab;
+  --background: #0b1320; --primary-fixed: #111c2d; --surface-tint: #9098ac;
+  --outline-variant: #3a3e46; --primary-fixed-dim: #2c384a; --on-tertiary-fixed: #89f5e7;
+  --on-tertiary-fixed-variant: #6bd8cb; --on-surface-variant: #c4c8ce;
+  --tertiary-fixed: #00201d; --primary: #b0c8e8; --surface-dim: #141c2a;
+  --surface-bright: #2a3448; --secondary-fixed: #131b2e;
+}
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-flex; align-items: center; justify-content: center;
+  vertical-align: middle;
+}
+* { -webkit-tap-highlight-color: transparent; }
+html, body { min-height: 100%; scroll-behavior: smooth; }
+body { overflow-x: hidden; }
+button, input, select, textarea { min-width: 0; }
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.card-enter { animation: fadeInUp 0.5s ease both; }
+.card-enter:nth-child(1) { animation-delay: 0.05s; }
+.card-enter:nth-child(2) { animation-delay: 0.1s; }
+.card-enter:nth-child(3) { animation-delay: 0.15s; }
+.card-enter:nth-child(4) { animation-delay: 0.2s; }
+.card-enter:nth-child(5) { animation-delay: 0.25s; }
+.card-enter:nth-child(6) { animation-delay: 0.3s; }
+.card-enter:nth-child(7) { animation-delay: 0.35s; }
+.card-enter:nth-child(8) { animation-delay: 0.4s; }
+
+.card-lift { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.card-lift:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+.dark .card-lift:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+.sidebar-glass {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.dark .sidebar-glass {
+  background: rgba(17,24,39,0.7);
+}
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+</style>
+  <link rel="stylesheet" href="../styles/custom.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
+<script src="../shared.js"></script>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+
+<aside class="fixed left-0 top-0 h-full w-72 sidebar-glass border-r border-outline-variant z-50 flex flex-col p-8 hidden md:flex shadow-sm">
+  <div class="mb-10">
+    <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Administrator</h1>
+    <p class="font-label-md text-label-md text-on-surface-variant mt-1">Control Panel</p>
+  </div>
+  <nav class="sidebar-desktop flex-1 space-y-1.5 overflow-y-auto custom-scrollbar pr-1">
+    <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="showSection('pageDashboard'); loadDashboard();">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="font-label-md">Dashboard</span>
+    </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageUsers'); renderUsers();">
+      <span class="material-symbols-outlined">manage_accounts</span>
+      <span class="font-label-md">Users</span>
+    </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTasks'); renderAdminTasks();">
+      <span class="material-symbols-outlined">checklist</span>
+      <span class="font-label-md">Tasks</span>
+    </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pagePlans'); renderAdminPlans();">
+      <span class="material-symbols-outlined">map</span>
+      <span class="font-label-md">Plans & Roadmaps</span>
+    </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageDailyLogs'); renderAdminDailyLogs();">
+      <span class="material-symbols-outlined">edit_note</span>
+      <span class="font-label-md">Daily Logs</span>
+    </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTrips'); renderAdminTrips();">
+      <span class="material-symbols-outlined">flight_takeoff</span>
+      <span class="font-label-md">Trips</span>
+    </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageData');">
+      <span class="material-symbols-outlined">storage</span>
+      <span class="font-label-md">Data Management</span>
+    </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageSearch');">
+      <span class="material-symbols-outlined">search</span>
+      <span class="font-label-md">Global Search</span>
+    </a>
+  </nav>
+  <div class="mt-auto flex flex-col gap-2 pt-4 border-t border-outline-variant">
+    <button class="w-full bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="openUserModal()">
+      <span class="material-symbols-outlined">person_add</span> New User
+    </button>
+  </div>
+</aside>
+
+<main class="md:ml-72 min-h-screen">
+
+<header class="bg-surface/80 backdrop-blur-xl sticky top-0 z-40 border-b border-outline-variant flex justify-between items-center w-full px-6 md:px-10 h-16">
+  <div class="flex items-center gap-4 flex-1">
+    <button class="md:hidden material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">menu</button>
+    <div>
+      <h2 id="pageTitle" class="font-headline-md text-headline-md text-primary">Dashboard</h2>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
+    <div class="relative">
+      <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-primary text-on-primary flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
+      <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
+        <div class="px-4 py-3 border-b border-outline-variant">
+          <p id="userNameDisplay" class="font-body-md font-semibold text-primary inline"></p>
+          <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold ml-1 align-middle">Admin</span>
+          <p id="userUsernameDisplay" class="font-label-md text-on-surface-variant mt-0.5"></p>
+        </div>
+        <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 font-label-md transition-all duration-200 active:scale-[0.98]" onclick="doLogout()">
+          <span class="material-symbols-outlined text-sm">logout</span> Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="pageDashboard" class="p-4 md:p-8 max-w-screen-2xl mx-auto">
+<div class="mb-8">
+  <h2 class="font-headline-lg text-headline-lg text-primary">System Overview</h2>
+  <p class="font-body-lg text-on-surface-variant">Complete oversight of all modules and accounts</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+  <div class="md:col-span-3 bg-gradient-to-br from-[#6366F1] to-[#4F46E5] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg card-enter">
+    <div><span class="font-label-md uppercase tracking-wider text-white/70">Total Users</span>
+    <p class="font-display-lg text-[36px] font-bold mt-2" id="adminTotalUsers">0</p></div>
+    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+  </div>
+  <div class="md:col-span-3 bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg card-enter">
+    <div><span class="font-label-md uppercase tracking-wider text-white/70">Total Tasks</span>
+    <p class="font-display-lg text-[36px] font-bold mt-2" id="adminTotalTasks">0</p></div>
+    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+  </div>
+  <div class="md:col-span-3 bg-gradient-to-br from-[#22C55E] to-[#16A34A] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg card-enter">
+    <div><span class="font-label-md uppercase tracking-wider text-white/70">Total Plans</span>
+    <p class="font-display-lg text-[36px] font-bold mt-2" id="adminTotalPlans">0</p></div>
+    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+  </div>
+  <div class="md:col-span-3 bg-gradient-to-br from-[#EF4444] to-[#DC2626] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg card-enter">
+    <div><span class="font-label-md uppercase tracking-wider text-white/70">Total Trips</span>
+    <p class="font-display-lg text-[36px] font-bold mt-2" id="adminTotalTrips">0</p></div>
+    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+  </div>
+  <div class="md:col-span-4 bg-gradient-to-br from-[#EC4899] to-[#DB2777] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg card-enter">
+    <div><span class="font-label-md uppercase tracking-wider text-white/70">Daily Logs</span>
+    <p class="font-display-lg text-[36px] font-bold mt-2" id="adminTotalLogs">0</p></div>
+    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+  </div>
+  <div class="md:col-span-4 bg-gradient-to-br from-[#14B8A6] to-[#0D9488] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg card-enter">
+    <div><span class="font-label-md uppercase tracking-wider text-white/70">Milestones</span>
+    <p class="font-display-lg text-[36px] font-bold mt-2" id="adminTotalMilestones">0</p></div>
+    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+  </div>
+  <div class="md:col-span-4 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] text-white rounded-xl p-6 relative overflow-hidden card-lift shadow-lg card-enter">
+    <div><span class="font-label-md uppercase tracking-wider text-white/70">Data Stores</span>
+    <p class="font-display-lg text-[36px] font-bold mt-2" id="adminTotalKeys">0</p></div>
+    <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+  </div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-indigo-500 inline-block"></span> User Accounts</h3>
+    <div id="adminUserList" class="space-y-2 max-h-[360px] overflow-y-auto custom-scrollbar pr-2"></div>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-amber-500 inline-block"></span> Recent Activity</h3>
+    <div id="adminRecentActivity" class="space-y-3 max-h-[360px] overflow-y-auto custom-scrollbar pr-2"></div>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-emerald-500 inline-block"></span> Quick Actions</h3>
+    <div class="space-y-3">
+      <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors" onclick="showSection('pageUsers'); renderUsers();"><span class="material-symbols-outlined">manage_accounts</span> <span class="font-label-md font-semibold">Manage Users</span></button>
+      <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors" onclick="showSection('pageTasks'); renderAdminTasks();"><span class="material-symbols-outlined">checklist</span> <span class="font-label-md font-semibold">View All Tasks</span></button>
+      <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors" onclick="showSection('pagePlans'); renderAdminPlans();"><span class="material-symbols-outlined">map</span> <span class="font-label-md font-semibold">View All Plans</span></button>
+      <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors" onclick="showSection('pageTrips'); renderAdminTrips();"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md font-semibold">View All Trips</span></button>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="pageUsers" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+  <div>
+    <h2 class="font-headline-lg text-headline-lg text-primary">User Management</h2>
+    <p class="font-body-lg text-on-surface-variant">Create, edit, and manage all accounts</p>
+  </div>
+  <div class="flex gap-3 flex-wrap">
+    <select id="userRoleFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="renderUsers()">
+      <option value="all">All Roles</option>
+      <option value="admin">Admin</option>
+      <option value="executive_path">Executive Path</option>
+      <option value="executive_task">Executive Task</option>
+      <option value="executive_it">Executive IT</option>
+    </select>
+    <input id="userSearch" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 w-48" placeholder="Search users..." oninput="renderUsers()" type="text"/>
+    <button class="flex items-center gap-2 bg-[#6366F1] text-white px-6 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="openUserModal()">
+      <span class="material-symbols-outlined">person_add</span> New User
+    </button>
+  </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="bg-surface-container rounded-xl p-4 text-center"><span class="font-label-md text-on-surface-variant">Total</span><p class="font-headline-md font-bold text-primary" id="userStatTotal">0</p></div>
+  <div class="bg-surface-container rounded-xl p-4 text-center"><span class="font-label-md text-on-surface-variant">Admins</span><p class="font-headline-md font-bold text-amber-600" id="userStatAdmin">0</p></div>
+  <div class="bg-surface-container rounded-xl p-4 text-center"><span class="font-label-md text-on-surface-variant">Regular Users</span><p class="font-headline-md font-bold text-indigo-600" id="userStatRegular">0</p></div>
+</div>
+<div id="usersTableContainer"></div>
+</section>
+
+<section id="pageTasks" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+  <div>
+    <h2 class="font-headline-lg text-headline-lg text-primary">All Tasks</h2>
+    <p class="font-body-lg text-on-surface-variant">Oversight of all tasks across users</p>
+  </div>
+  <div class="flex gap-3 flex-wrap">
+    <select id="taskUserFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="renderAdminTasks()"></select>
+    <select id="taskStatusFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="renderAdminTasks()">
+      <option value="all">All Status</option>
+      <option value="todo">To Do</option>
+      <option value="progress">In Progress</option>
+      <option value="done">Done</option>
+    </select>
+    <select id="taskPriorityFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="renderAdminTasks()">
+      <option value="all">All Priority</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+      <option value="urgent">Urgent</option>
+    </select>
+  </div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Total</span><p class="font-headline-md font-bold text-primary" id="taskStatTotal">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">To Do</span><p class="font-headline-md font-bold text-red-600" id="taskStatTodo">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">In Progress</span><p class="font-headline-md font-bold text-amber-600" id="taskStatProgress">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Done</span><p class="font-headline-md font-bold text-emerald-600" id="taskStatDone">0</p></div>
+</div>
+<div id="adminTasksContainer" class="space-y-3"></div>
+</section>
+
+<section id="pagePlans" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+  <div>
+    <h2 class="font-headline-lg text-headline-lg text-primary">All Plans & Roadmaps</h2>
+    <p class="font-body-lg text-on-surface-variant">View all plans, milestones, and progress across users</p>
+  </div>
+  <div class="flex gap-3 flex-wrap">
+    <select id="planUserFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="renderAdminPlans()"></select>
+    <select id="planStatusFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="renderAdminPlans()">
+      <option value="all">All Status</option>
+      <option value="not_started">Not Started</option>
+      <option value="in_progress">In Progress</option>
+      <option value="completed">Completed</option>
+      <option value="on_hold">On Hold</option>
+    </select>
+  </div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Total Plans</span><p class="font-headline-md font-bold text-primary" id="planStatTotal">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Active</span><p class="font-headline-md font-bold text-amber-600" id="planStatActive">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Completed</span><p class="font-headline-md font-bold text-emerald-600" id="planStatDone">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Milestones</span><p class="font-headline-md font-bold text-indigo-600" id="planStatMstones">0</p></div>
+</div>
+<div id="adminPlansContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+</section>
+
+<section id="pageDailyLogs" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+  <div>
+    <h2 class="font-headline-lg text-headline-lg text-primary">All Daily Logs</h2>
+    <p class="font-body-lg text-on-surface-variant">Daily job accomplishments from all users</p>
+  </div>
+  <div class="flex gap-3 flex-wrap">
+    <select id="logUserFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="renderAdminDailyLogs()"></select>
+    <input id="logDateFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Filter by date" onchange="renderAdminDailyLogs()" type="date"/>
+    <select id="logCategoryFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="renderAdminDailyLogs()">
+      <option value="all">All Categories</option>
+    </select>
+  </div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Total Entries</span><p class="font-headline-md font-bold text-primary" id="logStatTotal">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">This Week</span><p class="font-headline-md font-bold text-indigo-600" id="logStatWeek">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">This Month</span><p class="font-headline-md font-bold text-amber-600" id="logStatMonth">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Categories</span><p class="font-headline-md font-bold text-emerald-600" id="logStatCats">0</p></div>
+</div>
+<div id="adminLogsContainer" class="space-y-3"></div>
+</section>
+
+<section id="pageTrips" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+  <div>
+    <h2 class="font-headline-lg text-headline-lg text-primary">All Trips</h2>
+    <p class="font-body-lg text-on-surface-variant">Travel plans and itineraries across all users</p>
+  </div>
+  <div class="flex gap-3 flex-wrap">
+    <select id="tripUserFilter" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="renderAdminTrips()"></select>
+    <input id="tripSearch" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 w-48" placeholder="Search destinations..." oninput="renderAdminTrips()" type="text"/>
+  </div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Total Trips</span><p class="font-headline-md font-bold text-primary" id="tripStatTotal">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Upcoming</span><p class="font-headline-md font-bold text-amber-600" id="tripStatUpcoming">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Ongoing</span><p class="font-headline-md font-bold text-emerald-600" id="tripStatOngoing">0</p></div>
+  <div class="bg-surface-container rounded-xl p-3 text-center"><span class="font-label-md text-on-surface-variant">Destinations</span><p class="font-headline-md font-bold text-indigo-600" id="tripStatDest">0</p></div>
+</div>
+<div id="adminTripsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+</section>
+
+<section id="pageData" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+<div class="mb-8">
+  <h2 class="font-headline-lg text-headline-lg text-primary">Data Management</h2>
+  <p class="font-body-lg text-on-surface-variant">Export, import, and manage system data</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-indigo-500">download</span> Export Data</h3>
+    <p class="font-body-md text-on-surface-variant mb-4">Download all system data (users, tasks, plans, trips, logs) as a JSON file for backup.</p>
+    <button class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-indigo-700 transition-colors" onclick="exportAllData()">
+      <span class="material-symbols-outlined">file_download</span> Export All Data
+    </button>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-amber-500">upload</span> Import Data</h3>
+    <p class="font-body-md text-on-surface-variant mb-4">Restore data from a previously exported JSON backup file. This will overwrite existing data.</p>
+    <input id="importFileInput" class="w-full mb-3 text-body-md file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-primary file:text-on-primary file:font-label-md hover:file:opacity-90" type="file" accept=".json"/>
+    <button class="flex items-center gap-2 bg-amber-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-amber-700 transition-colors" onclick="importData()">
+      <span class="material-symbols-outlined">file_upload</span> Import Data
+    </button>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-red-500">delete_sweep</span> Clear Data</h3>
+    <p class="font-body-md text-on-surface-variant mb-4">Remove all system data. This action cannot be undone. Only user accounts will be preserved.</p>
+    <button class="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-red-700 transition-colors" onclick="clearAllData()">
+      <span class="material-symbols-outlined">warning</span> Clear All Data
+    </button>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">info</span> System Info</h3>
+    <div class="space-y-3">
+      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Total localStorage keys</span><span class="font-body-md font-semibold" id="sysInfoKeys">0</span></div>
+      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Total data size</span><span class="font-body-md font-semibold" id="sysInfoSize">0 KB</span></div>
+      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Registered users</span><span class="font-body-md font-semibold" id="sysInfoUsers">0</span></div>
+    </div>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">cloud_upload</span> Sync Users to Cloud</h3>
+    <p class="font-body-md text-on-surface-variant mb-4">Create or update Supabase Auth accounts for all local users. Required para makapag-login sila sa ibang device.</p>
+    <button class="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-emerald-700 transition-colors" onclick="syncAllLocalUsersToFirestore()">
+      <span class="material-symbols-outlined">cloud_upload</span> Sync All Users to Cloud
+    </button>
+    <span id="syncStatus" class="font-label-md text-on-surface-variant ml-3"></span>
+  </div>
+</div>
+</section>
+
+<section id="pageSearch" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+<div class="mb-8">
+  <h2 class="font-headline-lg text-headline-lg text-primary">Global Search</h2>
+  <p class="font-body-lg text-on-surface-variant">Search across all users, tasks, plans, trips, and logs</p>
+</div>
+<div class="max-w-2xl mx-auto mb-8">
+  <div class="relative">
+    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">search</span>
+    <input id="globalSearchInput" class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl py-4 pl-12 pr-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-lg" placeholder="Type to search across all data..." oninput="performGlobalSearch()" type="text"/>
+  </div>
+  <div class="flex gap-2 mt-3">
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsUsers"/> <span class="font-label-md">Users</span></label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsTasks"/> <span class="font-label-md">Tasks</span></label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsPlans"/> <span class="font-label-md">Plans</span></label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsTrips"/> <span class="font-label-md">Trips</span></label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsLogs"/> <span class="font-label-md">Logs</span></label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked onchange="performGlobalSearch()" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500" id="gsIT"/> <span class="font-label-md">IT Data</span></label>
+  </div>
+</div>
+<div id="globalSearchResults"></div>
+</section>
+
+</main>
+
+<div id="mobile-menu" class="md:hidden hidden fixed inset-0 bg-black/50 z-50" onclick="document.getElementById('mobile-menu').classList.add('hidden')">
+  <div class="absolute left-0 top-0 h-full w-72 sidebar-glass shadow-xl p-8" onclick="event.stopPropagation()">
+    <div class="mb-10 flex justify-between items-center">
+      <div>
+        <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Administrator</h1>
+        <p class="font-label-md text-label-md text-on-surface-variant mt-1">Control Panel</p>
+      </div>
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors" onclick="document.getElementById('mobile-menu').classList.add('hidden')">close</button>
+    </div>
+    <nav class="sidebar-mobile flex-1 space-y-1.5">
+      <a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="showSection('pageDashboard'); loadDashboard(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageUsers'); renderUsers(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">manage_accounts</span> <span class="font-label-md">Users</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTasks'); renderAdminTasks(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">checklist</span> <span class="font-label-md">Tasks</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pagePlans'); renderAdminPlans(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">map</span> <span class="font-label-md">Plans & Roadmaps</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageDailyLogs'); renderAdminDailyLogs(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">edit_note</span> <span class="font-label-md">Daily Logs</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTrips'); renderAdminTrips(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md">Trips</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageData'); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">storage</span> <span class="font-label-md">Data Management</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageSearch'); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">search</span> <span class="font-label-md">Global Search</span></a>
+    </nav>
+    <button class="mt-auto w-full bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="openUserModal()">
+      <span class="material-symbols-outlined">person_add</span> New User
+    </button>
+  </div>
+</div>
+
+<div id="userModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
+  <div class="bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h3 id="userModalTitle" class="font-title-lg text-title-lg text-primary">New User</h3>
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="closeUserModal()">close</button>
+    </div>
+    <input type="hidden" id="editUserId"/>
+    <div class="space-y-4">
+      <div><label class="font-label-md text-on-surface-variant block mb-1.5">Full Name *</label><input id="userName" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter full name" type="text"/></div>
+      <div><label class="font-label-md text-on-surface-variant block mb-1.5">Username *</label><input id="userUsername" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter username" type="text"/></div>
+      <div><label class="font-label-md text-on-surface-variant block mb-1.5">Email</label><input id="userEmail" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter email address" type="email"/></div>
+      <div><label class="font-label-md text-on-surface-variant block mb-1.5">Password</label><input id="userPassword" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Leave blank to keep current" type="password"/></div>
+      <div><label class="font-label-md text-on-surface-variant block mb-1.5">Role</label>
+        <select id="userRole" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option value="executive_path">Executive Path</option>
+          <option value="executive_task" selected>Executive Task</option>
+          <option value="executive_it">Executive IT</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="userIsAdmin" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500"/>
+        <label for="userIsAdmin" class="font-label-md text-on-surface-variant cursor-pointer">Portal Admin (can view all users' data within their portal)</label>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="userExecutiveAdmin" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500"/>
+        <label for="userExecutiveAdmin" class="font-label-md text-on-surface-variant cursor-pointer">Executive Administrator (access to Inventory, System Monitor &amp; Knowledge Base)</label>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-title-lg hover:opacity-90 transition-all active:scale-[0.98]" onclick="saveUser()">Save</button>
+        <button class="flex-1 border border-outline-variant text-on-surface-variant py-3 rounded-xl font-title-lg hover:bg-surface-container transition-all" onclick="closeUserModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="welcomeModal" class="hidden fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
+    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+      <span class="material-symbols-outlined text-primary" style="font-size:32px;">celebration</span>
+    </div>
+    <h2 class="text-2xl font-bold text-on-surface mb-2">Welcome to KALYX!</h2>
+    <p class="text-on-surface-variant text-sm leading-relaxed mb-1">We're excited to have you on board, <span id="welcomeName" class="font-semibold text-primary"></span>!</p>
+    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Start managing your tasks, trips, and accomplishments — all in one place.</p>
+    <button onclick="document.getElementById('welcomeModal').classList.add('hidden')" class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md">Get Started</button>
+  </div>
+</div>
+
+<script>
+function goTo(path) { window.location.href = getBaseUrl() + path; }
+
+function initAuth(callback) {
+  initFirebase(function(err, session) {
+    if (!err && session && session.loggedIn) {
+      // Load all users from Firestore profiles
+      loadUsersFromFirestore(function() {
+        if (session.isAdmin || session.role === 'admin') {
+          session.role = 'admin';
+          finishAuth(session, callback);
+        } else {
+          goTo('login/');
+        }
+      });
+    } else {
+      session = getSession();
+      if (!session || !session.loggedIn) { goTo('login/'); return; }
+      if (session.role === 'admin' || session.isAdmin) {
+        loadUsersFromFirestore(function() {
+          finishAuth(session, callback);
+        });
+      } else {
+        goTo('login/');
+      }
+    }
+  });
+}
+
+function finishAuth(session, callback) {
+  if (session.role !== 'admin') {
+    if (session.role === 'executive_task') { goTo('executive_task/'); return; }
+    if (session.role === 'executive_it') { goTo('executive_it/'); return; }
+    goTo('executive_path/'); return;
+  }
+  var initial = (session.name || session.username).charAt(0).toUpperCase();
+  document.getElementById('userBtn').textContent = initial;
+  document.getElementById('userNameDisplay').textContent = session.name || session.username;
+  document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
+  if (callback) callback(session);
+}
+
+function checkWelcome() {
+  var s = window.__fbSession || getSession();
+  if (!s || !s.username) return;
+  var key = 'welcome_' + s.username;
+  if (localStorage.getItem(key)) {
+    localStorage.removeItem(key);
+    document.getElementById('welcomeName').textContent = s.name || s.username;
+    document.getElementById('welcomeModal').classList.remove('hidden');
+  }
+}
+
+function doLogout() { fbLogout(function() { goTo('login/'); }); }
+
+document.addEventListener('click', function(e) {
+  var menu = document.getElementById('userMenu');
+  if (menu && !menu.classList.contains('hidden') && !e.target.closest('#userBtn') && !e.target.closest('#userMenu')) {
+    menu.classList.add('hidden');
+  }
+});
+
+var SECTIONS = ['pageDashboard','pageUsers','pageTasks','pagePlans','pageDailyLogs','pageTrips','pageData','pageSearch'];
+var SECTION_TITLES = {
+  pageDashboard: 'Dashboard', pageUsers: 'Users', pageTasks: 'Tasks',
+  pagePlans: 'Plans & Roadmaps', pageDailyLogs: 'Daily Logs',
+  pageTrips: 'Trips', pageData: 'Data Management', pageSearch: 'Global Search'
+};
+
+function setActiveNav(id) {
+  var sidebars = [document.querySelectorAll('.sidebar-desktop a'), document.querySelectorAll('.sidebar-mobile a')];
+  sidebars.forEach(function(links) {
+    links.forEach(function(link, i) {
+      var section = SECTIONS[i];
+      link.className = section === id
+        ? 'flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm'
+        : 'flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200';
+    });
+  });
+}
+
+function showSection(id) {
+  setActiveNav(id);
+  SECTIONS.forEach(function(s) { document.getElementById(s).classList.toggle('hidden', s !== id); });
+  document.getElementById('pageTitle').textContent = SECTION_TITLES[id] || 'Dashboard';
+  if (id === 'pageData') loadSystemInfo();
+}
+
+function mergeSupabaseUsers(sbUsers, localUsers) {
+  if (!sbUsers || !sbUsers.length) return localUsers;
+  var merged = localUsers.slice();
+  sbUsers.forEach(function(sb) {
+    var existing = merged.find(function(m) { return m.username === sb.username || m.email === sb.email; });
+    if (existing) {
+      existing.role = sb.role || existing.role;
+      existing.name = sb.name || sb.username || existing.name;
+      existing.email = sb.email || existing.email;
+      existing.isAdmin = sb.is_admin || (sb.role === 'admin');
+    } else {
+      merged.push({ username: sb.username, name: sb.name || sb.username, email: sb.email || '', role: sb.role || 'executive_task', isAdmin: sb.is_admin || false });
+    }
+  });
+  return merged;
+}
+
+function getUsers() {
+  return window.__usersCache || [];
+}
+function saveUsers(users) {
+  window.__usersCache = users;
+  // Sync to Firestore
+  users.forEach(function(u) {
+    saveUserToFirestore(u);
+  });
+  refreshUsersCache();
+}
+function refreshUsersCache() {
+  loadUsersFromFirestore(function() {
+    renderUsers();
+    populateUserFilters();
+  });
+}
+
+function fetchFirebaseUserData(username, callback) {
+  var db = firebase.firestore();
+  if (!db) { if (callback) callback(null); return; }
+
+  db.collection('profiles').where('username', '==', username).get().then(function(querySnapshot) {
+    if (querySnapshot.empty) { if (callback) callback(null); return; }
+    var uid = querySnapshot.docs[0].id;
+
+    db.collection('userdata').doc(uid).get().then(function(doc) {
+      if (doc.exists) {
+        var data = doc.data().data || {};
+        // Store in cache instead of localStorage
+        if (!window.__allUserDataCache) window.__allUserDataCache = {};
+        window.__allUserDataCache[username] = data;
+        if (callback) callback(data);
+      } else {
+        if (callback) callback(null);
+      }
+    }).catch(function() { if (callback) callback(null); });
+  }).catch(function() { if (callback) callback(null); });
+}
+
+function syncAllUsersFromFirebase(callback) {
+  var users = getUsers();
+  var db = firebase.firestore();
+  if (!users.length || !db) { if (callback) callback(); return; }
+
+  var pending = users.length;
+  var done = 0;
+
+  users.forEach(function(u) {
+    fetchFirebaseUserData(u.username, function() {
+      done++;
+      if (done >= pending && callback) callback();
+    });
+  });
+}
+
+// Data is already in Firestore — this is a no-op now except for cache refresh
+function syncAllLocalUsersToFirestore() {
+  var statusEl = document.getElementById('syncStatus');
+  if (!statusEl) return;
+  statusEl.textContent = 'All data is stored in Firestore. No sync needed.';
+  setTimeout(function() { statusEl.textContent = ''; }, 3000);
+}
+
+function collectUserData(username) {
+  // Read from Firestore cache if available, else return empty
+  var uid = null;
+  var users = getUsers();
+  var u = users.find(function(x) { return x.username === username; });
+  if (u && u.id) uid = u.id;
+
+  // Check the global user data cache
+  if (window.__allUserDataCache && window.__allUserDataCache[username]) {
+    return window.__allUserDataCache[username];
+  }
+  return { tasks: [], plans: [], milestones: [], dailylog: [], trips: [] };
+}
+
+function loadDashboard() {
+  showSection('pageDashboard');
+  var users = getUsers();
+  document.getElementById('adminTotalUsers').textContent = users.length;
+
+  ensureDataLoaded(function() {
+    var allTasks = [], allPlans = [], allLogs = [], allTrips = [], allMstones = [];
+    users.forEach(function(u) {
+      var d = getUserCache(u.username);
+      d.tasks.forEach(function(t) { t._user = u.name || u.username; });
+      allTasks = allTasks.concat(d.tasks);
+      d.plans.forEach(function(p) { p._user = u.name || u.username; });
+      allPlans = allPlans.concat(d.plans);
+      d.milestones.forEach(function(m) { m._user = u.name || u.username; });
+      allMstones = allMstones.concat(d.milestones);
+      d.dailylog.forEach(function(l) { l._user = u.name || u.username; });
+      allLogs = allLogs.concat(d.dailylog);
+      d.trips.forEach(function(t) { t._user = u.name || u.username; });
+      allTrips = allTrips.concat(d.trips);
+    });
+
+    document.getElementById('adminTotalTasks').textContent = allTasks.length;
+    document.getElementById('adminTotalPlans').textContent = allPlans.length;
+    document.getElementById('adminTotalTrips').textContent = allTrips.length;
+    document.getElementById('adminTotalLogs').textContent = allLogs.length;
+    document.getElementById('adminTotalMilestones').textContent = allMstones.length;
+
+    var roleLabel = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task', executive_it: 'Exec IT' };
+    var roleColors = { admin: 'bg-amber-100 text-amber-700', executive_path: 'bg-blue-100 text-blue-700', executive_task: 'bg-indigo-100 text-indigo-700', executive_it: 'bg-purple-100 text-purple-700' };
+    document.getElementById('adminUserList').innerHTML = users.map(function(u) {
+      return '<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors">' +
+        '<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">' + (u.name || u.username).charAt(0).toUpperCase() + '</div>' +
+        '<div><p class="font-body-md font-semibold">' + escapeHtml(u.name || u.username) + '</p><p class="font-label-md text-on-surface-variant">@' + escapeHtml(u.username) + '</p></div></div>' +
+        '<span class="font-label-md px-2.5 py-1 rounded-full text-xs font-semibold ' + (roleColors[u.role] || '') + '">' + (roleLabel[u.role] || u.role) + '</span></div>';
+    }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No users</p>';
+
+    var activity = [];
+    allTasks.forEach(function(t) { activity.push({ type: 'task', title: t.title, user: t._user, date: t.createdAt || t.dueDate }); });
+    allPlans.forEach(function(p) { activity.push({ type: 'plan', title: p.title, user: p._user, date: p.createdAt || p.startDate }); });
+    allLogs.forEach(function(l) { activity.push({ type: 'log', title: l.title, user: l._user, date: l.date || l.createdAt }); });
+    allTrips.forEach(function(t) { activity.push({ type: 'trip', title: t.tripName || t.title, user: t._user, date: t.createdAt || t.startDate }); });
+    activity.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; });
+    document.getElementById('adminRecentActivity').innerHTML = activity.slice(0, 12).map(function(a) {
+      var icons = { task: 'checklist', plan: 'map', log: 'edit_note', trip: 'flight_takeoff' };
+      var colors = { task: 'bg-indigo-100 text-indigo-600', plan: 'bg-emerald-100 text-emerald-600', log: 'bg-pink-100 text-pink-600', trip: 'bg-blue-100 text-blue-600' };
+      return '<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container">' +
+        '<div class="p-2 rounded-lg ' + (colors[a.type] || 'bg-gray-100 text-gray-600') + '"><span class="material-symbols-outlined text-sm">' + (icons[a.type] || 'circle') + '</span></div>' +
+        '<div class="flex-1 min-w-0"><p class="font-body-md font-semibold truncate">' + escapeHtml(a.title) + '</p>' +
+        '<p class="font-label-md text-on-surface-variant">' + escapeHtml(a.user) + ' &middot; ' + (a.date || '—') + '</p></div></div>';
+    }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No activity</p>';
+  });
+}
+
+function updateFirebaseProfile(email, profile) {
+  var db = firebase.firestore();
+  if (!db) return;
+
+  db.collection('profiles').where('email', '==', email).get().then(function(querySnapshot) {
+    if (querySnapshot.empty) return;
+    var uid = querySnapshot.docs[0].id;
+    db.collection('profiles').doc(uid).update({
+      username: profile.username,
+      name: profile.name || profile.username,
+      email: email,
+      role: profile.role || 'executive_task',
+      is_admin: profile.isAdmin || false,
+      executive_admin: profile.executiveAdmin || false
+    }).catch(function(err) {
+      console.error('Profile update error:', err);
+    });
+    db.collection('userdata').doc(uid).get().then(function(doc) {
+      if (doc.exists) {
+        var cache = doc.data().data || {};
+        if (!cache.profile) cache.profile = {};
+        cache.profile.executiveAdmin = profile.executiveAdmin || false;
+        db.collection('userdata').doc(uid).set({ data: cache }).catch(function(e) {});
+      }
+    });
+  }).catch(function(err) {
+    console.error('Firebase profile lookup error:', err);
+  });
+}
+
+async function hashPass(pass) {
+  var enc = new TextEncoder().encode(pass);
+  var buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+function renderUsers() {
+  var users = getUsers();
+  var filter = document.getElementById('userRoleFilter').value;
+  var search = document.getElementById('userSearch').value.toLowerCase();
+  if (filter !== 'all') users = users.filter(function(u) { return u.role === filter; });
+  if (search) users = users.filter(function(u) { return (u.name || '').toLowerCase().indexOf(search) !== -1 || u.username.toLowerCase().indexOf(search) !== -1; });
+
+  document.getElementById('userStatTotal').textContent = users.length;
+  document.getElementById('userStatAdmin').textContent = users.filter(function(u) { return u.role === 'admin'; }).length;
+  document.getElementById('userStatRegular').textContent = users.filter(function(u) { return u.role !== 'admin'; }).length;
+
+  var container = document.getElementById('usersTableContainer');
+  if (users.length === 0) {
+    container.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">people</span><p class="font-body-md text-on-surface-variant mt-4">No users found</p></div>';
+    return;
+  }
+
+  var roleLabels = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task', executive_it: 'Exec IT' };
+  var roleColors = { admin: 'bg-amber-100 text-amber-700', executive_path: 'bg-blue-100 text-blue-700', executive_task: 'bg-indigo-100 text-indigo-700', executive_it: 'bg-purple-100 text-purple-700' };
+
+  container.innerHTML = '<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">' +
+    '<div class="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-surface-container border-b border-outline-variant font-label-md text-on-surface-variant">' +
+    '<div class="col-span-3">Name</div><div class="col-span-2">Email</div><div class="col-span-2">Username</div><div class="col-span-2">Role</div><div class="col-span-1">Data</div><div class="col-span-2 text-right">Actions</div></div>' +
+    users.map(function(u) {
+      var d = collectUserData(u.username);
+      var total = d.tasks.length + d.plans.length + d.trips.length + d.dailylog.length;
+      return '<div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 px-6 py-4 border-b border-outline-variant last:border-0 items-center hover:bg-surface-container-low transition-colors">' +
+        '<div class="md:col-span-3 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm flex-shrink-0">' + (u.name || u.username).charAt(0).toUpperCase() + '</div>' +
+        '<div><p class="font-body-md font-semibold">' + escapeHtml(u.name || '—') + '</p></div></div>' +
+        '<div class="md:col-span-2"><span class="font-body-md text-on-surface-variant truncate block" title="' + escapeHtml(u.email || '') + '">' + escapeHtml(u.email || '—') + '</span></div>' +
+        '<div class="md:col-span-2"><span class="font-body-md text-on-surface-variant">@' + escapeHtml(u.username) + '</span></div>' +
+        '<div class="md:col-span-2"><span class="font-label-md px-2.5 py-1 rounded-full text-xs font-semibold ' + (roleColors[u.role] || '') + '">' + (roleLabels[u.role] || u.role) + '</span></div>' +
+        '<div class="md:col-span-1"><span class="font-label-md text-on-surface-variant">' + total + '</span></div>' +
+        '<div class="md:col-span-2 flex items-center justify-end gap-2">' +
+        '<button class="px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-700 font-label-md hover:bg-indigo-200 transition-colors text-xs" onclick="editUser(\'' + u.username + '\')"><span class="material-symbols-outlined text-sm align-middle">edit</span> Edit</button>' +
+        (u.role !== 'admin' ? '<button class="px-3 py-1.5 rounded-lg bg-red-100 text-red-700 font-label-md hover:bg-red-200 transition-colors text-xs" onclick="deleteUser(\'' + u.username + '\')"><span class="material-symbols-outlined text-sm align-middle">delete</span></button>' : '') +
+        '</div></div>';
+    }).join('') + '</div>';
+}
+
+function openUserModal(data) {
+  document.getElementById('userModalTitle').textContent = data ? 'Edit User' : 'New User';
+  document.getElementById('editUserId').value = data ? data.username : '';
+  document.getElementById('userName').value = data ? (data.name || '') : '';
+  document.getElementById('userUsername').value = data ? data.username : '';
+  document.getElementById('userEmail').value = data ? (data.email || '') : '';
+  document.getElementById('userPassword').value = '';
+  document.getElementById('userRole').value = data ? (data.role || 'executive_task') : 'executive_task';
+  document.getElementById('userIsAdmin').checked = data ? !!data.isAdmin : false;
+  document.getElementById('userExecutiveAdmin').checked = data ? !!data.executiveAdmin : false;
+  document.getElementById('userModal').classList.remove('hidden');
+}
+
+function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
+
+async function saveUser() {
+  var name = document.getElementById('userName').value.trim();
+  var username = document.getElementById('userUsername').value.trim();
+  var email = document.getElementById('userEmail').value.trim();
+  var password = document.getElementById('userPassword').value;
+  var role = document.getElementById('userRole').value;
+  var isAdmin = document.getElementById('userIsAdmin').checked;
+  var executiveAdmin = document.getElementById('userExecutiveAdmin').checked;
+  var editId = document.getElementById('editUserId').value;
+  var errEl = document.getElementById('userModal').querySelector('.space-y-4');
+  var oldErr = document.getElementById('userModalErr');
+  if (oldErr) oldErr.remove();
+  if (!name || !username) {
+    var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
+    err.textContent = 'Name and username are required.'; errEl.prepend(err); return;
+  }
+  var users = getUsers();
+  if (editId) {
+    var idx = users.findIndex(function(u) { return u.username === editId; });
+    if (idx === -1) return;
+    if (username !== editId && users.some(function(u) { return u.username === username; })) {
+      var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
+      err.textContent = 'Username already exists.'; errEl.prepend(err); return;
+    }
+    if (editId === 'superadmin' && role !== 'admin') {
+      var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
+      err.textContent = 'Super Administrator role cannot be changed.'; errEl.prepend(err); return;
+    }
+    users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin; users[idx].executiveAdmin = executiveAdmin;
+    window.__usersCache = users;
+    // Save to Firestore
+    saveUserToFirestore({
+      id: users[idx].id || editId,
+      username: username, name: name, email: email,
+      role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin
+    });
+    refreshUsersCache();
+  } else {
+    if (users.some(function(u) { return u.username === username; })) {
+      var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
+      err.textContent = 'Username already exists.'; errEl.prepend(err); return;
+    }
+    if (!password) {
+      var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
+      err.textContent = 'Password is required for new users.'; errEl.prepend(err); return;
+    }
+    var syncEmail = email || (username + '@app.local');
+    if (typeof firebase !== 'undefined') {
+      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin }, function(err) {
+        if (err) {
+          console.error('Firebase account creation error:', err);
+          var statusEl = document.getElementById('syncStatus');
+          if (statusEl) statusEl.textContent = 'Note: ' + username + ' Firebase account: ' + (err.message || err).substring(0, 60);
+        } else {
+          refreshUsersCache();
+        }
+      });
+    }
+  }
+  closeUserModal();
+  renderUsers();
+  loadDashboard();
+}
+
+function editUser(username) {
+  var users = getUsers();
+  var u = users.find(function(u) { return u.username === username; });
+  if (u) openUserModal(u);
+}
+
+function deleteUser(username) {
+  if (username === 'superadmin') return;
+  if (!confirm('Delete user "' + username + '"? This will remove all their data.')) return;
+  deleteUserFromFirestore(username, function() {
+    // Update local cache
+    window.__usersCache = (window.__usersCache || []).filter(function(u) { return u.username !== username; });
+    if (window.__allUserDataCache) delete window.__allUserDataCache[username];
+    renderUsers();
+    loadDashboard();
+  });
+}
+
+// Load all user data from Firestore into the global cache for admin rendering
+function ensureDataLoaded(callback) {
+  if (window.__allUserDataCache && Object.keys(window.__allUserDataCache).length > 0) {
+    if (callback) callback();
+    return;
+  }
+  var users = getUsers();
+  if (!users.length) { window.__allUserDataCache = {}; if (callback) callback(); return; }
+  window.__allUserDataCache = {};
+  var pending = users.length;
+  users.forEach(function(u) {
+    fetchFirebaseUserData(u.username, function() {
+      pending--;
+      if (pending <= 0 && callback) callback();
+    });
+  });
+}
+
+// Get data from cache for a user
+function getUserCache(username) {
+  if (!window.__allUserDataCache) window.__allUserDataCache = {};
+  return window.__allUserDataCache[username] || { tasks: [], plans: [], milestones: [], dailylog: [], trips: [] };
+}
+
+function populateUserFilters() {
+  var users = getUsers();
+  var sel = ['taskUserFilter','planUserFilter','logUserFilter','tripUserFilter'];
+  var opts = '<option value="all">All Users</option>';
+  users.forEach(function(u) { opts += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + '</option>'; });
+  sel.forEach(function(id) { document.getElementById(id).innerHTML = opts; });
+}
+
+function renderAdminTasks() {
+  var users = getUsers();
+  var uf = document.getElementById('taskUserFilter').value;
+  var sf = document.getElementById('taskStatusFilter').value;
+  var pf = document.getElementById('taskPriorityFilter').value;
+
+  ensureDataLoaded(function() {
+    var all = [];
+    users.forEach(function(u) {
+      var d = getUserCache(u.username);
+      (d.tasks || []).forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
+      all = all.concat(d.tasks || []);
+    });
+    if (uf !== 'all') all = all.filter(function(t) { return t._username === uf; });
+    if (sf !== 'all') all = all.filter(function(t) { return t.status === sf; });
+    if (pf !== 'all') all = all.filter(function(t) { return t.priority === pf; });
+
+    document.getElementById('taskStatTotal').textContent = all.length;
+    document.getElementById('taskStatTodo').textContent = all.filter(function(t) { return t.status === 'todo'; }).length;
+    document.getElementById('taskStatProgress').textContent = all.filter(function(t) { return t.status === 'progress'; }).length;
+    document.getElementById('taskStatDone').textContent = all.filter(function(t) { return t.status === 'done'; }).length;
+
+    var container = document.getElementById('adminTasksContainer');
+    if (!all.length) { container.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">checklist</span><p class="font-body-md text-on-surface-variant mt-4">No tasks found</p></div>'; return; }
+
+    var sl = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
+    var sc = { todo: 'bg-red-100 text-red-700', progress: 'bg-amber-100 text-amber-700', done: 'bg-emerald-100 text-emerald-700' };
+    var pl = { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' };
+    var pc = { low: 'bg-gray-100 text-gray-700', medium: 'bg-blue-100 text-blue-700', high: 'bg-orange-100 text-orange-700', urgent: 'bg-red-100 text-red-700' };
+
+    all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
+    container.innerHTML = all.map(function(t) {
+      return '<div class="flex items-start gap-4 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl">' +
+        '<div class="p-3 rounded-xl bg-indigo-100 text-indigo-600"><span class="material-symbols-outlined">task</span></div>' +
+        '<div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.title) + '</h4>' +
+        '<span class="font-label-md px-2.5 py-0.5 rounded-full text-xs font-semibold ' + (sc[t.status] || '') + '">' + (sl[t.status] || t.status) + '</span>' +
+        '<span class="font-label-md px-2.5 py-0.5 rounded-full text-xs font-semibold ' + (pc[t.priority] || '') + '">' + (pl[t.priority] || t.priority) + '</span></div>' +
+        (t.description ? '<p class="font-label-md text-on-surface-variant mt-1">' + escapeHtml(t.description) + '</p>' : '') +
+        '<div class="flex items-center gap-3 mt-2 text-on-surface-variant flex-wrap"><span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(t._user) + '</span>' +
+        (t.dueDate ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + t.dueDate + '</span>' : '') +
+        (t.category ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">folder</span> ' + escapeHtml(t.category) + '</span>' : '') +
+        '</div></div></div>';
+    }).join('');
+  });
+}
+
+function renderAdminPlans() {
+  var users = getUsers();
+  var uf = document.getElementById('planUserFilter').value;
+  var sf = document.getElementById('planStatusFilter').value;
+
+  ensureDataLoaded(function() {
+    var all = [];
+    users.forEach(function(u) {
+      var d = getUserCache(u.username);
+      var pl = d.plans || [];
+      var ms = d.milestones || [];
+      pl.forEach(function(p) { p._user = u.name || u.username; p._username = u.username; p._milestones = ms.filter(function(m) { return m.planId === p.id; }); });
+      all = all.concat(pl);
+    });
+  if (uf !== 'all') all = all.filter(function(p) { return p._username === uf; });
+  if (sf !== 'all') all = all.filter(function(p) { return p.status === sf; });
+
+  var totalMstones = 0;
+  all.forEach(function(p) { totalMstones += (p._milestones || []).length; });
+  document.getElementById('planStatTotal').textContent = all.length;
+  document.getElementById('planStatActive').textContent = all.filter(function(p) { return p.status === 'in_progress'; }).length;
+  document.getElementById('planStatDone').textContent = all.filter(function(p) { return p.status === 'completed'; }).length;
+  document.getElementById('planStatMstones').textContent = totalMstones;
+
+  var container = document.getElementById('adminPlansContainer');
+  if (!all.length) { container.innerHTML = '<div class="col-span-2 flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">map</span><p class="font-body-md text-on-surface-variant mt-4">No plans found</p></div>'; return; }
+
+  var sl = { not_started: 'Not Started', in_progress: 'In Progress', completed: 'Completed', on_hold: 'On Hold' };
+  var sc = { not_started: 'bg-gray-100 text-gray-700', in_progress: 'bg-amber-100 text-amber-700', completed: 'bg-emerald-100 text-emerald-700', on_hold: 'bg-red-100 text-red-700' };
+
+  all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
+  container.innerHTML = all.map(function(p) {
+    var mstones = p._milestones || [];
+    var done = mstones.filter(function(m) { return m.status === 'completed'; }).length;
+    var pct = mstones.length ? Math.round(done / mstones.length * 100) : 0;
+    return '<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5">' +
+      '<div class="flex items-start justify-between mb-3"><div><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(p.title) + '</h4>' +
+      '<p class="font-label-md text-on-surface-variant mt-0.5">by ' + escapeHtml(p._user) + '</p></div>' +
+      '<span class="font-label-md px-2.5 py-1 rounded-full text-xs font-semibold ' + (sc[p.status] || '') + '">' + (sl[p.status] || p.status) + '</span></div>' +
+      (p.description ? '<p class="font-label-md text-on-surface-variant mb-3">' + escapeHtml(p.description) + '</p>' : '') +
+      (p.startDate || p.endDate ? '<p class="font-label-md text-on-surface-variant mb-3">' + (p.startDate || '—') + ' → ' + (p.endDate || '—') + '</p>' : '') +
+      '<div class="flex items-center gap-3 mb-2"><div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden"><div class="h-full rounded-full bg-indigo-500 transition-all" style="width:' + pct + '%"></div></div>' +
+      '<span class="font-label-md font-semibold text-indigo-600">' + pct + '%</span></div>' +
+      '<p class="font-label-md text-on-surface-variant">' + done + '/' + mstones.length + ' milestones</p></div>';
+  }).join('');
+    });
+}
+
+function renderAdminDailyLogs() {
+  var users = getUsers();
+  var uf = document.getElementById('logUserFilter').value;
+  var df = document.getElementById('logDateFilter').value;
+  var cf = document.getElementById('logCategoryFilter').value;
+
+  ensureDataLoaded(function() {
+    var all = [];
+    var allCategories = {};
+    users.forEach(function(u) {
+      var d = getUserCache(u.username);
+      var lg = d.dailylog || [];
+      lg.forEach(function(l) { l._user = u.name || u.username; l._username = u.username; if (l.category) allCategories[l.category] = true; });
+      all = all.concat(lg);
+    });
+  if (uf !== 'all') all = all.filter(function(l) { return l._username === uf; });
+  if (df) all = all.filter(function(l) { return l.date === df; });
+  if (cf !== 'all') all = all.filter(function(l) { return l.category === cf; });
+
+  var cats = Object.keys(allCategories).sort();
+  var catSelect = document.getElementById('logCategoryFilter');
+  catSelect.innerHTML = '<option value="all">All Categories</option>' + cats.map(function(c) { return '<option value="' + escapeHtml(c) + '"' + (cf === c ? ' selected' : '') + '>' + escapeHtml(c) + '</option>'; }).join('');
+
+  var now = new Date(), weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  document.getElementById('logStatTotal').textContent = all.length;
+  document.getElementById('logStatWeek').textContent = all.filter(function(l) { return l.date && new Date(l.date) >= weekAgo; }).length;
+  document.getElementById('logStatMonth').textContent = all.filter(function(l) { return l.date && new Date(l.date) >= monthStart; }).length;
+  document.getElementById('logStatCats').textContent = cats.length;
+
+  var container = document.getElementById('adminLogsContainer');
+  if (!all.length) { container.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">edit_note</span><p class="font-body-md text-on-surface-variant mt-4">No log entries found</p></div>'; return; }
+
+  all.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; });
+  var catColors = ['bg-blue-100 text-blue-700','bg-emerald-100 text-emerald-700','bg-amber-100 text-amber-700','bg-pink-100 text-pink-700','bg-purple-100 text-purple-700','bg-cyan-100 text-cyan-700','bg-orange-100 text-orange-700'];
+  var catIdx = {};
+
+  container.innerHTML = all.map(function(l) {
+    if (catIdx[l.category] === undefined) catIdx[l.category] = Object.keys(catIdx).length % catColors.length;
+    var cc = catColors[catIdx[l.category]] || catColors[0];
+    return '<div class="flex items-start gap-4 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl">' +
+      '<div class="p-3 rounded-xl bg-pink-100 text-pink-600"><span class="material-symbols-outlined">edit_note</span></div>' +
+      '<div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(l.title) + '</h4>' +
+      (l.category ? '<span class="font-label-md px-2.5 py-0.5 rounded-full text-xs font-semibold ' + cc + '">' + escapeHtml(l.category) + '</span>' : '') +
+      '</div>' + (l.description ? '<p class="font-label-md text-on-surface-variant mt-1">' + escapeHtml(l.description) + '</p>' : '') +
+      '<div class="flex items-center gap-3 mt-2 text-on-surface-variant flex-wrap"><span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(l._user) + '</span>' +
+      (l.date ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + l.date + '</span>' : '') +
+      (l.branch ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">business</span> ' + escapeHtml(l.branch) + '</span>' : '') +
+      (l.timeSpent ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> ' + escapeHtml(l.timeSpent) + '</span>' : '') +
+      '</div></div></div>';
+  }).join('');
+    });
+}
+
+function renderAdminTrips() {
+  var users = getUsers();
+  var uf = document.getElementById('tripUserFilter').value;
+  var sq = document.getElementById('tripSearch').value.toLowerCase();
+
+  ensureDataLoaded(function() {
+    var all = [];
+    users.forEach(function(u) {
+      var d = getUserCache(u.username);
+      var tr = d.trips || [];
+      tr.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
+      all = all.concat(tr);
+    });
+  if (uf !== 'all') all = all.filter(function(t) { return t._username === uf; });
+  if (sq) all = all.filter(function(t) { return (t.destination || '').toLowerCase().indexOf(sq) !== -1 || (t.tripName || t.title || '').toLowerCase().indexOf(sq) !== -1; });
+
+  var now = new Date();
+  var todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  var destinations = {};
+  all.forEach(function(t) { if (t.destination) destinations[t.destination] = true; });
+
+  document.getElementById('tripStatTotal').textContent = all.length;
+  document.getElementById('tripStatUpcoming').textContent = all.filter(function(t) { return t.startDate && t.startDate > todayStr; }).length;
+  document.getElementById('tripStatOngoing').textContent = all.filter(function(t) { return t.startDate && t.endDate && t.startDate <= todayStr && t.endDate >= todayStr; }).length;
+  document.getElementById('tripStatDest').textContent = Object.keys(destinations).length;
+
+  var container = document.getElementById('adminTripsContainer');
+  if (!all.length) { container.innerHTML = '<div class="col-span-2 flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">flight_takeoff</span><p class="font-body-md text-on-surface-variant mt-4">No trips found</p></div>'; return; }
+
+  all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
+
+  container.innerHTML = all.map(function(t) {
+    return '<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5">' +
+      '<div class="flex items-start gap-4"><div class="p-3 rounded-xl bg-blue-100 text-blue-600"><span class="material-symbols-outlined">flight_takeoff</span></div>' +
+      '<div class="flex-1 min-w-0"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.tripName || t.title || 'Trip') + '</h4>' +
+      (t.destination ? '<p class="font-label-md flex items-center gap-1 mt-1 text-on-surface-variant"><span class="material-symbols-outlined text-sm">location_on</span> ' + escapeHtml(t.destination) + '</p>' : '') +
+      '<div class="flex items-center gap-3 mt-2 text-on-surface-variant flex-wrap"><span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(t._user) + '</span>' +
+      (t.startDate ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + t.startDate + (t.endDate ? ' — ' + t.endDate : '') + '</span>' : '') +
+      (t.status ? '<span class="font-label-md px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">' + escapeHtml(t.status) + '</span>' : '') +
+      '</div></div></div></div>';
+  }).join('');
+    });
+}
+
+function loadSystemInfo() {
+  var sizeEstimate = 0;
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    sizeEstimate += (localStorage.getItem(k) || '').length * 2;
+  }
+  document.getElementById('sysInfoKeys').textContent = localStorage.length;
+  document.getElementById('sysInfoSize').textContent = (sizeEstimate / 1024).toFixed(1) + ' KB';
+  document.getElementById('sysInfoUsers').textContent = getUsers().length;
+}
+
+function exportAllData() {
+  var users = getUsers();
+  var data = { exportedAt: new Date().toISOString(), users: users };
+  ensureDataLoaded(function() {
+    var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
+    users.forEach(function(u) {
+      var d = getUserCache(u.username);
+      if (d.tasks) data['tasks_' + u.username] = d.tasks;
+      if (d.plans) data['plans_' + u.username] = d.plans;
+      if (d.milestones) data['milestones_' + u.username] = d.milestones;
+      if (d.dailylog) data['dailylog_' + u.username] = d.dailylog;
+      if (d.trips) data['trips_' + u.username] = d.trips;
+      itTypes.forEach(function(t) {
+        if (d['it_' + t]) data['it_' + t + '_' + u.username] = d['it_' + t];
+      });
+    });
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'scheduler-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+}
+
+function importData() {
+  var fileInput = document.getElementById('importFileInput');
+  if (!fileInput.files.length) { alert('Please select a JSON file to import.'); return; }
+  if (!confirm('Importing will overwrite ALL existing data. Continue?')) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.users || !data.exportedAt) { alert('Invalid backup file format.'); return; }
+      var db = firebase.firestore();
+      if (!db) { alert('Firestore not available.'); return; }
+
+      // Import users to Firestore
+      data.users.forEach(function(u) {
+        var email = u.email || (u.username + '@app.local');
+        var profile = {
+          username: u.username, name: u.name || u.username, email: email,
+          role: u.role || 'executive_task', is_admin: u.isAdmin || false
+        };
+        db.collection('profiles').where('username', '==', u.username).get().then(function(snapshot) {
+          if (snapshot.empty) {
+            db.collection('profiles').add(profile);
+          } else {
+            db.collection('profiles').doc(snapshot.docs[0].id).set(profile);
+          }
+        });
+      });
+
+      // Import user data to Firestore
+      data.users.forEach(function(u) {
+        var userData = {};
+        Object.keys(data).forEach(function(k) {
+          if (k.indexOf(u.username) !== -1) {
+            var parts = k.split('_' + u.username);
+            if (parts[0]) userData[parts[0]] = data[k];
+          }
+        });
+        if (Object.keys(userData).length > 0) {
+          db.collection('profiles').where('username', '==', u.username).get().then(function(snapshot) {
+            if (!snapshot.empty) {
+              var uid = snapshot.docs[0].id;
+              db.collection('userdata').doc(uid).set({ data: userData });
+            }
+          });
+        }
+      });
+
+      // Reload cache
+      window.__allUserDataCache = {};
+      loadUsersFromFirestore(function() {
+        fileInput.value = '';
+        alert('Data imported successfully! Users need Firebase Auth accounts to log in.');
+        loadDashboard();
+      });
+    } catch(err) { alert('Error importing data: ' + err.message); }
+  };
+  reader.readAsText(fileInput.files[0]);
+}
+
+function clearAllData() {
+  if (!confirm('Are you sure you want to clear ALL data? This cannot be undone. User accounts will be preserved.')) return;
+  if (!confirm('FINAL WARNING: This will delete all tasks, plans, milestones, daily logs, trips, and IT data. Proceed?')) return;
+  var users = getUsers();
+  var db = firebase.firestore();
+  if (db) {
+    users.forEach(function(u) {
+      if (u.id) {
+        db.collection('userdata').doc(u.id).set({ data: {} }).catch(function(e) {});
+      }
+    });
+  }
+  window.__allUserDataCache = {};
+  alert('All data cleared. User accounts preserved.');
+  loadDashboard();
+}
+
+function performGlobalSearch() {
+  var q = document.getElementById('globalSearchInput').value.trim().toLowerCase();
+  var results = document.getElementById('globalSearchResults');
+  if (!q) { results.innerHTML = '<p class="font-label-md text-on-surface-variant text-center py-16">Type something to search across all data</p>'; return; }
+
+  var searchUsers = document.getElementById('gsUsers').checked;
+  var searchTasks = document.getElementById('gsTasks').checked;
+  var searchPlans = document.getElementById('gsPlans').checked;
+  var searchTrips = document.getElementById('gsTrips').checked;
+  var searchLogs = document.getElementById('gsLogs').checked;
+  var searchIT = document.getElementById('gsIT').checked;
+
+  ensureDataLoaded(function() {
+    var users = getUsers();
+    var allResults = [];
+
+    if (searchUsers) {
+      users.forEach(function(u) {
+        if ((u.name || '').toLowerCase().indexOf(q) !== -1 || u.username.toLowerCase().indexOf(q) !== -1) {
+          allResults.push({ type: 'user', title: u.name || u.username, subtitle: '@' + u.username, user: u.name || u.username, id: u.username });
+        }
+      });
+    }
+
+    users.forEach(function(u) {
+      var uname = u.name || u.username;
+      var d = getUserCache(u.username);
+
+      if (searchTasks && d.tasks) {
+        d.tasks.forEach(function(t) {
+          if ((t.title || '').toLowerCase().indexOf(q) !== -1 || (t.description || '').toLowerCase().indexOf(q) !== -1 || (t.category || '').toLowerCase().indexOf(q) !== -1) {
+            allResults.push({ type: 'task', title: t.title, subtitle: uname, user: uname, date: t.dueDate });
+          }
+        });
+      }
+      if (searchPlans && d.plans) {
+        d.plans.forEach(function(p) {
+          if ((p.title || '').toLowerCase().indexOf(q) !== -1 || (p.description || '').toLowerCase().indexOf(q) !== -1) {
+            allResults.push({ type: 'plan', title: p.title, subtitle: uname, user: uname, date: p.startDate });
+          }
+        });
+      }
+      if (searchTrips && d.trips) {
+        d.trips.forEach(function(t) {
+          if ((t.tripName || t.title || '').toLowerCase().indexOf(q) !== -1 || (t.destination || '').toLowerCase().indexOf(q) !== -1) {
+            allResults.push({ type: 'trip', title: t.tripName || t.title || 'Trip', subtitle: t.destination || uname, user: uname, date: t.startDate });
+          }
+        });
+      }
+      if (searchLogs && d.dailylog) {
+        d.dailylog.forEach(function(l) {
+          if ((l.title || '').toLowerCase().indexOf(q) !== -1 || (l.description || '').toLowerCase().indexOf(q) !== -1 || (l.category || '').toLowerCase().indexOf(q) !== -1) {
+            allResults.push({ type: 'log', title: l.title, subtitle: uname, user: uname, date: l.date });
+          }
+        });
+      }
+      if (searchIT) {
+        ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(itType) {
+          var items = d['it_' + itType];
+          if (items) {
+            items.forEach(function(item) {
+              if ((item.name || item.title || item.description || '').toLowerCase().indexOf(q) !== -1) {
+                allResults.push({ type: 'it_' + itType, title: item.name || item.title || '(unnamed)', subtitle: uname, user: uname, date: item.date || item.createdAt });
+              }
+            });
+          }
+        });
+      }
+    });
+
+    if (!allResults.length) {
+      results.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results for "' + escapeHtml(q) + '"</p></div>';
+      return;
+    }
+
+    var icons = { user: 'person', task: 'checklist', plan: 'map', trip: 'flight_takeoff', log: 'edit_note' };
+    var colors = { user: 'bg-amber-100 text-amber-600', task: 'bg-indigo-100 text-indigo-600', plan: 'bg-emerald-100 text-emerald-600', trip: 'bg-blue-100 text-blue-600', log: 'bg-pink-100 text-pink-600' };
+
+    results.innerHTML = '<p class="font-label-md text-on-surface-variant mb-4">' + allResults.length + ' result' + (allResults.length > 1 ? 's' : '') + ' for "' + escapeHtml(q) + '"</p><div class="space-y-2">' +
+      allResults.slice(0, 50).map(function(r) {
+        return '<div class="flex items-center gap-4 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl">' +
+          '<div class="p-3 rounded-xl ' + (colors[r.type] || 'bg-gray-100 text-gray-600') + '"><span class="material-symbols-outlined">' + (icons[r.type] || 'circle') + '</span></div>' +
+          '<div class="flex-1 min-w-0"><p class="font-body-md font-semibold text-primary">' + escapeHtml(r.title) + '</p><p class="font-label-md text-on-surface-variant">' + escapeHtml(r.subtitle) + (r.date ? ' &middot; ' + r.date : '') + '</p></div>' +
+          '<span class="font-label-md px-2 py-1 rounded-full text-xs font-semibold capitalize bg-surface-container text-on-surface-variant">' + r.type + '</span></div>';
+      }).join('') + (allResults.length > 50 ? '<p class="font-label-md text-on-surface-variant text-center mt-2">Showing 50 of ' + allResults.length + ' results. Refine your search.</p>' : '') + '</div>';
+  });
+}
+
+initTheme();
+initAuth(function() {
+  checkWelcome();
+  syncAllUsersFromFirebase(function() {
+    loadDashboard();
+    populateUserFilters();
+  });
+});
+fbOnUpdate(function() { location.reload(); });
+</script>
+</body>
+</html>
