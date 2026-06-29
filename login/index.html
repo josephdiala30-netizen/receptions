@@ -291,7 +291,8 @@
       fbLogin(email, pass, function(loginErr, session) {
         if (loginErr) {
           // If user not found, try migrating from localStorage (one-time)
-          if (loginErr.code === 'auth/user-not-found') {
+          var shouldMigrate = loginErr.code === 'auth/user-not-found' || loginErr.code === 'auth/invalid-credential';
+          if (shouldMigrate) {
             var found = (JSON.parse(localStorage.getItem('users') || '[]')).find(function(u) {
               return u.username === loginInput || u.email === loginInput;
             });
@@ -300,7 +301,7 @@
                 window.__fbLoggingIn = false;
                 setLoading(false);
                 if (migrateErr) {
-                  errEl.textContent = 'Migration failed: ' + (migrateErr.message || migrateErr);
+                  errEl.textContent = loginErr.message || 'Invalid login credentials';
                   errEl.classList.remove('hidden');
                 } else {
                   // Log in with the newly created Firebase account
@@ -320,7 +321,7 @@
 
           window.__fbLoggingIn = false;
           setLoading(false);
-          errEl.textContent = loginErr.message || 'Login failed';
+          errEl.textContent = loginErr.message || 'Invalid login credentials';
           errEl.classList.remove('hidden');
         } else {
           window.__fbLoggingIn = false;
