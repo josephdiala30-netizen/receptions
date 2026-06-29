@@ -10,11 +10,14 @@ function initTheme() {
   var theme = localStorage.getItem('theme') || 'light';
   var btn = document.getElementById('themeToggle');
   if (!btn) return;
+  var icon = btn.classList.contains('material-symbols-outlined') ? btn : btn.querySelector('.material-symbols-outlined');
+  if (!icon) icon = btn;
   if (theme === 'dark') {
     document.documentElement.classList.add('dark');
-    btn.textContent = 'light_mode';
+    icon.textContent = 'light_mode';
   } else {
-    btn.textContent = 'dark_mode';
+    document.documentElement.classList.remove('dark');
+    icon.textContent = 'dark_mode';
   }
 }
 
@@ -22,7 +25,10 @@ function toggleTheme() {
   var isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
   var btn = document.getElementById('themeToggle');
-  if (btn) btn.textContent = isDark ? 'light_mode' : 'dark_mode';
+  if (!btn) return;
+  var icon = btn.classList.contains('material-symbols-outlined') ? btn : btn.querySelector('.material-symbols-outlined');
+  if (!icon) icon = btn;
+  icon.textContent = isDark ? 'light_mode' : 'dark_mode';
 }
 
 function toggleUserMenu() {
@@ -30,9 +36,14 @@ function toggleUserMenu() {
 }
 
 function escapeHtml(str) {
-  if (typeof str !== 'string') str = String(str || '');
+  if (str == null) return '';
+  if (typeof str !== 'string') str = String(str);
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function escapeAttr(str) {
+  return escapeHtml(str).replace(/'/g, '&#39;');
 }
 
 function getBaseUrl() {

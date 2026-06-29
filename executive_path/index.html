@@ -448,41 +448,14 @@ button, input, select, textarea { min-width: 0; }
 <script>
 function goTo(path) { window.location.href = getBaseUrl() + path; }
 
-function initTheme() {
-  var theme = localStorage.getItem('theme') || 'light';
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-    document.getElementById('themeToggle').textContent = 'light_mode';
-  } else {
-    document.getElementById('themeToggle').textContent = 'dark_mode';
-  }
-}
 
-function toggleTheme() {
-  var isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  document.getElementById('themeToggle').textContent = isDark ? 'light_mode' : 'dark_mode';
-}
-
-function tripsKey() {
-  var s = getSession();
-  return s ? 'trips_' + s.username : 'trips';
-}
 
 function getTrips() {
-  if (window.__fbLoaded) {
-    var cached = getFB('trips');
-    if (cached && Array.isArray(cached)) return cached;
-    return [];
-  }
-  var data = JSON.parse(localStorage.getItem(tripsKey()) || '[]');
-  if (data.length > 0) window.__fbCache['trips'] = data;
-  return data;
+  return getFBOr('trips', []);
 }
 
 function saveTrips(t) {
-  saveFB('trips', t);
-  localStorage.setItem(tripsKey(), JSON.stringify(t));
+  storeFB('trips', t);
 }
 
 function initAuth(callback) {
@@ -578,7 +551,7 @@ function loadDashboard() {
       (isAdmin ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">account_circle</span> ' + escapeHtml(t._user || '?') + '</span>' : '') +
       '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(t.requestor) + '</span>' +
       '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> ' + escapeHtml(t.destination) + '</span>' +
-      '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + t.date + '</span>' +
+      '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + escapeHtml(t.date) + '</span>' +
       (t.time ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> ' + escapeHtml(t.time) + '</span>' : '') +
       (t.van ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">directions_car</span> ' + escapeHtml(t.van) + '</span>' : '') +
       (t.driver ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">badge</span> ' + escapeHtml(t.driver) + '</span>' : '') +
@@ -595,7 +568,7 @@ function loadDashboard() {
     return '<div class="flex items-center gap-4 px-6 py-4 border-b border-outline-variant last:border-b-0 hover:bg-surface-container-low transition-colors">' +
       '<div class="p-2 rounded-full bg-surface-container-high text-amber-600"><span class="material-symbols-outlined text-sm">flight_takeoff</span></div>' +
       '<div class="flex-1"><p class="font-body-md font-medium">' + escapeHtml(t.name) + ' <span class="text-on-surface-variant font-normal">' + action + '</span></p>' +
-      '<p class="font-label-md text-on-surface-variant">' + t.date + ' &middot; ' + escapeHtml(t.destination) + '</p></div></div>';
+      '<p class="font-label-md text-on-surface-variant">' + escapeHtml(t.date) + ' &middot; ' + escapeHtml(t.destination) + '</p></div></div>';
   }).join('');
   recent.innerHTML = recentItems || '<span class="material-symbols-outlined text-[36px] text-surface-container-highest">history</span><p class="font-body-md text-on-surface-variant mt-3">No recent activity</p>';
 
@@ -687,7 +660,7 @@ function completeTrip(id) {
 }
 
 function editTrip(id) {
-  localStorage.setItem('editTripId', id);
+  sessionStorage.setItem('editTripId', id);
   goTo('plan_new_trip/');
 }
 
@@ -743,7 +716,7 @@ var tutorialStep = 0;
 function startTutorial() {
   document.getElementById('welcomeModal').classList.add('hidden');
   var s = getSession() || {};
-  if (s.username) localStorage.setItem('tutorial_' + s.username, 'true');
+  storeFB('_tutorialDone', true);
   tutorialStep = 0;
   document.getElementById('tutorialOverlay').classList.remove('hidden');
   renderTutorialStep();
@@ -802,9 +775,9 @@ function tutorialPrev() { if (tutorialStep > 0) { tutorialStep--; renderTutorial
 function checkWelcome() {
   var s = getSession() || {};
   if (!s.username) return;
-  var key = 'welcome_' + s.username;
-  if (localStorage.getItem(key)) {
-    localStorage.removeItem(key);
+  var welcomed = getFBOr('_welcomed', false);
+  if (!welcomed) {
+    storeFB('_welcomed', true);
     document.getElementById('welcomeName').textContent = s.name || s.username;
     document.getElementById('welcomeModal').classList.remove('hidden');
   }

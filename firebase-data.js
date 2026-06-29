@@ -27,7 +27,7 @@ function buildSession(user, profile) {
     isAdmin: profile.is_admin || false,
     executiveAdmin: profile.executive_admin || false,
     role: profile.role || 'executive_path',
-    supabaseUid: user.uid,
+    firebaseUid: user.uid,
     loggedIn: true,
     timestamp: Date.now()
   };
@@ -95,18 +95,20 @@ function initFirebase(callback) {
 
 function loadFBData(uid, callback) {
   var db = getDb();
-  if (!db) { window.__fbCache = {}; window.__fbLoaded = true; if (callback) callback(); return; }
+  if (!db) { window.__fbCache = {}; window.__fbLoaded = true; clearLegacyLocalStorage(); if (callback) callback(); return; }
 
   db.collection('userdata').doc(uid).get()
     .then(function(doc) {
       window.__fbCache = doc.exists ? (doc.data().data || {}) : {};
       window.__fbLoaded = true;
+      clearLegacyLocalStorage();
       if (callback) callback();
     })
     .catch(function(err) {
       console.error('Firestore load error:', err);
       window.__fbCache = {};
       window.__fbLoaded = true;
+      clearLegacyLocalStorage();
       if (callback) callback(err);
     });
 }
@@ -153,6 +155,40 @@ function getFB(key) {
   if (!window.__fbLoaded) return null;
   return window.__fbCache[key];
 }
+
+function getFBOr(key, fallback) {
+  if (!window.__fbLoaded) return fallback;
+  return key in window.__fbCache ? window.__fbCache[key] : fallback;
+}
+
+function storeFB(key, data) {
+  window.__fbCache[key] = data;
+  saveFBFull();
+}
+
+function clearLegacyLocalStorage() {
+  var prefixes = ['tasks_', 'plans_', 'milestones_', 'dailylog_', 'trips_', 'shared_tasks_',
+    'it_services_', 'it_maintenance_', 'it_assets_', 'it_inventory_', 'it_task_',
+    'it_planner_', 'it_accomplishments_', 'it_tickets_', 'it_systems_', 'it_audit_',
+    'it_knowledge_', 'it_timetrack_', 'it_roadmap_', 'avatar_', 'tutorial_',
+    'lastNotifCheck_', 'pomodoroCount_', 'scratchpad_', 'notifications_',
+    'welcome_', 'editTripId'];
+  var keysToRemove = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (prefixes.some(function(p) { return k.indexOf(p) === 0; })) {
+      keysToRemove.push(k);
+    }
+  }
+  keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+}
+
+// Cross-page state (replaces editTripId in localStorage)
+window.__pageState = {};
+
+function setPageState(key, value) { window.__pageState[key] = value; }
+function getPageState(key) { return window.__pageState[key]; }
+function removePageState(key) { delete window.__pageState[key]; }
 
 function fbGetSession() { return window.__fbSession; }
 

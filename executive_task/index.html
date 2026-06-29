@@ -989,76 +989,27 @@ button:active, .btn:active { opacity: 0.8; }
 </style>
 
 <script>
-function initTheme() {
-  var theme = localStorage.getItem('theme') || 'light';
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-    document.getElementById('themeToggle').textContent = 'light_mode';
-  } else {
-    document.getElementById('themeToggle').textContent = 'dark_mode';
-  }
-}
 
-function toggleTheme() {
-  var isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  document.getElementById('themeToggle').textContent = isDark ? 'light_mode' : 'dark_mode';
-}
 
 function isAdmin() {
   var s = getSession();
   return s && s.isAdmin && (s.role === 'executive_task' || s.role === 'executive_path');
 }
 
-function collectAllKeys(prefix) {
-  var keys = [];
-  for (var i = 0; i < localStorage.length; i++) {
-    var key = localStorage.key(i);
-    if (key.startsWith(prefix)) keys.push(key);
-  }
-  return keys;
-}
-
-function tasksKey() {
-  var s = getSession();
-  return s ? 'tasks_' + s.username : 'tasks';
-}
-
 function getTasks() {
-  if (window.__fbLoaded) {
-    var cached = getFB('tasks');
-    if (cached && Array.isArray(cached)) return cached;
-    return [];
-  }
-  var data = JSON.parse(localStorage.getItem(tasksKey()) || '[]');
-  if (data.length > 0) window.__fbCache['tasks'] = data;
-  return data;
+  return getFBOr('tasks', []);
 }
 
 function saveTasks(t) {
-  saveFB('tasks', t);
-  localStorage.setItem(tasksKey(), JSON.stringify(t));
-}
-
-function sharedTasksKey() {
-  var s = getSession();
-  return s ? 'shared_tasks_' + s.username : 'shared_tasks';
+  storeFB('tasks', t);
 }
 
 function getSharedTasks() {
-  if (window.__fbLoaded) {
-    var cached = getFB('shared_tasks');
-    if (cached && Array.isArray(cached)) return cached;
-    return [];
-  }
-  var data = JSON.parse(localStorage.getItem(sharedTasksKey()) || '[]');
-  if (data.length > 0) window.__fbCache['shared_tasks'] = data;
-  return data;
+  return getFBOr('shared_tasks', []);
 }
 
 function saveSharedTasks(t) {
-  saveFB('shared_tasks', t);
-  localStorage.setItem(sharedTasksKey(), JSON.stringify(t));
+  storeFB('shared_tasks', t);
 }
 
 function getAllTasks() {
@@ -1081,8 +1032,7 @@ function populateAssigneeDropdown() {
   var sel = document.getElementById('taskAssignee');
   if (!sel) return;
   var cur = currentUsername();
-  // Try to get users from Firestore profiles, fallback to localStorage
-  var users = (typeof getUsers === 'function' && getUsers()) || JSON.parse(localStorage.getItem('users') || '[]');
+  var users = getUsers();
   var html = '<option value="">— Unassigned —</option>';
   var seen = {};
   if (cur) seen[cur] = true;
@@ -1110,21 +1060,7 @@ function populateAssigneeDropdown() {
       sel.innerHTML = html2;
     });
   }
-    client.rpc('get_all_usernames').then(function(r) {
-      if (!r.error && r.data && r.data.length > 0) {
-        var html2 = '<option value="">— Unassigned —</option>';
-        var seen2 = {};
-        if (cur) seen2[cur] = true;
-        r.data.forEach(function(u) {
-          if (u.username && !seen2[u.username]) {
-            seen2[u.username] = true;
-            html2 += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + ' (@' + escapeHtml(u.username) + ')</option>';
-          }
-        });
-        sel.innerHTML = html2;
-      }
-    });
-  }
+}
 }
 
 function populateParentDropdown() {
@@ -1180,17 +1116,12 @@ function doLogout() {
   });
 }
 
-function notifKey() {
-  var s = getSession();
-  return s ? 'notifications_' + s.username : 'notifications';
-}
-
 function getNotifs() {
-  return JSON.parse(localStorage.getItem(notifKey()) || '[]');
+  return getFBOr('notifications', []);
 }
 
 function saveNotifs(n) {
-  localStorage.setItem(notifKey(), JSON.stringify(n));
+  storeFB('notifications', n);
 }
 
 function addNotif(message, type) {
@@ -1256,13 +1187,13 @@ function markAllNotifsRead() {
 function checkNewAssignments() {
   var cur = currentUsername();
   if (!cur) return;
-  var lastCheck = localStorage.getItem('lastNotifCheck_' + cur) || '0';
+  var lastCheck = getFBOr('_lastNotifCheck', '0');
   var shared = getSharedTasks();
   var newOnes = shared.filter(function(t) { return (t.createdAt || '') > lastCheck; });
   newOnes.forEach(function(t) {
     addNotif('Task "' + (t.title || 'Untitled') + '" was assigned to you' + (t.assignedBy ? ' by ' + t.assignedBy : ''), 'task');
   });
-  localStorage.setItem('lastNotifCheck_' + cur, new Date().toISOString());
+  storeFB('_lastNotifCheck', new Date().toISOString());
   updateNotifBadge();
 }
 
@@ -1278,16 +1209,11 @@ document.addEventListener('click', function(e) {
 });
 
 // --- Scratchpad ---
-function scratchpadKey() {
-  var s = getSession();
-  return s ? 'scratchpad_' + s.username : 'scratchpad';
-}
-
 function toggleScratchpad() {
   var panel = document.getElementById('scratchpadPanel');
   var hidden = panel.classList.toggle('hidden');
   if (!hidden) {
-    var saved = localStorage.getItem(scratchpadKey()) || '';
+    var saved = getFBOr('_scratchpad', '');
     document.getElementById('scratchpadText').value = saved;
     document.getElementById('scratchpadText').focus();
   }
@@ -1296,7 +1222,7 @@ function toggleScratchpad() {
 function clearScratchpad() {
   if (!confirm('Clear all notes?')) return;
   document.getElementById('scratchpadText').value = '';
-  localStorage.setItem(scratchpadKey(), '');
+  storeFB('_scratchpad', '');
 }
 
 function noteToTask() {
@@ -1310,7 +1236,7 @@ function noteToTask() {
 // Auto-save scratchpad on typing
 document.addEventListener('input', function(e) {
   if (e.target && e.target.id === 'scratchpadText') {
-    localStorage.setItem(scratchpadKey(), e.target.value);
+    storeFB('_scratchpad', e.target.value);
   }
 });
 
@@ -1324,11 +1250,10 @@ document.addEventListener('keydown', function(e) {
 
 // --- Pomodoro Timer ---
 var pomodoroState = { running: false, paused: false, minutes: 25, seconds: 0, interval: null, mode: 'focus' };
-var pomodoroToday = parseInt(localStorage.getItem('pomodoroCount_' + (getSession() ? getSession().username : '')) || '0');
+var pomodoroToday = parseInt(getFBOr('_pomodoroCount', '0'));
 
 function updatePomodoroToday() {
-  var key = 'pomodoroCount_' + (getSession() ? getSession().username : '');
-  localStorage.setItem(key, pomodoroToday);
+  storeFB('_pomodoroCount', pomodoroToday);
   document.getElementById('pomodoroCount').textContent = pomodoroToday;
 }
 
@@ -1484,7 +1409,7 @@ function formatDate(dateStr) {
 
 function priorityLabel(p) {
   var map = { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' };
-  return map[p] || p;
+  return map[p] || escapeHtml(p);
 }
 
 function priorityClass(p) {
@@ -1493,7 +1418,7 @@ function priorityClass(p) {
 
 function statusLabel(s) {
   var map = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
-  return map[s] || s;
+  return map[s] || escapeHtml(s);
 }
 
 function statusClass(s) {
@@ -2232,25 +2157,12 @@ function refreshCurrentView() {
   }
 }
 
-function plannerKey() {
-  var s = getSession();
-  return s ? 'plans_' + s.username : 'plans';
-}
-
 function getPlans() {
-  if (window.__fbLoaded) {
-    var cached = getFB('plans');
-    if (cached && Array.isArray(cached)) return cached;
-    return [];
-  }
-  var data = JSON.parse(localStorage.getItem(plannerKey()) || '[]');
-  if (data.length > 0) window.__fbCache['plans'] = data;
-  return data;
+  return getFBOr('plans', []);
 }
 
 function savePlans(p) {
-  saveFB('plans', p);
-  localStorage.setItem(plannerKey(), JSON.stringify(p));
+  storeFB('plans', p);
 }
 
 function showPlanner() {
@@ -2557,25 +2469,12 @@ function deleteMilestone(planId, milestoneId) {
   loadPlanner();
 }
 
-function dailyLogKey() {
-  var s = getSession();
-  return s ? 'dailylog_' + s.username : 'dailylog';
-}
-
 function getLogEntries() {
-  if (window.__fbLoaded) {
-    var cached = getFB('dailylog');
-    if (cached && Array.isArray(cached)) return cached;
-    return [];
-  }
-  var data = JSON.parse(localStorage.getItem(dailyLogKey()) || '[]');
-  if (data.length > 0) window.__fbCache['dailylog'] = data;
-  return data;
+  return getFBOr('dailylog', []);
 }
 
 function saveLogEntries(entries) {
-  saveFB('dailylog', entries);
-  localStorage.setItem(dailyLogKey(), JSON.stringify(entries));
+  storeFB('dailylog', entries);
 }
 
 function showDailyLog() {
@@ -2900,7 +2799,7 @@ var tutorialStep = 0;
 function startTutorial() {
   document.getElementById('welcomeModal').classList.add('hidden');
   var s = getSession() || {};
-  if (s.username) localStorage.setItem('tutorial_' + s.username, 'true');
+  storeFB('_tutorialDone', true);
   tutorialStep = 0;
   document.getElementById('tutorialOverlay').classList.remove('hidden');
   renderTutorialStep();
@@ -2997,13 +2896,12 @@ function tutorialPrev() {
 function checkWelcome() {
   var s = getSession() || {};
   if (!s.username) return;
-  var key = 'welcome_' + s.username;
-  if (localStorage.getItem(key)) {
-    localStorage.removeItem(key);
+  var welcomed = getFBOr('_welcomed', false);
+  if (!welcomed) {
+    storeFB('_welcomed', true);
     document.getElementById('welcomeName').textContent = s.name || s.username;
     document.getElementById('welcomeModal').classList.remove('hidden');
   }
-}
 }
 
 initTheme();

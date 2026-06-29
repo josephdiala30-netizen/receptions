@@ -478,13 +478,8 @@ function saveLogEntries(entries) {
   saveFB('dailylog', entries);
 }
 
-function getUsername() {
-  return (mobileApp.session && mobileApp.session.username) || '';
-}
 
-function notesKey() {
-  return 'notes_' + getUsername();
-}
+
 
 function priorityClass(p) {
   return 'priority-badge ' + (mobileApp.getPriorityColor ? mobileApp.getPriorityColor(p) : 'low');
@@ -1082,24 +1077,25 @@ function saveLogEntry() {
 
 // ==================== NOTES ====================
 function renderNotes() {
-  var key = notesKey();
-  var saved = localStorage.getItem(key) || '';
+  var saved = getFBOr('_notes', '');
   document.getElementById('notes-textarea').value = saved;
 }
 
 function clearNotes() {
   if (!confirm('Clear all notes?')) return;
-  var key = notesKey();
-  localStorage.setItem(key, '');
+  storeFB('_notes', '');
   document.getElementById('notes-textarea').value = '';
   mobileApp.showToast('Notes cleared');
 }
 
 // Auto-save notes
+var __notesTimer = null;
 document.addEventListener('input', function(e) {
   if (e.target && e.target.id === 'notes-textarea') {
-    var key = notesKey();
-    localStorage.setItem(key, e.target.value);
+    if (__notesTimer) clearTimeout(__notesTimer);
+    __notesTimer = setTimeout(function() {
+      storeFB('_notes', e.target.value);
+    }, 500);
   }
 });
 

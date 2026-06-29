@@ -788,23 +788,6 @@ function generateId() {
   return Date.now() + Math.floor(Math.random() * 1000);
 }
 
-// ==================== THEME ====================
-function initTheme() {
-  var theme = localStorage.getItem('theme') || 'light';
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-    document.getElementById('themeToggle').textContent = 'light_mode';
-  } else {
-    document.getElementById('themeToggle').textContent = 'dark_mode';
-  }
-}
-
-function toggleTheme() {
-  var isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  document.getElementById('themeToggle').textContent = isDark ? 'light_mode' : 'dark_mode';
-}
-
 // ==================== AUTH ====================
 function initAuth(callback) {
   // Check Firebase Auth first, fallback to localStorage session
@@ -866,11 +849,6 @@ document.addEventListener('click', function(e) {
 });
 
 // ==================== DATA STORAGE ====================
-function getDataKey(type) {
-  var session = getSession();
-  return 'it_' + type + '_' + (session ? session.username : 'anon');
-}
-
 function getInitialRoadmaps() {
   var baseId = Date.now();
   return [
@@ -1141,56 +1119,20 @@ function getInitialServiceReports() {
   ];
 }
 
-function getData(type) {
+function getData(type, seedFn) {
   var fbKey = 'it_' + type;
-  // Firestore is primary source once loaded
-  if (window.__fbLoaded) {
-    var cached = getFB(fbKey);
-    if (cached && Array.isArray(cached)) return cached;
-    return [];
+  var data = getFBOr(fbKey, null);
+  if (data !== null) return data;
+  if (seedFn) {
+    data = seedFn();
+    storeFB(fbKey, data);
+    return data;
   }
-  // Fallback to localStorage while Firestore is loading
-  var key = getDataKey(type);
-  if (type === 'planner') {
-    if (!localStorage.getItem(key)) {
-      localStorage.setItem(key, JSON.stringify(getInitialRoadmaps()));
-    }
-  }
-  if (type === 'task') {
-    if (!localStorage.getItem(key)) {
-      localStorage.setItem(key, JSON.stringify(getInitialTasks()));
-    }
-  }
-  if (type === 'services') {
-    if (!localStorage.getItem(key)) {
-      localStorage.setItem(key, JSON.stringify(getInitialServiceReports()));
-    }
-  }
-  var data = JSON.parse(localStorage.getItem(key) || '[]');
-  if (data.length === 0 && (type === 'maintenance' || type === 'services' || type === 'accomplishments' || type === 'inventory')) {
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i);
-      if (k && k.indexOf('it_' + type + '_') === 0 && k !== key) {
-        data = JSON.parse(localStorage.getItem(k) || '[]');
-        if (data.length > 0) {
-          localStorage.setItem(key, JSON.stringify(data));
-          break;
-        }
-      }
-    }
-  }
-  if (data.length > 0) {
-    window.__fbCache[fbKey] = data;
-  }
-  return data;
+  return [];
 }
 
 function saveData(type, data) {
-  // Firestore is primary storage
-  saveFB('it_' + type, data);
-  // localStorage is cache/fallback
-  var key = getDataKey(type);
-  localStorage.setItem(key, JSON.stringify(data));
+  storeFB('it_' + type, data);
 }
 
 // ==================== VIEW SWITCHING ====================
@@ -1240,11 +1182,11 @@ function switchView(view) {
 
 // ==================== DASHBOARD ====================
 function loadDashboard() {
-  var services = getData('services');
+  var services = getData('services', getInitialServiceReports);
   var maintenance = getData('maintenance');
   var inventory = getData('inventory');
-  var tasks = getData('task');
-  var plans = getData('planner');
+  var tasks = getData('task', getInitialTasks);
+  var plans = getData('planner', getInitialRoadmaps);
   var accomplishments = getData('accomplishments');
 
   document.getElementById('statServices').textContent = services.length;
@@ -1375,7 +1317,7 @@ function timeAgo(ts) {
 function formatDate(dateStr) {
   if (!dateStr) return '';
   var parts = dateStr.split('-');
-  if (parts.length !== 3) return dateStr;
+  if (parts.length !== 3) return escapeHtml(dateStr);
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return months[parseInt(parts[1]) - 1] + ' ' + parseInt(parts[2]) + ', ' + parts[0];
 }
@@ -4978,8 +4920,7 @@ var tutorialStep = 0;
 
 function startTutorial() {
   document.getElementById('welcomeModal').classList.add('hidden');
-  var s = getSession() || {};
-  if (s.username) localStorage.setItem('tutorial_' + s.username, 'true');
+  storeFB('_tutorialDone', true);
   tutorialStep = 0;
   document.getElementById('tutorialOverlay').classList.remove('hidden');
   renderTutorialStep();
@@ -5038,28 +4979,13 @@ function tutorialPrev() { if (tutorialStep > 0) { tutorialStep--; renderTutorial
 function checkWelcome() {
   var s = getSession() || {};
   if (!s.username) return;
-  var key = 'welcome_' + s.username;
-  if (localStorage.getItem(key)) {
-    localStorage.removeItem(key);
+  var welcomed = getFBOr('_welcomed', false);
+  if (!welcomed) {
+    storeFB('_welcomed', true);
     document.getElementById('welcomeName').textContent = s.name || s.username;
     document.getElementById('welcomeModal').classList.remove('hidden');
   }
 }
-
-// Clean up stale localStorage data from old removed accounts only
-(function() {
-  var removedAccounts = ['joseph_diala', 'admin', 'executive', 'task_admin', 'it_executive', 'it_admin'];
-  var keysToRemove = [];
-  for (var i = 0; i < localStorage.length; i++) {
-    var k = localStorage.key(i);
-    if (!k) continue;
-    var match = k.match(/^(.+)_(.+)$/);
-    if (match && removedAccounts.indexOf(match[2]) >= 0) {
-      keysToRemove.push(k);
-    }
-  }
-  keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
-})();
 
 initTheme();
 initAuth(function() {
