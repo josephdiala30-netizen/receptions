@@ -1,21 +1,6 @@
 {
   "version": 2,
-  "cleanUrls": true,
   "rewrites": [
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/admin/:path*", "destination": "/admin/:path*" },
-    { "source": "/login/:path*", "destination": "/login/:path*" },
-    { "source": "/executive_path/:path*", "destination": "/executive_path/:path*" },
-    { "source": "/executive_task/:path*", "destination": "/executive_task/:path*" },
-    { "source": "/executive_it/:path*", "destination": "/executive_it/:path*" },
-    { "source": "/settings/:path*", "destination": "/settings/:path*" },
-    { "source": "/guide/:path*", "destination": "/guide/:path*" },
-    { "source": "/reports/:path*", "destination": "/reports/:path*" },
-    { "source": "/plan_new_trip/:path*", "destination": "/plan_new_trip/:path*" },
-    { "source": "/trip_itinerary/:path*", "destination": "/trip_itinerary/:path*" },
-    { "source": "/expenses_budgeting/:path*", "destination": "/expenses_budgeting/:path*" },
-    { "source": "/mobile/:path*", "destination": "/mobile/:path*" },
-    { "source": "/service-desk/:path*", "destination": "/service-desk/:path*" },
-    { "source": "/styles/:path*", "destination": "/styles/:path*" }
+    { "source": "/(.+)", "destination": "/$1" }
   ]
 }
