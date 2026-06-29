@@ -3,7 +3,6 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
-    { "source": "/migrate-backup(/?)", "destination": "/migrate-backup.html" },
     { "source": "/admin/:path*", "destination": "/admin/:path*" },
     { "source": "/login/:path*", "destination": "/login/:path*" },
     { "source": "/executive_path/:path*", "destination": "/executive_path/:path*" },
