@@ -16,7 +16,9 @@
   <p class="text-sm text-slate-500 mb-6">Ili-lipat lahat ng data mula sa backup JSON papuntang Firebase Firestore.</p>
 
   <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-4">
-    <label class="block text-sm font-semibold text-slate-700 mb-2">Default password para sa lahat ng users (mapapalitan pag login):</label>
+    <label class="block text-sm font-semibold text-slate-700 mb-2">1. Piliin ang backup JSON file:</label>
+    <input id="fileInput" type="file" accept=".json" class="w-full text-sm mb-4">
+    <label class="block text-sm font-semibold text-slate-700 mb-2">2. Default password para sa lahat ng users (mapapalitan pag login):</label>
     <input id="defaultPass" type="text" value="Kalyx2024!" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm mb-4">
     <button id="startBtn" onclick="startMigration()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-500 transition-colors">Start Migration</button>
   </div>
@@ -43,10 +45,17 @@ async function startMigration() {
   var pass = document.getElementById('defaultPass').value.trim();
   if (!pass || pass.length < 6) { log('Password must be at least 6 characters', false); btn.disabled = false; btn.textContent = 'Start Migration'; return; }
 
-  // Fetch backup file
+  // Load backup file from file input
+  var fileInput = document.getElementById('fileInput');
+  if (!fileInput.files || !fileInput.files.length) {
+    log('Please select a backup JSON file first', false);
+    btn.disabled = false;
+    btn.textContent = 'Start Migration';
+    return;
+  }
   try {
-    var resp = await fetch('scheduler-backup-2026-06-26.json');
-    backupData = await resp.json();
+    var text = await fileInput.files[0].text();
+    backupData = JSON.parse(text);
     log('Backup file loaded: ' + Object.keys(backupData).length + ' keys', true);
   } catch(e) {
     log('Failed to load backup file: ' + e.message, false);
