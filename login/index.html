@@ -228,10 +228,12 @@
         var uid = result.user.uid;
         // Build user data from localStorage
         var userData = { profile: { username: found.username, name: found.name || found.username, email: email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
-        var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_','shared_tasks_'];
+        var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_','shared_tasks_','expenses_'];
         prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
-        var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
+        var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems','timetrack','knowledge','auditlog'];
         itTypes.forEach(function(t) { try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {} });
+        // Migrate notes (string, not array)
+        try { var notes = localStorage.getItem('notes_' + found.username); if (notes) userData._notes = notes; } catch(e) {}
 
         Promise.all([
           db.collection('profiles').doc(uid).set({
@@ -242,8 +244,7 @@
           db.collection('userdata').doc(uid).set({ data: userData })
         ]).then(function() {
           // Clear migrated localStorage data
-          var keys = [found.username, 'tasks_', 'plans_', 'milestones_', 'dailylog_', 'trips_', 'shared_tasks_'];
-          prefixes.concat(itTypes.map(function(t) { return 'it_' + t + '_'; })).forEach(function(p) {
+          prefixes.concat(itTypes.map(function(t) { return 'it_' + t + '_'; })).concat(['notes_']).forEach(function(p) {
             localStorage.removeItem(p + found.username);
           });
           localStorage.removeItem('welcome_' + found.username);
