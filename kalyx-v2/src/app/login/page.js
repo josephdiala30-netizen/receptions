@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { setDoc, doc } from "firebase/firestore";
+import { setDoc, doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, Loader2, LogIn, UserPlus, User } from "lucide-react";
@@ -32,9 +32,20 @@ export default function Login() {
     setError("");
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // Wait for auth state listener or redirect manually
-      router.push("/executive-task");
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Fetch profile to determine role
+      const profileSnap = await getDoc(doc(db, "profiles", userCred.user.uid));
+      let route = "/executive-task";
+      
+      if (profileSnap.exists()) {
+        const role = profileSnap.data().role;
+        if (role === "executive_path") route = "/executive-path";
+        else if (role === "executive_it") route = "/executive-it";
+        else if (role === "admin") route = "/admin";
+      }
+
+      router.push(route);
     } catch (err) {
       console.error(err);
       if (err.code === "auth/invalid-credential" || err.code === "auth/user-not-found") {
