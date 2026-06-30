@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -5037,21 +5037,30 @@ function doChangePassword() {
   var np = document.getElementById('newPass').value;
   var cp = document.getElementById('confirmPass').value;
   var err = document.getElementById('passError');
+  err.classList.add('hidden');
   if (!cur || !np || !cp) { err.textContent = 'Please fill in all fields.'; err.classList.remove('hidden'); return; }
   if (np !== cp) { err.textContent = 'New passwords do not match.'; err.classList.remove('hidden'); return; }
   if (np.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.remove('hidden'); return; }
-  var client = getClient();
-  if (!client) { err.textContent = 'Not connected.'; err.classList.remove('hidden'); return; }
-  var email = (fbGetSession() || {}).email;
-  if (!email) { err.textContent = 'Session error.'; err.classList.remove('hidden'); return; }
-  client.auth.signInWithPassword({ email: email, password: cur }).then(function(r) {
-    if (r.error) { err.textContent = 'Current password is incorrect.'; err.classList.remove('hidden'); return; }
-    client.auth.updateUser({ password: np }).then(function(u) {
-      if (u.error) { err.textContent = u.error.message; err.classList.remove('hidden'); return; }
+
+  var auth = firebase.auth();
+  var user = auth ? auth.currentUser : null;
+  if (!user) { err.textContent = 'Not logged in. Please refresh and try again.'; err.classList.remove('hidden'); return; }
+
+  var credential = firebase.auth.EmailAuthProvider.credential(user.email, cur);
+  user.reauthenticateWithCredential(credential)
+    .then(function() { return user.updatePassword(np); })
+    .then(function() {
       closeChangePasswordModal();
       alert('Password updated successfully.');
+    })
+    .catch(function(e) {
+      if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+        err.textContent = 'Current password is incorrect.';
+      } else {
+        err.textContent = e.message || 'Password update failed. Please try again.';
+      }
+      err.classList.remove('hidden');
     });
-  });
 }
 
 function showAvatarModal() {
