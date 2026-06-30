@@ -2,13 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
-import { collection, query, onSnapshot, orderBy, limit } from "firebase/firestore";
-import { Users, CheckSquare, Map, PlaneTakeoff, ShieldAlert } from "lucide-react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { useSearchParams } from "next/navigation";
+import { Users, CheckSquare, Map, PlaneTakeoff, ShieldAlert, FileEdit, Database, Search } from "lucide-react";
+
+function PlaceholderView({ title, icon }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-64 text-center">
+      <div className="text-on-surface-variant/30 mb-4">{icon}</div>
+      <h2 className="text-2xl font-bold text-primary">{title}</h2>
+      <p className="text-on-surface-variant mt-2">This section is coming soon.</p>
+    </div>
+  );
+}
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ users: 0, tasks: 0, plans: 0, trips: 0 });
   const [recentUsers, setRecentUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const view = searchParams.get("view") || "dashboard";
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -50,6 +63,21 @@ export default function AdminDashboard() {
       unsubPlans();
     };
   }, []);
+
+  if (view !== "dashboard") {
+    const viewMap = {
+      users: { title: "Users", icon: <Users className="w-16 h-16" /> },
+      tasks: { title: "Tasks", icon: <CheckSquare className="w-16 h-16" /> },
+      plans: { title: "Plans & Roadmaps", icon: <Map className="w-16 h-16" /> },
+      "daily-logs": { title: "Daily Logs", icon: <FileEdit className="w-16 h-16" /> },
+      trips: { title: "Trips", icon: <PlaneTakeoff className="w-16 h-16" /> },
+      data: { title: "Data Management", icon: <Database className="w-16 h-16" /> },
+      search: { title: "Global Search", icon: <Search className="w-16 h-16" /> },
+    };
+    const current = viewMap[view] || { title: view, icon: <ShieldAlert className="w-16 h-16" /> };
+    return <PlaceholderView title={current.title} icon={current.icon} />;
+  }
+
 
   return (
     <div className="p-4 md:p-8 max-w-screen-2xl mx-auto animate-fade-in">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
@@ -18,6 +18,13 @@ export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeView = searchParams.get("view") || "dashboard";
+
+  const goTo = (view) => {
+    router.push(`/admin?view=${view}`);
+    setSidebarOpen(false);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -60,14 +67,14 @@ export default function AdminLayout({ children }) {
   }
 
   const navItems = [
-    { label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" />, active: true },
-    { label: "Users", icon: <Users className="w-5 h-5" /> },
-    { label: "Tasks", icon: <CheckSquare className="w-5 h-5" /> },
-    { label: "Plans & Roadmaps", icon: <Map className="w-5 h-5" /> },
-    { label: "Daily Logs", icon: <FileEdit className="w-5 h-5" /> },
-    { label: "Trips", icon: <PlaneTakeoff className="w-5 h-5" /> },
-    { label: "Data Management", icon: <Database className="w-5 h-5" /> },
-    { label: "Global Search", icon: <Search className="w-5 h-5" /> }
+    { key: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
+    { key: "users", label: "Users", icon: <Users className="w-5 h-5" /> },
+    { key: "tasks", label: "Tasks", icon: <CheckSquare className="w-5 h-5" /> },
+    { key: "plans", label: "Plans & Roadmaps", icon: <Map className="w-5 h-5" /> },
+    { key: "daily-logs", label: "Daily Logs", icon: <FileEdit className="w-5 h-5" /> },
+    { key: "trips", label: "Trips", icon: <PlaneTakeoff className="w-5 h-5" /> },
+    { key: "data", label: "Data Management", icon: <Database className="w-5 h-5" /> },
+    { key: "search", label: "Global Search", icon: <Search className="w-5 h-5" /> }
   ];
 
   return (
@@ -96,14 +103,18 @@ export default function AdminLayout({ children }) {
 
         <nav className="flex-1 overflow-y-auto px-8 pb-4 space-y-1.5 custom-scrollbar">
           {navItems.map((item, i) => (
-            <a 
-              key={i} 
-              href="#" 
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-all duration-200 shadow-sm ${item.active ? "bg-primary text-on-primary" : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary"}`}
+            <button
+              key={i}
+              onClick={() => goTo(item.key)}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-all duration-200 text-left ${
+                activeView === item.key
+                  ? "bg-primary text-on-primary"
+                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
+              }`}
             >
               {item.icon}
               <span className="text-sm">{item.label}</span>
-            </a>
+            </button>
           ))}
         </nav>
 

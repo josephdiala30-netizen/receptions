@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
@@ -18,6 +18,13 @@ export default function ExecutiveITLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeView = searchParams.get("view") || "dashboard";
+
+  const goTo = (view) => {
+    router.push(`/executive-it?view=${view}`);
+    setSidebarOpen(false);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -53,18 +60,18 @@ export default function ExecutiveITLayout({ children }) {
   }
 
   const navItems = [
-    { label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" />, active: true },
-    { label: "IT Services", icon: <LifeBuoy className="w-5 h-5" /> },
-    { label: "IT Maintenance", icon: <Wrench className="w-5 h-5" /> },
-    { label: "IT Inventory", icon: <Package className="w-5 h-5" /> },
-    { label: "Task", icon: <CheckSquare className="w-5 h-5" /> },
-    { label: "Plans & Roadmaps", icon: <Map className="w-5 h-5" /> },
-    { label: "Daily Accomplishments", icon: <CheckCircle className="w-5 h-5" /> },
-    { label: "Support Tickets", icon: <Ticket className="w-5 h-5" /> },
-    { label: "System Monitor", icon: <Activity className="w-5 h-5" /> },
-    { label: "Time Tracking", icon: <Clock className="w-5 h-5" /> },
-    { label: "Knowledge Base", icon: <BookOpen className="w-5 h-5" /> },
-    { label: "Audit Log", icon: <History className="w-5 h-5" /> }
+    { key: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
+    { key: "services", label: "IT Services", icon: <LifeBuoy className="w-5 h-5" /> },
+    { key: "maintenance", label: "IT Maintenance", icon: <Wrench className="w-5 h-5" /> },
+    { key: "inventory", label: "IT Inventory", icon: <Package className="w-5 h-5" /> },
+    { key: "task", label: "Task", icon: <CheckSquare className="w-5 h-5" /> },
+    { key: "planner", label: "Plans & Roadmaps", icon: <Map className="w-5 h-5" /> },
+    { key: "accomplishments", label: "Daily Accomplishments", icon: <CheckCircle className="w-5 h-5" /> },
+    { key: "tickets", label: "Support Tickets", icon: <Ticket className="w-5 h-5" /> },
+    { key: "systems", label: "System Monitor", icon: <Activity className="w-5 h-5" /> },
+    { key: "timetrack", label: "Time Tracking", icon: <Clock className="w-5 h-5" /> },
+    { key: "knowledge", label: "Knowledge Base", icon: <BookOpen className="w-5 h-5" /> },
+    { key: "auditlog", label: "Audit Log", icon: <History className="w-5 h-5" /> }
   ];
 
   return (
@@ -93,14 +100,18 @@ export default function ExecutiveITLayout({ children }) {
 
         <nav className="flex-1 overflow-y-auto px-8 pb-4 space-y-1.5 custom-scrollbar">
           {navItems.map((item, i) => (
-            <a 
-              key={i} 
-              href="#" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm ${item.active ? "bg-white/20 text-white" : "text-indigo-200 hover:bg-white/10 hover:text-white"}`}
+            <button
+              key={i}
+              onClick={() => goTo(item.key)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 text-left ${
+                activeView === item.key
+                  ? "bg-white/20 text-white shadow-sm"
+                  : "text-indigo-200 hover:bg-white/10 hover:text-white"
+              }`}
             >
               {item.icon}
               <span className="text-sm">{item.label}</span>
-            </a>
+            </button>
           ))}
         </nav>
 

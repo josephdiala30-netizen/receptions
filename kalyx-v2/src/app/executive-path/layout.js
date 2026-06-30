@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
@@ -14,6 +14,13 @@ export default function ExecutivePathLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeView = searchParams.get("view") || "dashboard";
+
+  const goTo = (view) => {
+    router.push(`/executive-path?view=${view}`);
+    setSidebarOpen(false);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -49,10 +56,10 @@ export default function ExecutivePathLayout({ children }) {
   }
 
   const navItems = [
-    { label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" />, active: true },
-    { label: "Trips", icon: <PlaneTakeoff className="w-5 h-5" /> },
-    { label: "Reports", icon: <BarChart3 className="w-5 h-5" /> },
-    { label: "Settings", icon: <Settings className="w-5 h-5" /> }
+    { key: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
+    { key: "trips", label: "Trips", icon: <PlaneTakeoff className="w-5 h-5" /> },
+    { key: "reports", label: "Reports", icon: <BarChart3 className="w-5 h-5" /> },
+    { key: "settings", label: "Settings", icon: <Settings className="w-5 h-5" /> }
   ];
 
   return (
@@ -80,15 +87,19 @@ export default function ExecutivePathLayout({ children }) {
 
           <nav className="flex-1 space-y-1.5">
             {navItems.map((item, i) => (
-              <a 
-                key={i} 
-                href="#" 
-                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-all duration-200 shadow-sm ${item.active ? "bg-white/20 text-white" : "text-indigo-200 hover:bg-white/10 hover:text-white"}`}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </a>
-            ))}
+            <button
+              key={i}
+              onClick={() => goTo(item.key)}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-all duration-200 text-left ${
+                activeView === item.key
+                  ? "bg-white/20 text-white shadow-sm"
+                  : "text-indigo-200 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          ))}
           </nav>
 
           <button className="mt-auto bg-white text-indigo-700 py-3.5 px-6 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-all duration-200 shadow-sm active:scale-95">

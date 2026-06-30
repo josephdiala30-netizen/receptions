@@ -47,7 +47,6 @@ export default function Login() {
 
       router.push(route);
     } catch (err) {
-      console.error(err);
       if (err.code === "auth/invalid-credential" || err.code === "auth/user-not-found") {
         setError("Invalid email or password.");
       } else {
@@ -87,7 +86,6 @@ export default function Login() {
       alert("Account created successfully!");
       setTab("login");
     } catch (err) {
-      console.error(err);
       setError(err.message);
     } finally {
       setLoading(false);

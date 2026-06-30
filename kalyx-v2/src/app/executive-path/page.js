@@ -3,11 +3,24 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { Calendar, PlaneTakeoff, Plus, CheckCircle2, XCircle, History } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Calendar, PlaneTakeoff, Plus, CheckCircle2, XCircle, History, BarChart3, Settings } from "lucide-react";
+
+function PlaceholderView({ title, icon }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-64 text-center">
+      <div className="text-on-surface-variant/30 mb-4">{icon}</div>
+      <h2 className="text-2xl font-bold text-primary">{title}</h2>
+      <p className="text-on-surface-variant mt-2">This section is coming soon.</p>
+    </div>
+  );
+}
 
 export default function ExecutivePathDashboard() {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const view = searchParams.get("view") || "dashboard";
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -35,6 +48,17 @@ export default function ExecutivePathDashboard() {
   const activeTrips = trips.filter(t => t.status === "active").length;
   const completedTrips = trips.filter(t => t.status === "completed").length;
   const cancelledTrips = trips.filter(t => t.status === "cancelled").length;
+
+  if (view !== "dashboard") {
+    const viewMap = {
+      trips: { title: "Trips", icon: <PlaneTakeoff className="w-16 h-16" /> },
+      reports: { title: "Reports", icon: <BarChart3 className="w-16 h-16" /> },
+      settings: { title: "Settings", icon: <Settings className="w-16 h-16" /> },
+    };
+    const current = viewMap[view] || { title: view, icon: <PlaneTakeoff className="w-16 h-16" /> };
+    return <PlaceholderView title={current.title} icon={current.icon} />;
+  }
+
 
   return (
     <div className="p-4 md:p-8 max-w-screen-2xl mx-auto animate-fade-in">
