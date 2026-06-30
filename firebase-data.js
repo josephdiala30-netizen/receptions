@@ -4,16 +4,18 @@
 // Session is in-memory via window.__fbSession.
 
 // --- Internal state ---
-window.__fbCache = {};          // In-memory cache loaded from Firestore
-window.__fbLoaded = false;      // Whether data has been loaded
-window.__fbUser = null;         // { uid, email } from Firebase Auth
-window.__fbSession = null;      // Session object (in-memory, NOT localStorage)
-window.__fbUnsubscribe = null;  // Firestore snapshot unsubscribe fn
-window.__fbAuthListener = null; // Auth state unsubscribe fn
-window.__fbSaveToken = 0;       // Debounce token for saves
-window.__fbLastData = '';       // Stringified last data to detect changes
-window.__fbOnUpdate = null;     // External callback for real-time updates
-window.__fbRegistering = false; // Flag to prevent auth handler interference
+window.__fbCache = {};             // In-memory cache loaded from Firestore
+window.__fbLoaded = false;         // Whether data has been loaded
+window.__fbUser = null;            // { uid, email } from Firebase Auth
+window.__fbSession = null;         // Session object (in-memory, NOT localStorage)
+window.__fbUnsubscribe = null;     // Firestore snapshot unsubscribe fn
+window.__fbAuthListener = null;    // Auth state unsubscribe fn
+window.__fbSaveToken = 0;          // Debounce token for saves
+window.__fbLastData = '';          // Stringified last data to detect changes
+window.__fbOnUpdate = null;        // External callback for real-time updates
+window.__fbRegistering = false;    // Flag to prevent auth handler interference
+window.__sharedTasksCache = [];    // In-memory cache for shared tasks (cross-user)
+window.__fbSharedUnsubscribe = null; // Shared tasks snapshot unsubscribe fn
 
 function getAuth() { return firebase.auth(); }
 function getDb() { return firebase.firestore(); }
@@ -291,12 +293,153 @@ function fbLogout(callback) {
   window.__fbCache = {};
   window.__fbLoaded = false;
   window.__fbUser = null;
+  window.__sharedTasksCache = [];
+  if (window.__fbSharedUnsubscribe) { window.__fbSharedUnsubscribe(); window.__fbSharedUnsubscribe = null; }
   var auth = getAuth();
   if (!auth) { if (callback) callback(); return; }
   auth.signOut().then(function() {
     if (window.__fbAuthListener) { window.__fbAuthListener(); window.__fbAuthListener = null; }
     if (callback) callback();
   }).catch(function(err) { if (callback) callback(err); });
+}
+
+// ==================== LEGACY STUB ====================
+// Supabase getClient() is no longer used. Returns null so any leftover calls
+// degrade gracefully (caller checks if (!client) return).
+function getClient() { return null; }
+
+// ==================== SHARED TASKS (Cross-user, Firestore collection) ====================
+
+// Assign a task to another user via the top-level shared_tasks Firestore collection.
+// The collection allows any authenticated user to create documents.
+function fbAssignTask(assigneeUsername, taskObj, assignerUsername, callback) {
+  var db = getDb();
+  if (!db) { if (callback) callback('Firestore not available'); return; }
+
+  db.collection('profiles').where('username', '==', assigneeUsername).get()
+    .then(function(snap) {
+      if (snap.empty) { if (callback) callback('User not found: ' + assigneeUsername); return; }
+      var assigneeUid = snap.docs[0].id;
+      var assignerUid = window.__fbUser ? window.__fbUser.uid : '';
+
+      var taskCopy = {};
+      for (var k in taskObj) { if (k !== '_shared' && k !== '_sharedDocId') taskCopy[k] = taskObj[k]; }
+
+      var data = {
+        taskId: String(taskObj.id),
+        assignedToUid: assigneeUid,
+        assignedToUsername: assigneeUsername,
+        assignedByUid: assignerUid,
+        assignedByUsername: assignerUsername || '',
+        task: taskCopy,
+        status: taskObj.status || 'todo',
+        createdAt: taskObj.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Upsert: overwrite if already assigned to the same user
+      return db.collection('shared_tasks')
+        .where('taskId', '==', String(taskObj.id))
+        .where('assignedToUid', '==', assigneeUid)
+        .get()
+        .then(function(existing) {
+          if (!existing.empty) {
+            return existing.docs[0].ref.set(data);
+          } else {
+            return db.collection('shared_tasks').add(data);
+          }
+        });
+    })
+    .then(function() { if (callback) callback(null); })
+    .catch(function(err) { console.error('fbAssignTask error:', err); if (callback) callback(err); });
+}
+
+// Remove a shared task document for a specific assignee.
+function fbRemoveSharedTask(assigneeUsername, taskId, callback) {
+  var db = getDb();
+  if (!db) { if (callback) callback(); return; }
+
+  db.collection('shared_tasks')
+    .where('taskId', '==', String(taskId))
+    .where('assignedToUsername', '==', assigneeUsername)
+    .get()
+    .then(function(snap) {
+      var deletes = [];
+      snap.forEach(function(doc) { deletes.push(doc.ref.delete()); });
+      return Promise.all(deletes);
+    })
+    .then(function() { if (callback) callback(null); })
+    .catch(function(err) { console.error('fbRemoveSharedTask error:', err); if (callback) callback(err); });
+}
+
+// Update the status field on shared task documents (called by assignee to sync back to assigner).
+function fbUpdateSharedTaskStatus(docId, status, callback) {
+  var db = getDb();
+  if (!db || !docId) { if (callback) callback(); return; }
+
+  db.collection('shared_tasks').doc(docId).update({
+    status: status,
+    updatedAt: new Date().toISOString()
+  })
+  .then(function() { if (callback) callback(null); })
+  .catch(function(err) { console.error('fbUpdateSharedTaskStatus error:', err); if (callback) callback(err); });
+}
+
+// One-time load of shared tasks for the current user from Firestore.
+function loadSharedTasksFromFirestore(uid, callback) {
+  var db = getDb();
+  if (!db || !uid) { window.__sharedTasksCache = []; if (callback) callback([]); return; }
+
+  db.collection('shared_tasks').where('assignedToUid', '==', uid).get()
+    .then(function(snap) {
+      var tasks = [];
+      snap.forEach(function(doc) {
+        var d = doc.data();
+        var t = {};
+        var src = d.task || {};
+        for (var k in src) t[k] = src[k];
+        t._shared = true;
+        t._sharedDocId = doc.id;
+        t.status = d.status || t.status;
+        t.assignedBy = d.assignedByUsername;
+        tasks.push(t);
+      });
+      window.__sharedTasksCache = tasks;
+      if (callback) callback(tasks);
+    })
+    .catch(function(err) {
+      console.error('loadSharedTasksFromFirestore error:', err);
+      window.__sharedTasksCache = [];
+      if (callback) callback([]);
+    });
+}
+
+// Real-time listener for shared tasks assigned to the current user.
+function fbSubscribeSharedTasks(uid, onUpdate) {
+  var db = getDb();
+  if (!db || !uid) return;
+  if (window.__fbSharedUnsubscribe) { window.__fbSharedUnsubscribe(); window.__fbSharedUnsubscribe = null; }
+
+  window.__fbSharedUnsubscribe = db.collection('shared_tasks')
+    .where('assignedToUid', '==', uid)
+    .onSnapshot(function(snap) {
+      var tasks = [];
+      snap.forEach(function(doc) {
+        var d = doc.data();
+        var t = {};
+        var src = d.task || {};
+        for (var k in src) t[k] = src[k];
+        t._shared = true;
+        t._sharedDocId = doc.id;
+        t.status = d.status || t.status;
+        t.assignedBy = d.assignedByUsername;
+        tasks.push(t);
+      });
+      window.__sharedTasksCache = tasks;
+      if (onUpdate) onUpdate(tasks);
+    }, function(err) {
+      console.error('Shared tasks snapshot error:', err);
+    });
 }
 
 // ==================== ADMIN HELPERS (Firestore-based) ====================
