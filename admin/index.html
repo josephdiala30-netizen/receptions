@@ -454,7 +454,7 @@ button, input, select, textarea { min-width: 0; }
   </div>
   <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
     <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">cloud_upload</span> Sync Users to Cloud</h3>
-    <p class="font-body-md text-on-surface-variant mb-4">Create or update Supabase Auth accounts for all local users. Required para makapag-login sila sa ibang device.</p>
+    <p class="font-body-md text-on-surface-variant mb-4">Create or update Firebase Auth accounts for all local users. Required para makapag-login sila sa ibang device.</p>
     <button class="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-emerald-700 transition-colors" onclick="syncAllLocalUsersToFirestore()">
       <span class="material-symbols-outlined">cloud_upload</span> Sync All Users to Cloud
     </button>
@@ -648,22 +648,7 @@ function showSection(id) {
   if (id === 'pageData') loadSystemInfo();
 }
 
-function mergeSupabaseUsers(sbUsers, localUsers) {
-  if (!sbUsers || !sbUsers.length) return localUsers;
-  var merged = localUsers.slice();
-  sbUsers.forEach(function(sb) {
-    var existing = merged.find(function(m) { return m.username === sb.username || m.email === sb.email; });
-    if (existing) {
-      existing.role = sb.role || existing.role;
-      existing.name = sb.name || sb.username || existing.name;
-      existing.email = sb.email || existing.email;
-      existing.isAdmin = sb.is_admin || (sb.role === 'admin');
-    } else {
-      merged.push({ username: sb.username, name: sb.name || sb.username, email: sb.email || '', role: sb.role || 'executive_task', isAdmin: sb.is_admin || false });
-    }
-  });
-  return merged;
-}
+
 
 function getUsers() {
   return window.__usersCache || [];
