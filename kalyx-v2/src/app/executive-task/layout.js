@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { LayoutDashboard, CheckSquare, Settings, LogOut, Menu, X, User } from "lucide-react";
+import { LayoutDashboard, CheckSquare, Settings, LogOut, Menu, X, User, ListTodo, Columns, Map, FileEdit, StickyNote, Plus } from "lucide-react";
 
 export default function ExecutiveTaskLayout({ children }) {
   const [user, setUser] = useState(null);
@@ -70,14 +70,30 @@ export default function ExecutiveTaskLayout({ children }) {
             </button>
           </div>
 
-          <nav className="flex-1 space-y-2">
+          <nav className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-2">
             <a href="#" className="flex items-center gap-3 px-4 py-3 bg-primary text-on-primary font-semibold rounded-xl transition-all shadow-md">
               <LayoutDashboard className="w-5 h-5" />
               <span>Dashboard</span>
             </a>
             <a href="#" className="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-semibold rounded-xl hover:bg-surface-container-high hover:text-primary transition-all">
-              <CheckSquare className="w-5 h-5" />
-              <span>My Tasks</span>
+              <ListTodo className="w-5 h-5" />
+              <span>All Tasks</span>
+            </a>
+            <a href="#" className="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-semibold rounded-xl hover:bg-surface-container-high hover:text-primary transition-all">
+              <Columns className="w-5 h-5" />
+              <span>Board</span>
+            </a>
+            <a href="#" className="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-semibold rounded-xl hover:bg-surface-container-high hover:text-primary transition-all">
+              <Map className="w-5 h-5" />
+              <span>Planner</span>
+            </a>
+            <a href="#" className="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-semibold rounded-xl hover:bg-surface-container-high hover:text-primary transition-all">
+              <FileEdit className="w-5 h-5" />
+              <span>Daily Log</span>
+            </a>
+            <a href="#" className="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-semibold rounded-xl hover:bg-surface-container-high hover:text-primary transition-all">
+              <StickyNote className="w-5 h-5" />
+              <span>Notes</span>
             </a>
           </nav>
 
