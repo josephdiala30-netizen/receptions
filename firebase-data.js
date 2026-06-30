@@ -95,11 +95,19 @@ function initFirebase(callback) {
 
 function loadFBData(uid, callback) {
   var db = getDb();
-  if (!db) { window.__fbCache = {}; window.__fbLoaded = true; clearLegacyLocalStorage(); if (callback) callback(); return; }
+  if (!db) {
+    window.__fbCache = {};
+    window.__fbLastData = JSON.stringify(window.__fbCache);
+    window.__fbLoaded = true;
+    clearLegacyLocalStorage();
+    if (callback) callback();
+    return;
+  }
 
   db.collection('userdata').doc(uid).get()
     .then(function(doc) {
       window.__fbCache = doc.exists ? (doc.data().data || {}) : {};
+      window.__fbLastData = JSON.stringify(window.__fbCache);
       window.__fbLoaded = true;
       clearLegacyLocalStorage();
       if (callback) callback();
@@ -107,6 +115,7 @@ function loadFBData(uid, callback) {
     .catch(function(err) {
       console.error('Firestore load error:', err);
       window.__fbCache = {};
+      window.__fbLastData = JSON.stringify(window.__fbCache);
       window.__fbLoaded = true;
       clearLegacyLocalStorage();
       if (callback) callback(err);
@@ -124,6 +133,7 @@ function fbSubscribe(uid, onUpdate) {
       var incomingStr = JSON.stringify(incoming);
       if (incomingStr === window.__fbLastData) return;
       window.__fbCache = incoming;
+      window.__fbLastData = incomingStr;
       window.__fbLoaded = true;
       if (onUpdate) onUpdate(incoming);
       if (window.__fbOnUpdate) window.__fbOnUpdate(incoming);

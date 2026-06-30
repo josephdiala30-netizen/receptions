@@ -43,6 +43,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles/custom.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="firebase-data.js"></script>
+  <script src="shared.js"></script>
 </head>
 <body class="bg-background text-on-background min-h-screen relative font-sans overflow-x-hidden">
 
@@ -302,18 +308,14 @@
     }
 
     // Auto-redirect logged-in users via Firebase Auth
-    if (typeof firebase !== 'undefined') {
-      const auth = firebase.auth();
-      const user = auth.currentUser;
-      if (user) {
-        initFirebase(function(err, session) {
-          if (session && session.loggedIn) {
-            const p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
-            const baseUrl = p.substring(0, p.lastIndexOf('/') + 1);
-            window.location.href = baseUrl + session.role + '/';
-          }
-        });
-      }
+    if (typeof initFirebase !== 'undefined') {
+      initFirebase(function(err, session) {
+        if (session && session.loggedIn) {
+          const p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
+          const baseUrl = p.substring(0, p.lastIndexOf('/') + 1);
+          window.location.href = baseUrl + session.role + '/';
+        }
+      });
     }
 
     initTheme();
