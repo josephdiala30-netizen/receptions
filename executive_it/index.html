@@ -843,28 +843,7 @@ function finishAuth(session, callback) {
   if (session.role === 'executive_path') { window.location.href = getBaseUrl() + 'executive_path/'; return; }
   if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
 
-  // Fallback: check users array for executiveAdmin (source of truth)
-  if (!session.executiveAdmin) {
-    var allUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    var foundUser = allUsers.find(function(u) { return u.username === session.username; });
-    if (foundUser && foundUser.executiveAdmin) {
-      session.executiveAdmin = true;
-      fbSaveSession(session);
-    }
-  }
-
-  // Restrict advanced modules to executiveAdmin only
-  var isExecAdmin = session.executiveAdmin === true;
-  var restrictedNavs = ['navInventory', 'navSystems', 'navKnowledge'];
-  restrictedNavs.forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.style.display = isExecAdmin ? '' : 'none';
-  });
-  var restrictedMobile = ['mobile-nav-inventory', 'mobile-nav-systems', 'mobile-nav-knowledge'];
-  restrictedMobile.forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.style.display = isExecAdmin ? '' : 'none';
-  });
+  // Always show all sidebar items
 
   var initial = (session.name || session.username).charAt(0).toUpperCase();
   sessionStorage.setItem('avatarInitial', initial);
@@ -1227,11 +1206,6 @@ var currentView = 'dashboard';
 var searchQuery = '';
 
 function switchView(view) {
-  var restricted = { inventory: 1, systems: 1, knowledge: 1 };
-  if (restricted[view]) {
-    var s = getSession();
-    if (!s || s.executiveAdmin !== true) { switchView('dashboard'); return; }
-  }
   currentView = view;
   var views = ['Dashboard', 'Services', 'Maintenance', 'Inventory', 'Task', 'Planner', 'Accomplishments', 'Tickets', 'Systems', 'Timetrack', 'Knowledge', 'Auditlog'];
   views.forEach(function(v) {

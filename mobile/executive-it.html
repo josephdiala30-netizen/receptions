@@ -395,14 +395,9 @@ var _formSection = '';
 var _formEditId = null;
 var _auditLog = [];
 
-var _restrictedViews = {inventory:1,systems:1,knowledge:1};
+var _restrictedViews = {};
 function switchMobileView(view) {
   if (view === 'more') { mobileApp.toggleMoreMenu(); return; }
-  var session = mobileApp.session;
-  if (_restrictedViews[view] && (!session || !session.executiveAdmin)) {
-    mobileApp.showToast('Access denied. Executive Admin only.');
-    return;
-  }
   document.querySelectorAll('.view-section').forEach(function(el) { el.classList.remove('active'); });
   var target = document.getElementById('view-' + view);
   if (target) {
@@ -1427,14 +1422,7 @@ function initPortal() {
   var origView = mobileApp.switchView;
   mobileApp.switchView = function(v) { switchMobileView(v); };
 
-  if (!session || !session.executiveAdmin) {
-    ['inventory','systems','knowledge'].forEach(function(k) {
-      var el = document.getElementById('more-' + k);
-      if (el) el.style.display = 'none';
-    });
-    var fi = document.getElementById('fab-inventory');
-    if (fi) fi.style.display = 'none';
-  }
+  // All sidebar items visible to everyone
 
   // Sync theme icon with mobileApp
   mobileApp.enableDarkMode = function() {
