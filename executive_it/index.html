@@ -843,6 +843,16 @@ function finishAuth(session, callback) {
   if (session.role === 'executive_path') { window.location.href = getBaseUrl() + 'executive_path/'; return; }
   if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
 
+  // Fallback: check users array for executiveAdmin (source of truth)
+  if (!session.executiveAdmin) {
+    var allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    var foundUser = allUsers.find(function(u) { return u.username === session.username; });
+    if (foundUser && foundUser.executiveAdmin) {
+      session.executiveAdmin = true;
+      fbSaveSession(session);
+    }
+  }
+
   // Restrict advanced modules to executiveAdmin only
   var isExecAdmin = session.executiveAdmin === true;
   var restrictedNavs = ['navInventory', 'navSystems', 'navKnowledge'];

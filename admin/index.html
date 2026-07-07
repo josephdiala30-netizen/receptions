@@ -795,7 +795,7 @@ function syncAllLocalUsersToCloud() {
     Promise.resolve(supabaseClient.from('profiles').select('id').eq('username', u.username).single()).then(function(p) {
       if (p.data && p.data.id) {
         // May profile na - update userdata
-        var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, role: u.role || 'executive_task' } };
+        var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, executiveAdmin: u.executiveAdmin || false, role: u.role || 'executive_task' } };
         ['tasks','plans','milestones','dailylog','trips','shared_tasks'].forEach(function(k) {
           try { var v = JSON.parse(localStorage.getItem(k + '_' + u.username)); if (Array.isArray(v)) userData[k] = v; } catch(e) {}
         });
@@ -811,7 +811,7 @@ function syncAllLocalUsersToCloud() {
         // Kung wala, ito ay mabibigo at magti-trigger ng error
         Promise.resolve(supabaseClient.from('profiles').insert({
           username: u.username, name: u.name || u.username,
-          email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false
+          email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false, executive_admin: u.executiveAdmin || false
         })).then(function() {
           done++;
           if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
