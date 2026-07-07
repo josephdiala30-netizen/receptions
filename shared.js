@@ -3,21 +3,18 @@
 // Keep portal-specific code in each index.html.
 
 function getSession() {
-  return window.__fbSession || (window.fbGetSession && fbGetSession()) || null;
+  return JSON.parse(localStorage.getItem('session') || 'null');
 }
 
 function initTheme() {
   var theme = localStorage.getItem('theme') || 'light';
   var btn = document.getElementById('themeToggle');
   if (!btn) return;
-  var icon = btn.classList.contains('material-symbols-outlined') ? btn : btn.querySelector('.material-symbols-outlined');
-  if (!icon) icon = btn;
   if (theme === 'dark') {
     document.documentElement.classList.add('dark');
-    icon.textContent = 'light_mode';
+    btn.textContent = 'light_mode';
   } else {
-    document.documentElement.classList.remove('dark');
-    icon.textContent = 'dark_mode';
+    btn.textContent = 'dark_mode';
   }
 }
 
@@ -25,10 +22,7 @@ function toggleTheme() {
   var isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
   var btn = document.getElementById('themeToggle');
-  if (!btn) return;
-  var icon = btn.classList.contains('material-symbols-outlined') ? btn : btn.querySelector('.material-symbols-outlined');
-  if (!icon) icon = btn;
-  icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  if (btn) btn.textContent = isDark ? 'light_mode' : 'dark_mode';
 }
 
 function toggleUserMenu() {
@@ -36,14 +30,9 @@ function toggleUserMenu() {
 }
 
 function escapeHtml(str) {
-  if (str == null) return '';
-  if (typeof str !== 'string') str = String(str);
+  if (typeof str !== 'string') str = String(str || '');
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function escapeAttr(str) {
-  return escapeHtml(str).replace(/'/g, '&#39;');
 }
 
 function getBaseUrl() {

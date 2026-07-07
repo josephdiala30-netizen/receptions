@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://fonts.googleapis.com https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com wss://firestore.googleapis.com https://*.firebaseio.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
 <title>Administrator | Control Panel</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -142,9 +142,7 @@ button, input, select, textarea { min-width: 0; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../firebase-data.js"></script>
 <script src="../shared.js"></script>
@@ -447,15 +445,15 @@ button, input, select, textarea { min-width: 0; }
   <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
     <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">info</span> System Info</h3>
     <div class="space-y-3">
-      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Firestore data keys</span><span class="font-body-md font-semibold" id="sysInfoKeys">0</span></div>
-      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Total data size (est.)</span><span class="font-body-md font-semibold" id="sysInfoSize">0 KB</span></div>
+      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Total localStorage keys</span><span class="font-body-md font-semibold" id="sysInfoKeys">0</span></div>
+      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Total data size</span><span class="font-body-md font-semibold" id="sysInfoSize">0 KB</span></div>
       <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Registered users</span><span class="font-body-md font-semibold" id="sysInfoUsers">0</span></div>
     </div>
   </div>
   <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
     <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">cloud_upload</span> Sync Users to Cloud</h3>
-    <p class="font-body-md text-on-surface-variant mb-4">Create or update Firebase Auth accounts for all local users. Required para makapag-login sila sa ibang device.</p>
-    <button class="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-emerald-700 transition-colors" onclick="syncAllLocalUsersToFirestore()">
+    <p class="font-body-md text-on-surface-variant mb-4">Create or update Supabase Auth accounts for all local users. Required para makapag-login sila sa ibang device.</p>
+    <button class="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-emerald-700 transition-colors" onclick="syncAllLocalUsersToCloud()">
       <span class="material-symbols-outlined">cloud_upload</span> Sync All Users to Cloud
     </button>
     <span id="syncStatus" class="font-label-md text-on-surface-variant ml-3"></span>
@@ -564,28 +562,28 @@ button, input, select, textarea { min-width: 0; }
 function goTo(path) { window.location.href = getBaseUrl() + path; }
 
 function initAuth(callback) {
-  initFirebase(function(err, session) {
-    if (!err && session && session.loggedIn) {
-      // Load all users from Firestore profiles
-      loadUsersFromFirestore(function() {
-        if (session.isAdmin || session.role === 'admin') {
-          session.role = 'admin';
-          finishAuth(session, callback);
-        } else {
-          goTo('login/');
-        }
-      });
-    } else {
-      session = getSession();
-      if (!session || !session.loggedIn) { goTo('login/'); return; }
-      if (session.role === 'admin' || session.isAdmin) {
-        loadUsersFromFirestore(function() {
-          finishAuth(session, callback);
-        });
-      } else {
-        goTo('login/');
+  initFirebase(function(err, user) {
+    if (!err && user && window.__fbLoaded) {
+      var profile = getFB('profile') || {};
+      if (profile.isAdmin) {
+        var fbSession = {
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: user.email,
+          isAdmin: true,
+          role: 'admin',
+          supabaseUid: user.uid,
+          loggedIn: true,
+          timestamp: Date.now()
+        };
+        fbSaveSession(fbSession);
+        finishAuth(fbSession, callback);
+        return;
       }
     }
+    var session = getSession();
+    if (!session || !session.loggedIn) { goTo('login/'); return; }
+    finishAuth(session, callback);
   });
 }
 
@@ -603,11 +601,11 @@ function finishAuth(session, callback) {
 }
 
 function checkWelcome() {
-  var s = window.__fbSession || getSession();
-  if (!s || !s.username) return;
-  var welcomed = getFBOr('_welcomed', false);
-  if (!welcomed) {
-    storeFB('_welcomed', true);
+  var s = JSON.parse(localStorage.getItem('session') || '{}');
+  if (!s.username) return;
+  var key = 'welcome_' + s.username;
+  if (localStorage.getItem(key)) {
+    localStorage.removeItem(key);
     document.getElementById('welcomeName').textContent = s.name || s.username;
     document.getElementById('welcomeModal').classList.remove('hidden');
   }
@@ -648,84 +646,197 @@ function showSection(id) {
   if (id === 'pageData') loadSystemInfo();
 }
 
+function mergeSupabaseUsers(sbUsers, localUsers) {
+  if (!sbUsers || !sbUsers.length) return localUsers;
+  var merged = localUsers.slice();
+  sbUsers.forEach(function(sb) {
+    var existing = merged.find(function(m) { return m.username === sb.username || m.email === sb.email; });
+    if (existing) {
+      existing.role = sb.role || existing.role;
+      existing.name = sb.name || sb.username || existing.name;
+      existing.email = sb.email || existing.email;
+      existing.isAdmin = sb.is_admin || (sb.role === 'admin');
+    } else {
+      merged.push({ username: sb.username, name: sb.name || sb.username, email: sb.email || '', role: sb.role || 'executive_task', isAdmin: sb.is_admin || false });
+    }
+  });
+  return merged;
+}
 
+function syncSupabaseUsers(callback) {
+  if (typeof supabaseClient === 'undefined') { if (callback) callback(); return; }
+
+  // Try RPC first (bypass RLS)
+  supabaseClient.rpc('get_all_profiles').then(function(rpcResult) {
+    if (!rpcResult.error && rpcResult.data && rpcResult.data.length) {
+      var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      var merged = mergeSupabaseUsers(rpcResult.data, localUsers);
+      localStorage.setItem('users', JSON.stringify(merged));
+      if (callback) callback();
+      return;
+    }
+    // RPC failed, try direct SELECT (gagana pagkatapos ng RLS fix)
+    throw new Error('RPC failed');
+  }).catch(function() {
+    supabaseClient.from('profiles').select('*').then(function(pResult) {
+      if (!pResult.error && pResult.data && pResult.data.length) {
+        var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        var merged = mergeSupabaseUsers(pResult.data, localUsers);
+        localStorage.setItem('users', JSON.stringify(merged));
+      }
+      if (callback) callback();
+    }).catch(function() {
+      if (callback) callback();
+    });
+  });
+}
 
 function getUsers() {
-  return window.__usersCache || [];
+  var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+  // Merge legacy users_executive_it into single source
+  var legacy = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+  if (legacy.length > 0) {
+    legacy.forEach(function(u) {
+      if (!localUsers.some(function(r) { return r.username === u.username; })) {
+        localUsers.push(u);
+      }
+    });
+    localStorage.setItem('users', JSON.stringify(localUsers));
+    localStorage.removeItem('users_executive_it');
+  }
+  return localUsers;
 }
 function saveUsers(users) {
-  window.__usersCache = users;
-  // Sync to Firestore
-  users.forEach(function(u) {
-    saveUserToFirestore(u);
-  });
-  refreshUsersCache();
-}
-function refreshUsersCache() {
-  loadUsersFromFirestore(function() {
-    renderUsers();
-    populateUserFilters();
-  });
+  localStorage.setItem('users', JSON.stringify(users));
 }
 
-function fetchFirebaseUserData(username, callback) {
-  var db = firebase.firestore();
-  if (!db) { if (callback) callback(null); return; }
+function fetchSupabaseUserData(username, callback) {
+  var client = supabaseClient;
+  if (!client) { if (callback) callback(null); return; }
 
-  db.collection('profiles').where('username', '==', username).get().then(function(querySnapshot) {
-    if (querySnapshot.empty) { if (callback) callback(null); return; }
-    var uid = querySnapshot.docs[0].id;
+  // Hanapin muna ang UID ng user mula sa profiles
+  client.from('profiles').select('id').eq('username', username).single().then(function(pResult) {
+    if (pResult.error || !pResult.data) { if (callback) callback(null); return; }
 
-    db.collection('userdata').doc(uid).get().then(function(doc) {
-      if (doc.exists) {
-        var data = doc.data().data || {};
-        // Store in cache instead of localStorage
-        if (!window.__allUserDataCache) window.__allUserDataCache = {};
-        window.__allUserDataCache[username] = data;
+    client.rpc('get_userdata', { p_uid: pResult.data.id }).then(function(rpcResult) {
+      if (!rpcResult.error && rpcResult.data && Object.keys(rpcResult.data).length > 0) {
+        var data = typeof rpcResult.data === 'string' ? JSON.parse(rpcResult.data) : rpcResult.data;
+        // Sync sa localStorage
+        if (data.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(data.tasks));
+        if (data.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(data.shared_tasks));
+        if (data.plans) localStorage.setItem('plans_' + username, JSON.stringify(data.plans));
+        if (data.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(data.dailylog));
+        if (data.trips) localStorage.setItem('trips_' + username, JSON.stringify(data.trips));
+        if (data.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(data.milestones));
+        Object.keys(data).forEach(function(k) {
+          if (k.indexOf('it_') === 0) localStorage.setItem(k + '_' + username, JSON.stringify(data[k]));
+        });
         if (callback) callback(data);
       } else {
-        if (callback) callback(null);
+        // Fallback sa direct SELECT
+        client.from('userdata').select('data').eq('id', pResult.data.id).single().then(function(sResult) {
+          if (!sResult.error && sResult.data && sResult.data.data) {
+            var d = sResult.data.data;
+            if (d.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(d.tasks));
+            if (d.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(d.shared_tasks));
+            if (d.plans) localStorage.setItem('plans_' + username, JSON.stringify(d.plans));
+            if (d.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(d.dailylog));
+            if (d.trips) localStorage.setItem('trips_' + username, JSON.stringify(d.trips));
+            if (d.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(d.milestones));
+            Object.keys(d).forEach(function(k) {
+              if (k.indexOf('it_') === 0) localStorage.setItem(k + '_' + username, JSON.stringify(d[k]));
+            });
+            if (callback) callback(d);
+          } else {
+            if (callback) callback(null);
+          }
+        }).catch(function() { if (callback) callback(null); });
       }
     }).catch(function() { if (callback) callback(null); });
   }).catch(function() { if (callback) callback(null); });
 }
 
-function syncAllUsersFromFirebase(callback) {
+function syncAllUsersFromSupabase(callback) {
   var users = getUsers();
-  var db = firebase.firestore();
-  if (!users.length || !db) { if (callback) callback(); return; }
+  if (!users.length || typeof supabaseClient === 'undefined') { if (callback) callback(); return; }
 
   var pending = users.length;
   var done = 0;
 
   users.forEach(function(u) {
-    fetchFirebaseUserData(u.username, function() {
+    fetchSupabaseUserData(u.username, function() {
       done++;
       if (done >= pending && callback) callback();
     });
   });
 }
 
-// Data is already in Firestore — this is a no-op now except for cache refresh
-function syncAllLocalUsersToFirestore() {
+// I-sync ang lahat ng local users papuntang Supabase Auth (para makapag-login sa ibang device)
+function syncAllLocalUsersToCloud() {
   var statusEl = document.getElementById('syncStatus');
   if (!statusEl) return;
-  statusEl.textContent = 'All data is stored in Firestore. No sync needed.';
-  setTimeout(function() { statusEl.textContent = ''; }, 3000);
+  statusEl.textContent = 'Syncing...';
+
+  var users = getUsers();
+  if (!users.length || typeof supabaseClient === 'undefined') {
+    statusEl.textContent = 'No users or Supabase not connected.';
+    return;
+  }
+
+  var pending = users.length;
+  var done = 0;
+  var errors = 0;
+
+  users.forEach(function(u) {
+    var email = u.email || (u.username + '@app.local');
+
+    // I-ensure lang na may profile at userdata sa Supabase
+    // (Hindi na ginagalaw ang Auth account - yan ay kay admin mag-create o via login)
+    Promise.resolve(supabaseClient.from('profiles').select('id').eq('username', u.username).single()).then(function(p) {
+      if (p.data && p.data.id) {
+        // May profile na - update userdata
+        var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, role: u.role || 'executive_task' } };
+        ['tasks','plans','milestones','dailylog','trips','shared_tasks'].forEach(function(k) {
+          try { var v = JSON.parse(localStorage.getItem(k + '_' + u.username)); if (Array.isArray(v)) userData[k] = v; } catch(e) {}
+        });
+        ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+          try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {}
+        });
+        Promise.resolve(supabaseClient.from('userdata').upsert({ id: p.data.id, data: userData }, { onConflict: 'id' })).then(function() {
+          done++;
+          if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
+        }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
+      } else {
+        // Wala pang profile - subukan i-create (kung may existing Auth account)
+        // Kung wala, ito ay mabibigo at magti-trigger ng error
+        Promise.resolve(supabaseClient.from('profiles').insert({
+          username: u.username, name: u.name || u.username,
+          email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false
+        })).then(function() {
+          done++;
+          if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
+        }, function() {
+          // Profile insert failed - malamang walang Auth account
+          done++; errors++;
+          if (done >= pending) statusEl.textContent = 'Sync done. ' + errors + ' users need Supabase Auth account. Create them via Users tab first.';
+        });
+      }
+    }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
+  });
 }
 
 function collectUserData(username) {
-  // Read from Firestore cache if available, else return empty
-  var uid = null;
-  var users = getUsers();
-  var u = users.find(function(x) { return x.username === username; });
-  if (u && u.id) uid = u.id;
-
-  // Check the global user data cache
-  if (window.__allUserDataCache && window.__allUserDataCache[username]) {
-    return window.__allUserDataCache[username];
-  }
-  return { tasks: [], plans: [], milestones: [], dailylog: [], trips: [] };
+  var data = {
+    tasks: JSON.parse(localStorage.getItem('tasks_' + username) || '[]'),
+    plans: JSON.parse(localStorage.getItem('plans_' + username) || '[]'),
+    milestones: JSON.parse(localStorage.getItem('milestones_' + username) || '[]'),
+    dailylog: JSON.parse(localStorage.getItem('dailylog_' + username) || '[]'),
+    trips: JSON.parse(localStorage.getItem('trips_' + username) || '[]')
+  };
+  ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+    data['it_' + t] = JSON.parse(localStorage.getItem('it_' + t + '_' + username) || '[]');
+  });
+  return data;
 }
 
 function loadDashboard() {
@@ -733,81 +844,92 @@ function loadDashboard() {
   var users = getUsers();
   document.getElementById('adminTotalUsers').textContent = users.length;
 
-  ensureDataLoaded(function() {
-    var allTasks = [], allPlans = [], allLogs = [], allTrips = [], allMstones = [];
-    users.forEach(function(u) {
-      var d = getUserCache(u.username);
-      d.tasks.forEach(function(t) { t._user = u.name || u.username; });
-      allTasks = allTasks.concat(d.tasks);
-      d.plans.forEach(function(p) { p._user = u.name || u.username; });
-      allPlans = allPlans.concat(d.plans);
-      d.milestones.forEach(function(m) { m._user = u.name || u.username; });
-      allMstones = allMstones.concat(d.milestones);
-      d.dailylog.forEach(function(l) { l._user = u.name || u.username; });
-      allLogs = allLogs.concat(d.dailylog);
-      d.trips.forEach(function(t) { t._user = u.name || u.username; });
-      allTrips = allTrips.concat(d.trips);
-    });
-
-    document.getElementById('adminTotalTasks').textContent = allTasks.length;
-    document.getElementById('adminTotalPlans').textContent = allPlans.length;
-    document.getElementById('adminTotalTrips').textContent = allTrips.length;
-    document.getElementById('adminTotalLogs').textContent = allLogs.length;
-    document.getElementById('adminTotalMilestones').textContent = allMstones.length;
-
-    var roleLabel = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task', executive_it: 'Exec IT' };
-    var roleColors = { admin: 'bg-amber-100 text-amber-700', executive_path: 'bg-blue-100 text-blue-700', executive_task: 'bg-indigo-100 text-indigo-700', executive_it: 'bg-purple-100 text-purple-700' };
-    document.getElementById('adminUserList').innerHTML = users.map(function(u) {
-      return '<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors">' +
-        '<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">' + (u.name || u.username).charAt(0).toUpperCase() + '</div>' +
-        '<div><p class="font-body-md font-semibold">' + escapeHtml(u.name || u.username) + '</p><p class="font-label-md text-on-surface-variant">@' + escapeHtml(u.username) + '</p></div></div>' +
-        '<span class="font-label-md px-2.5 py-1 rounded-full text-xs font-semibold ' + (roleColors[u.role] || '') + '">' + (roleLabel[u.role] || escapeHtml(u.role)) + '</span></div>';
-    }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No users</p>';
-
-    var activity = [];
-    allTasks.forEach(function(t) { activity.push({ type: 'task', title: t.title, user: t._user, date: t.createdAt || t.dueDate }); });
-    allPlans.forEach(function(p) { activity.push({ type: 'plan', title: p.title, user: p._user, date: p.createdAt || p.startDate }); });
-    allLogs.forEach(function(l) { activity.push({ type: 'log', title: l.title, user: l._user, date: l.date || l.createdAt }); });
-    allTrips.forEach(function(t) { activity.push({ type: 'trip', title: t.tripName || t.title, user: t._user, date: t.createdAt || t.startDate }); });
-    activity.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; });
-    document.getElementById('adminRecentActivity').innerHTML = activity.slice(0, 12).map(function(a) {
-      var icons = { task: 'checklist', plan: 'map', log: 'edit_note', trip: 'flight_takeoff' };
-      var colors = { task: 'bg-indigo-100 text-indigo-600', plan: 'bg-emerald-100 text-emerald-600', log: 'bg-pink-100 text-pink-600', trip: 'bg-blue-100 text-blue-600' };
-      return '<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container">' +
-        '<div class="p-2 rounded-lg ' + (colors[a.type] || 'bg-gray-100 text-gray-600') + '"><span class="material-symbols-outlined text-sm">' + (icons[a.type] || 'circle') + '</span></div>' +
-        '<div class="flex-1 min-w-0"><p class="font-body-md font-semibold truncate">' + escapeHtml(a.title) + '</p>' +
-        '<p class="font-label-md text-on-surface-variant">' + escapeHtml(a.user) + ' &middot; ' + escapeHtml(a.date || '—') + '</p></div></div>';
-    }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No activity</p>';
+  var allTasks = [], allPlans = [], allLogs = [], allTrips = [], allMstones = [];
+  users.forEach(function(u) {
+    var d = collectUserData(u.username);
+    d.tasks.forEach(function(t) { t._user = u.name || u.username; });
+    allTasks = allTasks.concat(d.tasks);
+    d.plans.forEach(function(p) { p._user = u.name || u.username; });
+    allPlans = allPlans.concat(d.plans);
+    d.milestones.forEach(function(m) { m._user = u.name || u.username; });
+    allMstones = allMstones.concat(d.milestones);
+    d.dailylog.forEach(function(l) { l._user = u.name || u.username; });
+    allLogs = allLogs.concat(d.dailylog);
+    d.trips.forEach(function(t) { t._user = u.name || u.username; });
+    allTrips = allTrips.concat(d.trips);
   });
+  document.getElementById('adminTotalTasks').textContent = allTasks.length;
+  document.getElementById('adminTotalPlans').textContent = allPlans.length;
+  document.getElementById('adminTotalTrips').textContent = allTrips.length;
+  document.getElementById('adminTotalLogs').textContent = allLogs.length;
+  document.getElementById('adminTotalMilestones').textContent = allMstones.length;
+  document.getElementById('adminTotalKeys').textContent = localStorage.length;
+
+  var roleLabel = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task', executive_it: 'Exec IT' };
+  var roleColors = { admin: 'bg-amber-100 text-amber-700', executive_path: 'bg-blue-100 text-blue-700', executive_task: 'bg-indigo-100 text-indigo-700', executive_it: 'bg-purple-100 text-purple-700' };
+  document.getElementById('adminUserList').innerHTML = users.map(function(u) {
+    return '<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors">' +
+      '<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">' + (u.name || u.username).charAt(0).toUpperCase() + '</div>' +
+      '<div><p class="font-body-md font-semibold">' + escapeHtml(u.name || u.username) + '</p><p class="font-label-md text-on-surface-variant">@' + escapeHtml(u.username) + '</p></div></div>' +
+      '<span class="font-label-md px-2.5 py-1 rounded-full text-xs font-semibold ' + (roleColors[u.role] || '') + '">' + (roleLabel[u.role] || u.role) + '</span></div>';
+  }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No users</p>';
+
+  var activity = [];
+  allTasks.forEach(function(t) { activity.push({ type: 'task', title: t.title, user: t._user, date: t.createdAt || t.dueDate }); });
+  allPlans.forEach(function(p) { activity.push({ type: 'plan', title: p.title, user: p._user, date: p.createdAt || p.startDate }); });
+  allLogs.forEach(function(l) { activity.push({ type: 'log', title: l.title, user: l._user, date: l.date || l.createdAt }); });
+  allTrips.forEach(function(t) { activity.push({ type: 'trip', title: t.tripName || t.title, user: t._user, date: t.createdAt || t.startDate }); });
+  activity.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; });
+  document.getElementById('adminRecentActivity').innerHTML = activity.slice(0, 12).map(function(a) {
+    var icons = { task: 'checklist', plan: 'map', log: 'edit_note', trip: 'flight_takeoff' };
+    var colors = { task: 'bg-indigo-100 text-indigo-600', plan: 'bg-emerald-100 text-emerald-600', log: 'bg-pink-100 text-pink-600', trip: 'bg-blue-100 text-blue-600' };
+    return '<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container">' +
+      '<div class="p-2 rounded-lg ' + (colors[a.type] || 'bg-gray-100 text-gray-600') + '"><span class="material-symbols-outlined text-sm">' + (icons[a.type] || 'circle') + '</span></div>' +
+      '<div class="flex-1 min-w-0"><p class="font-body-md font-semibold truncate">' + escapeHtml(a.title) + '</p>' +
+      '<p class="font-label-md text-on-surface-variant">' + escapeHtml(a.user) + ' &middot; ' + (a.date || '—') + '</p></div></div>';
+  }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No activity</p>';
 }
 
-function updateFirebaseProfile(email, profile) {
-  var db = firebase.firestore();
-  if (!db) return;
-
-  db.collection('profiles').where('email', '==', email).get().then(function(querySnapshot) {
-    if (querySnapshot.empty) return;
-    var uid = querySnapshot.docs[0].id;
-    db.collection('profiles').doc(uid).update({
-      username: profile.username,
-      name: profile.name || profile.username,
-      email: email,
-      role: profile.role || 'executive_task',
-      is_admin: profile.isAdmin || false,
-      executive_admin: profile.executiveAdmin || false
-    }).catch(function(err) {
-      console.error('Profile update error:', err);
+function updateSupabaseProfile(email, profile) {
+  var client = supabaseClient;
+  if (!client) return;
+  // Gamit ang RPC para hindi ma-RLS block
+  client.rpc('get_all_profiles').then(function(result) {
+    if (result.error || !result.data) return;
+    var found = result.data.find(function(p) { return p.email === email; });
+    if (!found) return;
+    // Subukan ang RPC, kung ayaw (e.g. unknown parameter), fallback sa direct update
+    Promise.resolve(client.rpc('admin_update_profile', {
+      p_user_id: found.id,
+      p_username: profile.username,
+      p_name: profile.name || profile.username,
+      p_email: email,
+      p_role: profile.role || 'executive_task',
+      p_is_admin: profile.isAdmin || false,
+      p_executive_admin: profile.executiveAdmin || false
+    })).then(null, function(rpcErr) {
+      // Fallback: direct update ng profiles table
+      Promise.resolve(client.from('profiles').upsert({
+        id: found.id,
+        username: profile.username,
+        name: profile.name || profile.username,
+        email: email,
+        role: profile.role || 'executive_task',
+        is_admin: profile.isAdmin || false,
+        executive_admin: profile.executiveAdmin || false
+      }, { onConflict: 'id' })).then(null, function(dirErr) {
+        console.error('Direct profile update error:', dirErr);
+      });
+      // Update din ang userdata cache para agad mag-reflect
+      Promise.resolve(client.from('userdata').select('data').eq('id', found.id).single()).then(function(ud) {
+        if (!ud.error && ud.data && ud.data.data) {
+          var cache = ud.data.data;
+          if (!cache.profile) cache.profile = {};
+          cache.profile.executiveAdmin = profile.executiveAdmin || false;
+          Promise.resolve(client.from('userdata').upsert({ id: found.id, data: cache }, { onConflict: 'id' })).then(null, function(e) {});
+        }
+      });
     });
-    db.collection('userdata').doc(uid).get().then(function(doc) {
-      if (doc.exists) {
-        var cache = doc.data().data || {};
-        if (!cache.profile) cache.profile = {};
-        cache.profile.executiveAdmin = profile.executiveAdmin || false;
-        db.collection('userdata').doc(uid).set({ data: cache }).catch(function(e) {});
-      }
-    });
-  }).catch(function(err) {
-    console.error('Firebase profile lookup error:', err);
   });
 }
 
@@ -848,11 +970,11 @@ function renderUsers() {
         '<div><p class="font-body-md font-semibold">' + escapeHtml(u.name || '—') + '</p></div></div>' +
         '<div class="md:col-span-2"><span class="font-body-md text-on-surface-variant truncate block" title="' + escapeHtml(u.email || '') + '">' + escapeHtml(u.email || '—') + '</span></div>' +
         '<div class="md:col-span-2"><span class="font-body-md text-on-surface-variant">@' + escapeHtml(u.username) + '</span></div>' +
-        '<div class="md:col-span-2"><span class="font-label-md px-2.5 py-1 rounded-full text-xs font-semibold ' + (roleColors[u.role] || '') + '">' + (roleLabels[u.role] || escapeHtml(u.role)) + '</span></div>' +
+        '<div class="md:col-span-2"><span class="font-label-md px-2.5 py-1 rounded-full text-xs font-semibold ' + (roleColors[u.role] || '') + '">' + (roleLabels[u.role] || u.role) + '</span></div>' +
         '<div class="md:col-span-1"><span class="font-label-md text-on-surface-variant">' + total + '</span></div>' +
         '<div class="md:col-span-2 flex items-center justify-end gap-2">' +
-        '<button class="px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-700 font-label-md hover:bg-indigo-200 transition-colors text-xs" onclick="editUser(\'' + escapeAttr(u.username) + '\')"><span class="material-symbols-outlined text-sm align-middle">edit</span> Edit</button>' +
-        (u.role !== 'admin' ? '<button class="px-3 py-1.5 rounded-lg bg-red-100 text-red-700 font-label-md hover:bg-red-200 transition-colors text-xs" onclick="deleteUser(\'' + escapeAttr(u.username) + '\')"><span class="material-symbols-outlined text-sm align-middle">delete</span></button>' : '') +
+        '<button class="px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-700 font-label-md hover:bg-indigo-200 transition-colors text-xs" onclick="editUser(\'' + u.username + '\')"><span class="material-symbols-outlined text-sm align-middle">edit</span> Edit</button>' +
+        (u.role !== 'admin' ? '<button class="px-3 py-1.5 rounded-lg bg-red-100 text-red-700 font-label-md hover:bg-red-200 transition-colors text-xs" onclick="deleteUser(\'' + u.username + '\')"><span class="material-symbols-outlined text-sm align-middle">delete</span></button>' : '') +
         '</div></div>';
     }).join('') + '</div>';
 }
@@ -901,14 +1023,12 @@ async function saveUser() {
       err.textContent = 'Super Administrator role cannot be changed.'; errEl.prepend(err); return;
     }
     users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin; users[idx].executiveAdmin = executiveAdmin;
-    window.__usersCache = users;
-    // Save to Firestore
-    saveUserToFirestore({
-      id: users[idx].id || editId,
-      username: username, name: name, email: email,
-      role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin
-    });
-    refreshUsersCache();
+    if (password) users[idx].password = await hashPass(password);
+    saveUsers(users);
+    // Sync changes to Supabase profile for cross-browser login
+    if (email && typeof supabaseClient !== 'undefined') {
+      updateSupabaseProfile(email, { username: username, name: name, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin });
+    }
   } else {
     if (users.some(function(u) { return u.username === username; })) {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
@@ -918,17 +1038,27 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Password is required for new users.'; errEl.prepend(err); return;
     }
+    users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin });
+    localStorage.setItem('welcome_' + username, 'true');
+    saveUsers(users);
+    // Also create Supabase Auth account + profile for cross-browser login
+    // Kung walang email, gamitin ang username@app.local para makapag-login sa ibang device
     var syncEmail = email || (username + '@app.local');
-    if (typeof firebase !== 'undefined') {
+    if (typeof supabaseClient !== 'undefined') {
       fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin }, function(err) {
         if (err) {
-          console.error('Firebase account creation error:', err);
+          console.error('Supabase account creation error:', err);
+          // Show error to admin but don't block the flow
           var statusEl = document.getElementById('syncStatus');
-          if (statusEl) statusEl.textContent = 'Note: ' + username + ' Firebase account: ' + (err.message || err).substring(0, 60);
-        } else {
-          refreshUsersCache();
+          if (statusEl) statusEl.textContent = 'Note: ' + username + ' Supabase account: ' + (err.message || err).substring(0, 60);
         }
       });
+      // Update user record para may email na for future logins
+      if (!email) {
+        var allUsers = getUsers();
+        var foundUser = allUsers.find(function(x) { return x.username === username; });
+        if (foundUser) { foundUser.email = syncEmail; saveUsers(allUsers); }
+      }
     }
   }
   closeUserModal();
@@ -945,37 +1075,30 @@ function editUser(username) {
 function deleteUser(username) {
   if (username === 'superadmin') return;
   if (!confirm('Delete user "' + username + '"? This will remove all their data.')) return;
-  deleteUserFromFirestore(username, function() {
-    // Update local cache
-    window.__usersCache = (window.__usersCache || []).filter(function(u) { return u.username !== username; });
-    if (window.__allUserDataCache) delete window.__allUserDataCache[username];
-    renderUsers();
-    loadDashboard();
-  });
-}
+  var users = getUsers().filter(function(u) { return u.username !== username; });
+  saveUsers(users);
+  ['tasks','plans','milestones','dailylog','trips'].forEach(function(k) { localStorage.removeItem(k + '_' + username); });
+  ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(k) { localStorage.removeItem('it_' + k + '_' + username); });
+  localStorage.removeItem('welcome_' + username);
+  localStorage.removeItem('tutorial_' + username);
 
-// Load all user data from Firestore into the global cache for admin rendering
-function ensureDataLoaded(callback) {
-  if (window.__allUserDataCache && Object.keys(window.__allUserDataCache).length > 0) {
-    if (callback) callback();
-    return;
+  // Delete from Supabase din gamit ang RPC
+  var client = supabaseClient;
+  if (client) {
+    try {
+      // Hanapin ang user ID mula sa profiles
+      client.rpc('get_all_profiles').then(function(result) {
+        if (result.error || !result.data) return;
+        var found = result.data.find(function(p) { return p.username === username; });
+        if (found) {
+          Promise.resolve(client.rpc('admin_delete_user', { p_user_id: found.id })).then(null, function(e) { console.error('Supabase delete error:', e); });
+        }
+      });
+    } catch(e) {}
   }
-  var users = getUsers();
-  if (!users.length) { window.__allUserDataCache = {}; if (callback) callback(); return; }
-  window.__allUserDataCache = {};
-  var pending = users.length;
-  users.forEach(function(u) {
-    fetchFirebaseUserData(u.username, function() {
-      pending--;
-      if (pending <= 0 && callback) callback();
-    });
-  });
-}
 
-// Get data from cache for a user
-function getUserCache(username) {
-  if (!window.__allUserDataCache) window.__allUserDataCache = {};
-  return window.__allUserDataCache[username] || { tasks: [], plans: [], milestones: [], dailylog: [], trips: [] };
+  renderUsers();
+  loadDashboard();
 }
 
 function populateUserFilters() {
@@ -991,61 +1114,55 @@ function renderAdminTasks() {
   var uf = document.getElementById('taskUserFilter').value;
   var sf = document.getElementById('taskStatusFilter').value;
   var pf = document.getElementById('taskPriorityFilter').value;
-
-  ensureDataLoaded(function() {
-    var all = [];
-    users.forEach(function(u) {
-      var d = getUserCache(u.username);
-      (d.tasks || []).forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
-      all = all.concat(d.tasks || []);
-    });
-    if (uf !== 'all') all = all.filter(function(t) { return t._username === uf; });
-    if (sf !== 'all') all = all.filter(function(t) { return t.status === sf; });
-    if (pf !== 'all') all = all.filter(function(t) { return t.priority === pf; });
-
-    document.getElementById('taskStatTotal').textContent = all.length;
-    document.getElementById('taskStatTodo').textContent = all.filter(function(t) { return t.status === 'todo'; }).length;
-    document.getElementById('taskStatProgress').textContent = all.filter(function(t) { return t.status === 'progress'; }).length;
-    document.getElementById('taskStatDone').textContent = all.filter(function(t) { return t.status === 'done'; }).length;
-
-    var container = document.getElementById('adminTasksContainer');
-    if (!all.length) { container.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">checklist</span><p class="font-body-md text-on-surface-variant mt-4">No tasks found</p></div>'; return; }
-
-    var sl = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
-    var sc = { todo: 'bg-red-100 text-red-700', progress: 'bg-amber-100 text-amber-700', done: 'bg-emerald-100 text-emerald-700' };
-    var pl = { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' };
-    var pc = { low: 'bg-gray-100 text-gray-700', medium: 'bg-blue-100 text-blue-700', high: 'bg-orange-100 text-orange-700', urgent: 'bg-red-100 text-red-700' };
-
-    all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
-    container.innerHTML = all.map(function(t) {
-      return '<div class="flex items-start gap-4 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl">' +
-        '<div class="p-3 rounded-xl bg-indigo-100 text-indigo-600"><span class="material-symbols-outlined">task</span></div>' +
-        '<div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.title) + '</h4>' +
-        '<span class="font-label-md px-2.5 py-0.5 rounded-full text-xs font-semibold ' + (sc[t.status] || '') + '">' + (sl[t.status] || t.status) + '</span>' +
-        '<span class="font-label-md px-2.5 py-0.5 rounded-full text-xs font-semibold ' + (pc[t.priority] || '') + '">' + (pl[t.priority] || t.priority) + '</span></div>' +
-        (t.description ? '<p class="font-label-md text-on-surface-variant mt-1">' + escapeHtml(t.description) + '</p>' : '') +
-        '<div class="flex items-center gap-3 mt-2 text-on-surface-variant flex-wrap"><span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(t._user) + '</span>' +
-        (t.dueDate ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + t.dueDate + '</span>' : '') +
-        (t.category ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">folder</span> ' + escapeHtml(t.category) + '</span>' : '') +
-        '</div></div></div>';
-    }).join('');
+  var all = [];
+  users.forEach(function(u) {
+    var tk = JSON.parse(localStorage.getItem('tasks_' + u.username) || '[]');
+    tk.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
+    all = all.concat(tk);
   });
+  if (uf !== 'all') all = all.filter(function(t) { return t._username === uf; });
+  if (sf !== 'all') all = all.filter(function(t) { return t.status === sf; });
+  if (pf !== 'all') all = all.filter(function(t) { return t.priority === pf; });
+
+  document.getElementById('taskStatTotal').textContent = all.length;
+  document.getElementById('taskStatTodo').textContent = all.filter(function(t) { return t.status === 'todo'; }).length;
+  document.getElementById('taskStatProgress').textContent = all.filter(function(t) { return t.status === 'progress'; }).length;
+  document.getElementById('taskStatDone').textContent = all.filter(function(t) { return t.status === 'done'; }).length;
+
+  var container = document.getElementById('adminTasksContainer');
+  if (!all.length) { container.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center bg-surface-container-lowest border border-outline-variant rounded-xl"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">checklist</span><p class="font-body-md text-on-surface-variant mt-4">No tasks found</p></div>'; return; }
+
+  var sl = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
+  var sc = { todo: 'bg-red-100 text-red-700', progress: 'bg-amber-100 text-amber-700', done: 'bg-emerald-100 text-emerald-700' };
+  var pl = { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' };
+  var pc = { low: 'bg-gray-100 text-gray-700', medium: 'bg-blue-100 text-blue-700', high: 'bg-orange-100 text-orange-700', urgent: 'bg-red-100 text-red-700' };
+
+  all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
+  container.innerHTML = all.map(function(t) {
+    return '<div class="flex items-start gap-4 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl">' +
+      '<div class="p-3 rounded-xl bg-indigo-100 text-indigo-600"><span class="material-symbols-outlined">task</span></div>' +
+      '<div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><h4 class="font-body-md font-semibold text-primary">' + escapeHtml(t.title) + '</h4>' +
+      '<span class="font-label-md px-2.5 py-0.5 rounded-full text-xs font-semibold ' + (sc[t.status] || '') + '">' + (sl[t.status] || t.status) + '</span>' +
+      '<span class="font-label-md px-2.5 py-0.5 rounded-full text-xs font-semibold ' + (pc[t.priority] || '') + '">' + (pl[t.priority] || t.priority) + '</span></div>' +
+      (t.description ? '<p class="font-label-md text-on-surface-variant mt-1">' + escapeHtml(t.description) + '</p>' : '') +
+      '<div class="flex items-center gap-3 mt-2 text-on-surface-variant flex-wrap"><span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> ' + escapeHtml(t._user) + '</span>' +
+      (t.dueDate ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_today</span> ' + t.dueDate + '</span>' : '') +
+      (t.category ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">folder</span> ' + escapeHtml(t.category) + '</span>' : '') +
+      '</div></div></div>';
+  }).join('');
 }
 
 function renderAdminPlans() {
   var users = getUsers();
   var uf = document.getElementById('planUserFilter').value;
   var sf = document.getElementById('planStatusFilter').value;
-
-  ensureDataLoaded(function() {
-    var all = [];
-    users.forEach(function(u) {
-      var d = getUserCache(u.username);
-      var pl = d.plans || [];
-      var ms = d.milestones || [];
-      pl.forEach(function(p) { p._user = u.name || u.username; p._username = u.username; p._milestones = ms.filter(function(m) { return m.planId === p.id; }); });
-      all = all.concat(pl);
-    });
+  var all = [];
+  users.forEach(function(u) {
+    var pl = JSON.parse(localStorage.getItem('plans_' + u.username) || '[]');
+    var ms = JSON.parse(localStorage.getItem('milestones_' + u.username) || '[]');
+    pl.forEach(function(p) { p._user = u.name || u.username; p._username = u.username; p._milestones = ms.filter(function(m) { return m.planId === p.id; }); });
+    all = all.concat(pl);
+  });
   if (uf !== 'all') all = all.filter(function(p) { return p._username === uf; });
   if (sf !== 'all') all = all.filter(function(p) { return p.status === sf; });
 
@@ -1077,7 +1194,6 @@ function renderAdminPlans() {
       '<span class="font-label-md font-semibold text-indigo-600">' + pct + '%</span></div>' +
       '<p class="font-label-md text-on-surface-variant">' + done + '/' + mstones.length + ' milestones</p></div>';
   }).join('');
-    });
 }
 
 function renderAdminDailyLogs() {
@@ -1085,16 +1201,13 @@ function renderAdminDailyLogs() {
   var uf = document.getElementById('logUserFilter').value;
   var df = document.getElementById('logDateFilter').value;
   var cf = document.getElementById('logCategoryFilter').value;
-
-  ensureDataLoaded(function() {
-    var all = [];
-    var allCategories = {};
-    users.forEach(function(u) {
-      var d = getUserCache(u.username);
-      var lg = d.dailylog || [];
-      lg.forEach(function(l) { l._user = u.name || u.username; l._username = u.username; if (l.category) allCategories[l.category] = true; });
-      all = all.concat(lg);
-    });
+  var all = [];
+  var allCategories = {};
+  users.forEach(function(u) {
+    var lg = JSON.parse(localStorage.getItem('dailylog_' + u.username) || '[]');
+    lg.forEach(function(l) { l._user = u.name || u.username; l._username = u.username; if (l.category) allCategories[l.category] = true; });
+    all = all.concat(lg);
+  });
   if (uf !== 'all') all = all.filter(function(l) { return l._username === uf; });
   if (df) all = all.filter(function(l) { return l.date === df; });
   if (cf !== 'all') all = all.filter(function(l) { return l.category === cf; });
@@ -1132,22 +1245,18 @@ function renderAdminDailyLogs() {
       (l.timeSpent ? '<span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> ' + escapeHtml(l.timeSpent) + '</span>' : '') +
       '</div></div></div>';
   }).join('');
-    });
 }
 
 function renderAdminTrips() {
   var users = getUsers();
   var uf = document.getElementById('tripUserFilter').value;
   var sq = document.getElementById('tripSearch').value.toLowerCase();
-
-  ensureDataLoaded(function() {
-    var all = [];
-    users.forEach(function(u) {
-      var d = getUserCache(u.username);
-      var tr = d.trips || [];
-      tr.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
-      all = all.concat(tr);
-    });
+  var all = [];
+  users.forEach(function(u) {
+    var tr = JSON.parse(localStorage.getItem('trips_' + u.username) || '[]');
+    tr.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
+    all = all.concat(tr);
+  });
   if (uf !== 'all') all = all.filter(function(t) { return t._username === uf; });
   if (sq) all = all.filter(function(t) { return (t.destination || '').toLowerCase().indexOf(sq) !== -1 || (t.tripName || t.title || '').toLowerCase().indexOf(sq) !== -1; });
 
@@ -1176,42 +1285,34 @@ function renderAdminTrips() {
       (t.status ? '<span class="font-label-md px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">' + escapeHtml(t.status) + '</span>' : '') +
       '</div></div></div></div>';
   }).join('');
-    });
 }
 
 function loadSystemInfo() {
-  var keyCount = 0;
-  var sizeEstimate = 0;
-  if (window.__fbCache) {
-    var keys = Object.keys(window.__fbCache);
-    keyCount = keys.length;
-    sizeEstimate = JSON.stringify(window.__fbCache).length * 2;
-  }
-  document.getElementById('sysInfoKeys').textContent = keyCount;
-  document.getElementById('sysInfoSize').textContent = (sizeEstimate / 1024).toFixed(1) + ' KB';
+  var keys = Object.keys(localStorage);
+  document.getElementById('sysInfoKeys').textContent = keys.length;
+  var size = 0;
+  keys.forEach(function(k) { size += (localStorage.getItem(k) || '').length * 2; });
+  document.getElementById('sysInfoSize').textContent = (size / 1024).toFixed(1) + ' KB';
   document.getElementById('sysInfoUsers').textContent = getUsers().length;
 }
 
 function exportAllData() {
   var users = getUsers();
   var data = { exportedAt: new Date().toISOString(), users: users };
-  ensureDataLoaded(function() {
-    var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
-    users.forEach(function(u) {
-      var d = getUserCache(u.username);
-      if (d.tasks) data['tasks_' + u.username] = d.tasks;
-      if (d.plans) data['plans_' + u.username] = d.plans;
-      if (d.milestones) data['milestones_' + u.username] = d.milestones;
-      if (d.dailylog) data['dailylog_' + u.username] = d.dailylog;
-      if (d.trips) data['trips_' + u.username] = d.trips;
-      itTypes.forEach(function(t) {
-        if (d['it_' + t]) data['it_' + t + '_' + u.username] = d['it_' + t];
-      });
+  var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
+  users.forEach(function(u) {
+    data['tasks_' + u.username] = JSON.parse(localStorage.getItem('tasks_' + u.username) || '[]');
+    data['plans_' + u.username] = JSON.parse(localStorage.getItem('plans_' + u.username) || '[]');
+    data['milestones_' + u.username] = JSON.parse(localStorage.getItem('milestones_' + u.username) || '[]');
+    data['dailylog_' + u.username] = JSON.parse(localStorage.getItem('dailylog_' + u.username) || '[]');
+    data['trips_' + u.username] = JSON.parse(localStorage.getItem('trips_' + u.username) || '[]');
+    itTypes.forEach(function(t) {
+      data['it_' + t + '_' + u.username] = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username) || '[]');
     });
-    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'scheduler-backup-' + new Date().toISOString().slice(0,10) + '.json';
-    a.click(); URL.revokeObjectURL(a.href);
   });
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'scheduler-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
 }
 
 function importData() {
@@ -1223,51 +1324,22 @@ function importData() {
     try {
       var data = JSON.parse(e.target.result);
       if (!data.users || !data.exportedAt) { alert('Invalid backup file format.'); return; }
-      var db = firebase.firestore();
-      if (!db) { alert('Firestore not available.'); return; }
-
-      // Import users to Firestore
+      saveUsers(data.users);
+      var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
       data.users.forEach(function(u) {
-        var email = u.email || (u.username + '@app.local');
-        var profile = {
-          username: u.username, name: u.name || u.username, email: email,
-          role: u.role || 'executive_task', is_admin: u.isAdmin || false
-        };
-        db.collection('profiles').where('username', '==', u.username).get().then(function(snapshot) {
-          if (snapshot.empty) {
-            db.collection('profiles').add(profile);
-          } else {
-            db.collection('profiles').doc(snapshot.docs[0].id).set(profile);
-          }
+        if (data['tasks_' + u.username]) localStorage.setItem('tasks_' + u.username, JSON.stringify(data['tasks_' + u.username]));
+        if (data['plans_' + u.username]) localStorage.setItem('plans_' + u.username, JSON.stringify(data['plans_' + u.username]));
+        if (data['milestones_' + u.username]) localStorage.setItem('milestones_' + u.username, JSON.stringify(data['milestones_' + u.username]));
+        if (data['dailylog_' + u.username]) localStorage.setItem('dailylog_' + u.username, JSON.stringify(data['dailylog_' + u.username]));
+        if (data['trips_' + u.username]) localStorage.setItem('trips_' + u.username, JSON.stringify(data['trips_' + u.username]));
+        itTypes.forEach(function(t) {
+          var k = 'it_' + t + '_' + u.username;
+          if (data[k]) localStorage.setItem(k, JSON.stringify(data[k]));
         });
       });
-
-      // Import user data to Firestore
-      data.users.forEach(function(u) {
-        var userData = {};
-        Object.keys(data).forEach(function(k) {
-          if (k.indexOf(u.username) !== -1) {
-            var parts = k.split('_' + u.username);
-            if (parts[0]) userData[parts[0]] = data[k];
-          }
-        });
-        if (Object.keys(userData).length > 0) {
-          db.collection('profiles').where('username', '==', u.username).get().then(function(snapshot) {
-            if (!snapshot.empty) {
-              var uid = snapshot.docs[0].id;
-              db.collection('userdata').doc(uid).set({ data: userData });
-            }
-          });
-        }
-      });
-
-      // Reload cache
-      window.__allUserDataCache = {};
-      loadUsersFromFirestore(function() {
-        fileInput.value = '';
-        alert('Data imported successfully! Users need Firebase Auth accounts to log in.');
-        loadDashboard();
-      });
+      fileInput.value = '';
+      alert('Data imported successfully!');
+      loadDashboard();
     } catch(err) { alert('Error importing data: ' + err.message); }
   };
   reader.readAsText(fileInput.files[0]);
@@ -1276,18 +1348,19 @@ function importData() {
 function clearAllData() {
   if (!confirm('Are you sure you want to clear ALL data? This cannot be undone. User accounts will be preserved.')) return;
   if (!confirm('FINAL WARNING: This will delete all tasks, plans, milestones, daily logs, trips, and IT data. Proceed?')) return;
+  localStorage.removeItem('session');
   var users = getUsers();
-  var db = firebase.firestore();
-  if (db) {
-    users.forEach(function(u) {
-      if (u.id) {
-        db.collection('userdata').doc(u.id).set({ data: {} }).catch(function(e) {});
-      }
-    });
-  }
-  window.__allUserDataCache = {};
-  alert('All data cleared. User accounts preserved.');
-  loadDashboard();
+  users.forEach(function(u) {
+    ['tasks_','plans_','milestones_','dailylog_','trips_'].forEach(function(p) { localStorage.removeItem(p + u.username); });
+  });
+  ['it_assets_','it_services_','it_maintenance_','it_inventory_','it_task_','it_planner_','it_accomplishments_','it_tickets_','it_systems_'].forEach(function(p) {
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key.startsWith(p)) { localStorage.removeItem(key); i--; }
+    }
+  });
+  alert('All data cleared. User accounts preserved. Redirecting to login...');
+  doLogout();
 }
 
 function performGlobalSearch() {
@@ -1302,88 +1375,85 @@ function performGlobalSearch() {
   var searchLogs = document.getElementById('gsLogs').checked;
   var searchIT = document.getElementById('gsIT').checked;
 
-  ensureDataLoaded(function() {
-    var users = getUsers();
-    var allResults = [];
+  var users = getUsers();
+  var allResults = [];
 
-    if (searchUsers) {
-      users.forEach(function(u) {
-        if ((u.name || '').toLowerCase().indexOf(q) !== -1 || u.username.toLowerCase().indexOf(q) !== -1) {
-          allResults.push({ type: 'user', title: u.name || u.username, subtitle: '@' + u.username, user: u.name || u.username, id: u.username });
+  if (searchUsers) {
+    users.forEach(function(u) {
+      if ((u.name || '').toLowerCase().indexOf(q) !== -1 || u.username.toLowerCase().indexOf(q) !== -1) {
+        allResults.push({ type: 'user', title: u.name || u.username, subtitle: '@' + u.username, user: u.name || u.username, id: u.username });
+      }
+    });
+  }
+
+  users.forEach(function(u) {
+    var uname = u.name || u.username;
+    if (searchTasks) {
+      JSON.parse(localStorage.getItem('tasks_' + u.username) || '[]').forEach(function(t) {
+        if ((t.title || '').toLowerCase().indexOf(q) !== -1 || (t.description || '').toLowerCase().indexOf(q) !== -1 || (t.category || '').toLowerCase().indexOf(q) !== -1) {
+          allResults.push({ type: 'task', title: t.title, subtitle: uname, user: uname, date: t.dueDate });
         }
       });
     }
-
-    users.forEach(function(u) {
-      var uname = u.name || u.username;
-      var d = getUserCache(u.username);
-
-      if (searchTasks && d.tasks) {
-        d.tasks.forEach(function(t) {
-          if ((t.title || '').toLowerCase().indexOf(q) !== -1 || (t.description || '').toLowerCase().indexOf(q) !== -1 || (t.category || '').toLowerCase().indexOf(q) !== -1) {
-            allResults.push({ type: 'task', title: t.title, subtitle: uname, user: uname, date: t.dueDate });
-          }
-        });
-      }
-      if (searchPlans && d.plans) {
-        d.plans.forEach(function(p) {
-          if ((p.title || '').toLowerCase().indexOf(q) !== -1 || (p.description || '').toLowerCase().indexOf(q) !== -1) {
-            allResults.push({ type: 'plan', title: p.title, subtitle: uname, user: uname, date: p.startDate });
-          }
-        });
-      }
-      if (searchTrips && d.trips) {
-        d.trips.forEach(function(t) {
-          if ((t.tripName || t.title || '').toLowerCase().indexOf(q) !== -1 || (t.destination || '').toLowerCase().indexOf(q) !== -1) {
-            allResults.push({ type: 'trip', title: t.tripName || t.title || 'Trip', subtitle: t.destination || uname, user: uname, date: t.startDate });
-          }
-        });
-      }
-      if (searchLogs && d.dailylog) {
-        d.dailylog.forEach(function(l) {
-          if ((l.title || '').toLowerCase().indexOf(q) !== -1 || (l.description || '').toLowerCase().indexOf(q) !== -1 || (l.category || '').toLowerCase().indexOf(q) !== -1) {
-            allResults.push({ type: 'log', title: l.title, subtitle: uname, user: uname, date: l.date });
-          }
-        });
-      }
-      if (searchIT) {
-        ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(itType) {
-          var items = d['it_' + itType];
-          if (items) {
-            items.forEach(function(item) {
-              if ((item.name || item.title || item.description || '').toLowerCase().indexOf(q) !== -1) {
-                allResults.push({ type: 'it_' + itType, title: item.name || item.title || '(unnamed)', subtitle: uname, user: uname, date: item.date || item.createdAt });
-              }
-            });
-          }
-        });
-      }
-    });
-
-    if (!allResults.length) {
-      results.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results for "' + escapeHtml(q) + '"</p></div>';
-      return;
+    if (searchPlans) {
+      JSON.parse(localStorage.getItem('plans_' + u.username) || '[]').forEach(function(p) {
+        if ((p.title || '').toLowerCase().indexOf(q) !== -1 || (p.description || '').toLowerCase().indexOf(q) !== -1) {
+          allResults.push({ type: 'plan', title: p.title, subtitle: uname, user: uname, date: p.startDate });
+        }
+      });
     }
-
-    var icons = { user: 'person', task: 'checklist', plan: 'map', trip: 'flight_takeoff', log: 'edit_note' };
-    var colors = { user: 'bg-amber-100 text-amber-600', task: 'bg-indigo-100 text-indigo-600', plan: 'bg-emerald-100 text-emerald-600', trip: 'bg-blue-100 text-blue-600', log: 'bg-pink-100 text-pink-600' };
-
-    results.innerHTML = '<p class="font-label-md text-on-surface-variant mb-4">' + allResults.length + ' result' + (allResults.length > 1 ? 's' : '') + ' for "' + escapeHtml(q) + '"</p><div class="space-y-2">' +
-      allResults.slice(0, 50).map(function(r) {
-        return '<div class="flex items-center gap-4 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl">' +
-          '<div class="p-3 rounded-xl ' + (colors[r.type] || 'bg-gray-100 text-gray-600') + '"><span class="material-symbols-outlined">' + (icons[r.type] || 'circle') + '</span></div>' +
-          '<div class="flex-1 min-w-0"><p class="font-body-md font-semibold text-primary">' + escapeHtml(r.title) + '</p><p class="font-label-md text-on-surface-variant">' + escapeHtml(r.subtitle) + (r.date ? ' &middot; ' + r.date : '') + '</p></div>' +
-          '<span class="font-label-md px-2 py-1 rounded-full text-xs font-semibold capitalize bg-surface-container text-on-surface-variant">' + r.type + '</span></div>';
-      }).join('') + (allResults.length > 50 ? '<p class="font-label-md text-on-surface-variant text-center mt-2">Showing 50 of ' + allResults.length + ' results. Refine your search.</p>' : '') + '</div>';
+    if (searchTrips) {
+      JSON.parse(localStorage.getItem('trips_' + u.username) || '[]').forEach(function(t) {
+        if ((t.tripName || t.title || '').toLowerCase().indexOf(q) !== -1 || (t.destination || '').toLowerCase().indexOf(q) !== -1) {
+          allResults.push({ type: 'trip', title: t.tripName || t.title || 'Trip', subtitle: t.destination || uname, user: uname, date: t.startDate });
+        }
+      });
+    }
+    if (searchLogs) {
+      JSON.parse(localStorage.getItem('dailylog_' + u.username) || '[]').forEach(function(l) {
+        if ((l.title || '').toLowerCase().indexOf(q) !== -1 || (l.description || '').toLowerCase().indexOf(q) !== -1 || (l.category || '').toLowerCase().indexOf(q) !== -1) {
+          allResults.push({ type: 'log', title: l.title, subtitle: uname, user: uname, date: l.date });
+        }
+      });
+    }
+    if (searchIT) {
+      ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(itType) {
+        JSON.parse(localStorage.getItem('it_' + itType + '_' + u.username) || '[]').forEach(function(item) {
+          if ((item.name || item.title || item.description || '').toLowerCase().indexOf(q) !== -1) {
+            allResults.push({ type: 'it_' + itType, title: item.name || item.title || '(unnamed)', subtitle: uname, user: uname, date: item.date || item.createdAt });
+          }
+        });
+      });
+    }
   });
+
+  if (!allResults.length) {
+    results.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center"><span class="material-symbols-outlined text-[48px] text-surface-container-highest">search_off</span><p class="font-body-md text-on-surface-variant mt-4">No results for "' + escapeHtml(q) + '"</p></div>';
+    return;
+  }
+
+  var icons = { user: 'person', task: 'checklist', plan: 'map', trip: 'flight_takeoff', log: 'edit_note' };
+  var colors = { user: 'bg-amber-100 text-amber-600', task: 'bg-indigo-100 text-indigo-600', plan: 'bg-emerald-100 text-emerald-600', trip: 'bg-blue-100 text-blue-600', log: 'bg-pink-100 text-pink-600' };
+
+  results.innerHTML = '<p class="font-label-md text-on-surface-variant mb-4">' + allResults.length + ' result' + (allResults.length > 1 ? 's' : '') + ' for "' + escapeHtml(q) + '"</p><div class="space-y-2">' +
+    allResults.slice(0, 50).map(function(r) {
+      return '<div class="flex items-center gap-4 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl">' +
+        '<div class="p-3 rounded-xl ' + (colors[r.type] || 'bg-gray-100 text-gray-600') + '"><span class="material-symbols-outlined">' + (icons[r.type] || 'circle') + '</span></div>' +
+        '<div class="flex-1 min-w-0"><p class="font-body-md font-semibold text-primary">' + escapeHtml(r.title) + '</p><p class="font-label-md text-on-surface-variant">' + escapeHtml(r.subtitle) + (r.date ? ' &middot; ' + r.date : '') + '</p></div>' +
+        '<span class="font-label-md px-2 py-1 rounded-full text-xs font-semibold capitalize bg-surface-container text-on-surface-variant">' + r.type + '</span></div>';
+    }).join('') + (allResults.length > 50 ? '<p class="font-label-md text-on-surface-variant text-center mt-2">Showing 50 of ' + allResults.length + ' results. Refine your search.</p>' : '') + '</div>';
 }
 
 initTheme();
 initAuth(function() {
   checkWelcome();
-  syncAllUsersFromFirebase(function() {
-    loadDashboard();
-    populateUserFilters();
+  syncSupabaseUsers(function() {
+    // I-sync ang lahat ng user data mula Supabase papuntang localStorage
+    // para makita ng admin ang data kahit sa ibang device ginawa
+    syncAllUsersFromSupabase(function() {
+      loadDashboard();
+      populateUserFilters();
+    });
   });
 });
 fbOnUpdate(function() { location.reload(); });

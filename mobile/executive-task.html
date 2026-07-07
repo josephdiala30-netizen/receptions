@@ -439,9 +439,6 @@ tailwind.config={theme:{extend:{colors:{brand:'#6366f1','brand-dark':'#4f46e5'}}
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../firebase-data.js"></script>
 <script src="js/mobile.js"></script>
@@ -481,8 +478,13 @@ function saveLogEntries(entries) {
   saveFB('dailylog', entries);
 }
 
+function getUsername() {
+  return (mobileApp.session && mobileApp.session.username) || '';
+}
 
-
+function notesKey() {
+  return 'notes_' + getUsername();
+}
 
 function priorityClass(p) {
   return 'priority-badge ' + (mobileApp.getPriorityColor ? mobileApp.getPriorityColor(p) : 'low');
@@ -1080,25 +1082,24 @@ function saveLogEntry() {
 
 // ==================== NOTES ====================
 function renderNotes() {
-  var saved = getFBOr('_notes', '');
+  var key = notesKey();
+  var saved = localStorage.getItem(key) || '';
   document.getElementById('notes-textarea').value = saved;
 }
 
 function clearNotes() {
   if (!confirm('Clear all notes?')) return;
-  storeFB('_notes', '');
+  var key = notesKey();
+  localStorage.setItem(key, '');
   document.getElementById('notes-textarea').value = '';
   mobileApp.showToast('Notes cleared');
 }
 
 // Auto-save notes
-var __notesTimer = null;
 document.addEventListener('input', function(e) {
   if (e.target && e.target.id === 'notes-textarea') {
-    if (__notesTimer) clearTimeout(__notesTimer);
-    __notesTimer = setTimeout(function() {
-      storeFB('_notes', e.target.value);
-    }, 500);
+    var key = notesKey();
+    localStorage.setItem(key, e.target.value);
   }
 });
 

@@ -436,9 +436,6 @@ body.dark-mode {
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../firebase-data.js"></script>
 <script src="js/mobile.js"></script>
@@ -452,19 +449,34 @@ function handleFab() {
 }
 
 function getTrips() {
-  return getFBOr('trips', []);
+  if (window.__fbLoaded) {
+    var cached = getFB('trips');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
+  var session = fbGetSession();
+  if (!session) return [];
+  var data = JSON.parse(localStorage.getItem('trips_' + session.username) || '[]');
+  if (data.length > 0) window.__fbCache['trips'] = data;
+  return data;
 }
 
 function saveTrips(t) {
-  storeFB('trips', t);
+  saveFB('trips', t);
+  var session = fbGetSession();
+  if (session) localStorage.setItem('trips_' + session.username, JSON.stringify(t));
 }
 
 function getExpenses() {
-  return getFBOr('expenses', []);
+  var session = fbGetSession();
+  if (!session) return [];
+  try { return JSON.parse(localStorage.getItem('expenses_' + session.username) || '[]'); } catch(e) { return []; }
 }
 
 function saveExpenses(ex) {
-  storeFB('expenses', ex);
+  var session = fbGetSession();
+  if (!session) return;
+  localStorage.setItem('expenses_' + session.username, JSON.stringify(ex));
 }
 
 function renderDashboard() {

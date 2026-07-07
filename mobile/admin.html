@@ -208,7 +208,7 @@ tailwind.config={theme:{extend:{colors:{brand:'#6366f1','brand-dark':'#4f46e5'}}
         <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500 text-lg">info</span> System Info</h3>
       </div>
       <div class="space-y-2">
-        <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-xs font-medium text-slate-500">Firestore keys</span><span class="text-xs font-bold text-slate-900" id="sys-info-keys">0</span></div>
+        <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-xs font-medium text-slate-500">localStorage keys</span><span class="text-xs font-bold text-slate-900" id="sys-info-keys">0</span></div>
         <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-xs font-medium text-slate-500">Data size</span><span class="text-xs font-bold text-slate-900" id="sys-info-size">0 KB</span></div>
         <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-xs font-medium text-slate-500">Registered users</span><span class="text-xs font-bold text-slate-900" id="sys-info-users">0</span></div>
       </div>
@@ -324,52 +324,26 @@ tailwind.config={theme:{extend:{colors:{brand:'#6366f1','brand-dark':'#4f46e5'}}
 
 <footer id="toast" class="toast"></footer>
 
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../firebase-data.js"></script>
 <script src="js/mobile.js"></script>
 <script>
-window.__allUserDataCache = {};
-
 function getUsers() {
-  return window.__usersCache || [];
+  return JSON.parse(localStorage.getItem('users') || '[]');
 }
 
-function loadUsers(callback) {
-  loadUsersFromFirestore(function(users) {
-    callback(users);
-  });
-}
-
-function loadAllUserData(callback) {
-  var users = getUsers();
-  if (!users.length) { if (callback) callback(); return; }
-  var pending = users.length;
-  users.forEach(function(u) {
-    collectUserDataFromFirestore(u.username, function(data) {
-      window.__allUserDataCache[u.username] = data || {};
-      pending--;
-      if (pending <= 0 && callback) callback();
-    });
-  });
+function saveUsers(users) {
+  localStorage.setItem('users', JSON.stringify(users));
 }
 
 function collectUserData(username) {
-  var data = window.__allUserDataCache[username] || {};
   return {
-    tasks: data.tasks || [],
-    plans: data.plans || [],
-    milestones: data.milestones || [],
-    dailylog: data.dailylog || [],
-    trips: data.trips || []
+    tasks: JSON.parse(localStorage.getItem('tasks_' + username) || '[]'),
+    plans: JSON.parse(localStorage.getItem('plans_' + username) || '[]'),
+    milestones: JSON.parse(localStorage.getItem('milestones_' + username) || '[]'),
+    dailylog: JSON.parse(localStorage.getItem('dailylog_' + username) || '[]'),
+    trips: JSON.parse(localStorage.getItem('trips_' + username) || '[]')
   };
-}
-
-function getUserDataKey(username, key) {
-  var data = window.__allUserDataCache[username] || {};
-  return data[key] || [];
 }
 
 var roleLabel = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task', executive_it: 'Exec IT' };
@@ -471,7 +445,7 @@ function renderTasks() {
   var pf = document.getElementById('tasks-priority-filter').value;
   var all = [];
   users.forEach(function(u) {
-    var tk = getUserDataKey(u.username, 'tasks');
+    var tk = JSON.parse(localStorage.getItem('tasks_' + u.username) || '[]');
     tk.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
     all = all.concat(tk);
   });
@@ -515,8 +489,8 @@ function renderPlans() {
   var sf = document.getElementById('plans-status-filter').value;
   var all = [];
   users.forEach(function(u) {
-    var pl = getUserDataKey(u.username, 'plans');
-    var ms = getUserDataKey(u.username, 'milestones');
+    var pl = JSON.parse(localStorage.getItem('plans_' + u.username) || '[]');
+    var ms = JSON.parse(localStorage.getItem('milestones_' + u.username) || '[]');
     pl.forEach(function(p) { p._user = u.name || u.username; p._username = u.username; p._milestones = ms.filter(function(m) { return m.planId === p.id; }); });
     all = all.concat(pl);
   });
@@ -558,7 +532,7 @@ function renderDailyLogs() {
   var all = [];
   var allCategories = {};
   users.forEach(function(u) {
-    var lg = getUserDataKey(u.username, 'dailylog');
+    var lg = JSON.parse(localStorage.getItem('dailylog_' + u.username) || '[]');
     lg.forEach(function(l) { l._user = u.name || u.username; l._username = u.username; if (l.category) allCategories[l.category] = true; });
     all = all.concat(lg);
   });
@@ -601,7 +575,7 @@ function renderTrips() {
   var sq = document.getElementById('trips-search').value.toLowerCase();
   var all = [];
   users.forEach(function(u) {
-    var tr = getUserDataKey(u.username, 'trips');
+    var tr = JSON.parse(localStorage.getItem('trips_' + u.username) || '[]');
     tr.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
     all = all.concat(tr);
   });
@@ -633,32 +607,23 @@ function renderTrips() {
 }
 
 function loadSystemInfo() {
-  var keyCount = 0;
-  var sizeEstimate = 0;
-  var users = getUsers();
-  users.forEach(function(u) {
-    var data = window.__allUserDataCache[u.username];
-    if (data) {
-      var keys = Object.keys(data);
-      keyCount += keys.length;
-      sizeEstimate += JSON.stringify(data).length * 2;
-    }
-  });
-  document.getElementById('sys-info-keys').textContent = keyCount;
-  document.getElementById('sys-info-size').textContent = (sizeEstimate / 1024).toFixed(1) + ' KB';
-  document.getElementById('sys-info-users').textContent = users.length;
+  var keys = Object.keys(localStorage);
+  document.getElementById('sys-info-keys').textContent = keys.length;
+  var size = 0;
+  keys.forEach(function(k) { size += (localStorage.getItem(k) || '').length * 2; });
+  document.getElementById('sys-info-size').textContent = (size / 1024).toFixed(1) + ' KB';
+  document.getElementById('sys-info-users').textContent = getUsers().length;
 }
 
 function exportAllData() {
   var users = getUsers();
   var data = { exportedAt: new Date().toISOString(), users: users };
   users.forEach(function(u) {
-    var userData = window.__allUserDataCache[u.username] || {};
     ['tasks','plans','milestones','dailylog','trips'].forEach(function(k) {
-      data[k + '_' + u.username] = userData[k] || [];
+      data[k + '_' + u.username] = JSON.parse(localStorage.getItem(k + '_' + u.username) || '[]');
     });
     ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
-      data['it_' + t + '_' + u.username] = userData['it_' + t] || [];
+      data['it_' + t + '_' + u.username] = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username) || '[]');
     });
   });
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -676,33 +641,20 @@ function importData() {
     try {
       var data = JSON.parse(e.target.result);
       if (!data.users || !data.exportedAt) { mobileApp.showToast('Invalid backup file'); return; }
-      var db = firebase.firestore();
-      if (!db) { mobileApp.showToast('Firestore not available'); return; }
+      saveUsers(data.users);
       data.users.forEach(function(u) {
-        saveUserToFirestore(u);
-        var userData = {};
         ['tasks','plans','milestones','dailylog','trips'].forEach(function(k) {
           var key = k + '_' + u.username;
-          if (data[key]) userData[k] = data[key];
+          if (data[key]) localStorage.setItem(key, JSON.stringify(data[key]));
         });
         ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
           var key = 'it_' + t + '_' + u.username;
-          if (data[key]) userData['it_' + t] = data[key];
+          if (data[key]) localStorage.setItem(key, JSON.stringify(data[key]));
         });
-        db.collection('profiles').where('username', '==', u.username).get().then(function(snapshot) {
-          if (!snapshot.empty) {
-            var uid = snapshot.docs[0].id;
-            db.collection('userdata').doc(uid).set({ data: userData, updated_at: firebase.firestore.FieldValue.serverTimestamp() });
-          }
-        });
-        window.__allUserDataCache[u.username] = userData;
       });
-      loadUsers(function() {
-        populateUserFilters();
-        fileInput.value = '';
-        mobileApp.showToast('Data imported successfully');
-        renderDashboard();
-      });
+      fileInput.value = '';
+      mobileApp.showToast('Data imported successfully');
+      renderDashboard();
     } catch(err) { mobileApp.showToast('Import error: ' + err.message); }
   };
   reader.readAsText(fileInput.files[0]);
@@ -712,17 +664,13 @@ function clearAllData() {
   if (!confirm('Clear ALL data? User accounts preserved.')) return;
   if (!confirm('FINAL WARNING: This deletes all tasks, plans, milestones, logs, trips, IT data.')) return;
   var users = getUsers();
-  var db = firebase.firestore();
-  if (!db) { mobileApp.showToast('Firestore not available'); return; }
   users.forEach(function(u) {
-    db.collection('profiles').where('username', '==', u.username).get().then(function(snapshot) {
-      if (!snapshot.empty) {
-        var uid = snapshot.docs[0].id;
-        db.collection('userdata').doc(uid).set({ data: {}, updated_at: firebase.firestore.FieldValue.serverTimestamp() });
-      }
-    });
-    window.__allUserDataCache[u.username] = {};
+    ['tasks_','plans_','milestones_','dailylog_','trips_'].forEach(function(p) { localStorage.removeItem(p + u.username); });
   });
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && (key.indexOf('it_') === 0 || key.indexOf('shared_') === 0)) { localStorage.removeItem(key); i--; }
+  }
   mobileApp.showToast('All data cleared');
   renderDashboard();
 }
@@ -741,22 +689,28 @@ function addUser() {
   var role = document.getElementById('new-user-role').value;
   var isAdmin = document.getElementById('new-user-isadmin').checked;
   if (!name || !username || !password) { mobileApp.showToast('Name, username & password required'); return; }
-  if (getUsers().some(function(u) { return u.username === username; })) { mobileApp.showToast('Username already exists'); return; }
-  var syncEmail = email || (username + '@app.local');
-  fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function(err, sessionData) {
-    if (err) { mobileApp.showToast('Firebase error: ' + (err.message || err)); return; }
-    loadUsers(function() {
-      mobileApp.closeModal('add-user-modal');
-      document.getElementById('new-user-name').value = '';
-      document.getElementById('new-user-username').value = '';
-      document.getElementById('new-user-email').value = '';
-      document.getElementById('new-user-password').value = '';
-      document.getElementById('new-user-isadmin').checked = false;
-      mobileApp.showToast('User ' + username + ' created');
-      renderUsers();
-      renderDashboard();
-      populateUserFilters();
-    });
+  var users = getUsers();
+  if (users.some(function(u) { return u.username === username; })) { mobileApp.showToast('Username already exists'); return; }
+  hashPass(password).then(function(hash) {
+    users.push({ username: username, name: name, email: email, password: hash, role: role, isAdmin: isAdmin });
+    localStorage.setItem('welcome_' + username, 'true');
+    saveUsers(users);
+    var syncEmail = email || (username + '@app.local');
+    if (typeof supabaseClient !== 'undefined') {
+      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function(err) {
+        if (err) console.error('Supabase account error:', err);
+      });
+    }
+    mobileApp.closeModal('add-user-modal');
+    document.getElementById('new-user-name').value = '';
+    document.getElementById('new-user-username').value = '';
+    document.getElementById('new-user-email').value = '';
+    document.getElementById('new-user-password').value = '';
+    document.getElementById('new-user-isadmin').checked = false;
+    mobileApp.showToast('User ' + username + ' created');
+    renderUsers();
+    renderDashboard();
+    populateUserFilters();
   });
 }
 
@@ -772,14 +726,18 @@ function fabAction() {
 mobileApp.onReady = function() {
   var session = fbGetSession();
   if (!session) { window.location.href = '../login/'; return; }
-  var initial = (session.name || session.username || '?')[0].toUpperCase();
-  document.getElementById('user-avatar').textContent = initial;
-  loadUsers(function() {
-    loadAllUserData(function() {
-      populateUserFilters();
-      renderDashboard();
-    });
-  });
+  var profile = getFB('profile');
+  if (!profile || !profile.isAdmin) {
+    if (session.isAdmin) {
+      var initial = (session.name || session.username || '?')[0].toUpperCase();
+      document.getElementById('user-avatar').textContent = initial;
+    } else {
+      window.location.href = './';
+      return;
+    }
+  }
+  populateUserFilters();
+  renderDashboard();
 };
 
 mobileApp.onViewChange = function(view) {

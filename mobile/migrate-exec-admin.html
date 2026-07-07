@@ -30,45 +30,121 @@ async function runMigration() {
   var targetUsername = 'joseph_diala';
   var targetEmail = 'joseph.diala30@gmail.com';
 
-  if (typeof firebase === 'undefined') {
-    log('Firebase not available', false);
-    document.getElementById('runBtn').textContent = 'Failed';
-    return;
+  // Step 1: Update localStorage users array
+  var users = JSON.parse(localStorage.getItem('users') || '[]');
+  var found = users.find(function(u) { return u.username === targetUsername; });
+  if (found) {
+    found.executiveAdmin = true;
+    localStorage.setItem('users', JSON.stringify(users));
+    log('Local users array updated: executiveAdmin=true', true);
+  } else {
+    log('User ' + targetUsername + ' not found in localStorage users', false);
   }
 
-  try {
-    var db = firebase.firestore();
-    var querySnapshot = await db.collection('profiles').where('username', '==', targetUsername).get();
-    if (!querySnapshot.empty) {
-      var uid = querySnapshot.docs[0].id;
-      log('Found Firebase profile: ' + uid, true);
+  // Step 2: Update current session if it's this user
+  var session = JSON.parse(localStorage.getItem('session') || '{}');
+  if (session.username === targetUsername) {
+    session.executiveAdmin = true;
+    localStorage.setItem('session', JSON.stringify(session));
+    log('Current session updated with executiveAdmin', true);
+  } else {
+    log('Current session is not ' + targetUsername + ' (skipping)', false);
+  }
 
-      await db.collection('profiles').doc(uid).update({
-        executive_admin: true,
-        role: 'executive_it'
-      });
-      log('Profile updated with executive_admin=true in Firestore!', true);
+  // Step 3: Update any existing session for this user
+  var sessions = Object.keys(localStorage).filter(function(k) { return k.startsWith('supabase-') || k.startsWith('sb-'); });
+  log('Found ' + sessions.length + ' Supabase session keys', sessions.length > 0);
 
-      var doc = await db.collection('userdata').doc(uid).get();
-      if (doc.exists) {
-        var cache = doc.data().data || {};
-        cache.profile = cache.profile || {};
-        cache.profile.executiveAdmin = true;
-        cache.profile.username = targetUsername;
-        cache.profile.role = 'executive_it';
-        await db.collection('userdata').doc(uid).set({ data: cache });
-        log('Userdata updated in Firestore!', true);
+  // Step 4: Check if supabase client is available and try to update profile
+  if (typeof supabaseClient !== 'undefined') {
+    try {
+      // Hanapin ang user sa profiles table
+      var { data: profiles, error: profileErr } = await supabaseClient
+        .from('profiles')
+        .select('id')
+        .eq('username', targetUsername);
+
+      if (profileErr) {
+        log('Error fetching profile: ' + profileErr.message, false);
+      } else if (profiles && profiles.length > 0) {
+        var uid = profiles[0].id;
+        log('Found Supabase profile: ' + uid, true);
+
+        // Update profiles table
+        var { error: updateErr } = await supabaseClient
+          .from('profiles')
+          .upsert({ id: uid, username: targetUsername, executive_admin: true }, { onConflict: 'id' });
+
+        if (updateErr) {
+          log('Profile update error (anon key - expected): ' + updateErr.message, false);
+          // Subukan sa pamamagitan ng RPC
+          var { error: rpcErr } = await supabaseClient.rpc('admin_update_profile', {
+            p_user_id: uid,
+            p_username: targetUsername,
+            p_name: found ? found.name : targetUsername,
+            p_email: targetEmail,
+            p_role: 'executive_it',
+            p_is_admin: found ? found.isAdmin || false : false,
+            p_executive_admin: true
+          });
+          if (rpcErr) {
+            log('RPC also failed: ' + rpcErr.message, false);
+            log('Will update via userdata cache instead', false);
+          } else {
+            log('RPC update successful!', true);
+          }
+        } else {
+          log('Profile updated successfully in Supabase!', true);
+        }
+
+        // Update userdata cache - add executiveAdmin to profile
+        var { data: ud, error: udErr } = await supabaseClient
+          .from('userdata')
+          .select('data')
+          .eq('id', uid)
+          .single();
+
+        if (udErr) {
+          log('Error reading userdata: ' + udErr.message, false);
+        } else if (ud && ud.data) {
+          var cache = ud.data;
+          if (!cache.profile) cache.profile = {};
+          cache.profile.executiveAdmin = true;
+          cache.profile.username = targetUsername;
+          cache.profile.role = 'executive_it';
+          var { error: saveErr } = await supabaseClient
+            .from('userdata')
+            .upsert({ id: uid, data: cache }, { onConflict: 'id' });
+          if (saveErr) {
+            log('Error saving userdata: ' + saveErr.message, false);
+          } else {
+            log('Userdata cache updated! executiveAdmin will reflect on next login.', true);
+          }
+        }
+      } else {
+        log('No Supabase profile found for ' + targetUsername, false);
       }
-    } else {
-      log('No profile found for ' + targetUsername + ' in Firestore', false);
+    } catch(e) {
+      log('Supabase error: ' + e.message, false);
     }
-
-    log('Migration complete! Log out and log in again for changes to take effect.', true);
-    document.getElementById('runBtn').textContent = 'Done ✓';
-  } catch(e) {
-    log('Firebase error: ' + e.message, false);
-    document.getElementById('runBtn').textContent = 'Failed';
+  } else {
+    log('Supabase client not available', false);
   }
+
+  // Step 5: Update any stored userdata_username keys
+  var dataKeys = Object.keys(localStorage).filter(function(k) { return k === 'userdata_' + targetUsername; });
+  dataKeys.forEach(function(k) {
+    try {
+      var data = JSON.parse(localStorage.getItem(k));
+      if (!data.profile) data.profile = {};
+      data.profile.executiveAdmin = true;
+      localStorage.setItem(k, JSON.stringify(data));
+      log('Local userdata cache updated', true);
+    } catch(e) {}
+  });
+
+  log('Migration complete! Pakilog-out at mag-login uli si joseph_diala para mag-reflect.', true);
+  document.getElementById('runBtn').textContent = 'Done ✓';
 }
 </script>
 </body>

@@ -1,4 +1,33 @@
+# Dependencies
 node_modules/
+
+# Environment
 .env
+.env.local
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Backup files
+*.backup.json
+scheduler-backup-*.json
+backup_manifest.json
+
+# Supabase SQL migrations
+supabase-*.sql
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
 *.log
+
+# Screenshots
+*.png
+*.jpg
+!hero_background.png
+!mobile/icons/*.png

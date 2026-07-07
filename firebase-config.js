@@ -1,11 +1,11 @@
-// Firebase Configuration (replaces Supabase)
-var FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBgQyeHQrOvGMgp5erVDYhkNFIa5GvAtyM",
-  authDomain: "kalyx-36f0d.firebaseapp.com",
-  projectId: "kalyx-36f0d",
-  storageBucket: "kalyx-36f0d.firebasestorage.app",
-  messagingSenderId: "537183146799",
-  appId: "1:537183146799:web:7b145625e0c6f6bdc7c7da"
-};
+// Supabase Configuration (replaces Firebase)
+var SUPABASE_URL = 'https://xhweqrlyppvtksqbqrne.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_UMaXwhml3R_i0HFxYDuzXg_LtFmx96A';
 
-firebase.initializeApp(FIREBASE_CONFIG);
+var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false
+  }
+});

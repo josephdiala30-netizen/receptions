@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://fonts.googleapis.com https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com wss://firestore.googleapis.com https://*.firebaseio.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
 <title>IT Service Desk</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -99,9 +99,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   </div>
 </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../firebase-data.js"></script>
 <script src="../shared.js"></script>
@@ -146,27 +144,28 @@ function submitTicket() {
     source: 'service-desk'
   };
 
-  // Save to Firestore
-  if (typeof firebase !== 'undefined') {
-    try {
-      var db = firebase.firestore();
-      if (db) {
-        db.collection('tickets').add({
-          title: ticket.title,
-          description: ticket.description,
-          requestor_name: ticket.requestorName,
-          requestor_email: ticket.requestorEmail,
-          department: ticket.department,
-          priority: ticket.priority,
-          status: ticket.status,
-          ref: ticket.ref,
-          source: 'service-desk',
-          created_at: new Date(ticket.createdAt).toISOString()
-        }).catch(function(err) { console.error('Firebase sync error:', err); });
-      }
-    } catch(e) {}
-  } else {
-    console.warn('Firebase not loaded — ticket not saved');
+  // Save to localStorage
+  var tickets = JSON.parse(localStorage.getItem('it_tickets_public') || '[]');
+  tickets.push(ticket);
+  localStorage.setItem('it_tickets_public', JSON.stringify(tickets));
+
+  // Try to sync to Supabase
+  if (typeof supabase !== 'undefined' && typeof getClient === 'function') {
+    var client = getClient();
+    if (client) {
+      Promise.resolve(client.from('tickets').insert({
+        title: ticket.title,
+        description: ticket.description,
+        requestor_name: ticket.requestorName,
+        requestor_email: ticket.requestorEmail,
+        department: ticket.department,
+        priority: ticket.priority,
+        status: ticket.status,
+        ref: ticket.ref,
+        source: 'service-desk',
+        created_at: new Date(ticket.createdAt).toISOString()
+      })).then(null, function(err) { console.error('Supabase sync error:', err); });
+    }
   }
 
   document.getElementById('formBody').classList.add('hidden');

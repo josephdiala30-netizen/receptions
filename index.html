@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KALYX – Executive Management Platform</title>
   <meta name="description" content="Executive management platform for trip planning, task execution, IT service desk, and reporting." />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://fonts.googleapis.com https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com wss://firestore.googleapis.com https://*.firebaseio.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script>
     tailwind.config = {
@@ -43,12 +43,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles/custom.css" />
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="firebase-data.js"></script>
-  <script src="shared.js"></script>
 </head>
 <body class="bg-background text-on-background min-h-screen relative font-sans overflow-x-hidden">
 
@@ -307,15 +301,14 @@
       icon.textContent = isDark ? 'light_mode' : 'dark_mode';
     }
 
-    // Auto-redirect logged-in users via Firebase Auth
-    if (typeof initFirebase !== 'undefined') {
-      initFirebase(function(err, session) {
-        if (session && session.loggedIn) {
-          const p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
-          const baseUrl = p.substring(0, p.lastIndexOf('/') + 1);
-          window.location.href = baseUrl + session.role + '/';
-        }
-      });
+    // Auto-redirect logged-in users to their respective subdirectories
+    const existingSession = JSON.parse(localStorage.getItem('session') || 'null');
+    if (existingSession && existingSession.loggedIn) {
+      const role = existingSession.role || 'executive_path';
+      // Compute relative directory redirect
+      const p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
+      const baseUrl = p.substring(0, p.lastIndexOf('/') + 1);
+      window.location.href = baseUrl + role + '/';
     }
 
     initTheme();

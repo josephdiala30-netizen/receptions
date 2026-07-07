@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://fonts.googleapis.com https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com wss://firestore.googleapis.com https://*.firebaseio.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
 <title>Executive Task | Dashboard</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -190,9 +190,7 @@ button:active, .btn:active { opacity: 0.8; }
 .dark .bg-status-done { background: #064e3b; color: #6ee7b7; }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../firebase-config.js"></script>
   <script src="../firebase-data.js"></script>
   <script src="../shared.js"></script>
@@ -989,30 +987,76 @@ button:active, .btn:active { opacity: 0.8; }
 </style>
 
 <script>
+function initTheme() {
+  var theme = localStorage.getItem('theme') || 'light';
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.getElementById('themeToggle').textContent = 'light_mode';
+  } else {
+    document.getElementById('themeToggle').textContent = 'dark_mode';
+  }
+}
 
+function toggleTheme() {
+  var isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeToggle').textContent = isDark ? 'light_mode' : 'dark_mode';
+}
 
 function isAdmin() {
   var s = getSession();
   return s && s.isAdmin && (s.role === 'executive_task' || s.role === 'executive_path');
 }
 
+function collectAllKeys(prefix) {
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key.startsWith(prefix)) keys.push(key);
+  }
+  return keys;
+}
+
+function tasksKey() {
+  var s = getSession();
+  return s ? 'tasks_' + s.username : 'tasks';
+}
+
 function getTasks() {
-  return getFBOr('tasks', []);
+  if (window.__fbLoaded) {
+    var cached = getFB('tasks');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
+  var data = JSON.parse(localStorage.getItem(tasksKey()) || '[]');
+  if (data.length > 0) window.__fbCache['tasks'] = data;
+  return data;
 }
 
 function saveTasks(t) {
-  storeFB('tasks', t);
+  saveFB('tasks', t);
+  localStorage.setItem(tasksKey(), JSON.stringify(t));
+}
+
+function sharedTasksKey() {
+  var s = getSession();
+  return s ? 'shared_tasks_' + s.username : 'shared_tasks';
 }
 
 function getSharedTasks() {
-  // Shared tasks are now stored in the Firestore shared_tasks collection
-  // and cached locally in window.__sharedTasksCache.
-  return window.__sharedTasksCache || [];
+  if (window.__fbLoaded) {
+    var cached = getFB('shared_tasks');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
+  var data = JSON.parse(localStorage.getItem(sharedTasksKey()) || '[]');
+  if (data.length > 0) window.__fbCache['shared_tasks'] = data;
+  return data;
 }
 
 function saveSharedTasks(t) {
-  // Update local cache only; Firestore persistence is via fbUpdateSharedTaskStatus / fbAssignTask.
-  window.__sharedTasksCache = t;
+  saveFB('shared_tasks', t);
+  localStorage.setItem(sharedTasksKey(), JSON.stringify(t));
 }
 
 function getAllTasks() {
@@ -1035,7 +1079,7 @@ function populateAssigneeDropdown() {
   var sel = document.getElementById('taskAssignee');
   if (!sel) return;
   var cur = currentUsername();
-  var users = getUsers();
+  var users = JSON.parse(localStorage.getItem('users') || '[]');
   var html = '<option value="">— Unassigned —</option>';
   var seen = {};
   if (cur) seen[cur] = true;
@@ -1048,22 +1092,24 @@ function populateAssigneeDropdown() {
   html += '<option value="__reload__">⟳ Reload user list…</option>';
   sel.innerHTML = html;
 
-  if (typeof loadUsersFromFirestore === 'function') {
-    loadUsersFromFirestore(function() {
-      var updated = getUsers();
-      var html2 = '<option value="">— Unassigned —</option>';
-      var seen2 = {};
-      if (cur) seen2[cur] = true;
-      updated.forEach(function(u) {
-        if (u.username && !seen2[u.username]) {
-          seen2[u.username] = true;
-          html2 += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + ' (@' + escapeHtml(u.username) + ')</option>';
-        }
-      });
-      sel.innerHTML = html2;
+  // Also try to get more users from Supabase
+  var client = getClient();
+  if (client) {
+    client.rpc('get_all_usernames').then(function(r) {
+      if (!r.error && r.data && r.data.length > 0) {
+        var html2 = '<option value="">— Unassigned —</option>';
+        var seen2 = {};
+        if (cur) seen2[cur] = true;
+        r.data.forEach(function(u) {
+          if (u.username && !seen2[u.username]) {
+            seen2[u.username] = true;
+            html2 += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + ' (@' + escapeHtml(u.username) + ')</option>';
+          }
+        });
+        sel.innerHTML = html2;
+      }
     });
   }
-}
 }
 
 function populateParentDropdown() {
@@ -1088,6 +1134,24 @@ document.addEventListener('change', function(e) {
 
 function initAuth(callback) {
   initFirebase(function(err, user) {
+    if (!err && user && window.__fbLoaded) {
+      var profile = getFB('profile') || {};
+      if (profile.username) {
+        var fbSession = {
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: user.email,
+          isAdmin: profile.isAdmin || false,
+          role: profile.role || 'executive_task',
+          supabaseUid: user.uid,
+          loggedIn: true,
+          timestamp: Date.now()
+        };
+        fbSaveSession(fbSession);
+        finishAuth(fbSession, callback);
+        return;
+      }
+    }
     var session = getSession();
     if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
     finishAuth(session, callback);
@@ -1106,18 +1170,6 @@ function finishAuth(session, callback) {
   var badge = document.getElementById('adminBadge');
   if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
   loadAvatar(session.username);
-
-  // Load shared tasks from Firestore and subscribe to real-time updates
-  var uid = window.__fbUser ? window.__fbUser.uid : null;
-  if (uid) {
-    loadSharedTasksFromFirestore(uid, function() {
-      fbSubscribeSharedTasks(uid, function() {
-        // A new shared task arrived — refresh current view
-        if (typeof refreshCurrentView === 'function') refreshCurrentView();
-      });
-    });
-  }
-
   if (callback) callback(session);
 }
 
@@ -1131,12 +1183,17 @@ function doLogout() {
   });
 }
 
+function notifKey() {
+  var s = getSession();
+  return s ? 'notifications_' + s.username : 'notifications';
+}
+
 function getNotifs() {
-  return getFBOr('notifications', []);
+  return JSON.parse(localStorage.getItem(notifKey()) || '[]');
 }
 
 function saveNotifs(n) {
-  storeFB('notifications', n);
+  localStorage.setItem(notifKey(), JSON.stringify(n));
 }
 
 function addNotif(message, type) {
@@ -1202,13 +1259,13 @@ function markAllNotifsRead() {
 function checkNewAssignments() {
   var cur = currentUsername();
   if (!cur) return;
-  var lastCheck = getFBOr('_lastNotifCheck', '0');
+  var lastCheck = localStorage.getItem('lastNotifCheck_' + cur) || '0';
   var shared = getSharedTasks();
   var newOnes = shared.filter(function(t) { return (t.createdAt || '') > lastCheck; });
   newOnes.forEach(function(t) {
     addNotif('Task "' + (t.title || 'Untitled') + '" was assigned to you' + (t.assignedBy ? ' by ' + t.assignedBy : ''), 'task');
   });
-  storeFB('_lastNotifCheck', new Date().toISOString());
+  localStorage.setItem('lastNotifCheck_' + cur, new Date().toISOString());
   updateNotifBadge();
 }
 
@@ -1224,11 +1281,16 @@ document.addEventListener('click', function(e) {
 });
 
 // --- Scratchpad ---
+function scratchpadKey() {
+  var s = getSession();
+  return s ? 'scratchpad_' + s.username : 'scratchpad';
+}
+
 function toggleScratchpad() {
   var panel = document.getElementById('scratchpadPanel');
   var hidden = panel.classList.toggle('hidden');
   if (!hidden) {
-    var saved = getFBOr('_scratchpad', '');
+    var saved = localStorage.getItem(scratchpadKey()) || '';
     document.getElementById('scratchpadText').value = saved;
     document.getElementById('scratchpadText').focus();
   }
@@ -1237,7 +1299,7 @@ function toggleScratchpad() {
 function clearScratchpad() {
   if (!confirm('Clear all notes?')) return;
   document.getElementById('scratchpadText').value = '';
-  storeFB('_scratchpad', '');
+  localStorage.setItem(scratchpadKey(), '');
 }
 
 function noteToTask() {
@@ -1251,7 +1313,7 @@ function noteToTask() {
 // Auto-save scratchpad on typing
 document.addEventListener('input', function(e) {
   if (e.target && e.target.id === 'scratchpadText') {
-    storeFB('_scratchpad', e.target.value);
+    localStorage.setItem(scratchpadKey(), e.target.value);
   }
 });
 
@@ -1265,10 +1327,11 @@ document.addEventListener('keydown', function(e) {
 
 // --- Pomodoro Timer ---
 var pomodoroState = { running: false, paused: false, minutes: 25, seconds: 0, interval: null, mode: 'focus' };
-var pomodoroToday = parseInt(getFBOr('_pomodoroCount', '0'));
+var pomodoroToday = parseInt(localStorage.getItem('pomodoroCount_' + (getSession() ? getSession().username : '')) || '0');
 
 function updatePomodoroToday() {
-  storeFB('_pomodoroCount', pomodoroToday);
+  var key = 'pomodoroCount_' + (getSession() ? getSession().username : '');
+  localStorage.setItem(key, pomodoroToday);
   document.getElementById('pomodoroCount').textContent = pomodoroToday;
 }
 
@@ -1424,7 +1487,7 @@ function formatDate(dateStr) {
 
 function priorityLabel(p) {
   var map = { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' };
-  return map[p] || escapeHtml(p);
+  return map[p] || p;
 }
 
 function priorityClass(p) {
@@ -1433,7 +1496,7 @@ function priorityClass(p) {
 
 function statusLabel(s) {
   var map = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
-  return map[s] || escapeHtml(s);
+  return map[s] || s;
 }
 
 function statusClass(s) {
@@ -1734,10 +1797,10 @@ function onDrop(event) {
     if (st) {
       st.status = newStatus;
       st.updatedAt = new Date().toISOString();
-      window.__sharedTasksCache = shared;
-      // Persist status change to Firestore shared_tasks document
-      if (st._sharedDocId) {
-        fbUpdateSharedTaskStatus(st._sharedDocId, newStatus);
+      saveSharedTasks(shared);
+      if (st.assignedBy && st.assignedBy !== currentUsername()) {
+        var client = getClient();
+        if (client) Promise.resolve(client.rpc('update_assigned_task_status', { p_creator_username: st.assignedBy, p_task_id: draggedTaskId, p_status: newStatus })).then(null, function(e) {});
       }
     }
   }
@@ -1860,16 +1923,22 @@ function saveTask() {
 }
 
 function assignTaskRPC(assigneeUsername, taskObj) {
-  var session = getSession();
-  var assignerUsername = session ? session.username : '';
-  fbAssignTask(assigneeUsername, taskObj, assignerUsername, function(err) {
-    if (err) console.error('assignTaskRPC error:', err);
+  var client = getClient();
+  if (!client) return;
+  var taskCopy = {};
+  for (var k in taskObj) {
+    if (k !== '_shared') taskCopy[k] = taskObj[k];
+  }
+  Promise.resolve(client.rpc('assign_task', { p_assignee_username: assigneeUsername, p_task: taskCopy })).then(null, function(e) {
+    console.error('assign_task RPC error:', e);
   });
 }
 
 function removeSharedTaskRPC(assigneeUsername, taskId) {
-  fbRemoveSharedTask(assigneeUsername, taskId, function(err) {
-    if (err) console.error('removeSharedTaskRPC error:', err);
+  var client = getClient();
+  if (!client) return;
+  Promise.resolve(client.rpc('remove_shared_task', { p_assignee_username: assigneeUsername, p_task_id: taskId })).then(null, function(e) {
+    console.error('remove_shared_task RPC error:', e);
   });
 }
 
@@ -1882,10 +1951,17 @@ function setTaskStatus(id, status) {
   if (st) {
     st.status = status;
     st.updatedAt = new Date().toISOString();
-    window.__sharedTasksCache = shared;
-    // Persist status change to Firestore shared_tasks document
-    if (st._sharedDocId) {
-      fbUpdateSharedTaskStatus(st._sharedDocId, status);
+    saveSharedTasks(shared);
+    // Sync status back to creator
+    if (st.assignedBy && st.assignedBy !== curUser) {
+      var client = getClient();
+      if (client) {
+        Promise.resolve(client.rpc('update_assigned_task_status', {
+          p_creator_username: st.assignedBy,
+          p_task_id: id,
+          p_status: status
+        })).then(null, function(e) { console.error('update_assigned_task_status error:', e); });
+      }
     }
     refreshCurrentView();
     return;
@@ -2159,12 +2235,25 @@ function refreshCurrentView() {
   }
 }
 
+function plannerKey() {
+  var s = getSession();
+  return s ? 'plans_' + s.username : 'plans';
+}
+
 function getPlans() {
-  return getFBOr('plans', []);
+  if (window.__fbLoaded) {
+    var cached = getFB('plans');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
+  var data = JSON.parse(localStorage.getItem(plannerKey()) || '[]');
+  if (data.length > 0) window.__fbCache['plans'] = data;
+  return data;
 }
 
 function savePlans(p) {
-  storeFB('plans', p);
+  saveFB('plans', p);
+  localStorage.setItem(plannerKey(), JSON.stringify(p));
 }
 
 function showPlanner() {
@@ -2471,12 +2560,25 @@ function deleteMilestone(planId, milestoneId) {
   loadPlanner();
 }
 
+function dailyLogKey() {
+  var s = getSession();
+  return s ? 'dailylog_' + s.username : 'dailylog';
+}
+
 function getLogEntries() {
-  return getFBOr('dailylog', []);
+  if (window.__fbLoaded) {
+    var cached = getFB('dailylog');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
+  var data = JSON.parse(localStorage.getItem(dailyLogKey()) || '[]');
+  if (data.length > 0) window.__fbCache['dailylog'] = data;
+  return data;
 }
 
 function saveLogEntries(entries) {
-  storeFB('dailylog', entries);
+  saveFB('dailylog', entries);
+  localStorage.setItem(dailyLogKey(), JSON.stringify(entries));
 }
 
 function showDailyLog() {
@@ -2800,8 +2902,8 @@ var tutorialStep = 0;
 
 function startTutorial() {
   document.getElementById('welcomeModal').classList.add('hidden');
-  var s = getSession() || {};
-  storeFB('_tutorialDone', true);
+  var session = JSON.parse(localStorage.getItem('session') || '{}');
+  if (session.username) localStorage.setItem('tutorial_' + session.username, 'true');
   tutorialStep = 0;
   document.getElementById('tutorialOverlay').classList.remove('hidden');
   renderTutorialStep();
@@ -2896,12 +2998,12 @@ function tutorialPrev() {
 }
 
 function checkWelcome() {
-  var s = getSession() || {};
-  if (!s.username) return;
-  var welcomed = getFBOr('_welcomed', false);
-  if (!welcomed) {
-    storeFB('_welcomed', true);
-    document.getElementById('welcomeName').textContent = s.name || s.username;
+  var session = JSON.parse(localStorage.getItem('session') || '{}');
+  if (!session.username) return;
+  var key = 'welcome_' + session.username;
+  if (localStorage.getItem(key)) {
+    localStorage.removeItem(key);
+    document.getElementById('welcomeName').textContent = session.name || session.username;
     document.getElementById('welcomeModal').classList.remove('hidden');
   }
 }
@@ -2950,33 +3052,21 @@ function doChangePassword() {
   var np = document.getElementById('newPass').value;
   var cp = document.getElementById('confirmPass').value;
   var err = document.getElementById('passError');
-  err.classList.add('hidden');
   if (!cur || !np || !cp) { err.textContent = 'Please fill in all fields.'; err.classList.remove('hidden'); return; }
   if (np !== cp) { err.textContent = 'New passwords do not match.'; err.classList.remove('hidden'); return; }
   if (np.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.remove('hidden'); return; }
-
-  var auth = firebase.auth();
-  var user = auth ? auth.currentUser : null;
-  if (!user) { err.textContent = 'Not logged in. Please refresh and try again.'; err.classList.remove('hidden'); return; }
-
-  // Re-authenticate with current password, then update
-  var credential = firebase.auth.EmailAuthProvider.credential(user.email, cur);
-  user.reauthenticateWithCredential(credential)
-    .then(function() {
-      return user.updatePassword(np);
-    })
-    .then(function() {
+  var client = getClient();
+  if (!client) { err.textContent = 'Not connected.'; err.classList.remove('hidden'); return; }
+  var email = (fbGetSession() || {}).email;
+  if (!email) { err.textContent = 'Session error.'; err.classList.remove('hidden'); return; }
+  client.auth.signInWithPassword({ email: email, password: cur }).then(function(r) {
+    if (r.error) { err.textContent = 'Current password is incorrect.'; err.classList.remove('hidden'); return; }
+    client.auth.updateUser({ password: np }).then(function(u) {
+      if (u.error) { err.textContent = u.error.message; err.classList.remove('hidden'); return; }
       closeChangePasswordModal();
       alert('Password updated successfully.');
-    })
-    .catch(function(e) {
-      if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
-        err.textContent = 'Current password is incorrect.';
-      } else {
-        err.textContent = e.message || 'Password update failed. Please try again.';
-      }
-      err.classList.remove('hidden');
     });
+  });
 }
 
 function showAvatarModal() {

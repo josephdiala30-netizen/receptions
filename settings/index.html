@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://fonts.googleapis.com https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com wss://firestore.googleapis.com https://*.firebaseio.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
 <title>Executive Path | Settings</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -167,9 +167,7 @@ button, input, select, textarea { min-width: 0; }
 }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../firebase-config.js"></script>
   <script src="../firebase-data.js"></script>
   <script src="../shared.js"></script>
@@ -337,9 +335,43 @@ button, input, select, textarea { min-width: 0; }
 
 <script>
 function goTo(path) { window.location.href = getBaseUrl() + path; }
-
+function initTheme() {
+  var theme = localStorage.getItem('theme') || 'light';
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark');
+    btn.textContent = 'light_mode';
+  } else {
+    btn.textContent = 'dark_mode';
+  }
+}
+function toggleTheme() {
+  var isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  var btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = isDark ? 'light_mode' : 'dark_mode';
+}
 function initAuth(callback) {
   initFirebase(function(err, user) {
+    if (!err && user && window.__fbLoaded) {
+      var profile = getFB('profile') || {};
+      if (profile.username) {
+        var fbSession = {
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: user.email,
+          isAdmin: profile.isAdmin || false,
+          role: profile.role || 'executive_path',
+          supabaseUid: user.uid,
+          loggedIn: true,
+          timestamp: Date.now()
+        };
+        fbSaveSession(fbSession);
+        finishAuth(fbSession, callback);
+        return;
+      }
+    }
     var session = getSession();
     if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
     finishAuth(session, callback);
@@ -428,29 +460,28 @@ function changePassword() {
   if (p1 !== p2) { errEl.textContent = 'New passwords do not match.'; errEl.classList.remove('hidden'); return; }
   if (p1.length < 4) { errEl.textContent = 'New password must be at least 4 characters.'; errEl.classList.remove('hidden'); return; }
 
-  var session = getSession();
+  var session = JSON.parse(localStorage.getItem('session') || 'null');
   if (!session) { errEl.textContent = 'Session expired. Please login again.'; errEl.classList.remove('hidden'); return; }
 
-  var auth = firebase.auth();
-  var currentUser = auth.currentUser;
-  if (!currentUser) { errEl.textContent = 'Not authenticated.'; errEl.classList.remove('hidden'); return; }
+  var users = JSON.parse(localStorage.getItem('users') || '[]');
+  var user = users.find(function(u) { return u.username === session.username; });
+  if (!user) { errEl.textContent = 'User not found.'; errEl.classList.remove('hidden'); return; }
 
-  // Re-authenticate first
-  var credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, cur);
-  currentUser.reauthenticateWithCredential(credential).then(function() {
-    currentUser.updatePassword(p1).then(function() {
+  hashPass(cur).then(function(hash) {
+    if (hash !== user.password) {
+      errEl.textContent = 'Current password is incorrect.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    hashPass(p1).then(function(newHash) {
+      user.password = newHash;
+      localStorage.setItem('users', JSON.stringify(users));
       document.getElementById('currentPass').value = '';
       document.getElementById('newPass').value = '';
       document.getElementById('newPass2').value = '';
       sucEl.textContent = 'Password updated successfully.';
       sucEl.classList.remove('hidden');
-    }).catch(function(e) {
-      errEl.textContent = e.message || 'Failed to update password.';
-      errEl.classList.remove('hidden');
     });
-  }).catch(function(e) {
-    errEl.textContent = (e.code === 'auth/wrong-password') ? 'Current password is incorrect.' : (e.message || 'Authentication failed.');
-    errEl.classList.remove('hidden');
   });
 }
 

@@ -1,549 +1,618 @@
-// ==================== FIREBASE DATA LAYER ====================
-// Firestore is the single source of truth for all app data.
-// localStorage is ONLY used for UI preferences (theme).
-// Session is in-memory via window.__fbSession.
+// ==================== SUPABASE DATA LAYER (replaces Firebase) ====================
+// Maintains same function signatures as before so all pages work without changes.
+// Firestore → Supabase PostgreSQL + Realtime
+// Auth → Supabase Auth
 
-// --- Internal state ---
-window.__fbCache = {};             // In-memory cache loaded from Firestore
-window.__fbLoaded = false;         // Whether data has been loaded
-window.__fbUser = null;            // { uid, email } from Firebase Auth
-window.__fbSession = null;         // Session object (in-memory, NOT localStorage)
-window.__fbUnsubscribe = null;     // Firestore snapshot unsubscribe fn
-window.__fbAuthListener = null;    // Auth state unsubscribe fn
-window.__fbSaveToken = 0;          // Debounce token for saves
-window.__fbLastData = '';          // Stringified last data to detect changes
-window.__fbOnUpdate = null;        // External callback for real-time updates
-window.__fbRegistering = false;    // Flag to prevent auth handler interference
-window.__sharedTasksCache = [];    // In-memory cache for shared tasks (cross-user)
-window.__fbSharedUnsubscribe = null; // Shared tasks snapshot unsubscribe fn
+window.__fbCache = {};
+window.__fbLoaded = false;
+window.__fbUser = null;
+window.__fbUnsubscribe = null;
+window.__fbAuthListener = null;
+window.__fbSaveToken = 0;
+window.__fbLastData = '';
 
-function getAuth() { return firebase.auth(); }
-function getDb() { return firebase.firestore(); }
+// Get the Supabase client
+function getClient() {
+  if (typeof supabaseClient !== 'undefined') return supabaseClient;
+  if (typeof supabase !== 'undefined') {
+    return supabase.createClient(
+      SUPABASE_URL || 'https://xhweqrlyppvtksqbqrne.supabase.co',
+      SUPABASE_ANON_KEY || 'sb_publishable_UMaXwhml3R_i0HFxYDuzXg_LtFmx96A',
+      { auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false } }
+    );
+  }
+  return null;
+}
 
-// Build session object from profile data + Firebase user
-function buildSession(user, profile) {
-  return {
-    username: profile.username || user.email.split('@')[0],
-    name: profile.name || profile.username || user.email.split('@')[0],
-    email: user.email,
-    isAdmin: profile.is_admin || false,
-    executiveAdmin: profile.executive_admin || false,
-    role: profile.role || 'executive_path',
-    firebaseUid: user.uid,
-    loggedIn: true,
-    timestamp: Date.now()
+// Initialize Supabase Auth state listener
+function initFirebase(callback) {
+  var client = getClient();
+  if (!client) {
+    if (callback) callback('Supabase not loaded');
+    return;
+  }
+
+  // Check existing session first
+  client.auth.getSession().then(function(result) {
+    var session = result.data.session;
+    if (session) {
+      window.__fbUser = { uid: session.user.id, email: session.user.email };
+      loadFBData(session.user.id, function(err) {
+        fbSubscribe(session.user.id);
+        if (callback) callback(err, window.__fbUser);
+      });
+    } else {
+      window.__fbUser = null;
+      window.__fbCache = {};
+      window.__fbLoaded = false;
+      if (callback) callback(null, null);
+    }
+  }).catch(function(err) {
+    console.error('Supabase session check error:', err);
+    if (callback) callback(err);
+  });
+
+  // Remove previous listener if any
+  if (window.__fbAuthListener) {
+    try { window.__fbAuthListener.subscription.unsubscribe(); } catch(e) {}
+    window.__fbAuthListener = null;
+  }
+
+  // Listen for auth changes
+  var authResult = client.auth.onAuthStateChange(function(event, session) {
+    if (window.__fbRegistering) return;
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+      window.__fbUser = { uid: session.user.id, email: session.user.email };
+      loadFBData(session.user.id, function() {
+        fbSubscribe(session.user.id);
+      });
+    } else if (event === 'SIGNED_OUT') {
+      window.__fbUser = null;
+      window.__fbCache = {};
+      window.__fbLoaded = false;
+      if (window.__fbUnsubscribe) {
+        window.__fbUnsubscribe();
+        window.__fbUnsubscribe = null;
+      }
+    }
+  });
+  window.__fbAuthListener = authResult.data ? authResult.data : authResult;
+}
+
+// Load all user data from Supabase into cache (one-time read)
+function loadFBData(uid, callback) {
+  var client = getClient();
+
+  function getUsernameFromSession() {
+    var session = JSON.parse(localStorage.getItem('session') || 'null');
+    return session ? session.username : null;
+  }
+
+  function fallbackToLocalStorage() {
+    var username = getUsernameFromSession();
+    if (!username) {
+      window.__fbCache = {};
+      window.__fbLoaded = true;
+      if (callback) callback();
+      return;
+    }
+    var cache = {};
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k) continue;
+      var suffix = '_' + username;
+      if (k.endsWith(suffix)) {
+        try {
+          var val = JSON.parse(localStorage.getItem(k));
+          var key = k.slice(0, -suffix.length);
+          cache[key] = val;
+        } catch(e) {}
+      }
+    }
+    window.__fbCache = cache;
+    window.__fbLoaded = true;
+    console.log('Supabase unavailable, using localStorage fallback');
+    if (callback) callback();
+  }
+
+  function loadFromSupabaseData(data) {
+    window.__fbCache = data;
+    window.__fbLoaded = true;
+    var username = data.profile ? data.profile.username : null;
+    if (username) {
+      // Merge local data into Supabase data (local may have newer unsaved changes)
+      mergeLocalToCache(username);
+      syncCacheToLocalStorage(username);
+    }
+    if (callback) callback();
+  }
+
+  function mergeLocalToCache(username) {
+    if (!username) return;
+    var cache = window.__fbCache || {};
+    var suffix = '_' + username;
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k) continue;
+      if (k.endsWith(suffix)) {
+        try {
+          var val = JSON.parse(localStorage.getItem(k));
+          var key = k.slice(0, -suffix.length);
+          // Only use localStorage if cache doesn't have this key or it's empty
+          if (!cache[key] || (Array.isArray(cache[key]) && cache[key].length === 0)) {
+            cache[key] = val;
+          }
+        } catch(e) {}
+      }
+    }
+    window.__fbCache = cache;
+  }
+
+  if (!client) {
+    fallbackToLocalStorage();
+    return;
+  }
+
+  // Try RPC first (bypass RLS gamit ang get_userdata function)
+  client.rpc('get_userdata', { p_uid: uid }).then(function(rpcResult) {
+    if (!rpcResult.error && rpcResult.data && Object.keys(rpcResult.data).length > 0) {
+      var data = typeof rpcResult.data === 'string' ? JSON.parse(rpcResult.data) : rpcResult.data;
+      loadFromSupabaseData(data);
+      return;
+    }
+    // RPC returned empty data - migrate from localStorage
+    throw new Error('RPC empty');
+  }).catch(function() {
+    // Fall back to direct SELECT
+    client.from('userdata').select('data').eq('id', uid).single()
+      .then(function(result) {
+        if (result.error) {
+          if (result.error.code === 'PGRST116') {
+            // Row not found - set empty cache, try to migrate from localStorage
+            window.__fbCache = {};
+            window.__fbLoaded = true;
+            var username = getUsernameFromSession();
+            if (username) {
+              // Try to migrate localStorage data to Supabase in the background
+              migrateLocalStorageNoReload(uid, username);
+            }
+            if (callback) callback();
+            return;
+          }
+          console.error('Supabase load error:', result.error);
+          fallbackToLocalStorage();
+          return;
+        }
+        var data = result.data.data || {};
+        loadFromSupabaseData(data);
+      })
+      .catch(function(err) {
+        console.error('Supabase load error:', err);
+        fallbackToLocalStorage();
+      });
+  });
+}
+
+// Set up real-time listener for cross-browser sync
+// When data changes in Supabase (from another tab/computer),
+// the callback triggers page re-render via fbOnUpdate().
+function fbSubscribe(uid, onUpdate) {
+  var client = getClient();
+  if (!client) return;
+
+  if (window.__fbUnsubscribe) {
+    window.__fbUnsubscribe();
+    window.__fbUnsubscribe = null;
+  }
+
+  var channel = client.channel('userdata-' + uid)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'userdata', filter: 'id=eq.' + uid },
+      function(payload) {
+        if (payload.new && payload.new.data) {
+          var incoming = payload.new.data;
+          var incomingStr = JSON.stringify(incoming);
+
+          // Skip if this is our own save (same data we just sent)
+          if (incomingStr === window.__fbLastData) return;
+
+          // Merge: remote is source of truth.
+          // Start with remote, then overlay local keys not in remote
+          // (preserves local-only data like welcome flags, tutorial state)
+          var merged = {};
+          for (var k in incoming) {
+            if (incoming.hasOwnProperty(k)) merged[k] = incoming[k];
+          }
+          if (window.__fbCache) {
+            for (var k in window.__fbCache) {
+              if (window.__fbCache.hasOwnProperty(k) && !incoming.hasOwnProperty(k)) {
+                merged[k] = window.__fbCache[k];
+              }
+            }
+          }
+          window.__fbCache = merged;
+          window.__fbLoaded = true;
+          var username = incoming.profile ? incoming.profile.username : null;
+          if (!username && merged.profile) username = merged.profile.username;
+          if (username) syncCacheToLocalStorage(username);
+          if (onUpdate) onUpdate(merged);
+          if (window.__fbOnUpdate) window.__fbOnUpdate(merged);
+        }
+      }
+    )
+    .subscribe();
+
+  window.__fbUnsubscribe = function() {
+    client.removeChannel(channel);
   };
 }
 
-function initFirebase(callback) {
-  var auth = getAuth();
-  if (!auth) { if (callback) callback({ message: 'Firebase Auth not loaded' }); return; }
+// Sync cached data back to localStorage for offline support
+function syncCacheToLocalStorage(username) {
+  if (!username) return;
+  var cache = window.__fbCache || {};
 
-  function initUser(user) {
-    window.__fbUser = { uid: user.uid, email: user.email };
-    var db = getDb();
-    if (db) {
-      db.collection('profiles').doc(user.uid).get().then(function(doc) {
-        var profile = doc.exists ? doc.data() : {};
-        window.__fbSession = buildSession(user, profile);
-        loadFBData(user.uid, function(err) {
-          fbSubscribe(user.uid);
-          if (callback) callback(err, window.__fbSession);
-        });
-      }).catch(function() {
-        window.__fbSession = buildSession(user, {});
-        loadFBData(user.uid, function(err) {
-          fbSubscribe(user.uid);
-          if (callback) callback(err, window.__fbSession);
-        });
-      });
-    } else {
-      window.__fbSession = buildSession(user, {});
-      window.__fbCache = {};
-      window.__fbLoaded = true;
-      if (callback) callback(null, window.__fbSession);
-    }
-  }
+  if (cache.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(cache.tasks));
+  if (cache.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(cache.shared_tasks));
+  if (cache.plans) localStorage.setItem('plans_' + username, JSON.stringify(cache.plans));
+  if (cache.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(cache.dailylog));
+  if (cache.trips) localStorage.setItem('trips_' + username, JSON.stringify(cache.trips));
+  if (cache.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(cache.milestones));
 
-  function clearUser() {
-    window.__fbUser = null;
-    window.__fbSession = null;
-    window.__fbCache = {};
-    window.__fbLoaded = false;
-    if (window.__fbUnsubscribe) { window.__fbUnsubscribe(); window.__fbUnsubscribe = null; }
-    if (callback) callback(null, null);
-  }
-
-  var currentUser = auth.currentUser;
-  if (currentUser) {
-    initUser(currentUser);
-  }
-  // If currentUser is null, wait for onAuthStateChanged instead
-  // of immediately calling clearUser(). Otherwise portals redirect
-  // to login before Firebase Auth restores the session from persistence.
-
-  if (window.__fbAuthListener) { window.__fbAuthListener(); window.__fbAuthListener = null; }
-
-  window.__fbAuthListener = auth.onAuthStateChanged(function(user) {
-    if (window.__fbRegistering) return;
-    if (window.__fbLoggingIn) return;
-    if (user) {
-      initUser(user);
-    } else {
-      clearUser();
+  Object.keys(cache).forEach(function(k) {
+    if (k.indexOf('it_') === 0) {
+      localStorage.setItem(k + '_' + username, JSON.stringify(cache[k]));
     }
   });
 }
 
-function loadFBData(uid, callback) {
-  var db = getDb();
-  if (!db) {
-    window.__fbCache = {};
-    window.__fbLastData = JSON.stringify(window.__fbCache);
-    window.__fbLoaded = true;
-    clearLegacyLocalStorage();
-    if (callback) callback();
-    return;
-  }
-
-  db.collection('userdata').doc(uid).get()
-    .then(function(doc) {
-      window.__fbCache = doc.exists ? (doc.data().data || {}) : {};
-      window.__fbLastData = JSON.stringify(window.__fbCache);
-      window.__fbLoaded = true;
-      clearLegacyLocalStorage();
-      if (callback) callback();
-    })
-    .catch(function(err) {
-      console.error('Firestore load error:', err);
-      window.__fbCache = {};
-      window.__fbLastData = JSON.stringify(window.__fbCache);
-      window.__fbLoaded = true;
-      clearLegacyLocalStorage();
-      if (callback) callback(err);
-    });
-}
-
-function fbSubscribe(uid, onUpdate) {
-  var db = getDb();
-  if (!db) return;
-  if (window.__fbUnsubscribe) { window.__fbUnsubscribe(); window.__fbUnsubscribe = null; }
-  window.__fbUnsubscribe = db.collection('userdata').doc(uid)
-    .onSnapshot(function(doc) {
-      if (!doc.exists) return;
-      var incoming = doc.data().data || {};
-      var incomingStr = JSON.stringify(incoming);
-      if (incomingStr === window.__fbLastData) return;
-      window.__fbCache = incoming;
-      window.__fbLastData = incomingStr;
-      window.__fbLoaded = true;
-      if (onUpdate) onUpdate(incoming);
-      if (window.__fbOnUpdate) window.__fbOnUpdate(incoming);
-    }, function(err) {
-      console.error('Firestore snapshot error:', err);
-    });
-}
-
+// Save data to Supabase (upsert into JSONB data column)
 function saveFB(key, data, callback) {
   window.__fbCache[key] = data;
   saveFBFull(callback);
 }
 
 function saveFBFull(callback) {
-  var db = getDb();
-  if (!db) { if (callback) callback('Firestore not loaded'); return; }
-  if (!window.__fbUser) { if (callback) callback('Not authenticated'); return; }
+  var client = getClient();
+  // Kahit walang Supabase, i-save sa localStorage
+  var username = window.__fbCache && window.__fbCache.profile ? window.__fbCache.profile.username : null;
+  if (username) syncCacheToLocalStorage(username);
+
+  if (!client) {
+    if (callback) callback('Supabase not loaded');
+    return;
+  }
+  if (!window.__fbUser) {
+    if (callback) callback('Not authenticated');
+    return;
+  }
+  // Store snapshot of what we're sending so Realtime handler can skip own saves
   window.__fbLastData = JSON.stringify(window.__fbCache);
-  db.collection('userdata').doc(window.__fbUser.uid).set({
-    data: window.__fbCache,
-    updated_at: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function() { if (callback) callback(); })
-    .catch(function(err) { console.error('Firestore save error:', err); if (callback) callback(err); });
+  client.from('userdata').upsert(
+    { id: window.__fbUser.uid, data: window.__fbCache, updated_at: new Date().toISOString() },
+    { onConflict: 'id' }
+  )
+  .then(function(result) {
+    if (result.error) {
+      console.error('Supabase save error:', result.error);
+      if (callback) callback(result.error);
+    } else {
+      if (callback) callback();
+    }
+  })
+  .catch(function(err) {
+    console.error('Supabase save error:', err);
+    if (callback) callback(err);
+  });
 }
 
-function fbOnUpdate(callback) { window.__fbOnUpdate = callback; }
+// Set callback for real-time data changes
+function fbOnUpdate(callback) {
+  window.__fbOnUpdate = callback;
+}
 
+// Read from cache
 function getFB(key) {
   if (!window.__fbLoaded) return null;
   return window.__fbCache[key];
 }
 
-function getFBOr(key, fallback) {
-  if (!window.__fbLoaded) return fallback;
-  return key in window.__fbCache ? window.__fbCache[key] : fallback;
+// ==================== SESSION HELPERS ====================
+
+function fbGetSession() {
+  return JSON.parse(localStorage.getItem('session') || 'null');
 }
 
-function storeFB(key, data) {
-  window.__fbCache[key] = data;
-  saveFBFull();
+function fbSaveSession(data) {
+  localStorage.setItem('session', JSON.stringify(data));
 }
 
-function clearLegacyLocalStorage() {
-  var prefixes = ['tasks_', 'plans_', 'milestones_', 'dailylog_', 'trips_', 'shared_tasks_',
-    'it_services_', 'it_maintenance_', 'it_assets_', 'it_inventory_', 'it_task_',
-    'it_planner_', 'it_accomplishments_', 'it_tickets_', 'it_systems_', 'it_audit_',
-    'it_knowledge_', 'it_timetrack_', 'it_roadmap_', 'avatar_', 'tutorial_',
-    'lastNotifCheck_', 'pomodoroCount_', 'scratchpad_', 'notifications_',
-    'welcome_', 'editTripId'];
-  var keysToRemove = [];
+function fbClearSession() {
+  localStorage.removeItem('session');
+}
+
+// ==================== MIGRATION ====================
+// One-time migration from localStorage to Supabase
+
+function migrateLocalStorageNoReload(uid, username) {
+  if (!username) return;
+  var migrated = {};
+  var count = 0;
+
+  var keys = [];
   for (var i = 0; i < localStorage.length; i++) {
-    var k = localStorage.key(i);
-    if (prefixes.some(function(p) { return k.indexOf(p) === 0; })) {
-      keysToRemove.push(k);
-    }
+    keys.push(localStorage.key(i));
   }
-  keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+
+  var userKeys = keys.filter(function(k) {
+    return k.indexOf('tasks_' + username) === 0 ||
+           k.indexOf('plans_' + username) === 0 ||
+           k.indexOf('shared_tasks_' + username) === 0 ||
+           k.indexOf('milestones_' + username) === 0 ||
+           k.indexOf('dailylog_' + username) === 0 ||
+           k.indexOf('trips_' + username) === 0 ||
+           (k.indexOf('it_') === 0 && k.indexOf('_' + username) > 0);
+  });
+
+  var flags = keys.filter(function(k) {
+    return k === 'welcome_' + username || k === 'tutorial_' + username;
+  });
+
+  userKeys.forEach(function(k) {
+    try {
+      var val = JSON.parse(localStorage.getItem(k));
+      if (Array.isArray(val) && val.length > 0) {
+        var suffix = '_' + username;
+        var fbKey = k.endsWith(suffix) ? k.slice(0, -suffix.length) : k;
+        migrated[fbKey] = val;
+        count++;
+      }
+    } catch(e) {}
+  });
+
+  flags.forEach(function(k) {
+    migrated[k] = localStorage.getItem(k);
+    count++;
+  });
+
+  if (count > 0) {
+    var client = getClient();
+    if (!client) return;
+    client.from('userdata').upsert(
+      { id: uid, data: migrated, updated_at: new Date().toISOString() },
+      { onConflict: 'id' }
+    ).then(function() {
+      console.log('Migrated ' + count + ' localStorage keys to Supabase.');
+    }).catch(function(err) {
+      console.error('Background migration error:', err);
+    });
+  }
 }
 
-// Cross-page state (replaces editTripId in localStorage)
-window.__pageState = {};
+function migrateLocalStorage(uid, callback) {
+  var migrated = {};
+  var count = 0;
 
-function setPageState(key, value) { window.__pageState[key] = value; }
-function getPageState(key) { return window.__pageState[key]; }
-function removePageState(key) { delete window.__pageState[key]; }
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    keys.push(localStorage.key(i));
+  }
 
-function fbGetSession() { return window.__fbSession; }
+  var session = JSON.parse(localStorage.getItem('session') || 'null');
+  var username = session ? session.username : null;
 
-// ==================== AUTH WRAPPERS ====================
+  if (!username) {
+    if (callback) callback();
+    return;
+  }
+
+  var userKeys = keys.filter(function(k) {
+    return k.indexOf('tasks_' + username) === 0 ||
+           k.indexOf('plans_' + username) === 0 ||
+           k.indexOf('milestones_' + username) === 0 ||
+           k.indexOf('dailylog_' + username) === 0 ||
+           k.indexOf('trips_' + username) === 0 ||
+           k.indexOf('it_') === 0 && k.indexOf('_' + username) > 0;
+  });
+
+  var flags = keys.filter(function(k) {
+    return k === 'welcome_' + username || k === 'tutorial_' + username;
+  });
+
+  userKeys.forEach(function(k) {
+    try {
+      var val = JSON.parse(localStorage.getItem(k));
+      if (Array.isArray(val) && val.length > 0) {
+        var suffix = '_' + username;
+        var fbKey = k.endsWith(suffix) ? k.slice(0, -suffix.length) : k;
+        migrated[fbKey] = val;
+        count++;
+      }
+    } catch(e) {}
+  });
+
+  flags.forEach(function(k) {
+    migrated[k] = localStorage.getItem(k);
+    count++;
+  });
+
+  if (count > 0) {
+    var client = getClient();
+    if (!client) {
+      if (callback) callback('Supabase not loaded');
+      return;
+    }
+    client.from('userdata').upsert(
+      { id: uid, data: migrated, updated_at: new Date().toISOString() },
+      { onConflict: 'id' }
+    )
+    .then(function() {
+      console.log('Migrated ' + count + ' localStorage keys to Supabase.');
+      loadFBData(uid, callback);
+    })
+    .catch(function(err) {
+      console.error('Migration error:', err);
+      if (callback) callback(err);
+    });
+  } else {
+    if (callback) callback();
+  }
+}
+
+// ==================== SUPABASE AUTH WRAPPERS ====================
 
 function fbLogin(email, password, callback) {
-  var auth = getAuth();
-  if (!auth) { if (callback) callback({ message: 'Firebase not loaded' }); return; }
+  var client = getClient();
+  if (!client) {
+    if (callback) callback({ message: 'Supabase not loaded' });
+    return;
+  }
 
-  auth.signInWithEmailAndPassword(email, password)
+  client.auth.signInWithPassword({ email: email, password: password })
     .then(function(result) {
-      var user = result.user;
-      window.__fbUser = { uid: user.uid, email: user.email };
-      var db = getDb();
-
-      if (db) {
-        db.collection('profiles').doc(user.uid).get().then(function(doc) {
-          var profile = doc.exists ? doc.data() : {};
-          var session = buildSession(user, profile);
-          window.__fbSession = session;
-
-          // Ensure profile exists in Firestore
-          db.collection('profiles').doc(user.uid).set({
-            username: session.username,
-            name: session.name,
-            email: session.email,
-            role: session.role,
-            is_admin: session.isAdmin,
-            executive_admin: session.executiveAdmin
-          }).catch(function(e) { console.error('Profile sync error:', e); });
-
-          loadFBData(user.uid, function(err) {
-            if (callback) callback(err, session);
-          });
-        }).catch(function() {
-          var session = buildSession(user, {});
-          window.__fbSession = session;
-          loadFBData(user.uid, function(err) {
-            if (callback) callback(err, session);
-          });
-        });
-      } else {
-        var session = buildSession(user, {});
-        window.__fbSession = session;
-        loadFBData(user.uid, function(err) {
-          if (callback) callback(err, session);
-        });
+      if (result.error) {
+        if (callback) callback(result.error);
+        return;
       }
+      var user = result.data.user;
+      window.__fbUser = { uid: user.id, email: user.email };
+
+      // Kunin ang role mula sa JWT metadata (walang RLS, walang recursion)
+      var jwtMeta = user.user_metadata || {};
+      var jwtRole = jwtMeta.role || null;
+      var jwtIsAdmin = jwtMeta.is_admin || false;
+      var jwtExecutiveAdmin = jwtMeta.executive_admin || false;
+      var jwtUsername = jwtMeta.username || null;
+      var jwtName = jwtMeta.name || null;
+
+      // Hanapin ang local user para sa fallback
+      var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      var localUser = localUsers.find(function(u) { return u.email === user.email; });
+
+      // Role priority: JWT metadata > localStorage > default
+      var finalRole = jwtRole || (localUser ? localUser.role : null) || 'executive_path';
+      var finalIsAdmin = jwtIsAdmin || (localUser ? localUser.isAdmin || false : false);
+      var finalExecutiveAdmin = jwtExecutiveAdmin || (localUser ? localUser.executiveAdmin || false : false);
+      var finalUsername = jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0];
+      var finalName = jwtName || (localUser ? localUser.name : null) || finalUsername;
+
+      var session = {
+        username: finalUsername,
+        name: finalName,
+        email: user.email,
+        isAdmin: finalIsAdmin,
+        executiveAdmin: finalExecutiveAdmin,
+        role: finalRole,
+        supabaseUid: user.id,
+        loggedIn: true,
+        timestamp: Date.now()
+      };
+      fbSaveSession(session);
+
+      // I-sync ang profile sa Supabase (upsert = walang recursion)
+      Promise.resolve(client.from('profiles').upsert({
+        id: user.id,
+        username: finalUsername,
+        name: finalName,
+        email: user.email,
+        role: finalRole,
+        is_admin: finalIsAdmin,
+        executive_admin: finalExecutiveAdmin
+      })).then(null, function(e) { console.error('Profile sync error:', e); });
+
+      // Subukang i-load ang userdata (kung may RLS pa rin, localStorage fallback ang cache)
+      loadFBData(user.id, function() {
+        if (callback) callback(null, session);
+      });
     })
-    .catch(function(err) { if (callback) callback(err); });
+    .catch(function(err) {
+      if (callback) callback(err);
+    });
 }
 
 function fbRegister(email, password, profile, callback) {
   window.__fbRegistering = true;
-  var auth = getAuth();
-  if (!auth) { window.__fbRegistering = false; if (callback) callback({ message: 'Firebase not loaded' }); return; }
+  var client = getClient();
+  if (!client) {
+    window.__fbRegistering = false;
+    if (callback) callback({ message: 'Supabase not loaded' });
+    return;
+  }
 
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(function(result) {
-      var user = result.user;
-      var uid = user.uid;
-      var db = getDb();
-      var p = {
+  client.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
         username: profile.username,
         name: profile.name,
-        email: email,
         role: profile.role || 'executive_task',
         is_admin: profile.isAdmin || false,
         executive_admin: profile.executiveAdmin || false
-      };
-
-      function done(err, ok) { window.__fbRegistering = false; if (callback) callback(err, ok); }
-
-      if (db) {
-        Promise.all([
-          db.collection('profiles').doc(uid).set(p),
-          db.collection('userdata').doc(uid).set({ data: {} })
-        ]).then(function() {
-          done(null, { username: profile.username, name: profile.name, role: profile.role });
-        }).catch(function(err) { console.error('Firestore write error:', err); done(err); });
-      } else {
-        done(null, { username: profile.username, name: profile.name, role: profile.role });
       }
-    })
-    .catch(function(err) { window.__fbRegistering = false; if (callback) callback(err); });
-}
-
-function fbLogout(callback) {
-  window.__fbSession = null;
-  window.__fbCache = {};
-  window.__fbLoaded = false;
-  window.__fbUser = null;
-  window.__sharedTasksCache = [];
-  if (window.__fbSharedUnsubscribe) { window.__fbSharedUnsubscribe(); window.__fbSharedUnsubscribe = null; }
-  var auth = getAuth();
-  if (!auth) { if (callback) callback(); return; }
-  auth.signOut().then(function() {
-    if (window.__fbAuthListener) { window.__fbAuthListener(); window.__fbAuthListener = null; }
-    if (callback) callback();
-  }).catch(function(err) { if (callback) callback(err); });
-}
-
-// ==================== LEGACY STUB ====================
-// Supabase getClient() is no longer used. Returns null so any leftover calls
-// degrade gracefully (caller checks if (!client) return).
-function getClient() { return null; }
-
-// ==================== SHARED TASKS (Cross-user, Firestore collection) ====================
-
-// Assign a task to another user via the top-level shared_tasks Firestore collection.
-// The collection allows any authenticated user to create documents.
-function fbAssignTask(assigneeUsername, taskObj, assignerUsername, callback) {
-  var db = getDb();
-  if (!db) { if (callback) callback('Firestore not available'); return; }
-
-  db.collection('profiles').where('username', '==', assigneeUsername).get()
-    .then(function(snap) {
-      if (snap.empty) { if (callback) callback('User not found: ' + assigneeUsername); return; }
-      var assigneeUid = snap.docs[0].id;
-      var assignerUid = window.__fbUser ? window.__fbUser.uid : '';
-
-      var taskCopy = {};
-      for (var k in taskObj) { if (k !== '_shared' && k !== '_sharedDocId') taskCopy[k] = taskObj[k]; }
-
-      var data = {
-        taskId: String(taskObj.id),
-        assignedToUid: assigneeUid,
-        assignedToUsername: assigneeUsername,
-        assignedByUid: assignerUid,
-        assignedByUsername: assignerUsername || '',
-        task: taskCopy,
-        status: taskObj.status || 'todo',
-        createdAt: taskObj.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      // Upsert: overwrite if already assigned to the same user
-      return db.collection('shared_tasks')
-        .where('taskId', '==', String(taskObj.id))
-        .where('assignedToUid', '==', assigneeUid)
-        .get()
-        .then(function(existing) {
-          if (!existing.empty) {
-            return existing.docs[0].ref.set(data);
-          } else {
-            return db.collection('shared_tasks').add(data);
-          }
-        });
-    })
-    .then(function() { if (callback) callback(null); })
-    .catch(function(err) { console.error('fbAssignTask error:', err); if (callback) callback(err); });
-}
-
-// Remove a shared task document for a specific assignee.
-function fbRemoveSharedTask(assigneeUsername, taskId, callback) {
-  var db = getDb();
-  if (!db) { if (callback) callback(); return; }
-
-  db.collection('shared_tasks')
-    .where('taskId', '==', String(taskId))
-    .where('assignedToUsername', '==', assigneeUsername)
-    .get()
-    .then(function(snap) {
-      var deletes = [];
-      snap.forEach(function(doc) { deletes.push(doc.ref.delete()); });
-      return Promise.all(deletes);
-    })
-    .then(function() { if (callback) callback(null); })
-    .catch(function(err) { console.error('fbRemoveSharedTask error:', err); if (callback) callback(err); });
-}
-
-// Update the status field on shared task documents (called by assignee to sync back to assigner).
-function fbUpdateSharedTaskStatus(docId, status, callback) {
-  var db = getDb();
-  if (!db || !docId) { if (callback) callback(); return; }
-
-  db.collection('shared_tasks').doc(docId).update({
-    status: status,
-    updatedAt: new Date().toISOString()
+    }
   })
-  .then(function() { if (callback) callback(null); })
-  .catch(function(err) { console.error('fbUpdateSharedTaskStatus error:', err); if (callback) callback(err); });
-}
+  .then(function(result) {
+    if (result.error) {
+      window.__fbRegistering = false;
+      if (callback) callback(result.error);
+      return;
+    }
 
-// One-time load of shared tasks for the current user from Firestore.
-function loadSharedTasksFromFirestore(uid, callback) {
-  var db = getDb();
-  if (!db || !uid) { window.__sharedTasksCache = []; if (callback) callback([]); return; }
-
-  db.collection('shared_tasks').where('assignedToUid', '==', uid).get()
-    .then(function(snap) {
-      var tasks = [];
-      snap.forEach(function(doc) {
-        var d = doc.data();
-        var t = {};
-        var src = d.task || {};
-        for (var k in src) t[k] = src[k];
-        t._shared = true;
-        t._sharedDocId = doc.id;
-        t.status = d.status || t.status;
-        t.assignedBy = d.assignedByUsername;
-        tasks.push(t);
+    // The trigger handle_new_user() creates profiles + userdata rows automatically.
+    // But we also write directly to ensure it's there.
+    var uid = result.data.user.id;
+    var p = {
+      id: uid,
+      username: profile.username,
+      name: profile.name,
+      email: email,
+      role: profile.role || 'executive_task',
+      is_admin: profile.isAdmin || false,
+      executive_admin: profile.executiveAdmin || false
+    };
+    function doCb(err, ok) {
+      window.__fbRegistering = false;
+      if (callback) callback(err, ok);
+    }
+    Promise.resolve(client.from('profiles').upsert(p, { onConflict: 'id' })).then(function() {
+      Promise.resolve(client.from('userdata').upsert({ id: uid, data: {} }, { onConflict: 'id' })).then(function() {
+        localStorage.setItem('welcome_' + profile.username, 'true');
+        doCb(null, { username: profile.username, name: profile.name, role: profile.role });
+      }, function(err) {
+        console.error('userdata upsert error:', err);
+        doCb(err);
       });
-      window.__sharedTasksCache = tasks;
-      if (callback) callback(tasks);
-    })
-    .catch(function(err) {
-      console.error('loadSharedTasksFromFirestore error:', err);
-      window.__sharedTasksCache = [];
-      if (callback) callback([]);
-    });
-}
-
-// Real-time listener for shared tasks assigned to the current user.
-function fbSubscribeSharedTasks(uid, onUpdate) {
-  var db = getDb();
-  if (!db || !uid) return;
-  if (window.__fbSharedUnsubscribe) { window.__fbSharedUnsubscribe(); window.__fbSharedUnsubscribe = null; }
-
-  window.__fbSharedUnsubscribe = db.collection('shared_tasks')
-    .where('assignedToUid', '==', uid)
-    .onSnapshot(function(snap) {
-      var tasks = [];
-      snap.forEach(function(doc) {
-        var d = doc.data();
-        var t = {};
-        var src = d.task || {};
-        for (var k in src) t[k] = src[k];
-        t._shared = true;
-        t._sharedDocId = doc.id;
-        t.status = d.status || t.status;
-        t.assignedBy = d.assignedByUsername;
-        tasks.push(t);
-      });
-      window.__sharedTasksCache = tasks;
-      if (onUpdate) onUpdate(tasks);
     }, function(err) {
-      console.error('Shared tasks snapshot error:', err);
+      console.error('profiles upsert error:', err);
+      doCb(err);
     });
-}
-
-// ==================== ADMIN HELPERS (Firestore-based) ====================
-
-// Load all users from Firestore profiles collection
-function loadUsersFromFirestore(callback) {
-  var db = getDb();
-  if (!db) { if (callback) callback([]); return; }
-  db.collection('profiles').get().then(function(snapshot) {
-    var users = [];
-    snapshot.forEach(function(doc) {
-      var d = doc.data();
-      users.push({
-        id: doc.id,
-        username: d.username,
-        name: d.name || d.username,
-        email: d.email || '',
-        role: d.role || 'executive_task',
-        isAdmin: d.is_admin || false,
-        executiveAdmin: d.executive_admin || false
-      });
-    });
-    window.__usersCache = users;
-    if (callback) callback(users);
-  }).catch(function(err) {
-    console.error('Load users error:', err);
-    if (callback) callback([]);
+  })
+  .catch(function(err) {
+    window.__fbRegistering = false;
+    if (callback) callback(err);
   });
 }
 
-// Get users from cache (sync, populated by loadUsersFromFirestore)
-function getUsers() { return window.__usersCache || []; }
-
-// Save user list to Firestore (updates profiles, creates if needed)
-function saveUserToFirestore(user, callback) {
-  var db = getDb();
-  if (!db) { if (callback) callback('Firestore not loaded'); return; }
-
-  var profile = {
-    username: user.username,
-    name: user.name || user.username,
-    email: user.email || (user.username + '@app.local'),
-    role: user.role || 'executive_task',
-    is_admin: user.isAdmin || false,
-    executive_admin: user.executiveAdmin || false
-  };
-
-  if (user.id) {
-    db.collection('profiles').doc(user.id).set(profile)
-      .then(function() { if (callback) callback(); })
-      .catch(function(err) { if (callback) callback(err); });
-  } else {
-    db.collection('profiles').where('username', '==', user.username).get()
-      .then(function(snapshot) {
-        if (snapshot.empty) {
-          return db.collection('profiles').add(profile).then(function(ref) {
-            user.id = ref.id;
-            if (callback) callback();
-          });
-        } else {
-          var uid = snapshot.docs[0].id;
-          user.id = uid;
-          return db.collection('profiles').doc(uid).set(profile).then(function() {
-            if (callback) callback();
-          });
-        }
-      })
-      .catch(function(err) { if (callback) callback(err); });
+function fbLogout(callback) {
+  fbClearSession();
+  window.__fbCache = {};
+  window.__fbLoaded = false;
+  window.__fbUser = null;
+  var client = getClient();
+  if (!client) {
+    if (callback) callback();
+    return;
   }
-}
-
-// Collect all data for a user from Firestore (via cache if loaded)
-function collectUserDataFromFirestore(username, callback) {
-  var db = getDb();
-  if (!db) { if (callback) callback({}); return; }
-
-  db.collection('profiles').where('username', '==', username).get()
-    .then(function(snapshot) {
-      if (snapshot.empty) { if (callback) callback({}); return; }
-      var uid = snapshot.docs[0].id;
-      return db.collection('userdata').doc(uid).get().then(function(doc) {
-        if (doc.exists) {
-          if (callback) callback(doc.data().data || {});
-        } else {
-          if (callback) callback({});
-        }
-      });
+  client.auth.signOut()
+    .then(function() {
+      if (window.__fbAuthListener) {
+        try { window.__fbAuthListener.subscription.unsubscribe(); } catch(e) {}
+        window.__fbAuthListener = null;
+      }
+      if (callback) callback();
     })
-    .catch(function() { if (callback) callback({}); });
-}
-
-// Delete user from Firestore
-function deleteUserFromFirestore(username, callback) {
-  var db = getDb();
-  if (!db) { if (callback) callback(); return; }
-  db.collection('profiles').where('username', '==', username).get()
-    .then(function(snapshot) {
-      if (snapshot.empty) { if (callback) callback(); return; }
-      var uid = snapshot.docs[0].id;
-      Promise.all([
-        db.collection('profiles').doc(uid).delete(),
-        db.collection('userdata').doc(uid).delete()
-      ]).then(function() { if (callback) callback(); })
-        .catch(function(err) { if (callback) callback(err); });
-    })
-    .catch(function(err) { if (callback) callback(err); });
+    .catch(function(err) {
+      if (callback) callback(err);
+    });
 }
