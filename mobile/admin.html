@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html class="h-full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Administrator | KALYX Mobile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config={theme:{extend:{colors:{brand:'#6366f1','brand-dark':'#4f46e5'}}}}
+</script>
+<link rel="stylesheet" href="styles/mobile.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#0284c7">
+</head>
+<body class="h-full bg-slate-50 flex flex-col">
+
+<header class="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-slate-200 px-4 py-2.5 flex items-center justify-between mobile-header">
+  <div class="flex items-center gap-3 min-w-0">
+    <div class="w-8 h-8 bg-gradient-to-br from-sky-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+      <span class="material-symbols-outlined text-white text-lg">admin_panel_settings</span>
+    </div>
+    <div class="min-w-0">
+      <h1 class="text-base font-extrabold text-slate-900 truncate">Administrator</h1>
+      <p class="text-[10px] font-medium text-slate-400 -mt-0.5">Control Panel</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-1">
+    <button id="install-btn" onclick="installApp()" style="display:none" class="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100" title="Install App">
+      <span class="material-symbols-outlined">download</span>
+    </button>
+    <button onclick="mobileApp.toggleTheme()" class="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100">
+      <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+    </button>
+    <div id="user-avatar" class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 cursor-pointer" onclick="mobileApp.openModal('user-detail-modal')"></div>
+  </div>
+</header>
+
+<main class="flex-1 overflow-y-auto no-scrollbar">
+
+<!-- DASHBOARD -->
+<section id="view-dashboard" class="view-section px-4 pt-5 pb-4">
+  <div class="mb-5">
+    <h2 class="text-lg font-extrabold text-slate-900">System Overview</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Complete oversight of all modules</p>
+  </div>
+  <div class="grid grid-cols-2 gap-3 mb-5" id="stats-grid">
+    <div class="stat-card fade-in"><div class="icon bg-indigo-100 text-indigo-600"><span class="material-symbols-outlined">people</span></div><div class="value" id="stat-users">0</div><div class="label">Total Users</div></div>
+    <div class="stat-card fade-in"><div class="icon bg-amber-100 text-amber-600"><span class="material-symbols-outlined">checklist</span></div><div class="value" id="stat-tasks">0</div><div class="label">Total Tasks</div></div>
+    <div class="stat-card fade-in"><div class="icon bg-emerald-100 text-emerald-600"><span class="material-symbols-outlined">map</span></div><div class="value" id="stat-plans">0</div><div class="label">Total Plans</div></div>
+    <div class="stat-card fade-in"><div class="icon bg-rose-100 text-rose-600"><span class="material-symbols-outlined">flight_takeoff</span></div><div class="value" id="stat-trips">0</div><div class="label">Total Trips</div></div>
+  </div>
+  <div class="section-title">Recent Activity</div>
+  <div id="recent-activity" class="space-y-2"></div>
+</section>
+
+<!-- USERS -->
+<section id="view-users" class="view-section px-4 pt-5 pb-4" style="display:none">
+  <div class="mb-4">
+    <h2 class="text-lg font-extrabold text-slate-900">User Management</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Manage all registered accounts</p>
+  </div>
+  <div class="flex items-center gap-2 mb-4">
+    <div class="search-bar flex-1">
+      <span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+      <input id="users-search" placeholder="Search users..." oninput="renderUsers()">
+    </div>
+    <select id="users-role-filter" class="form-input w-auto text-xs py-2 px-3" onchange="renderUsers()">
+      <option value="all">All</option>
+      <option value="admin">Admin</option>
+      <option value="executive_path">Path</option>
+      <option value="executive_task">Task</option>
+      <option value="executive_it">IT</option>
+    </select>
+  </div>
+  <div id="users-list" class="space-y-2"></div>
+</section>
+
+<!-- TASKS -->
+<section id="view-tasks" class="view-section px-4 pt-5 pb-4" style="display:none">
+  <div class="mb-4">
+    <h2 class="text-lg font-extrabold text-slate-900">All Tasks</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Across all users</p>
+  </div>
+  <div class="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
+    <select id="tasks-user-filter" class="form-input text-xs py-2 px-3 flex-shrink-0" onchange="renderTasks()">
+      <option value="all">All Users</option>
+    </select>
+    <select id="tasks-status-filter" class="form-input text-xs py-2 px-3 flex-shrink-0" onchange="renderTasks()">
+      <option value="all">All Status</option>
+      <option value="todo">To Do</option>
+      <option value="progress">In Progress</option>
+      <option value="done">Done</option>
+    </select>
+    <select id="tasks-priority-filter" class="form-input text-xs py-2 px-3 flex-shrink-0" onchange="renderTasks()">
+      <option value="all">All Priority</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+  <div id="tasks-stats" class="flex gap-2 mb-4">
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Total</span><span class="text-lg font-bold text-slate-900" id="task-stat-total">0</span></div>
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">To Do</span><span class="text-lg font-bold text-red-600" id="task-stat-todo">0</span></div>
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Active</span><span class="text-lg font-bold text-amber-600" id="task-stat-progress">0</span></div>
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Done</span><span class="text-lg font-bold text-emerald-600" id="task-stat-done">0</span></div>
+  </div>
+  <div id="tasks-list" class="space-y-2"></div>
+</section>
+
+<!-- PLANS -->
+<section id="view-plans" class="view-section px-4 pt-5 pb-4" style="display:none">
+  <div class="mb-4">
+    <h2 class="text-lg font-extrabold text-slate-900">All Plans</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Plans & roadmaps across all users</p>
+  </div>
+  <div class="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
+    <select id="plans-user-filter" class="form-input text-xs py-2 px-3 flex-shrink-0" onchange="renderPlans()">
+      <option value="all">All Users</option>
+    </select>
+    <select id="plans-status-filter" class="form-input text-xs py-2 px-3 flex-shrink-0" onchange="renderPlans()">
+      <option value="all">All Status</option>
+      <option value="not_started">Not Started</option>
+      <option value="in_progress">In Progress</option>
+      <option value="completed">Completed</option>
+      <option value="on_hold">On Hold</option>
+    </select>
+  </div>
+  <div id="plans-stats" class="flex gap-2 mb-4">
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Total</span><span class="text-lg font-bold text-slate-900" id="plan-stat-total">0</span></div>
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Active</span><span class="text-lg font-bold text-amber-600" id="plan-stat-active">0</span></div>
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Done</span><span class="text-lg font-bold text-emerald-600" id="plan-stat-done">0</span></div>
+  </div>
+  <div id="plans-list" class="space-y-2"></div>
+</section>
+
+<!-- DAILY LOGS -->
+<section id="view-dailylogs" class="view-section px-4 pt-5 pb-4" style="display:none">
+  <div class="mb-4">
+    <h2 class="text-lg font-extrabold text-slate-900">Daily Logs</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Job accomplishments from all users</p>
+  </div>
+  <div class="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
+    <select id="logs-user-filter" class="form-input text-xs py-2 px-3 flex-shrink-0" onchange="renderDailyLogs()">
+      <option value="all">All Users</option>
+    </select>
+    <input id="logs-date-filter" class="form-input text-xs py-2 px-3 flex-shrink-0 w-32" type="date" onchange="renderDailyLogs()">
+  </div>
+  <div id="logs-stats" class="flex gap-2 mb-4">
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Total</span><span class="text-lg font-bold text-slate-900" id="log-stat-total">0</span></div>
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">This Week</span><span class="text-lg font-bold text-indigo-600" id="log-stat-week">0</span></div>
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">This Month</span><span class="text-lg font-bold text-amber-600" id="log-stat-month">0</span></div>
+  </div>
+  <div id="logs-list" class="space-y-2"></div>
+</section>
+
+<!-- TRIPS -->
+<section id="view-trips" class="view-section px-4 pt-5 pb-4" style="display:none">
+  <div class="mb-4">
+    <h2 class="text-lg font-extrabold text-slate-900">All Trips</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Travel plans across all users</p>
+  </div>
+  <div class="flex gap-2 mb-4">
+    <div class="search-bar flex-1">
+      <span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+      <input id="trips-search" placeholder="Search destinations..." oninput="renderTrips()">
+    </div>
+    <select id="trips-user-filter" class="form-input text-xs py-2 px-3 flex-shrink-0" onchange="renderTrips()">
+      <option value="all">All Users</option>
+    </select>
+  </div>
+  <div id="trips-stats" class="flex gap-2 mb-4">
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Total</span><span class="text-lg font-bold text-slate-900" id="trip-stat-total">0</span></div>
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Upcoming</span><span class="text-lg font-bold text-amber-600" id="trip-stat-upcoming">0</span></div>
+    <div class="flex-1 bg-white rounded-xl p-3 border border-slate-100 text-center"><span class="stat-label block">Ongoing</span><span class="text-lg font-bold text-emerald-600" id="trip-stat-ongoing">0</span></div>
+  </div>
+  <div id="trips-list" class="space-y-2"></div>
+</section>
+
+<!-- DATA MANAGEMENT -->
+<section id="view-data" class="view-section px-4 pt-5 pb-4" style="display:none">
+  <div class="mb-4">
+    <h2 class="text-lg font-extrabold text-slate-900">Data Management</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Export, import & system info</p>
+  </div>
+  <div class="space-y-3">
+    <div class="mobile-card">
+      <div class="mobile-card-header">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2"><span class="material-symbols-outlined text-indigo-500 text-lg">download</span> Export Data</h3>
+      </div>
+      <p class="text-xs text-slate-500 mb-3">Download all system data as JSON backup.</p>
+      <button class="btn-primary text-sm py-3" onclick="exportAllData()"><span class="material-symbols-outlined text-sm align-middle mr-1">file_download</span> Export All Data</button>
+    </div>
+    <div class="mobile-card">
+      <div class="mobile-card-header">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2"><span class="material-symbols-outlined text-amber-500 text-lg">upload</span> Import Data</h3>
+      </div>
+      <p class="text-xs text-slate-500 mb-3">Restore from a previous backup JSON file.</p>
+      <input id="import-file-input" class="w-full mb-3 text-xs" type="file" accept=".json">
+      <button class="btn-secondary text-sm py-3" onclick="importData()"><span class="material-symbols-outlined text-sm align-middle mr-1">file_upload</span> Import Data</button>
+    </div>
+    <div class="mobile-card">
+      <div class="mobile-card-header">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500 text-lg">info</span> System Info</h3>
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-xs font-medium text-slate-500">localStorage keys</span><span class="text-xs font-bold text-slate-900" id="sys-info-keys">0</span></div>
+        <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-xs font-medium text-slate-500">Data size</span><span class="text-xs font-bold text-slate-900" id="sys-info-size">0 KB</span></div>
+        <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-xs font-medium text-slate-500">Registered users</span><span class="text-xs font-bold text-slate-900" id="sys-info-users">0</span></div>
+      </div>
+    </div>
+    <div class="mobile-card">
+      <div class="mobile-card-header">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2"><span class="material-symbols-outlined text-red-500 text-lg">delete_sweep</span> Clear Data</h3>
+      </div>
+      <p class="text-xs text-slate-500 mb-3">Remove all system data. User accounts preserved.</p>
+      <button class="btn-danger text-sm py-3" onclick="clearAllData()"><span class="material-symbols-outlined text-sm align-middle mr-1">warning</span> Clear All Data</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- MORE MENU OVERLAY -->
+<div id="more-menu" class="menu-overlay" onclick="mobileApp.toggleMoreMenu()">
+  <div class="menu-panel" onclick="event.stopPropagation()">
+    <div class="grid grid-cols-3 gap-2">
+      <div class="menu-grid-item" onclick="mobileApp.switchView('plans'); renderPlans();">
+        <div class="icon-wrap bg-emerald-100 text-emerald-600"><span class="material-symbols-outlined">map</span></div>
+        <span>Plans</span>
+      </div>
+      <div class="menu-grid-item" onclick="mobileApp.switchView('dailylogs'); renderDailyLogs();">
+        <div class="icon-wrap bg-pink-100 text-pink-600"><span class="material-symbols-outlined">edit_note</span></div>
+        <span>Daily Logs</span>
+      </div>
+      <div class="menu-grid-item" onclick="mobileApp.switchView('trips'); renderTrips();">
+        <div class="icon-wrap bg-blue-100 text-blue-600"><span class="material-symbols-outlined">flight_takeoff</span></div>
+        <span>Trips</span>
+      </div>
+      <div class="menu-grid-item" onclick="mobileApp.switchView('data'); loadSystemInfo();">
+        <div class="icon-wrap bg-purple-100 text-purple-600"><span class="material-symbols-outlined">storage</span></div>
+        <span>Data Mgmt</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav flex items-center px-2">
+  <div class="bottom-nav-item active" data-view="dashboard" onclick="mobileApp.switchView('dashboard'); renderDashboard();">
+    <span class="material-symbols-outlined nav-icon">dashboard</span>
+    <span class="nav-label">Dash</span>
+  </div>
+  <div class="bottom-nav-item" data-view="users" onclick="mobileApp.switchView('users'); renderUsers();">
+    <span class="material-symbols-outlined nav-icon">manage_accounts</span>
+    <span class="nav-label">Users</span>
+  </div>
+  <div class="fab" id="fab-button" onclick="fabAction()">
+    <span class="material-symbols-outlined" id="fab-icon">add</span>
+  </div>
+  <div class="bottom-nav-item" data-view="tasks" onclick="mobileApp.switchView('tasks'); renderTasks();">
+    <span class="material-symbols-outlined nav-icon">checklist</span>
+    <span class="nav-label">Tasks</span>
+  </div>
+  <div class="bottom-nav-item" onclick="mobileApp.toggleMoreMenu()">
+    <span class="material-symbols-outlined nav-icon">more_horiz</span>
+    <span class="nav-label">More</span>
+  </div>
+</nav>
+
+<!-- USER DETAIL MODAL -->
+<div id="user-detail-modal" class="modal-overlay" onclick="mobileApp.closeModal('user-detail-modal')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="flex items-center gap-3 mb-6">
+      <div id="detail-avatar" class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-lg font-bold"></div>
+      <div>
+        <h3 class="font-bold text-slate-900 text-base" id="detail-name"></h3>
+        <p class="text-xs text-slate-500" id="detail-email"></p>
+      </div>
+    </div>
+    <div class="space-y-3 text-sm">
+      <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-slate-500">Username</span><span class="font-semibold text-slate-900" id="detail-username"></span></div>
+      <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-slate-500">Role</span><span id="detail-role-badge"></span></div>
+      <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-slate-500">Admin</span><span class="font-semibold text-slate-900" id="detail-isadmin"></span></div>
+      <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-slate-500">Tasks</span><span class="font-semibold text-slate-900" id="detail-tasks">0</span></div>
+      <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-slate-500">Plans</span><span class="font-semibold text-slate-900" id="detail-plans">0</span></div>
+      <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-slate-500">Trips</span><span class="font-semibold text-slate-900" id="detail-trips">0</span></div>
+      <div class="flex justify-between py-2 px-3 bg-slate-50 rounded-lg"><span class="text-slate-500">Logs</span><span class="font-semibold text-slate-900" id="detail-logs">0</span></div>
+    </div>
+    <button class="btn-secondary mt-6" onclick="mobileApp.closeModal('user-detail-modal')">Close</button>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div id="add-user-modal" class="modal-overlay" onclick="mobileApp.closeModal('add-user-modal')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <h3 class="font-bold text-slate-900 text-lg mb-4">New User</h3>
+    <div class="form-group"><label class="form-label">Full Name *</label><input id="new-user-name" class="form-input" placeholder="Enter full name"></div>
+    <div class="form-group"><label class="form-label">Username *</label><input id="new-user-username" class="form-input" placeholder="Enter username"></div>
+    <div class="form-group"><label class="form-label">Email</label><input id="new-user-email" class="form-input" type="email" placeholder="Enter email"></div>
+    <div class="form-group"><label class="form-label">Password *</label><input id="new-user-password" class="form-input" type="password" placeholder="Enter password"></div>
+    <div class="form-group"><label class="form-label">Role</label>
+      <select id="new-user-role" class="form-input">
+        <option value="executive_task">Executive Task</option>
+        <option value="executive_path">Executive Path</option>
+        <option value="executive_it">Executive IT</option>
+        <option value="admin">Administrator</option>
+      </select>
+    </div>
+    <div class="form-group flex items-center gap-2">
+      <input type="checkbox" id="new-user-isadmin" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+      <label for="new-user-isadmin" class="text-xs font-medium text-slate-600 cursor-pointer">Portal Admin</label>
+    </div>
+    <button class="btn-primary mt-2" onclick="addUser()">Create User</button>
+    <button class="btn-secondary mt-2" onclick="mobileApp.closeModal('add-user-modal')">Cancel</button>
+  </div>
+</div>
+
+<footer id="toast" class="toast"></footer>
+
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
+<script src="js/mobile.js"></script>
+<script>
+function getUsers() {
+  return JSON.parse(localStorage.getItem('users') || '[]');
+}
+
+function saveUsers(users) {
+  localStorage.setItem('users', JSON.stringify(users));
+}
+
+function collectUserData(username) {
+  return {
+    tasks: JSON.parse(localStorage.getItem('tasks_' + username) || '[]'),
+    plans: JSON.parse(localStorage.getItem('plans_' + username) || '[]'),
+    milestones: JSON.parse(localStorage.getItem('milestones_' + username) || '[]'),
+    dailylog: JSON.parse(localStorage.getItem('dailylog_' + username) || '[]'),
+    trips: JSON.parse(localStorage.getItem('trips_' + username) || '[]')
+  };
+}
+
+var roleLabel = { admin: 'Admin', executive_path: 'Exec Path', executive_task: 'Exec Task', executive_it: 'Exec IT' };
+var roleColor = { admin: 'bg-amber-100 text-amber-700', executive_path: 'bg-blue-100 text-blue-700', executive_task: 'bg-indigo-100 text-indigo-700', executive_it: 'bg-purple-100 text-purple-700' };
+
+function populateUserFilters() {
+  var users = getUsers();
+  var html = '<option value="all">All Users</option>';
+  users.forEach(function(u) { html += '<option value="' + u.username + '">' + mobileApp.escapeHtml(u.name || u.username) + '</option>'; });
+  ['tasks-user-filter','plans-user-filter','logs-user-filter','trips-user-filter'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  });
+}
+
+function renderDashboard() {
+  var users = getUsers();
+  var allTasks = [], allPlans = [], allLogs = [], allTrips = [];
+  users.forEach(function(u) {
+    var d = collectUserData(u.username);
+    d.tasks.forEach(function(t) { t._user = u.name || u.username; });
+    allTasks = allTasks.concat(d.tasks);
+    d.plans.forEach(function(p) { p._user = u.name || u.username; });
+    allPlans = allPlans.concat(d.plans);
+    d.dailylog.forEach(function(l) { l._user = u.name || u.username; });
+    allLogs = allLogs.concat(d.dailylog);
+    d.trips.forEach(function(t) { t._user = u.name || u.username; });
+    allTrips = allTrips.concat(d.trips);
+  });
+  document.getElementById('stat-users').textContent = users.length;
+  document.getElementById('stat-tasks').textContent = allTasks.length;
+  document.getElementById('stat-plans').textContent = allPlans.length;
+  document.getElementById('stat-trips').textContent = allTrips.length;
+
+  var activity = [];
+  allTasks.forEach(function(t) { activity.push({ type: 'task', icon: 'checklist', color: 'bg-indigo-100 text-indigo-600', title: t.title, user: t._user, date: t.createdAt || t.dueDate }); });
+  allPlans.forEach(function(p) { activity.push({ type: 'plan', icon: 'map', color: 'bg-emerald-100 text-emerald-600', title: p.title, user: p._user, date: p.createdAt || p.startDate }); });
+  allLogs.forEach(function(l) { activity.push({ type: 'log', icon: 'edit_note', color: 'bg-pink-100 text-pink-600', title: l.title, user: l._user, date: l.date || l.createdAt }); });
+  allTrips.forEach(function(t) { activity.push({ type: 'trip', icon: 'flight_takeoff', color: 'bg-blue-100 text-blue-600', title: t.tripName || t.title || 'Trip', user: t._user, date: t.createdAt || t.startDate }); });
+  activity.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; });
+
+  var container = document.getElementById('recent-activity');
+  if (!activity.length) {
+    container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-3xl">activity</span><p>No recent activity</p></div>';
+    return;
+  }
+  container.innerHTML = activity.slice(0, 10).map(function(a) {
+    return '<div class="list-item"><div class="w-8 h-8 rounded-lg ' + a.color + ' flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-sm">' + a.icon + '</span></div><div class="flex-1 min-w-0"><p class="text-sm font-semibold text-slate-900 truncate">' + mobileApp.escapeHtml(a.title) + '</p><p class="text-xs text-slate-500">' + mobileApp.escapeHtml(a.user) + ' &middot; ' + (a.date || '') + '</p></div></div>';
+  }).join('');
+}
+
+function renderUsers() {
+  var users = getUsers();
+  var search = document.getElementById('users-search').value.toLowerCase();
+  var filter = document.getElementById('users-role-filter').value;
+  if (filter !== 'all') users = users.filter(function(u) { return u.role === filter; });
+  if (search) users = users.filter(function(u) { return (u.name || '').toLowerCase().indexOf(search) !== -1 || u.username.toLowerCase().indexOf(search) !== -1; });
+
+  var container = document.getElementById('users-list');
+  if (!users.length) {
+    container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-3xl">people_outline</span><p>No users found</p></div>';
+    return;
+  }
+  container.innerHTML = users.map(function(u) {
+    var initial = (u.name || u.username).charAt(0).toUpperCase();
+    var data = collectUserData(u.username);
+    var total = data.tasks.length + data.plans.length + data.trips.length + data.dailylog.length;
+    return '<div class="mobile-card flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform" onclick="showUserDetail(\'' + u.username + '\')">' +
+      '<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">' + initial + '</div>' +
+      '<div class="flex-1 min-w-0"><p class="text-sm font-bold text-slate-900">' + mobileApp.escapeHtml(u.name || u.username) + '</p>' +
+      '<p class="text-xs text-slate-500">' + mobileApp.escapeHtml(u.email || 'no email') + '</p></div>' +
+      '<div class="text-right flex-shrink-0"><span class="text-xs font-semibold px-2 py-1 rounded-full ' + (roleColor[u.role] || 'bg-slate-100 text-slate-600') + '">' + (roleLabel[u.role] || u.role) + '</span></div></div>';
+  }).join('');
+}
+
+function showUserDetail(username) {
+  var users = getUsers();
+  var u = users.find(function(x) { return x.username === username; });
+  if (!u) return;
+  var data = collectUserData(u.username);
+  var initial = (u.name || u.username).charAt(0).toUpperCase();
+  document.getElementById('detail-avatar').textContent = initial;
+  document.getElementById('detail-name').textContent = u.name || u.username;
+  document.getElementById('detail-email').textContent = u.email || 'No email';
+  document.getElementById('detail-username').textContent = '@' + u.username;
+  document.getElementById('detail-role-badge').innerHTML = '<span class="text-xs font-semibold px-2 py-1 rounded-full ' + (roleColor[u.role] || 'bg-slate-100 text-slate-600') + '">' + (roleLabel[u.role] || u.role) + '</span>';
+  document.getElementById('detail-isadmin').textContent = u.isAdmin ? 'Yes' : 'No';
+  document.getElementById('detail-tasks').textContent = data.tasks.length;
+  document.getElementById('detail-plans').textContent = data.plans.length;
+  document.getElementById('detail-trips').textContent = data.trips.length;
+  document.getElementById('detail-logs').textContent = data.dailylog.length;
+  mobileApp.openModal('user-detail-modal');
+}
+
+function renderTasks() {
+  var users = getUsers();
+  var uf = document.getElementById('tasks-user-filter').value;
+  var sf = document.getElementById('tasks-status-filter').value;
+  var pf = document.getElementById('tasks-priority-filter').value;
+  var all = [];
+  users.forEach(function(u) {
+    var tk = JSON.parse(localStorage.getItem('tasks_' + u.username) || '[]');
+    tk.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
+    all = all.concat(tk);
+  });
+  if (uf !== 'all') all = all.filter(function(t) { return t._username === uf; });
+  if (sf !== 'all') all = all.filter(function(t) { return t.status === sf; });
+  if (pf !== 'all') all = all.filter(function(t) { return t.priority === pf; });
+
+  document.getElementById('task-stat-total').textContent = all.length;
+  document.getElementById('task-stat-todo').textContent = all.filter(function(t) { return t.status === 'todo'; }).length;
+  document.getElementById('task-stat-progress').textContent = all.filter(function(t) { return t.status === 'progress'; }).length;
+  document.getElementById('task-stat-done').textContent = all.filter(function(t) { return t.status === 'done'; }).length;
+
+  var container = document.getElementById('tasks-list');
+  if (!all.length) {
+    container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-3xl">checklist</span><p>No tasks found</p></div>';
+    return;
+  }
+  var sl = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
+  var sc = { todo: 'bg-red-100 text-red-700', progress: 'bg-amber-100 text-amber-700', done: 'bg-emerald-100 text-emerald-700' };
+  var pl = { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' };
+  var pc = { low: 'bg-slate-100 text-slate-600', medium: 'bg-blue-100 text-blue-700', high: 'bg-orange-100 text-orange-700', urgent: 'bg-red-100 text-red-700' };
+
+  all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
+  container.innerHTML = all.map(function(t) {
+    return '<div class="mobile-card"><div class="flex items-start gap-3">' +
+      '<div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-sm">task</span></div>' +
+      '<div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap"><p class="text-sm font-bold text-slate-900">' + mobileApp.escapeHtml(t.title) + '</p>' +
+      '<span class="text-xs font-semibold px-1.5 py-0.5 rounded-full ' + (sc[t.status] || 'bg-slate-100 text-slate-600') + '">' + (sl[t.status] || t.status) + '</span>' +
+      (t.priority ? '<span class="text-xs font-semibold px-1.5 py-0.5 rounded-full ' + (pc[t.priority] || 'bg-slate-100 text-slate-600') + '">' + (pl[t.priority] || t.priority) + '</span>' : '') +
+      '</div>' + (t.description ? '<p class="text-xs text-slate-500 mt-1 line-clamp-2">' + mobileApp.escapeHtml(t.description) + '</p>' : '') +
+      '<div class="flex items-center gap-3 mt-1.5 text-xs text-slate-500 flex-wrap">' +
+      '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">person</span>' + mobileApp.escapeHtml(t._user) + '</span>' +
+      (t.dueDate ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">calendar_today</span>' + t.dueDate + '</span>' : '') +
+      '</div></div></div></div>';
+  }).join('');
+}
+
+function renderPlans() {
+  var users = getUsers();
+  var uf = document.getElementById('plans-user-filter').value;
+  var sf = document.getElementById('plans-status-filter').value;
+  var all = [];
+  users.forEach(function(u) {
+    var pl = JSON.parse(localStorage.getItem('plans_' + u.username) || '[]');
+    var ms = JSON.parse(localStorage.getItem('milestones_' + u.username) || '[]');
+    pl.forEach(function(p) { p._user = u.name || u.username; p._username = u.username; p._milestones = ms.filter(function(m) { return m.planId === p.id; }); });
+    all = all.concat(pl);
+  });
+  if (uf !== 'all') all = all.filter(function(p) { return p._username === uf; });
+  if (sf !== 'all') all = all.filter(function(p) { return p.status === sf; });
+
+  document.getElementById('plan-stat-total').textContent = all.length;
+  document.getElementById('plan-stat-active').textContent = all.filter(function(p) { return p.status === 'in_progress'; }).length;
+  document.getElementById('plan-stat-done').textContent = all.filter(function(p) { return p.status === 'completed'; }).length;
+
+  var container = document.getElementById('plans-list');
+  if (!all.length) {
+    container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-3xl">map</span><p>No plans found</p></div>';
+    return;
+  }
+  var sl = { not_started: 'Not Started', in_progress: 'In Progress', completed: 'Completed', on_hold: 'On Hold' };
+  var sc = { not_started: 'bg-slate-100 text-slate-600', in_progress: 'bg-amber-100 text-amber-700', completed: 'bg-emerald-100 text-emerald-700', on_hold: 'bg-red-100 text-red-700' };
+
+  all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
+  container.innerHTML = all.map(function(p) {
+    var mstones = p._milestones || [];
+    var done = mstones.filter(function(m) { return m.status === 'completed'; }).length;
+    var pct = mstones.length ? Math.round(done / mstones.length * 100) : 0;
+    return '<div class="mobile-card"><div class="flex items-start justify-between mb-2"><div><p class="text-sm font-bold text-slate-900">' + mobileApp.escapeHtml(p.title) + '</p>' +
+      '<p class="text-xs text-slate-500">by ' + mobileApp.escapeHtml(p._user) + '</p></div>' +
+      '<span class="text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ' + (sc[p.status] || 'bg-slate-100 text-slate-600') + '">' + (sl[p.status] || p.status) + '</span></div>' +
+      (p.description ? '<p class="text-xs text-slate-500 mb-2">' + mobileApp.escapeHtml(p.description) + '</p>' : '') +
+      (p.startDate || p.endDate ? '<p class="text-xs text-slate-500 mb-2">' + (p.startDate || '—') + ' → ' + (p.endDate || '—') + '</p>' : '') +
+      (mstones.length ? '<div class="flex items-center gap-2"><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full rounded-full bg-indigo-500 transition-all" style="width:' + pct + '%"></div></div>' +
+      '<span class="text-xs font-bold text-indigo-600">' + pct + '%</span></div><p class="text-xs text-slate-500 mt-1">' + done + '/' + mstones.length + ' milestones</p>' : '') +
+      '</div>';
+  }).join('');
+}
+
+function renderDailyLogs() {
+  var users = getUsers();
+  var uf = document.getElementById('logs-user-filter').value;
+  var df = document.getElementById('logs-date-filter').value;
+  var all = [];
+  var allCategories = {};
+  users.forEach(function(u) {
+    var lg = JSON.parse(localStorage.getItem('dailylog_' + u.username) || '[]');
+    lg.forEach(function(l) { l._user = u.name || u.username; l._username = u.username; if (l.category) allCategories[l.category] = true; });
+    all = all.concat(lg);
+  });
+  if (uf !== 'all') all = all.filter(function(l) { return l._username === uf; });
+  if (df) all = all.filter(function(l) { return l.date === df; });
+
+  var now = new Date(), weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  document.getElementById('log-stat-total').textContent = all.length;
+  document.getElementById('log-stat-week').textContent = all.filter(function(l) { return l.date && new Date(l.date) >= weekAgo; }).length;
+  document.getElementById('log-stat-month').textContent = all.filter(function(l) { return l.date && new Date(l.date) >= monthStart; }).length;
+
+  var container = document.getElementById('logs-list');
+  if (!all.length) {
+    container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-3xl">edit_note</span><p>No log entries found</p></div>';
+    return;
+  }
+  all.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; });
+  var catColors = ['bg-blue-100 text-blue-700','bg-emerald-100 text-emerald-700','bg-amber-100 text-amber-700','bg-pink-100 text-pink-700','bg-purple-100 text-purple-700','bg-cyan-100 text-cyan-700','bg-orange-100 text-orange-700'];
+  var catIdx = {};
+  container.innerHTML = all.map(function(l) {
+    if (catIdx[l.category] === undefined) catIdx[l.category] = Object.keys(catIdx).length % catColors.length;
+    var cc = catColors[catIdx[l.category]] || catColors[0];
+    return '<div class="mobile-card"><div class="flex items-start gap-3">' +
+      '<div class="w-8 h-8 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-sm">edit_note</span></div>' +
+      '<div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap"><p class="text-sm font-bold text-slate-900">' + mobileApp.escapeHtml(l.title) + '</p>' +
+      (l.category ? '<span class="text-xs font-semibold px-1.5 py-0.5 rounded-full ' + cc + '">' + mobileApp.escapeHtml(l.category) + '</span>' : '') + '</div>' +
+      (l.description ? '<p class="text-xs text-slate-500 mt-1">' + mobileApp.escapeHtml(l.description) + '</p>' : '') +
+      '<div class="flex items-center gap-3 mt-1.5 text-xs text-slate-500 flex-wrap">' +
+      '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">person</span>' + mobileApp.escapeHtml(l._user) + '</span>' +
+      (l.date ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">calendar_today</span>' + l.date + '</span>' : '') +
+      (l.timeSpent ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">schedule</span>' + mobileApp.escapeHtml(l.timeSpent) + '</span>' : '') +
+      '</div></div></div></div>';
+  }).join('');
+}
+
+function renderTrips() {
+  var users = getUsers();
+  var uf = document.getElementById('trips-user-filter').value;
+  var sq = document.getElementById('trips-search').value.toLowerCase();
+  var all = [];
+  users.forEach(function(u) {
+    var tr = JSON.parse(localStorage.getItem('trips_' + u.username) || '[]');
+    tr.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
+    all = all.concat(tr);
+  });
+  if (uf !== 'all') all = all.filter(function(t) { return t._username === uf; });
+  if (sq) all = all.filter(function(t) { return (t.destination || '').toLowerCase().indexOf(sq) !== -1 || (t.tripName || t.title || '').toLowerCase().indexOf(sq) !== -1; });
+
+  var now = new Date();
+  var todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  document.getElementById('trip-stat-total').textContent = all.length;
+  document.getElementById('trip-stat-upcoming').textContent = all.filter(function(t) { return t.startDate && t.startDate > todayStr; }).length;
+  document.getElementById('trip-stat-ongoing').textContent = all.filter(function(t) { return t.startDate && t.endDate && t.startDate <= todayStr && t.endDate >= todayStr; }).length;
+
+  var container = document.getElementById('trips-list');
+  if (!all.length) {
+    container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined text-3xl">flight_takeoff</span><p>No trips found</p></div>';
+    return;
+  }
+  all.sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
+  container.innerHTML = all.map(function(t) {
+    return '<div class="mobile-card"><div class="flex items-start gap-3">' +
+      '<div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-sm">flight_takeoff</span></div>' +
+      '<div class="flex-1 min-w-0"><p class="text-sm font-bold text-slate-900">' + mobileApp.escapeHtml(t.tripName || t.title || 'Trip') + '</p>' +
+      (t.destination ? '<p class="text-xs text-slate-500 mt-0.5 flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span>' + mobileApp.escapeHtml(t.destination) + '</p>' : '') +
+      '<div class="flex items-center gap-3 mt-1.5 text-xs text-slate-500 flex-wrap">' +
+      '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">person</span>' + mobileApp.escapeHtml(t._user) + '</span>' +
+      (t.startDate ? '<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">calendar_today</span>' + t.startDate + (t.endDate ? ' - ' + t.endDate : '') + '</span>' : '') +
+      '</div></div></div></div>';
+  }).join('');
+}
+
+function loadSystemInfo() {
+  var keys = Object.keys(localStorage);
+  document.getElementById('sys-info-keys').textContent = keys.length;
+  var size = 0;
+  keys.forEach(function(k) { size += (localStorage.getItem(k) || '').length * 2; });
+  document.getElementById('sys-info-size').textContent = (size / 1024).toFixed(1) + ' KB';
+  document.getElementById('sys-info-users').textContent = getUsers().length;
+}
+
+function exportAllData() {
+  var users = getUsers();
+  var data = { exportedAt: new Date().toISOString(), users: users };
+  users.forEach(function(u) {
+    ['tasks','plans','milestones','dailylog','trips'].forEach(function(k) {
+      data[k + '_' + u.username] = JSON.parse(localStorage.getItem(k + '_' + u.username) || '[]');
+    });
+    ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+      data['it_' + t + '_' + u.username] = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username) || '[]');
+    });
+  });
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'scheduler-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  mobileApp.showToast('Data exported successfully');
+}
+
+function importData() {
+  var fileInput = document.getElementById('import-file-input');
+  if (!fileInput.files.length) { mobileApp.showToast('Please select a JSON file'); return; }
+  if (!confirm('Importing will overwrite ALL existing data. Continue?')) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.users || !data.exportedAt) { mobileApp.showToast('Invalid backup file'); return; }
+      saveUsers(data.users);
+      data.users.forEach(function(u) {
+        ['tasks','plans','milestones','dailylog','trips'].forEach(function(k) {
+          var key = k + '_' + u.username;
+          if (data[key]) localStorage.setItem(key, JSON.stringify(data[key]));
+        });
+        ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+          var key = 'it_' + t + '_' + u.username;
+          if (data[key]) localStorage.setItem(key, JSON.stringify(data[key]));
+        });
+      });
+      fileInput.value = '';
+      mobileApp.showToast('Data imported successfully');
+      renderDashboard();
+    } catch(err) { mobileApp.showToast('Import error: ' + err.message); }
+  };
+  reader.readAsText(fileInput.files[0]);
+}
+
+function clearAllData() {
+  if (!confirm('Clear ALL data? User accounts preserved.')) return;
+  if (!confirm('FINAL WARNING: This deletes all tasks, plans, milestones, logs, trips, IT data.')) return;
+  var users = getUsers();
+  users.forEach(function(u) {
+    ['tasks_','plans_','milestones_','dailylog_','trips_'].forEach(function(p) { localStorage.removeItem(p + u.username); });
+  });
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && (key.indexOf('it_') === 0 || key.indexOf('shared_') === 0)) { localStorage.removeItem(key); i--; }
+  }
+  mobileApp.showToast('All data cleared');
+  renderDashboard();
+}
+
+async function hashPass(pass) {
+  var enc = new TextEncoder().encode(pass);
+  var buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+function addUser() {
+  var name = document.getElementById('new-user-name').value.trim();
+  var username = document.getElementById('new-user-username').value.trim();
+  var email = document.getElementById('new-user-email').value.trim();
+  var password = document.getElementById('new-user-password').value;
+  var role = document.getElementById('new-user-role').value;
+  var isAdmin = document.getElementById('new-user-isadmin').checked;
+  if (!name || !username || !password) { mobileApp.showToast('Name, username & password required'); return; }
+  var users = getUsers();
+  if (users.some(function(u) { return u.username === username; })) { mobileApp.showToast('Username already exists'); return; }
+  hashPass(password).then(function(hash) {
+    users.push({ username: username, name: name, email: email, password: hash, role: role, isAdmin: isAdmin });
+    localStorage.setItem('welcome_' + username, 'true');
+    saveUsers(users);
+    var syncEmail = email || (username + '@app.local');
+    if (typeof supabaseClient !== 'undefined') {
+      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function(err) {
+        if (err) console.error('Supabase account error:', err);
+      });
+    }
+    mobileApp.closeModal('add-user-modal');
+    document.getElementById('new-user-name').value = '';
+    document.getElementById('new-user-username').value = '';
+    document.getElementById('new-user-email').value = '';
+    document.getElementById('new-user-password').value = '';
+    document.getElementById('new-user-isadmin').checked = false;
+    mobileApp.showToast('User ' + username + ' created');
+    renderUsers();
+    renderDashboard();
+    populateUserFilters();
+  });
+}
+
+function fabAction() {
+  var view = mobileApp.currentView;
+  if (view === 'users') {
+    mobileApp.openModal('add-user-modal');
+  } else {
+    mobileApp.showToast('Admin: Use Users tab to add users');
+  }
+}
+
+mobileApp.onReady = function() {
+  var session = fbGetSession();
+  if (!session) { window.location.href = '../login/'; return; }
+  var profile = getFB('profile');
+  if (!profile || !profile.isAdmin) {
+    if (session.isAdmin) {
+      var initial = (session.name || session.username || '?')[0].toUpperCase();
+      document.getElementById('user-avatar').textContent = initial;
+    } else {
+      window.location.href = './';
+      return;
+    }
+  }
+  populateUserFilters();
+  renderDashboard();
+};
+
+mobileApp.onViewChange = function(view) {
+  var fab = document.getElementById('fab-icon');
+  if (view === 'users') {
+    fab.textContent = 'person_add';
+  } else {
+    fab.textContent = 'add';
+  }
+};
+
+mobileApp.init();
+</script>
+</body>
+</html>

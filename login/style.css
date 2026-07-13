@@ -1,0 +1,103 @@
+/* style.css – Premium Login UI */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+:root {
+  /* Teal‑Blue gradient */
+  --gradient-start: #4fd1c5; /* soft teal */
+  --gradient-end: #3b82f6;   /* deep blue */
+  --card-bg: rgba(255, 255, 255, 0.12); /* glass effect */
+  --card-blur: 12px;
+  --transition: 0.2s ease;
+  --primary: #0d9488; /* accent */
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  background-attachment: fixed;
+  color: var(--on-surface);
+  overflow: hidden;
+}
+
+/* Dark mode uses existing Tailwind variables – keep it untouched */
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.logo {
+  width: 96px;
+  height: auto;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.bg-surface-container-lowest\/90 {
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--card-blur));
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  transition: var(--transition);
+}
+
+/* Buttons */
+button,
+input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Primary button */
+button.bg-primary {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+/* Tab switches */
+#tabLogin,
+#tabRegister {
+  flex: 1;
+  padding: 0.6rem 0;
+  font-weight: 500;
+  border-radius: 0.5rem;
+}
+
+/* Input fields */
+input.w-full {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+input.w-full::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 0 1rem;
+  }
+  .bg-surface-container-lowest\/90 {
+    padding: 1.5rem;
+  }
+}

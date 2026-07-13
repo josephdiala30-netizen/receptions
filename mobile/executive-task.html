@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html class="h-full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Executive Task</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config={theme:{extend:{colors:{brand:'#6366f1','brand-dark':'#4f46e5'}}}}
+</script>
+<link rel="stylesheet" href="styles/mobile.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#6366f1">
+<style>
+.section-title { padding: 0; }
+.planner-progress { height: 6px; border-radius: 3px; background: #f1f5f9; overflow: hidden; }
+.planner-progress-bar { height: 100%; border-radius: 3px; transition: width 0.5s; }
+.kanban-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+.kanban-col { min-width: 280px; scroll-snap-align: start; }
+.board-card { transition: all 0.15s; }
+.board-card:active { transform: scale(0.97); }
+.status-todo { border-left: 3px solid #6366f1; }
+.status-progress { border-left: 3px solid #f59e0b; }
+.status-done { border-left: 3px solid #22c55e; }
+.group-date { font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; padding: 16px 0 8px; }
+.dark-mode .group-date { color: #64748b; }
+.dark-mode .planner-progress { background: #1e293b; }
+.notes-textarea { min-height: calc(100vh - 280px); }
+.dark-mode .notes-textarea { background: #1e293b; color: #e2e8f0; border-color: #334155; }
+.dark-mode .notes-textarea:focus { border-color: #818cf8; }
+</style>
+</head>
+<body class="h-full bg-slate-50 flex flex-col">
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="mobile-header sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+      <span class="material-symbols-outlined text-white text-lg">checklist</span>
+    </div>
+    <div>
+      <h1 class="text-base font-extrabold text-slate-900 leading-tight">Executive Task</h1>
+      <p class="text-[10px] text-slate-500 leading-tight">Task Management Portal</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <button id="install-btn" onclick="installApp()" style="display:none" class="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100" title="Install App">
+      <span class="material-symbols-outlined">download</span>
+    </button>
+    <button onclick="mobileApp.toggleTheme()" class="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100">
+      <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+    </button>
+    <div class="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm font-bold" id="user-avatar">?</div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto pb-safe" id="main-content">
+
+<!-- ========== DASHBOARD ========== -->
+<section id="view-dashboard" class="view-section p-4">
+<div class="fade-in">
+  <div class="mb-4">
+    <h2 class="text-xl font-bold text-slate-900" id="dash-greeting">Welcome back!</h2>
+    <p class="text-xs text-slate-500">Here&apos;s your task overview</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mb-5">
+    <div class="stat-card">
+      <div class="icon bg-indigo-100 text-indigo-600"><span class="material-symbols-outlined">checklist</span></div>
+      <div class="value" id="dash-total">0</div>
+      <div class="label">Total Tasks</div>
+    </div>
+    <div class="stat-card">
+      <div class="icon bg-emerald-100 text-emerald-600"><span class="material-symbols-outlined">check_circle</span></div>
+      <div class="value" id="dash-done">0</div>
+      <div class="label">Completed</div>
+    </div>
+    <div class="stat-card">
+      <div class="icon bg-amber-100 text-amber-600"><span class="material-symbols-outlined">schedule</span></div>
+      <div class="value" id="dash-pending">0</div>
+      <div class="label">Pending</div>
+    </div>
+    <div class="stat-card">
+      <div class="icon bg-blue-100 text-blue-600"><span class="material-symbols-outlined">hourglass_top</span></div>
+      <div class="value" id="dash-progress">0</div>
+      <div class="label">In Progress</div>
+    </div>
+  </div>
+
+  <div class="mobile-card mb-4">
+    <div class="mobile-card-header">
+      <h3 class="text-sm font-bold text-slate-900">Recent Tasks</h3>
+      <button class="text-xs text-indigo-600 font-semibold" onclick="mobileApp.switchView('tasks')">See All</button>
+    </div>
+    <div id="dash-recent-tasks"></div>
+  </div>
+
+  <div class="mobile-card">
+    <div class="mobile-card-header">
+      <h3 class="text-sm font-bold text-slate-900">Upcoming Deadlines</h3>
+    </div>
+    <div id="dash-deadlines"></div>
+  </div>
+</div>
+</section>
+
+<!-- ========== ALL TASKS ========== -->
+<section id="view-tasks" class="view-section p-4 hidden">
+
+<div class="flex items-center gap-3 mb-4">
+  <div class="search-bar flex-1">
+    <span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+    <input id="task-search" type="text" placeholder="Search tasks..." oninput="renderTaskList()">
+  </div>
+  <select id="task-filter-status" class="form-input w-auto text-xs py-2 px-2" onchange="renderTaskList()">
+    <option value="all">All</option>
+    <option value="todo">To Do</option>
+    <option value="progress">Progress</option>
+    <option value="done">Done</option>
+  </select>
+</div>
+
+<div id="tasks-list"></div>
+</section>
+
+<!-- ========== BOARD ========== -->
+<section id="view-board" class="view-section hidden">
+
+<div class="p-4 pb-2">
+  <h2 class="text-lg font-bold text-slate-900">Board</h2>
+  <p class="text-xs text-slate-500">Kanban task board</p>
+</div>
+
+<div class="kanban-scroll px-4 pb-4 flex gap-4" id="board-container">
+  <div class="kanban-col flex-1 min-w-[280px]">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="w-3 h-3 rounded-full bg-indigo-400"></span>
+      <span class="text-sm font-bold text-slate-700">To Do</span>
+      <span class="text-xs text-slate-400 ml-auto font-semibold" id="board-count-todo">0</span>
+    </div>
+    <div class="space-y-2 min-h-[200px]" id="board-todo"></div>
+  </div>
+  <div class="kanban-col flex-1 min-w-[280px]">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+      <span class="text-sm font-bold text-slate-700">In Progress</span>
+      <span class="text-xs text-slate-400 ml-auto font-semibold" id="board-count-progress">0</span>
+    </div>
+    <div class="space-y-2 min-h-[200px]" id="board-progress"></div>
+  </div>
+  <div class="kanban-col flex-1 min-w-[280px]">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+      <span class="text-sm font-bold text-slate-700">Done</span>
+      <span class="text-xs text-slate-400 ml-auto font-semibold" id="board-count-done">0</span>
+    </div>
+    <div class="space-y-2 min-h-[200px]" id="board-done"></div>
+  </div>
+</div>
+</section>
+
+<!-- ========== PLANNER ========== -->
+<section id="view-planner" class="view-section hidden">
+
+<div class="p-4 pb-2">
+  <h2 class="text-lg font-bold text-slate-900">Planner</h2>
+  <p class="text-xs text-slate-500">Plans &amp; milestones</p>
+</div>
+
+<div id="planner-list" class="px-4 pb-4 space-y-3"></div>
+</section>
+
+<!-- ========== DAILY LOG ========== -->
+<section id="view-dailylog" class="view-section hidden">
+
+<div class="p-4 pb-2">
+  <h2 class="text-lg font-bold text-slate-900">Daily Log</h2>
+  <p class="text-xs text-slate-500">Track daily accomplishments</p>
+</div>
+
+<div id="dailylog-list" class="px-4 pb-4"></div>
+</section>
+
+<!-- ========== NOTES ========== -->
+<section id="view-notes" class="view-section hidden">
+
+<div class="p-4 pb-2">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-lg font-bold text-slate-900">Notes</h2>
+      <p class="text-xs text-slate-500">Scratchpad for quick notes</p>
+    </div>
+    <button class="p-2 text-red-500 hover:bg-red-50 rounded-lg text-xs font-semibold" onclick="clearNotes()">Clear</button>
+  </div>
+</div>
+
+<div class="px-4 pb-4">
+  <textarea id="notes-textarea" class="notes-textarea w-full form-input" placeholder="Write your notes here..." style="min-height:calc(100vh - 280px)"></textarea>
+</div>
+</section>
+
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav flex items-center justify-around px-2 flex-shrink-0">
+  <div class="bottom-nav-item active" data-view="dashboard" onclick="mobileApp.switchView('dashboard')">
+    <span class="material-symbols-outlined nav-icon">dashboard</span>
+    <span class="nav-label">Dash</span>
+  </div>
+  <div class="bottom-nav-item" data-view="tasks" onclick="mobileApp.switchView('tasks')">
+    <span class="material-symbols-outlined nav-icon">checklist</span>
+    <span class="nav-label">Tasks</span>
+  </div>
+  <div class="fab flex items-center justify-center" onclick="fabAction()">
+    <span class="material-symbols-outlined text-white text-2xl">add</span>
+  </div>
+  <div class="bottom-nav-item" data-view="planner" onclick="mobileApp.switchView('planner')">
+    <span class="material-symbols-outlined nav-icon">map</span>
+    <span class="nav-label">Planner</span>
+  </div>
+  <div class="bottom-nav-item" data-view="more" onclick="mobileApp.toggleMoreMenu()">
+    <span class="material-symbols-outlined nav-icon">more_horiz</span>
+    <span class="nav-label">More</span>
+  </div>
+</nav>
+
+<!-- More Menu -->
+<div id="more-menu" class="menu-overlay" onclick="mobileApp.closeMoreMenu()">
+  <div class="menu-panel" onclick="event.stopPropagation()">
+    <div class="grid grid-cols-3 gap-2">
+      <div class="menu-grid-item" onclick="mobileApp.switchView('board'); mobileApp.closeMoreMenu()">
+        <div class="icon-wrap bg-blue-100 text-blue-600"><span class="material-symbols-outlined">view_column</span></div>
+        <span>Board</span>
+      </div>
+      <div class="menu-grid-item" onclick="mobileApp.switchView('dailylog'); mobileApp.closeMoreMenu()">
+        <div class="icon-wrap bg-amber-100 text-amber-600"><span class="material-symbols-outlined">edit_note</span></div>
+        <span>Daily Log</span>
+      </div>
+      <div class="menu-grid-item" onclick="mobileApp.switchView('notes'); mobileApp.closeMoreMenu()">
+        <div class="icon-wrap bg-purple-100 text-purple-600"><span class="material-symbols-outlined">sticky_note_2</span></div>
+        <span>Notes</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TASK MODAL (Bottom Sheet) ========== -->
+<div id="task-modal" class="modal-overlay" onclick="closeTaskModal()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-slate-900" id="task-modal-title">New Task</h3>
+      <button class="p-1 text-slate-400" onclick="closeTaskModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <input type="hidden" id="task-edit-id">
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input id="task-form-title" class="form-input" placeholder="Enter task title">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea id="task-form-desc" class="form-input" placeholder="Enter description" rows="3"></textarea>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select id="task-form-status" class="form-input">
+          <option value="todo">To Do</option>
+          <option value="progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select id="task-form-priority" class="form-input">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <input id="task-form-category" class="form-input" placeholder="e.g. Development, Design">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Due Date</label>
+      <input id="task-form-due" class="form-input" type="date">
+    </div>
+    <div class="flex gap-3">
+      <button class="btn-primary" onclick="saveTask()">Save</button>
+      <button class="btn-secondary" onclick="closeTaskModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TASK DETAIL MODAL ========== -->
+<div id="task-detail-modal" class="modal-overlay" onclick="closeTaskDetail()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-slate-900" id="detail-task-title">Task</h3>
+      <button class="p-1 text-slate-400" onclick="closeTaskDetail()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="detail-task-body" class="space-y-3"></div>
+  </div>
+</div>
+
+<!-- ========== PLAN MODAL ========== -->
+<div id="plan-modal" class="modal-overlay" onclick="closePlanModal()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-slate-900" id="plan-modal-title">New Plan</h3>
+      <button class="p-1 text-slate-400" onclick="closePlanModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <input type="hidden" id="plan-edit-id">
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input id="plan-form-title" class="form-input" placeholder="Enter plan title">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea id="plan-form-desc" class="form-input" placeholder="Enter description" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select id="plan-form-status" class="form-input">
+        <option value="not_started">Not Started</option>
+        <option value="active">Active</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <input id="plan-form-start" class="form-input" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input id="plan-form-end" class="form-input" type="date">
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <button class="btn-primary" onclick="savePlan()">Save</button>
+      <button class="btn-secondary" onclick="closePlanModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PLAN DETAIL MODAL ========== -->
+<div id="plan-detail-modal" class="modal-overlay" onclick="closePlanDetail()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-slate-900" id="detail-plan-title">Plan</h3>
+      <button class="p-1 text-slate-400" onclick="closePlanDetail()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="detail-plan-body" class="space-y-3"></div>
+  </div>
+</div>
+
+<!-- ========== LOG MODAL ========== -->
+<div id="log-modal" class="modal-overlay" onclick="closeLogModal()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-slate-900" id="log-modal-title">New Log Entry</h3>
+      <button class="p-1 text-slate-400" onclick="closeLogModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <input type="hidden" id="log-edit-id">
+    <div class="form-group">
+      <label class="form-label">Date *</label>
+      <input id="log-form-date" class="form-input" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category *</label>
+      <select id="log-form-category" class="form-input">
+        <option value="Development">Development</option>
+        <option value="Technical Support">Technical Support</option>
+        <option value="Uploading/Encoding">Uploading/Encoding</option>
+        <option value="Meeting">Meeting</option>
+        <option value="Testing">Testing</option>
+        <option value="Documentation">Documentation</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input id="log-form-title" class="form-input" placeholder="Enter title">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description *</label>
+      <textarea id="log-form-desc" class="form-input" placeholder="Enter description" rows="3"></textarea>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="form-group">
+        <label class="form-label">Time Spent</label>
+        <input id="log-form-time" class="form-input" placeholder="e.g. 2 hrs">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select id="log-form-status" class="form-input">
+          <option value="pending">Pending</option>
+          <option value="in-progress">In Progress</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <button class="btn-primary" onclick="saveLogEntry()">Save</button>
+      <button class="btn-secondary" onclick="closeLogModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DELETE CONFIRM ========== -->
+<div id="confirm-modal" class="modal-overlay" onclick="closeConfirm()">
+  <div class="modal-content max-w-sm" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="text-center py-4">
+      <span class="material-symbols-outlined text-4xl text-red-400 mb-3">warning</span>
+      <h3 class="text-lg font-bold text-slate-900 mb-2">Confirm Delete</h3>
+      <p class="text-sm text-slate-500 mb-4" id="confirm-msg">Are you sure?</p>
+      <div class="flex gap-3">
+        <button class="btn-danger" id="confirm-btn" onclick="confirmDelete()">Delete</button>
+        <button class="btn-secondary" onclick="closeConfirm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
+<script src="js/mobile.js"></script>
+<script>
+// ==================== STATE ====================
+var currentView = 'dashboard';
+var deleteCallback = null;
+var editingTaskId = null;
+var editingPlanId = null;
+var editingLogId = null;
+
+// ==================== HELPERS ====================
+function getTasks() {
+  var cached = getFB('tasks');
+  return cached && Array.isArray(cached) ? cached : [];
+}
+
+function saveTasks(t) {
+  saveFB('tasks', t);
+}
+
+function getPlans() {
+  var cached = getFB('plans');
+  return cached && Array.isArray(cached) ? cached : [];
+}
+
+function savePlans(p) {
+  saveFB('plans', p);
+}
+
+function getLogEntries() {
+  var cached = getFB('dailylog');
+  return cached && Array.isArray(cached) ? cached : [];
+}
+
+function saveLogEntries(entries) {
+  saveFB('dailylog', entries);
+}
+
+function getUsername() {
+  return (mobileApp.session && mobileApp.session.username) || '';
+}
+
+function notesKey() {
+  return 'notes_' + getUsername();
+}
+
+function priorityClass(p) {
+  return 'priority-badge ' + (mobileApp.getPriorityColor ? mobileApp.getPriorityColor(p) : 'low');
+}
+
+function formatDate(d) {
+  return mobileApp.formatDate(d);
+}
+
+// ==================== FAB ACTION ====================
+function fabAction() {
+  var v = mobileApp.currentView;
+  if (v === 'tasks') {
+    openTaskModal();
+  } else if (v === 'planner') {
+    openPlanModal();
+  } else if (v === 'dailylog') {
+    openLogModal();
+  } else if (v === 'dashboard' || v === 'board') {
+    openTaskModal();
+  } else {
+    mobileApp.showToast('Switch to Tasks, Planner, or Daily Log to add');
+  }
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  var tasks = getTasks();
+  var name = (mobileApp.session && mobileApp.session.name) || 'User';
+  document.getElementById('dash-greeting').textContent = 'Welcome back, ' + name.split(' ')[0] + '!';
+
+  var todo = tasks.filter(function(t) { return t.status === 'todo'; });
+  var progress = tasks.filter(function(t) { return t.status === 'progress'; });
+  var done = tasks.filter(function(t) { return t.status === 'done'; });
+
+  document.getElementById('dash-total').textContent = tasks.length;
+  document.getElementById('dash-done').textContent = done.length;
+  document.getElementById('dash-pending').textContent = todo.length;
+  document.getElementById('dash-progress').textContent = progress.length;
+
+  var recentEl = document.getElementById('dash-recent-tasks');
+  if (tasks.length === 0) {
+    recentEl.innerHTML = '<div class="empty-state py-6"><span class="material-symbols-outlined text-3xl">task</span><p>No tasks yet</p></div>';
+  } else {
+    var sorted = tasks.slice().sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; });
+    recentEl.innerHTML = sorted.slice(0, 5).map(function(t) {
+      return taskListItem(t);
+    }).join('');
+  }
+
+  var deadlineEl = document.getElementById('dash-deadlines');
+  var now = new Date();
+  var todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+  var upcoming = tasks.filter(function(t) {
+    return t.dueDate && t.dueDate >= todayStr && t.status !== 'done';
+  }).sort(function(a, b) { return a.dueDate > b.dueDate ? 1 : -1; });
+
+  if (upcoming.length === 0) {
+    deadlineEl.innerHTML = '<div class="empty-state py-6"><span class="material-symbols-outlined text-3xl">event</span><p>No upcoming deadlines</p></div>';
+  } else {
+    deadlineEl.innerHTML = upcoming.slice(0, 5).map(function(t) {
+      var diff = Math.ceil((new Date(t.dueDate + 'T00:00:00') - now) / (1000 * 60 * 60 * 24));
+      var label = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : diff + 'd left';
+      return '<div class="list-item cursor-pointer" onclick="openTaskDetail(' + t.id + ')">' +
+        '<span class="material-symbols-outlined text-slate-400">schedule</span>' +
+        '<div class="flex-1 min-w-0">' +
+        '<p class="text-sm font-medium text-slate-900 truncate">' + mobileApp.escapeHtml(t.title) + '</p>' +
+        '<p class="text-xs text-slate-500">' + formatDate(t.dueDate) + '</p>' +
+        '</div>' +
+        '<span class="text-xs font-semibold ' + (diff <= 1 ? 'text-red-500' : 'text-amber-500') + '">' + label + '</span>' +
+        '</div>';
+    }).join('');
+  }
+}
+
+function taskListItem(t) {
+  var statusIcons = { todo: 'radio_button_unchecked', progress: 'hourglass_top', done: 'check_circle' };
+  var statusColors = { todo: 'text-indigo-400', progress: 'text-amber-400', done: 'text-emerald-400' };
+  return '<div class="list-item cursor-pointer" onclick="openTaskDetail(' + t.id + ')">' +
+    '<span class="material-symbols-outlined ' + (statusColors[t.status] || 'text-slate-400') + '">' + (statusIcons[t.status] || 'radio_button_unchecked') + '</span>' +
+    '<div class="flex-1 min-w-0">' +
+    '<p class="text-sm font-medium text-slate-900 truncate">' + mobileApp.escapeHtml(t.title) + '</p>' +
+    '<div class="flex items-center gap-2 mt-0.5">' +
+    '<span class="' + priorityClass(t.priority) + '">' + (t.priority || 'low') + '</span>' +
+    (t.dueDate ? '<span class="text-xs text-slate-400">' + formatDate(t.dueDate) + '</span>' : '') +
+    '</div></div>' +
+    '<div class="flex items-center gap-1">' +
+    '<button class="p-1 text-slate-400 hover:text-indigo-600" onclick="event.stopPropagation();openTaskModal(' + t.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+    '<button class="p-1 text-slate-400 hover:text-red-500" onclick="event.stopPropagation();promptDelete(\'task\',' + t.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+    '</div></div>';
+}
+
+// ==================== TASKS ====================
+function renderTaskList() {
+  var tasks = getTasks();
+  var q = (document.getElementById('task-search').value || '').toLowerCase();
+  var filterStatus = document.getElementById('task-filter-status').value;
+
+  var filtered = tasks.filter(function(t) {
+    if (filterStatus !== 'all' && t.status !== filterStatus) return false;
+    if (q && (t.title || '').toLowerCase().indexOf(q) === -1 && (t.description || '').toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+
+  var container = document.getElementById('tasks-list');
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-state py-12"><span class="material-symbols-outlined text-4xl">search_off</span><p>No tasks found</p></div>';
+    return;
+  }
+
+  var groups = { todo: [], progress: [], done: [] };
+  filtered.forEach(function(t) {
+    if (groups[t.status]) groups[t.status].push(t);
+  });
+
+  var statusLabels = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
+  var statusColors = { todo: 'text-indigo-500', progress: 'text-amber-500', done: 'text-emerald-500' };
+  var html = '';
+  ['todo', 'progress', 'done'].forEach(function(s) {
+    if (groups[s].length === 0) return;
+    html += '<div class="group-date">' + statusLabels[s] + ' <span class="text-xs font-normal text-slate-400">(' + groups[s].length + ')</span></div>';
+    groups[s].sort(function(a, b) { return (b.createdAt || '') > (a.createdAt || '') ? 1 : -1; }).forEach(function(t) {
+      html += taskListItem(t);
+    });
+  });
+  container.innerHTML = html;
+}
+
+// ==================== TASK MODAL ====================
+function openTaskModal(id) {
+  editingTaskId = id || null;
+  var tasks = getTasks();
+  var t = id ? tasks.find(function(x) { return x.id === id; }) : null;
+
+  document.getElementById('task-modal-title').textContent = t ? 'Edit Task' : 'New Task';
+  document.getElementById('task-edit-id').value = t ? t.id : '';
+  document.getElementById('task-form-title').value = t ? (t.title || '') : '';
+  document.getElementById('task-form-desc').value = t ? (t.description || '') : '';
+  document.getElementById('task-form-status').value = t ? (t.status || 'todo') : 'todo';
+  document.getElementById('task-form-priority').value = t ? (t.priority || 'medium') : 'medium';
+  document.getElementById('task-form-category').value = t ? (t.category || '') : '';
+  document.getElementById('task-form-due').value = t ? (t.dueDate || '') : '';
+
+  mobileApp.openModal('task-modal');
+}
+
+function closeTaskModal() {
+  mobileApp.closeModal('task-modal');
+}
+
+function saveTask() {
+  var title = document.getElementById('task-form-title').value.trim();
+  if (!title) { mobileApp.showToast('Please enter a title'); return; }
+
+  var tasks = getTasks();
+  var now = new Date().toISOString();
+  var editId = parseInt(document.getElementById('task-edit-id').value);
+
+  if (editId) {
+    var t = tasks.find(function(x) { return x.id === editId; });
+    if (t) {
+      t.title = title;
+      t.description = document.getElementById('task-form-desc').value.trim();
+      t.status = document.getElementById('task-form-status').value;
+      t.priority = document.getElementById('task-form-priority').value;
+      t.category = document.getElementById('task-form-category').value.trim();
+      t.dueDate = document.getElementById('task-form-due').value;
+      t.updatedAt = now;
+    }
+  } else {
+    tasks.push({
+      id: mobileApp.genId(),
+      title: title,
+      description: document.getElementById('task-form-desc').value.trim(),
+      status: document.getElementById('task-form-status').value,
+      priority: document.getElementById('task-form-priority').value,
+      category: document.getElementById('task-form-category').value.trim(),
+      dueDate: document.getElementById('task-form-due').value,
+      assignedTo: '',
+      subtasks: [],
+      createdAt: now,
+      updatedAt: now
+    });
+  }
+
+  saveTasks(tasks);
+  closeTaskModal();
+  refreshView();
+  mobileApp.showToast(editId ? 'Task updated' : 'Task created');
+}
+
+// ==================== TASK DETAIL ====================
+function openTaskDetail(id) {
+  var tasks = getTasks();
+  var t = tasks.find(function(x) { return x.id === id; });
+  if (!t) return;
+
+  document.getElementById('detail-task-title').textContent = t.title || 'Untitled';
+
+  var statusLabels = { todo: 'To Do', progress: 'In Progress', done: 'Done' };
+  var statusColors = { todo: 'bg-indigo-100 text-indigo-700', progress: 'bg-amber-100 text-amber-700', done: 'bg-emerald-100 text-emerald-700' };
+  var body = document.getElementById('detail-task-body');
+
+  body.innerHTML =
+    '<div class="flex items-center gap-2 flex-wrap">' +
+    '<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ' + (statusColors[t.status] || 'bg-slate-100 text-slate-600') + '">' + (statusLabels[t.status] || t.status) + '</span>' +
+    '<span class="' + priorityClass(t.priority) + '">' + (t.priority || 'low') + '</span>' +
+    '</div>' +
+    (t.description ? '<p class="text-sm text-slate-600">' + mobileApp.escapeHtml(t.description) + '</p>' : '') +
+    (t.category ? '<div class="flex items-center gap-2 text-xs text-slate-500"><span class="material-symbols-outlined text-sm">folder</span> ' + mobileApp.escapeHtml(t.category) + '</div>' : '') +
+    (t.dueDate ? '<div class="flex items-center gap-2 text-xs text-slate-500"><span class="material-symbols-outlined text-sm">calendar_today</span> Due: ' + formatDate(t.dueDate) + '</div>' : '') +
+    (t.createdAt ? '<div class="flex items-center gap-2 text-xs text-slate-400"><span class="material-symbols-outlined text-sm">schedule</span> Created ' + formatDate(t.createdAt) + '</div>' : '') +
+    '<div class="flex gap-2 pt-2">' +
+    (t.status !== 'done' ? '<button class="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-emerald-500 text-white" onclick="setTaskStatus(' + t.id + ',\'done\');closeTaskDetail()">Mark Done</button>' : '') +
+    (t.status === 'todo' ? '<button class="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-blue-500 text-white" onclick="setTaskStatus(' + t.id + ',\'progress\');closeTaskDetail()">Start</button>' : '') +
+    '<button class="flex-1 py-2.5 rounded-lg text-sm font-semibold border border-slate-200 text-slate-600" onclick="closeTaskDetail();openTaskModal(' + t.id + ')">Edit</button>' +
+    '<button class="py-2.5 px-3 rounded-lg text-sm font-semibold text-red-500" onclick="closeTaskDetail();promptDelete(\'task\',' + t.id + ')"><span class="material-symbols-outlined">delete</span></button>' +
+    '</div>';
+
+  mobileApp.openModal('task-detail-modal');
+}
+
+function closeTaskDetail() {
+  mobileApp.closeModal('task-detail-modal');
+}
+
+function setTaskStatus(id, status) {
+  var tasks = getTasks();
+  var t = tasks.find(function(x) { return x.id === id; });
+  if (!t) return;
+  t.status = status;
+  t.updatedAt = new Date().toISOString();
+  saveTasks(tasks);
+  refreshView();
+  mobileApp.showToast('Task updated');
+}
+
+// ==================== BOARD ====================
+function renderBoard() {
+  var tasks = getTasks();
+  var columns = { todo: [], progress: [], done: [] };
+  tasks.forEach(function(t) {
+    if (columns[t.status]) columns[t.status].push(t);
+  });
+
+  document.getElementById('board-count-todo').textContent = columns.todo.length;
+  document.getElementById('board-count-progress').textContent = columns.progress.length;
+  document.getElementById('board-count-done').textContent = columns.done.length;
+
+  ['todo', 'progress', 'done'].forEach(function(status) {
+    var el = document.getElementById('board-' + status);
+    var items = columns[status].slice().sort(function(a, b) { return (b.updatedAt || b.createdAt || '') > (a.updatedAt || a.createdAt || '') ? 1 : -1; });
+    if (items.length === 0) {
+      el.innerHTML = '<div class="empty-state py-8"><span class="material-symbols-outlined text-2xl">inbox</span><p>No tasks</p></div>';
+      return;
+    }
+    el.innerHTML = items.map(function(t) {
+      return '<div class="board-card mobile-card status-' + t.status + ' cursor-pointer" onclick="openTaskDetail(' + t.id + ')">' +
+        '<div class="flex items-start justify-between gap-2">' +
+        '<p class="text-sm font-semibold text-slate-900 truncate">' + mobileApp.escapeHtml(t.title) + '</p>' +
+        '<span class="' + priorityClass(t.priority) + ' text-xs whitespace-nowrap">' + (t.priority || 'low') + '</span>' +
+        '</div>' +
+        (t.description ? '<p class="text-xs text-slate-500 mt-1 line-clamp-2">' + mobileApp.escapeHtml(t.description) + '</p>' : '') +
+        (t.dueDate ? '<p class="text-xs text-slate-400 mt-1">' + formatDate(t.dueDate) + '</p>' : '') +
+        '</div>';
+    }).join('');
+  });
+}
+
+// ==================== PLANNER ====================
+function renderPlanner() {
+  var plans = getPlans();
+  var container = document.getElementById('planner-list');
+
+  if (plans.length === 0) {
+    container.innerHTML = '<div class="empty-state py-12"><span class="material-symbols-outlined text-4xl">map</span><p>No plans yet</p><p class="text-xs text-slate-400 mt-2">Tap + to create a plan</p></div>';
+    return;
+  }
+
+  var sorted = plans.slice().sort(function(a, b) { return (b.updatedAt || '') > (a.updatedAt || '') ? 1 : -1; });
+  container.innerHTML = sorted.map(function(p) {
+    var milestones = p.milestones || [];
+    var total = milestones.length;
+    var done = milestones.filter(function(m) { return m.status === 'completed'; }).length;
+    var pct = total > 0 ? Math.round(done / total * 100) : 0;
+
+    var statusColors = { not_started: 'bg-slate-100 text-slate-600', active: 'bg-blue-100 text-blue-700', completed: 'bg-emerald-100 text-emerald-700' };
+    var statusLabels = { not_started: 'Not Started', active: 'Active', completed: 'Completed' };
+
+    return '<div class="mobile-card cursor-pointer" onclick="openPlanDetail(' + p.id + ')">' +
+      '<div class="flex items-start justify-between gap-2 mb-2">' +
+      '<div class="flex-1 min-w-0">' +
+      '<h4 class="text-sm font-bold text-slate-900 truncate">' + mobileApp.escapeHtml(p.title) + '</h4>' +
+      (p.description ? '<p class="text-xs text-slate-500 mt-0.5 line-clamp-2">' + mobileApp.escapeHtml(p.description) + '</p>' : '') +
+      '</div>' +
+      '<span class="text-xs font-semibold px-2 py-0.5 rounded-full ' + (statusColors[p.status] || statusColors.not_started) + ' whitespace-nowrap">' + (statusLabels[p.status] || p.status) + '</span>' +
+      '</div>' +
+      '<div class="flex items-center justify-between text-xs text-slate-500 mb-1">' +
+      '<span>' + done + '/' + total + ' milestones</span>' +
+      '<span>' + pct + '%</span>' +
+      '</div>' +
+      '<div class="planner-progress"><div class="planner-progress-bar ' + (pct === 100 ? 'bg-emerald-500' : 'bg-indigo-500') + '" style="width:' + pct + '%"></div></div>' +
+      (p.startDate ? '<p class="text-xs text-slate-400 mt-2">' + p.startDate + (p.endDate ? ' &rarr; ' + p.endDate : '') + '</p>' : '') +
+      '</div>';
+  }).join('');
+}
+
+// ==================== PLAN MODAL ====================
+function openPlanModal(id) {
+  editingPlanId = id || null;
+  var plans = getPlans();
+  var p = id ? plans.find(function(x) { return x.id === id; }) : null;
+
+  document.getElementById('plan-modal-title').textContent = p ? 'Edit Plan' : 'New Plan';
+  document.getElementById('plan-edit-id').value = p ? p.id : '';
+  document.getElementById('plan-form-title').value = p ? (p.title || '') : '';
+  document.getElementById('plan-form-desc').value = p ? (p.description || '') : '';
+  document.getElementById('plan-form-status').value = p ? (p.status || 'not_started') : 'not_started';
+  document.getElementById('plan-form-start').value = p ? (p.startDate || '') : '';
+  document.getElementById('plan-form-end').value = p ? (p.endDate || '') : '';
+
+  mobileApp.openModal('plan-modal');
+}
+
+function closePlanModal() {
+  mobileApp.closeModal('plan-modal');
+}
+
+function savePlan() {
+  var title = document.getElementById('plan-form-title').value.trim();
+  if (!title) { mobileApp.showToast('Please enter a title'); return; }
+
+  var plans = getPlans();
+  var now = new Date().toISOString();
+  var editId = parseInt(document.getElementById('plan-edit-id').value);
+
+  if (editId) {
+    var p = plans.find(function(x) { return x.id === editId; });
+    if (p) {
+      p.title = title;
+      p.description = document.getElementById('plan-form-desc').value.trim();
+      p.status = document.getElementById('plan-form-status').value;
+      p.startDate = document.getElementById('plan-form-start').value;
+      p.endDate = document.getElementById('plan-form-end').value;
+      p.updatedAt = now;
+    }
+  } else {
+    plans.push({
+      id: mobileApp.genId(),
+      title: title,
+      description: document.getElementById('plan-form-desc').value.trim(),
+      status: document.getElementById('plan-form-status').value,
+      startDate: document.getElementById('plan-form-start').value,
+      endDate: document.getElementById('plan-form-end').value,
+      milestones: [],
+      createdAt: now,
+      updatedAt: now
+    });
+  }
+
+  savePlans(plans);
+  closePlanModal();
+  refreshView();
+  mobileApp.showToast(editId ? 'Plan updated' : 'Plan created');
+}
+
+// ==================== PLAN DETAIL ====================
+function openPlanDetail(id) {
+  var plans = getPlans();
+  var p = plans.find(function(x) { return x.id === id; });
+  if (!p) return;
+
+  document.getElementById('detail-plan-title').textContent = p.title || 'Untitled Plan';
+
+  var milestones = p.milestones || [];
+  var total = milestones.length;
+  var done = milestones.filter(function(m) { return m.status === 'completed'; }).length;
+  var pct = total > 0 ? Math.round(done / total * 100) : 0;
+
+  var statusColors = { not_started: 'bg-slate-100 text-slate-600', active: 'bg-blue-100 text-blue-700', completed: 'bg-emerald-100 text-emerald-700' };
+  var statusLabels = { not_started: 'Not Started', active: 'Active', completed: 'Completed' };
+
+  var body = document.getElementById('detail-plan-body');
+  var msHtml = milestones.length === 0 ? '<p class="text-xs text-slate-400 text-center py-4">No milestones yet</p>' :
+    milestones.map(function(m) {
+      var isDone = m.status === 'completed';
+      return '<div class="flex items-center gap-3 py-2 border-b border-slate-100 last:border-0">' +
+        '<span class="material-symbols-outlined ' + (isDone ? 'text-emerald-500' : 'text-slate-300') + ' cursor-pointer" onclick="toggleMilestone(' + p.id + ',' + m.id + ')">' + (isDone ? 'check_circle' : 'radio_button_unchecked') + '</span>' +
+        '<div class="flex-1 min-w-0">' +
+        '<p class="text-sm ' + (isDone ? 'line-through text-slate-400' : 'text-slate-900') + '">' + mobileApp.escapeHtml(m.title) + '</p>' +
+        (m.dueDate ? '<p class="text-xs text-slate-400">' + m.dueDate + '</p>' : '') +
+        '</div>' +
+        '<button class="p-1 text-slate-400 hover:text-red-500" onclick="event.stopPropagation();deleteMilestone(' + p.id + ',' + m.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+        '</div>';
+    }).join('');
+
+  var msInput = '<div class="flex items-center gap-2 pt-2"><input id="ms-input" class="form-input flex-1 text-sm" placeholder="Add milestone..." onkeydown="if(event.key===\'Enter\')addMilestone(' + p.id + ')"><button class="btn-primary w-auto px-4 text-sm" onclick="addMilestone(' + p.id + ')">Add</button></div>';
+
+  body.innerHTML =
+    '<div class="flex items-center gap-2 flex-wrap">' +
+    '<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ' + (statusColors[p.status] || statusColors.not_started) + '">' + (statusLabels[p.status] || p.status) + '</span>' +
+    '<span class="text-xs text-slate-500">' + done + '/' + total + ' done</span>' +
+    '<span class="text-sm font-bold text-indigo-600">' + pct + '%</span>' +
+    '</div>' +
+    (p.description ? '<p class="text-sm text-slate-600">' + mobileApp.escapeHtml(p.description) + '</p>' : '') +
+    '<div class="planner-progress"><div class="planner-progress-bar ' + (pct === 100 ? 'bg-emerald-500' : 'bg-indigo-500') + '" style="width:' + pct + '%"></div></div>' +
+    (p.startDate ? '<p class="text-xs text-slate-400">' + p.startDate + (p.endDate ? ' &rarr; ' + p.endDate : '') + '</p>' : '') +
+    '<div class="pt-2 border-t border-slate-100"><p class="text-xs font-semibold text-slate-500 uppercase mb-2">Milestones</p><div id="ms-list">' + msHtml + '</div></div>' +
+    msInput +
+    '<div class="flex gap-2 pt-2">' +
+    '<button class="flex-1 py-2.5 rounded-lg text-sm font-semibold border border-slate-200 text-slate-600" onclick="closePlanDetail();openPlanModal(' + p.id + ')">Edit</button>' +
+    '<button class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-red-500 bg-red-50" onclick="closePlanDetail();promptDelete(\'plan\',' + p.id + ')">Delete</button>' +
+    '</div>';
+
+  mobileApp.openModal('plan-detail-modal');
+}
+
+function closePlanDetail() {
+  mobileApp.closeModal('plan-detail-modal');
+}
+
+function addMilestone(planId) {
+  var input = document.getElementById('ms-input');
+  if (!input || !input.value.trim()) return;
+  var plans = getPlans();
+  var p = plans.find(function(x) { return x.id === planId; });
+  if (!p) return;
+  p.milestones = p.milestones || [];
+  p.milestones.push({ id: mobileApp.genId(), title: input.value.trim(), status: 'pending', dueDate: '' });
+  input.value = '';
+  updatePlanStatus(p);
+  savePlans(plans);
+  openPlanDetail(planId);
+  renderPlanner();
+}
+
+function toggleMilestone(planId, milestoneId) {
+  var plans = getPlans();
+  var p = plans.find(function(x) { return x.id === planId; });
+  if (!p) return;
+  var m = (p.milestones || []).find(function(x) { return x.id === milestoneId; });
+  if (!m) return;
+  m.status = m.status === 'completed' ? 'pending' : 'completed';
+  updatePlanStatus(p);
+  savePlans(plans);
+  openPlanDetail(planId);
+  renderPlanner();
+}
+
+function deleteMilestone(planId, milestoneId) {
+  var plans = getPlans();
+  var p = plans.find(function(x) { return x.id === planId; });
+  if (!p) return;
+  p.milestones = (p.milestones || []).filter(function(x) { return x.id !== milestoneId; });
+  updatePlanStatus(p);
+  savePlans(plans);
+  openPlanDetail(planId);
+  renderPlanner();
+}
+
+function updatePlanStatus(p) {
+  var milestones = p.milestones || [];
+  var total = milestones.length;
+  var done = milestones.filter(function(m) { return m.status === 'completed'; }).length;
+  if (total > 0 && done === total) {
+    p.status = 'completed';
+  } else if (done > 0) {
+    if (p.status !== 'completed') p.status = 'active';
+  } else {
+    p.status = 'not_started';
+  }
+  p.updatedAt = new Date().toISOString();
+}
+
+// ==================== DAILY LOG ====================
+function renderDailyLog() {
+  var entries = getLogEntries();
+  var container = document.getElementById('dailylog-list');
+
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="empty-state py-12"><span class="material-symbols-outlined text-4xl">edit_note</span><p>No log entries yet</p><p class="text-xs text-slate-400 mt-2">Tap + to log your first entry</p></div>';
+    return;
+  }
+
+  var sorted = entries.slice().sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : (b.date === a.date ? ((b.createdAt || '') > (a.createdAt || '') ? 1 : -1) : -1); });
+  var currentDate = '';
+  var html = '';
+  sorted.forEach(function(e) {
+    if (e.date !== currentDate) {
+      currentDate = e.date;
+      var disp = new Date(e.date + 'T00:00:00');
+      var label = disp.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      html += '<div class="group-date">' + label + '</div>';
+    }
+    html += logEntryItem(e);
+  });
+  container.innerHTML = html;
+}
+
+function logEntryItem(e) {
+  var catColors = {
+    'Technical Support': 'bg-indigo-100 text-indigo-700',
+    'Uploading/Encoding': 'bg-purple-100 text-purple-700',
+    'Development': 'bg-blue-100 text-blue-700',
+    'Meeting': 'bg-amber-100 text-amber-700',
+    'Testing': 'bg-rose-100 text-rose-700',
+    'Documentation': 'bg-cyan-100 text-cyan-700',
+    'Other': 'bg-slate-100 text-slate-600'
+  };
+
+  var statusClass = e.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+    e.status === 'in-progress' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700';
+  var statusLabel = e.status === 'completed' ? 'Completed' : e.status === 'in-progress' ? 'In Progress' : 'Pending';
+
+  return '<div class="mobile-card mb-3">' +
+    '<div class="flex items-start justify-between gap-2">' +
+    '<div class="flex-1 min-w-0">' +
+    '<div class="flex items-center gap-2 flex-wrap mb-1">' +
+    '<span class="text-xs font-semibold px-2 py-0.5 rounded-full ' + (catColors[e.category] || catColors.Other) + '">' + mobileApp.escapeHtml(e.category || 'Other') + '</span>' +
+    '<span class="text-xs font-semibold px-2 py-0.5 rounded-full ' + statusClass + '">' + statusLabel + '</span>' +
+    (e.timeSpent ? '<span class="text-xs text-slate-400 flex items-center gap-0.5"><span class="material-symbols-outlined text-xs">schedule</span> ' + mobileApp.escapeHtml(e.timeSpent) + '</span>' : '') +
+    '</div>' +
+    '<p class="text-sm font-medium text-slate-900">' + mobileApp.escapeHtml(e.title) + '</p>' +
+    (e.description ? '<p class="text-xs text-slate-500 mt-1">' + mobileApp.escapeHtml(e.description) + '</p>' : '') +
+    '</div>' +
+    '<div class="flex items-center gap-1 flex-shrink-0">' +
+    '<button class="p-1 text-slate-400 hover:text-indigo-600" onclick="event.stopPropagation();openLogModal(' + e.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+    '<button class="p-1 text-slate-400 hover:text-red-500" onclick="event.stopPropagation();promptDelete(\'log\',' + e.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+    '</div></div></div>';
+}
+
+// ==================== LOG MODAL ====================
+function openLogModal(id) {
+  editingLogId = id || null;
+  var entries = getLogEntries();
+  var e = id ? entries.find(function(x) { return x.id === id; }) : null;
+
+  document.getElementById('log-modal-title').textContent = e ? 'Edit Log Entry' : 'New Log Entry';
+  document.getElementById('log-edit-id').value = e ? e.id : '';
+  document.getElementById('log-form-date').value = e ? (e.date || mobileApp.today()) : mobileApp.today();
+  document.getElementById('log-form-category').value = e ? (e.category || 'Development') : 'Development';
+  document.getElementById('log-form-title').value = e ? (e.title || '') : '';
+  document.getElementById('log-form-desc').value = e ? (e.description || '') : '';
+  document.getElementById('log-form-time').value = e ? (e.timeSpent || '') : '';
+  document.getElementById('log-form-status').value = e ? (e.status || 'pending') : 'pending';
+
+  mobileApp.openModal('log-modal');
+}
+
+function closeLogModal() {
+  mobileApp.closeModal('log-modal');
+}
+
+function saveLogEntry() {
+  var date = document.getElementById('log-form-date').value;
+  var category = document.getElementById('log-form-category').value;
+  var title = document.getElementById('log-form-title').value.trim();
+  var desc = document.getElementById('log-form-desc').value.trim();
+  if (!date || !title || !desc) { mobileApp.showToast('Please fill in required fields'); return; }
+
+  var entries = getLogEntries();
+  var now = new Date().toISOString();
+  var editId = parseInt(document.getElementById('log-edit-id').value);
+
+  if (editId) {
+    var e = entries.find(function(x) { return x.id === editId; });
+    if (e) {
+      e.date = date;
+      e.category = category;
+      e.title = title;
+      e.description = desc;
+      e.timeSpent = document.getElementById('log-form-time').value.trim();
+      e.status = document.getElementById('log-form-status').value;
+      e.updatedAt = now;
+    }
+  } else {
+    entries.push({
+      id: mobileApp.genId(),
+      date: date,
+      category: category,
+      title: title,
+      description: desc,
+      timeSpent: document.getElementById('log-form-time').value.trim(),
+      status: document.getElementById('log-form-status').value,
+      createdAt: now,
+      updatedAt: now
+    });
+  }
+
+  saveLogEntries(entries);
+  closeLogModal();
+  refreshView();
+  mobileApp.showToast(editId ? 'Entry updated' : 'Entry created');
+}
+
+// ==================== NOTES ====================
+function renderNotes() {
+  var key = notesKey();
+  var saved = localStorage.getItem(key) || '';
+  document.getElementById('notes-textarea').value = saved;
+}
+
+function clearNotes() {
+  if (!confirm('Clear all notes?')) return;
+  var key = notesKey();
+  localStorage.setItem(key, '');
+  document.getElementById('notes-textarea').value = '';
+  mobileApp.showToast('Notes cleared');
+}
+
+// Auto-save notes
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id === 'notes-textarea') {
+    var key = notesKey();
+    localStorage.setItem(key, e.target.value);
+  }
+});
+
+// ==================== DELETE ====================
+function promptDelete(type, id) {
+  var labels = { task: 'task', plan: 'plan', log: 'log entry' };
+  document.getElementById('confirm-msg').textContent = 'Delete this ' + (labels[type] || 'item') + '? This cannot be undone.';
+  deleteCallback = function() {
+    if (type === 'task') deleteTask(id);
+    else if (type === 'plan') deletePlan(id);
+    else if (type === 'log') deleteLog(id);
+  };
+  mobileApp.openModal('confirm-modal');
+}
+
+function closeConfirm() {
+  mobileApp.closeModal('confirm-modal');
+  deleteCallback = null;
+}
+
+function confirmDelete() {
+  if (deleteCallback) deleteCallback();
+  closeConfirm();
+}
+
+function deleteTask(id) {
+  var tasks = getTasks();
+  tasks = tasks.filter(function(x) { return x.id !== id; });
+  saveTasks(tasks);
+  refreshView();
+  mobileApp.showToast('Task deleted');
+}
+
+function deletePlan(id) {
+  var plans = getPlans();
+  plans = plans.filter(function(x) { return x.id !== id; });
+  savePlans(plans);
+  refreshView();
+  mobileApp.showToast('Plan deleted');
+}
+
+function deleteLog(id) {
+  var entries = getLogEntries();
+  entries = entries.filter(function(x) { return x.id !== id; });
+  saveLogEntries(entries);
+  refreshView();
+  mobileApp.showToast('Entry deleted');
+}
+
+// ==================== REFRESH ====================
+function refreshView() {
+  var v = mobileApp.currentView;
+  if (v === 'dashboard') renderDashboard();
+  else if (v === 'tasks') renderTaskList();
+  else if (v === 'board') renderBoard();
+  else if (v === 'planner') renderPlanner();
+  else if (v === 'dailylog') renderDailyLog();
+}
+
+// ==================== VIEW CHANGE ====================
+mobileApp.onViewChange = function(view) {
+  currentView = view;
+  if (view === 'dashboard') renderDashboard();
+  else if (view === 'tasks') renderTaskList();
+  else if (view === 'board') renderBoard();
+  else if (view === 'planner') renderPlanner();
+  else if (view === 'dailylog') renderDailyLog();
+  else if (view === 'notes') renderNotes();
+};
+
+// ==================== REAL-TIME UPDATES ====================
+mobileApp.onDataUpdate = function(data) {
+  refreshView();
+};
+
+// ==================== THEME ====================
+var origToggleTheme = mobileApp.toggleTheme;
+mobileApp.toggleTheme = function() {
+  origToggleTheme.call(mobileApp);
+  var isDark = document.body.classList.contains('dark-mode');
+  document.getElementById('theme-icon').textContent = isDark ? 'light_mode' : 'dark_mode';
+};
+
+// ==================== INIT ====================
+mobileApp.onReady = function() {
+  var theme = localStorage.getItem('theme') || 'light';
+  document.getElementById('theme-icon').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+  renderDashboard();
+};
+
+mobileApp.init();
+</script>
+</body>
+</html>

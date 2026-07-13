@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
+<title>IT Service Desk</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+* { -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Inter', system-ui, sans-serif; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in { animation: fadeInUp 0.5s ease both; }
+.animate-in:nth-child(1) { animation-delay: 0.1s; }
+.animate-in:nth-child(2) { animation-delay: 0.2s; }
+.animate-in:nth-child(3) { animation-delay: 0.3s; }
+</style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-screen">
+
+<div class="max-w-2xl mx-auto px-4 py-8 md:py-16">
+  <div class="text-center mb-10 animate-in">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white mb-4 shadow-lg">
+      <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL'1,'wght'400">support_agent</span>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">IT Service Desk</h1>
+    <p class="text-gray-500 mt-2 text-lg">Report an issue or request IT assistance</p>
+  </div>
+
+  <div id="formCard" class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8 animate-in">
+    <div id="formBody" class="space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Your Name *</label>
+          <input id="fName" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" placeholder="e.g. Juan dela Cruz"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Email Address *</label>
+          <input id="fEmail" type="email" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" placeholder="e.g. juan@company.com"/>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
+          <select id="fDepartment" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+            <option value="">Select department...</option>
+            <option value="IT">IT</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
+            <option value="Operations">Operations</option>
+            <option value="Sales">Sales</option>
+            <option value="Executive">Executive</option>
+            <option value="Admin">Admin</option>
+            <option value="Warehouse">Warehouse</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Priority</label>
+          <select id="fPriority" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Subject *</label>
+        <input id="fSubject" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" placeholder="e.g. Printer not working, Email login issue..."/>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Description *</label>
+        <textarea id="fDescription" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all h-32 resize-none" placeholder="Describe your issue in detail... What happened? When did it start? Any error messages?"></textarea>
+      </div>
+
+      <button id="submitBtn" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-xl font-semibold text-sm hover:from-indigo-600 hover:to-purple-700 transition-all active:scale-[0.98] shadow-lg shadow-indigo-500/25" onclick="submitTicket()">
+        Submit Ticket
+      </button>
+    </div>
+
+    <div id="successBody" class="hidden text-center py-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4">
+        <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL'1,'wght'400">check_circle</span>
+      </div>
+      <h2 class="text-xl font-bold text-gray-900">Ticket Submitted!</h2>
+      <p class="text-gray-500 mt-2">Your request has been received. The IT team will review it shortly.</p>
+      <p id="ticketRef" class="text-sm text-gray-400 mt-3 font-mono"></p>
+      <button class="mt-6 bg-gray-100 text-gray-700 px-6 py-2.5 rounded-xl font-medium text-sm hover:bg-gray-200 transition-all" onclick="resetForm()">Submit Another</button>
+    </div>
+  </div>
+
+  <div class="text-center mt-8 text-xs text-gray-400">
+    <p>Need urgent help? Contact IT directly at <span class="text-gray-500 font-medium">it@kalyx.com</span></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../firebase-data.js"></script>
+<script src="../shared.js"></script>
+<script>
+function generateId() {
+  return Date.now() + Math.floor(Math.random() * 1000);
+}
+
+function getTicketRef() {
+  return 'SD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+}
+
+function submitTicket() {
+  var name = document.getElementById('fName').value.trim();
+  var email = document.getElementById('fEmail').value.trim();
+  var subject = document.getElementById('fSubject').value.trim();
+  var desc = document.getElementById('fDescription').value.trim();
+
+  if (!name) { alert('Please enter your name.'); document.getElementById('fName').focus(); return; }
+  if (!email || email.indexOf('@') === -1) { alert('Please enter a valid email address.'); document.getElementById('fEmail').focus(); return; }
+  if (email.length > 254) { alert('Email address is too long.'); document.getElementById('fEmail').focus(); return; }
+  if (!subject) { alert('Please enter a subject.'); document.getElementById('fSubject').focus(); return; }
+  if (subject.length > 200) { alert('Subject is too long (max 200 characters).'); document.getElementById('fSubject').focus(); return; }
+  if (!desc) { alert('Please describe your issue.'); document.getElementById('fDescription').focus(); return; }
+  if (desc.length > 2000) { alert('Description is too long (max 2000 characters).'); document.getElementById('fDescription').focus(); return; }
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  var ticket = {
+    id: generateId(),
+    ref: getTicketRef(),
+    createdAt: Date.now(),
+    title: subject,
+    description: desc,
+    requestorName: name,
+    requestorEmail: email,
+    department: document.getElementById('fDepartment').value,
+    priority: document.getElementById('fPriority').value,
+    status: 'open',
+    source: 'service-desk'
+  };
+
+  // Save to localStorage
+  var tickets = JSON.parse(localStorage.getItem('it_tickets_public') || '[]');
+  tickets.push(ticket);
+  localStorage.setItem('it_tickets_public', JSON.stringify(tickets));
+
+  // Try to sync to Supabase
+  if (typeof supabase !== 'undefined' && typeof getClient === 'function') {
+    var client = getClient();
+    if (client) {
+      Promise.resolve(client.from('tickets').insert({
+        title: ticket.title,
+        description: ticket.description,
+        requestor_name: ticket.requestorName,
+        requestor_email: ticket.requestorEmail,
+        department: ticket.department,
+        priority: ticket.priority,
+        status: ticket.status,
+        ref: ticket.ref,
+        source: 'service-desk',
+        created_at: new Date(ticket.createdAt).toISOString()
+      })).then(null, function(err) { console.error('Supabase sync error:', err); });
+    }
+  }
+
+  document.getElementById('formBody').classList.add('hidden');
+  document.getElementById('successBody').classList.remove('hidden');
+  document.getElementById('ticketRef').textContent = 'Reference: ' + ticket.ref;
+  btn.disabled = false;
+}
+
+function resetForm() {
+  document.getElementById('fName').value = '';
+  document.getElementById('fEmail').value = '';
+  document.getElementById('fSubject').value = '';
+  document.getElementById('fDescription').value = '';
+  document.getElementById('fDepartment').value = '';
+  document.getElementById('fPriority').value = 'medium';
+  document.getElementById('formBody').classList.remove('hidden');
+  document.getElementById('successBody').classList.add('hidden');
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('submitBtn').textContent = 'Submit Ticket';
+}
+</script>
+</body>
+</html>

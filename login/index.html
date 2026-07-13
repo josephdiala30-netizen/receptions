@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
+  <title>Executive Path | Login</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../firebase-config.js"></script>
+  <script src="../firebase-data.js"></script>
+  <script src="../shared.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-container": "var(--on-primary-container)", "on-surface": "var(--on-surface)",
+            "outline": "var(--outline)", "on-background": "var(--on-background)",
+            "on-secondary-fixed": "var(--on-secondary-fixed)", "surface-container-highest": "var(--surface-container-highest)",
+            "inverse-surface": "var(--inverse-surface)", "tertiary-fixed-dim": "var(--tertiary-fixed-dim)",
+            "surface": "var(--surface)", "secondary": "var(--secondary)", "on-secondary": "var(--on-secondary)",
+            "on-primary-fixed-variant": "var(--on-primary-fixed-variant)", "secondary-container": "var(--secondary-container)",
+            "on-error": "var(--on-error)", "on-primary": "var(--on-primary)",
+            "on-error-container": "var(--on-error-container)", "on-tertiary": "var(--on-tertiary)",
+            "surface-container-high": "var(--surface-container-high)", "inverse-on-surface": "var(--inverse-on-surface)",
+            "on-secondary-container": "var(--on-secondary-container)", "surface-variant": "var(--surface-variant)",
+            "primary-container": "var(--primary-container)", "error-container": "var(--error-container)",
+            "tertiary": "var(--tertiary)", "inverse-primary": "var(--inverse-primary)",
+            "secondary-fixed-dim": "var(--secondary-fixed-dim)", "tertiary-container": "var(--tertiary-container)",
+            "surface-container-low": "var(--surface-container-low)", "surface-container-lowest": "var(--surface-container-lowest)",
+            "on-tertiary-container": "var(--on-tertiary-container)", "on-secondary-fixed-variant": "var(--on-secondary-fixed-variant)",
+            "surface-container": "var(--surface-container)", "on-primary-fixed": "var(--on-primary-fixed)",
+            "error": "var(--error)", "background": "var(--background)", "primary-fixed": "var(--primary-fixed)",
+            "surface-tint": "var(--surface-tint)", "outline-variant": "var(--outline-variant)",
+            "primary-fixed-dim": "var(--primary-fixed-dim)", "on-tertiary-fixed": "var(--on-tertiary-fixed)",
+            "on-tertiary-fixed-variant": "var(--on-tertiary-fixed-variant)", "on-surface-variant": "var(--on-surface-variant)",
+            "tertiary-fixed": "var(--tertiary-fixed)", "primary": "var(--primary)", "surface-dim": "var(--surface-dim)",
+            "surface-bright": "var(--surface-bright)", "secondary-fixed": "var(--secondary-fixed)"
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="../styles/custom.css" />
+</head>
+<body class="bg-background text-on-background min-h-screen flex items-center justify-center p-4 relative font-sans overflow-hidden">
+
+  <!-- Animated Background Orbs -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/5 blur-3xl animate-float"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-tertiary/5 blur-3xl animate-float" style="animation-delay: -3s;"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-secondary/3 blur-3xl" style="animation: ambientDrift 25s ease-in-out infinite alternate;"></div>
+  </div>
+
+  <!-- Theme Toggle -->
+  <div class="absolute top-6 right-6 z-10">
+    <button id="themeToggle" class="p-2.5 rounded-xl bg-surface-container-lowest/80 backdrop-blur-sm border border-outline-variant/30 hover:bg-surface-container-high hover:border-primary/20 transition-all duration-300 active:scale-90 shadow-sm hover:shadow-md" onclick="toggleTheme()" title="Toggle theme">
+      <span class="material-symbols-outlined text-on-surface-variant">dark_mode</span>
+    </button>
+  </div>
+
+  <div class="w-full max-w-md relative z-10">
+    <!-- Logo / Brand -->
+    <div class="text-center mb-8 animate-fade-in">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary shadow-lg shadow-primary/20 mb-4 animate-pulse-glow">
+        <span class="material-symbols-outlined text-white" style="font-size:32px;">shield</span>
+      </div>
+      <h1 class="text-3xl font-extrabold text-gradient tracking-tight">KALYX</h1>
+      <p class="text-sm text-on-surface-variant mt-1 font-medium">Executive Management Platform</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="glass-card border border-outline-variant/20 shadow-xl p-8 rounded-3xl animate-fade-in animate-fade-in-delay-1" style="animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0;">
+      <!-- Tab Switcher -->
+      <div class="flex mb-6 bg-surface-container rounded-xl p-1.5 shadow-inner">
+        <button id="tabLogin" class="flex-1 py-2.5 text-center font-semibold text-sm rounded-lg bg-primary text-on-primary transition-all duration-300 shadow-sm" onclick="switchTab('login')">Login</button>
+        <button id="tabRegister" class="flex-1 py-2.5 text-center font-semibold text-sm rounded-lg text-on-surface-variant hover:text-primary transition-all duration-300" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginForm">
+        <div class="space-y-4">
+          <!-- Portal Selector -->
+          <div class="flex gap-2 mb-2">
+            <button id="portalPath" class="flex-1 flex items-center justify-center gap-1.5 py-2 text-center font-semibold text-xs rounded-lg bg-primary text-on-primary transition-all duration-200 shadow-sm" onclick="selectPortal('executive_path')">
+              <span class="material-symbols-outlined text-sm">map</span> Path
+            </button>
+            <button id="portalTask" class="flex-1 flex items-center justify-center gap-1.5 py-2 text-center font-semibold text-xs rounded-lg text-on-surface-variant hover:text-primary transition-all duration-200" onclick="selectPortal('executive_task')">
+              <span class="material-symbols-outlined text-sm">task</span> Task
+            </button>
+            <button id="portalIT" class="flex-1 flex items-center justify-center gap-1.5 py-2 text-center font-semibold text-xs rounded-lg text-on-surface-variant hover:text-primary transition-all duration-200" onclick="selectPortal('executive_it')">
+              <span class="material-symbols-outlined text-sm">computer</span> IT
+            </button>
+          </div>
+          <h2 class="text-lg font-bold text-primary text-center transition-all duration-300">KALYX TASK LOGIN</h2>
+
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Email</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm">mail</span>
+              <input id="loginUser" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition-all duration-300" placeholder="Enter your email" type="email" autocomplete="email"/>
+            </div>
+          </div>
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Password</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm">lock</span>
+              <input id="loginPass" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition-all duration-300" placeholder="Enter password" type="password"/>
+            </div>
+          </div>
+          <div id="loginError" class="text-xs font-semibold text-error hidden bg-error-container/50 p-3 rounded-lg border border-error/10"></div>
+          <div id="loginSuccess" class="text-xs font-semibold text-emerald-600 hidden bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-xl"></div>
+          <button id="loginBtn" class="w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 active:scale-[0.98] shadow-md flex items-center justify-center gap-2" onclick="doLogin()"><span id="loginBtnText">Sign In</span><span id="loginSpinner" class="hidden"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg></span></button>
+
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-outline-variant/40"></div></div>
+            <div class="relative flex justify-center text-xs font-semibold text-on-surface-variant/70"><span class="bg-surface-container-lowest px-3">Or continue with</span></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <button class="flex items-center justify-center gap-2.5 w-full border border-outline-variant/50 rounded-xl py-2.5 px-4 text-sm font-semibold text-on-surface-variant hover:bg-surface-container hover:border-outline hover:shadow-sm transition-all duration-200 active:scale-[0.98]" onclick="alert('Google login coming soon!')">
+              <svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3c-2.5 7.2-9.4 12-17.3 12-10 0-18-8-18-18s8-18 18-18c4.6 0 8.7 1.7 11.9 4.5l5.6-5.6C34.1 1.7 29.4 0 24 0 10.8 0 0 10.8 0 24s10.8 24 24 24c11.4 0 21.3-8 23.8-18.8.3-1.2.5-2.5.5-3.7 0-2.3-.3-4.6-.7-5.4z"/><path fill="#FF3D00" d="M3.3 14.7l6.5 4.8C12 14.8 17.5 12 24 12c3 0 5.7 1 7.9 2.8l5.9-5.9C34.2 5.4 29.5 3.4 24 3.4 15.8 3.4 8.5 8 3.3 14.7z"/><path fill="#4CAF50" d="M24 47.4c5.8 0 11.2-2.1 15.3-5.7l-7.1-6c-2.2 1.5-5 2.4-8.2 2.4-6.5 0-12-4.4-14-10.4l-6.5 5c3.8 7.5 11.5 12.7 20.5 12.7z"/><path fill="#1976D2" d="M47.5 21H24v6h13.6c-.5 1.6-1.2 3.1-2.1 4.4l7.1 6c2-2.3 3.5-5.1 4.3-8.4.6-2 .9-4.1.9-5.4 0-.5 0-1-.2-1.5z"/></svg>
+              Google
+            </button>
+            <button class="flex items-center justify-center gap-2.5 w-full border border-outline-variant/50 rounded-xl py-2.5 px-4 text-sm font-semibold text-on-surface-variant hover:bg-surface-container hover:border-outline hover:shadow-sm transition-all duration-200 active:scale-[0.98]" onclick="alert('Facebook login coming soon!')">
+              <svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#1877F2" d="M24 0C10.7 0 0 10.7 0 24c0 13.3 10.7 24 24 24s24-10.7 24-24C48 10.7 37.3 0 24 0z"/><path fill="#fff" d="M30 15h-4c-1.7 0-3 1.3-3 3v4h-3v4h3v12h4V26h4l1-4h-5v-3c0-.6.4-1 1-1h4v-3z"/></svg>
+              Facebook
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div id="registerForm" class="hidden">
+        <div class="space-y-3.5">
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Full Name</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm">person</span>
+              <input id="regName" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition-all duration-300" placeholder="Enter full name" type="text"/>
+            </div>
+          </div>
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Username</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm">alternate_email</span>
+              <input id="regUser" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition-all duration-300" placeholder="Choose a username" type="text"/>
+            </div>
+          </div>
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Email</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm">mail</span>
+              <input id="regEmail" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition-all duration-300" placeholder="Enter email address" type="email"/>
+            </div>
+          </div>
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Password</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm">lock</span>
+              <input id="regPass" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition-all duration-300" placeholder="Create a password" type="password"/>
+            </div>
+          </div>
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Confirm Password</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm">lock_reset</span>
+              <input id="regPass2" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition-all duration-300" placeholder="Confirm password" type="password"/>
+            </div>
+          </div>
+          <div>
+            <label class="block mb-1.5 text-xs font-bold text-on-surface-variant">Portal / Role</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm">dashboard</span>
+              <select id="regRole" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition-all duration-300 appearance-none">
+                <option value="executive_task">Executive Task</option>
+                <option value="executive_path">Executive Path (Travel)</option>
+                <option value="executive_it">Executive IT</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm pointer-events-none">expand_more</span>
+            </div>
+          </div>
+          <div id="regError" class="text-xs font-semibold text-error hidden bg-error-container/50 p-3 rounded-lg border border-error/10"></div>
+          <button class="w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 active:scale-[0.98] shadow-md" onclick="doRegister()">Create Account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer text -->
+    <p class="text-center text-xs text-on-surface-variant/50 mt-6 animate-fade-in animate-fade-in-delay-2" style="animation-delay: 0.4s; opacity: 0; animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;">
+      Plan. Track. Execute. — Powered by KALYX
+    </p>
+  </div>
+
+  <div id="regSuccessModal" class="hidden fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
+      <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400" style="font-size:36px;">check_circle</span>
+      </div>
+      <h2 class="text-2xl font-bold text-on-surface mb-2">Welcome to KALYX!</h2>
+      <p class="text-on-surface-variant text-sm leading-relaxed mb-1">Account created successfully, <span id="regSuccessName" class="font-semibold text-primary"></span>!</p>
+      <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Please log in with your credentials to get started.</p>
+      <button onclick="closeRegSuccess()" class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md">Continue to Login</button>
+    </div>
+  </div>
+
+  <script>
+    function initTheme() {
+      var theme = localStorage.getItem('theme') || 'light';
+      var btn = document.getElementById('themeToggle');
+      var icon = btn.querySelector('.material-symbols-outlined');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        icon.textContent = 'light_mode';
+      } else {
+        document.documentElement.classList.remove('dark');
+        icon.textContent = 'dark_mode';
+      }
+    }
+
+    function toggleTheme() {
+      var isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      var btn = document.getElementById('themeToggle');
+      var icon = btn.querySelector('.material-symbols-outlined');
+      icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    }
+
+    function getBaseUrl() {
+      var path = window.location.pathname;
+      path = path.replace(/\/login\/?.*$/i, '/');
+      if (!path.endsWith('/')) {
+        path += '/';
+      }
+      return path;
+    }
+
+    var selectedPortal = 'executive_path';
+
+    function selectPortal(portal) {
+      selectedPortal = portal;
+      var labels = { executive_path: 'Executive Path', executive_task: 'Executive Task', executive_it: 'Executive IT' };
+      ['portalPath','portalTask','portalIT'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.className = 'flex-1 flex items-center justify-center gap-1.5 py-2 text-center font-label-md rounded-lg transition-all text-xs' +
+            (id === 'portalPath' && portal === 'executive_path' ? ' bg-primary text-on-primary' :
+             id === 'portalTask' && portal === 'executive_task' ? ' bg-primary text-on-primary' :
+             id === 'portalIT' && portal === 'executive_it' ? ' bg-primary text-on-primary' :
+             ' text-on-surface-variant hover:text-primary');
+        }
+      });
+      document.getElementById('loginForm').querySelector('h2').textContent = labels[portal] + ' Login';
+      document.getElementById('loginError').classList.add('hidden');
+    }
+
+    function updateRegisterVisibility() {
+      var tab = document.getElementById('tabRegister');
+      if (tab) tab.style.display = '';
+    }
+
+    function switchTab(tab) {
+      document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+      document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+      document.getElementById('tabLogin').className = tab === 'login'
+        ? 'flex-1 py-2.5 text-center font-label-md rounded-lg bg-primary text-on-primary transition-all'
+        : 'flex-1 py-2.5 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary transition-all';
+      document.getElementById('tabRegister').className = tab === 'register'
+        ? 'flex-1 py-2.5 text-center font-label-md rounded-lg bg-primary text-on-primary transition-all'
+        : 'flex-1 py-2.5 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary transition-all';
+      document.getElementById('loginError').classList.add('hidden');
+      document.getElementById('regError').classList.add('hidden');
+      var successEl = document.getElementById('loginSuccess');
+      if (successEl) successEl.classList.add('hidden');
+    }
+
+    async function hashPass(pass) {
+      var enc = new TextEncoder().encode(pass);
+      var buf = await crypto.subtle.digest('SHA-256', enc);
+      return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+    }
+
+    function setLoading(loading) {
+      var btn = document.getElementById('loginBtn');
+      var text = document.getElementById('loginBtnText');
+      var spinner = document.getElementById('loginSpinner');
+      btn.disabled = loading;
+      btn.className = loading ? 'w-full bg-primary/60 text-on-primary py-3 rounded-xl font-bold cursor-not-allowed flex items-center justify-center gap-2 shadow-md' : 'w-full bg-primary text-on-primary py-3 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2';
+      if (loading) { spinner.classList.remove('hidden'); text.textContent = 'Signing in...'; }
+      else { spinner.classList.add('hidden'); text.textContent = 'Sign In'; }
+    }
+
+    function doLogin() {
+      var loginInput = document.getElementById('loginUser').value.trim();
+      var pass = document.getElementById('loginPass').value;
+      var errEl = document.getElementById('loginError');
+      errEl.classList.add('hidden');
+      setLoading(true);
+      // Flag to prevent onAuthStateChanged from interfering
+      window.__fbLoggingIn = true;
+
+      if (!loginInput || !pass) {
+        errEl.textContent = 'Please enter email and password.';
+        errEl.classList.remove('hidden');
+        setLoading(false);
+        return;
+      }
+
+      // Check LocalStorage FIRST for instant login (solves 30-40s delay)
+      hashPass(pass).then(function(hash) {
+        var users = JSON.parse(localStorage.getItem('users') || '[]');
+        var found = users.find(function(u) {
+          return (u.username === loginInput || u.email === loginInput) && (u.password === hash || u.password === pass);
+        });
+
+        if (found) {
+          var role = found.role || 'executive_path';
+          localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
+          // Create Supabase account in background for future cross-browser login
+          // Kahit walang email, gamitin ang synthetic email para sa Supabase
+          if (typeof supabaseClient !== 'undefined') {
+            var syncEmail = found.email;
+            if (!syncEmail || syncEmail.indexOf('@') === -1) {
+              syncEmail = found.username + '@app.local';
+              found.email = syncEmail;
+              var allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+              var ux = allUsers.find(function(u) { return u.username === found.username; });
+              if (ux) { ux.email = syncEmail; localStorage.setItem('users', JSON.stringify(allUsers)); }
+            }
+            migrateLegacyUser(found, pass);
+          }
+          window.location.href = getBaseUrl() + role + '/';
+        } else {
+          // Fallback to Supabase if not found locally
+          if (typeof supabaseClient !== 'undefined') {
+            // Non-blocking indicator after 15s — just updates button text, never errors
+            var slowNotice = setTimeout(function() {
+              document.getElementById('loginBtnText').textContent = 'Still connecting…';
+            }, 15000);
+
+            fbLogin(loginInput, pass, function(loginErr, session) {
+              if (loginErr) {
+                // Ipakita ang actual error para malaman kung ano ang problema
+                var errMsg = loginErr.message || loginErr.error_description || loginErr.toString();
+                // Kung "Email not confirmed" ang error, iba ang message
+                if (errMsg.indexOf('Email not confirmed') !== -1 || errMsg.indexOf('email_not_confirmed') !== -1) {
+                  errEl.textContent = 'Email not confirmed. Check your inbox or disable email confirmation in Supabase Auth settings.';
+                } else {
+                  errEl.textContent = errMsg;
+                }
+                // Baka username lang ang ginamit, subukan ang synthetic email
+                if (loginInput.indexOf('@') === -1) {
+                  fbLogin(loginInput + '@app.local', pass, function(err2, session2) {
+                    clearTimeout(slowNotice);
+                    window.__fbLoggingIn = false;
+                    setLoading(false);
+                    if (err2) {
+                      errEl.textContent = err2.message || err2.error_description || err2.toString();
+                      errEl.classList.remove('hidden');
+                    } else {
+                      var users = JSON.parse(localStorage.getItem('users') || '[]');
+                      if (!users.some(function(u) { return u.email === session2.email || u.username === session2.username; })) {
+                        users.push({
+                          username: session2.username,
+                          name: session2.name,
+                          email: session2.email,
+                          password: hash,
+                          role: session2.role,
+                          isAdmin: session2.isAdmin
+                        });
+                        localStorage.setItem('users', JSON.stringify(users));
+                      }
+                      window.location.href = getBaseUrl() + session2.role + '/';
+                    }
+                  });
+                } else {
+                  clearTimeout(slowNotice);
+                  window.__fbLoggingIn = false;
+                  setLoading(false);
+                  errEl.classList.remove('hidden');
+                }
+              } else {
+                // Save user to localStorage for instant login next time
+                var users = JSON.parse(localStorage.getItem('users') || '[]');
+                if (!users.some(function(u) { return u.email === session.email || u.username === session.username; })) {
+                  users.push({
+                    username: session.username,
+                    name: session.name,
+                    email: session.email,
+                    password: hash,
+                    role: session.role,
+                    isAdmin: session.isAdmin
+                  });
+                  localStorage.setItem('users', JSON.stringify(users));
+                }
+                window.location.href = getBaseUrl() + session.role + '/';
+              }
+            });
+          } else {
+            window.__fbLoggingIn = false;
+            setLoading(false);
+            errEl.textContent = 'Invalid email or password.';
+            errEl.classList.remove('hidden');
+          }
+        }
+      });
+    }
+
+    // Background migration of legacy user to Supabase Auth
+    function migrateLegacyUser(found, pass) {
+      var s = JSON.parse(localStorage.getItem('session') || '{}');
+      var client = supabaseClient;
+      if (!client) return;
+      client.auth.signUp({
+        email: found.email,
+        password: pass,
+        options: { data: { username: found.username, name: found.name, role: found.role || 'executive_path', is_admin: found.isAdmin || false } }
+      }).then(function(result) {
+        if (result.error && result.error.message.indexOf('already') < 0) return;
+        var uid = result.data ? result.data.user && result.data.user.id : null;
+        if (!uid) {
+          // Account already exists - try to update profile
+          Promise.resolve(client.from('profiles').select('id').eq('username', found.username).single()).then(function(p) {
+            if (p.data && p.data.id) {
+              var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
+              Promise.resolve(client.from('userdata').upsert({ id: p.data.id, data: userData }, { onConflict: 'id' })).then(null, function(e) { console.error('Migration userdata update error:', e); });
+            }
+          }, function(e) { console.error('Migration profile lookup error:', e); });
+          return;
+        }
+        s.supabaseUid = uid;
+        localStorage.setItem('session', JSON.stringify(s));
+        var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
+        var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
+        prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
+        var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
+        itTypes.forEach(function(t) { try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {} });
+        Promise.resolve(client.from('profiles').upsert({
+          id: uid, username: found.username, name: found.name, email: found.email,
+          role: found.role || 'executive_path', is_admin: found.isAdmin || false
+        }, { onConflict: 'id' })).then(function() {
+          Promise.resolve(client.from('userdata').upsert({ id: uid, data: userData }, { onConflict: 'id' })).then(null, function(e) { console.error('Migration userdata error:', e); });
+        }, function(e) { console.error('Migration profile error:', e); });
+      }).catch(function(err) {
+        console.error('Migration signup error:', err);
+      });
+    }
+
+    function closeRegSuccess() {
+      document.getElementById('regSuccessModal').classList.add('hidden');
+      switchTab('login');
+    }
+
+    function doRegister() {
+      var name = document.getElementById('regName').value.trim();
+      var user = document.getElementById('regUser').value.trim();
+      var email = document.getElementById('regEmail').value.trim();
+      var pass = document.getElementById('regPass').value;
+      var pass2 = document.getElementById('regPass2').value;
+      var errEl = document.getElementById('regError');
+      errEl.classList.add('hidden');
+
+      if (!name || !user || !email || !pass) {
+        errEl.textContent = 'Please fill in all fields.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (pass !== pass2) {
+        errEl.textContent = 'Passwords do not match.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (pass.length < 4) {
+        errEl.textContent = 'Password must be at least 4 characters.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      var role = document.getElementById('regRole').value;
+
+      // Register via Supabase Auth
+      fbRegister(email, pass, { username: user, name: name, role: role, isAdmin: false }, function(regErr, session) {
+        if (regErr) {
+          var msg = regErr.message || regErr;
+          if (msg.indexOf('email-already') > -1) msg = 'Email already in use.';
+          else if (msg.indexOf('username') > -1) msg = 'Username already exists.';
+          else if (msg.indexOf('weak-password') > -1) msg = 'Password too weak (min 6 characters).';
+          errEl.textContent = msg;
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        // Save to localStorage users list immediately (Admin portal uses this)
+        var users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (!users.some(function(u) { return u.username === user; })) {
+          users.push({ username: user, name: name, email: email, password: pass, role: role, isAdmin: false });
+          localStorage.setItem('users', JSON.stringify(users));
+          // Hash password in background for next login
+          hashPass(pass).then(function(hash) {
+            var users = JSON.parse(localStorage.getItem('users') || '[]');
+            var u = users.find(function(u) { return u.username === user; });
+            if (u) { u.password = hash; localStorage.setItem('users', JSON.stringify(users)); }
+          });
+        }
+
+        // Clear inputs
+        document.getElementById('regName').value = '';
+        document.getElementById('regUser').value = '';
+        document.getElementById('regEmail').value = '';
+        document.getElementById('regPass').value = '';
+        document.getElementById('regPass2').value = '';
+
+        // Show Welcome Modal
+        document.getElementById('regSuccessName').textContent = name;
+        document.getElementById('regSuccessModal').classList.remove('hidden');
+      });
+    }
+
+    initTheme();
+
+    (function seedAccounts() {
+      var users = JSON.parse(localStorage.getItem('users') || '[]');
+      var defaultAccounts = [
+        { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' }
+      ];
+      var dirty = false;
+      defaultAccounts.forEach(function(def) {
+        var idx = users.findIndex(function(u) { return u.username === def.username; });
+        if (idx === -1) {
+          users.push(def);
+          dirty = true;
+        } else {
+          var u = users[idx];
+          if (!u.role || u.isAdmin === undefined || u.isAdmin === null || !u.password || !u.email) {
+            users[idx] = def;
+            dirty = true;
+          }
+        }
+      });
+      if (dirty) {
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+
+      var usersIt = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+      // No default IT accounts — users register via Supabase
+      if (usersIt.length > 0) {
+        localStorage.setItem('users_executive_it', JSON.stringify(usersIt));
+      }
+    })();
+
+    // Clean up stale localStorage data from old removed accounts only
+    (function cleanupStaleData() {
+      var removedAccounts = ['joseph_diala', 'admin', 'executive', 'task_admin', 'it_executive', 'it_admin'];
+      var keysToRemove = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (!k) continue;
+        // Skip users key — admin uses it as single source
+        if (k === 'users') continue;
+        var match = k.match(/^(.+)_(.+)$/);
+        if (match && removedAccounts.indexOf(match[2]) >= 0) {
+          keysToRemove.push(k);
+        }
+      }
+      keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+    })();
+
+    updateRegisterVisibility();
+
+    // Fast path: Check localStorage session immediately for instant redirect
+    var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
+    if (existingSession && existingSession.loggedIn) {
+      window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
+    } else {
+      // Check Supabase Auth if no local session exists
+      if (typeof supabaseClient !== 'undefined') {
+        supabaseClient.auth.getSession().then(function(result) {
+          var session = result.data.session;
+          if (session && !window.__fbRegistering && !window.__fbLoggingIn) {
+            var user = session.user;
+            window.__fbUser = { uid: user.id, email: user.email };
+
+            // Kunin ang role mula sa JWT metadata (reliable kahit walang profile)
+            var jwtMeta = user.user_metadata || {};
+            var jwtRole = jwtMeta.role || null;
+            var jwtIsAdmin = jwtMeta.is_admin || false;
+            var jwtUsername = jwtMeta.username || null;
+            var jwtName = jwtMeta.name || null;
+
+            supabaseClient.from('profiles').select('*').eq('id', user.id).single()
+              .then(function(pResult) {
+                var profile = {};
+                if (!pResult.error && pResult.data) {
+                  profile = { username: pResult.data.username, name: pResult.data.name, email: pResult.data.email, isAdmin: pResult.data.is_admin, role: pResult.data.role };
+                }
+                // Merge local user data into profile
+                var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+                var localUser = localUsers.find(function(u) {
+                  return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
+                });
+
+                // Role priority: profile > JWT metadata > localStorage > default
+                var finalRole = profile.role || jwtRole || (localUser ? localUser.role : null) || 'executive_path';
+                var finalIsAdmin = profile.isAdmin !== undefined && profile.isAdmin !== null ? profile.isAdmin : jwtIsAdmin || (localUser ? localUser.isAdmin : false);
+                var finalUsername = profile.username || jwtUsername || (localUser ? localUser.username : null) || user.email.split('@')[0];
+                var finalName = profile.name || jwtName || (localUser ? localUser.name : null) || finalUsername;
+
+                var sessionData = {
+                  username: finalUsername,
+                  name: finalName,
+                  email: user.email,
+                  isAdmin: finalIsAdmin,
+                  role: finalRole,
+                  supabaseUid: user.id,
+                  loggedIn: true,
+                  timestamp: Date.now()
+                };
+                fbSaveSession(sessionData);
+                window.location.href = getBaseUrl() + sessionData.role + '/';
+              })
+              .catch(function(err) {
+                console.error('Auto-redirect profile read error:', err);
+                // Fallback: use JWT metadata
+                var finalRole = jwtRole || 'executive_path';
+                var sessionData = {
+                  username: jwtUsername || user.email.split('@')[0],
+                  name: jwtName || jwtUsername || user.email.split('@')[0],
+                  email: user.email,
+                  isAdmin: jwtIsAdmin,
+                  role: finalRole,
+                  supabaseUid: user.id,
+                  loggedIn: true,
+                  timestamp: Date.now()
+                };
+                fbSaveSession(sessionData);
+                window.location.href = getBaseUrl() + sessionData.role + '/';
+              });
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
